@@ -3,14 +3,15 @@ from fbs import path, SETTINGS
 from fbs.cmdline import command
 from fbs.freeze.windows import freeze_windows
 from os import remove
-from os.path import join, dirname
-from shutil import copy, rmtree
+from os.path import isdir, join, dirname
+from shutil import copy, copytree, rmtree
 from subprocess import run
 
 @command
 def freeze():
 	freeze_windows()
 	_copy_winpty_files()
+	_copy_release_notes()
 	rmtree(path('${core_plugin_in_freeze_dir}/bin/mac'))
 	rmtree(path('${core_plugin_in_freeze_dir}/bin/linux'))
 	# Open Sans is only used on Linux. Further, it fails to load on some users'
@@ -22,6 +23,22 @@ def freeze():
 	# .../resources/linux for one plugin.)
 	remove(path('${core_plugin_in_freeze_dir}/Open Sans.ttf'))
 	copy_python_library('send2trash', path('${core_plugin_in_freeze_dir}'))
+	# core.release_notes (Core plugin) imports this to detect the system
+	# language for locale fallback - not scanned by PyInstaller since plugin
+	# code is bundled as data, so it's copied in explicitly like send2trash:
+	copy_python_library('python_localization', path('${core_plugin_in_freeze_dir}'))
+
+def _copy_release_notes():
+	# release_notes/<version>_<build>/<locale>.json (docs/CREATE_NEW_RELEASE.md)
+	# lives at the project root, authored per release - not under
+	# src/main/resources, so fbs doesn't bundle it automatically. Copied next
+	# to Plugins/ in the frozen output so core.release_notes.release_notes_dir()
+	# finds it there (docs/CREATE_NEW_RELEASE.md #4). Skipped entirely if no
+	# release has been authored yet, so a checkout with an empty release_notes/
+	# doesn't break freeze().
+	src_dir = path('release_notes')
+	if isdir(src_dir):
+		copytree(src_dir, path('${freeze_dir}/release_notes'))
 
 def _copy_winpty_files():
 	import winpty

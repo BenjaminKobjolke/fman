@@ -209,16 +209,27 @@ genuinely separate concerns (reading a file vs. the Qt widget vs. zoom):
   `increase_pane_font_size`/`decrease_pane_font_size`, so it always follows
   the user's actual configured shortcut rather than a hardcoded
   `Alt+Up`/`Alt+Down`.
-- `src/main/resources/base/Plugins/Core/core/textviewer.py`:
-  - `_caret_fix_css(bg, fg, font_size=None)` — pure helper building the
+- `src/main/resources/base/Plugins/Core/core/textviewer_pane.py` — pane-
+  mounting glue shared by `show_text_viewer`/`show_text_in_viewer`, split out
+  of `core/textviewer.py` to stay under the project's 300-line file cap:
+  - `caret_fix_css(bg, fg, font_size=None)` — pure helper building the
     caret-fix stylesheet rule from the given colors, with the zoom override
     folded into the same local rule when given.
-  - `_confirm_close(view)` — shared save/discard/cancel prompt for a
-    mid-edit, unsaved view. Returns whether it's safe to close/replace it.
-    Used by `PaneTextView._exit_with_dirty_check` *and* by
-    `show_text_viewer` before it replaces the pane's currently open view, so
-    running **View file** again on a different file can't silently discard
+  - `confirm_close(view)` — shared save/discard/cancel prompt for a mid-edit,
+    unsaved view. Returns whether it's safe to close/replace it. Used by
+    `PaneTextView._exit_with_dirty_check` *and* by `begin_new_view` before it
+    replaces the pane's currently open view, so running **View file** again
+    on a different file (or opening Release Notes) can't silently discard
     unsaved edits in the one already open.
+  - `begin_new_view(pane)` / `mount_view(pane, widget, view)` — the shared
+    "replace whatever's currently mounted, then swap the new `PaneTextView`
+    into the pane's layout" sequence (confirm-close, read live palette
+    colors, hide the file list, re-point the focus proxy, deferred
+    `setFocus`), used by both `show_text_viewer` and `show_text_in_viewer`.
+  - `close_view(pane_widget)` — unmounts the current viewer and restores the
+    file list; re-exported from `core/textviewer.py` as `close_text_viewer`
+    for API stability.
+- `src/main/resources/base/Plugins/Core/core/textviewer.py`:
   - `PaneTextView(QPlainTextEdit)` — the viewer/editor widget. Tracks
     `_editable` (can this file be edited at all) and `_editing` (is it
     currently in edit mode) separately. `keyPressEvent`:
@@ -237,19 +248,28 @@ genuinely separate concerns (reading a file vs. the Qt widget vs. zoom):
     - Action methods: `_enter_edit_mode`, `_write` (shared by `_save`/
       `_save_as`), `_save`, `_save_as`, `_revert`, `_exit_with_dirty_check`,
       `_apply_font_size` (the `apply_size` callback passed to
-      `change_view_font_size`/`reset_view_font_size`). Dirty-checking reads
+      `change_view_font_size`/`reset_view_font_size`), `_set_read_only`
+      (the `setReadOnly(True)` + interaction-flags pair from the Qt quirk
+      below, shared by `__init__` and by `_revert` falling back to read-only
+      when a reload turns out non-editable). Dirty-checking reads
       `self.document().isModified()`, which `setPlainText`/
       `setModified(False)` reset naturally.
-  - `show_text_viewer(pane, url)` / `close_text_viewer(pane_widget)` — swap
-    the viewer in/out of the pane's own `QVBoxLayout`
-    (`pane._widget.layout()`), toggling `pane._widget._file_view`'s
-    visibility and the pane widget's focus proxy. Both are
-    `@run_in_main_thread`, since fman commands run on a background thread.
-    Focus is grabbed via a deferred `QTimer.singleShot(0, view.setFocus)`
-    rather than immediately, since the command palette's modal dialog
-    restores focus to the (now hidden) file view as it closes, right before
-    this code runs — grabbing focus synchronously would get clobbered by
-    that restore.
+  - `show_text_viewer(pane, url)` / `show_text_in_viewer(pane, text)` /
+    `close_text_viewer(pane_widget)` — mount/unmount the viewer in the
+    pane's own `QVBoxLayout` (`pane._widget.layout()`). `show_text_viewer`
+    reads `url` from disk (this command, [View file](../functions/view-file.md));
+    `show_text_in_viewer` shows arbitrary text with no backing file and is
+    always read-only — used by the
+    [Release Notes](RELEASE_NOTES.md) command to render a release's notes
+    without writing a temp file. Both are `@run_in_main_thread`, since
+    fman commands run on a background thread, and both delegate the actual
+    mounting to `core/textviewer_pane.py`'s `begin_new_view`/`mount_view`
+    (confirm-close, palette colors, layout swap, focus proxy) — split out of
+    this module to stay under the project's 300-line file cap. Focus is
+    grabbed via a deferred `QTimer.singleShot(0, view.setFocus)` rather than
+    immediately, since the command palette's modal dialog restores focus to
+    the (now hidden) file view as it closes, right before this code runs —
+    grabbing focus synchronously would get clobbered by that restore.
 - `src/main/resources/base/Plugins/Core/core/commands/__init__.py` —
   `ViewFile` (`DirectoryPaneCommand`), the palette command that triggers this;
   see [`docs/functions/view-file.md`](../functions/view-file.md). Also where
@@ -262,7 +282,7 @@ genuinely separate concerns (reading a file vs. the Qt widget vs. zoom):
   - `core/tests/test_textviewer_zoom.py` — `zoom_delta_for`'s shortcut
     matching, including that it follows a rebind rather than only the
     default `Alt+Up`/`Alt+Down`.
-  - `core/tests/test_textviewer.py` — `_caret_fix_css`'s color/font-size
+  - `core/tests/test_textviewer_pane.py` — `caret_fix_css`'s color/font-size
     substitution and selector.
   - The remaining Qt-specific behaviour (interaction flags, actual caret
     paint, Tab/focus-proxy switching, the palette dialog itself,

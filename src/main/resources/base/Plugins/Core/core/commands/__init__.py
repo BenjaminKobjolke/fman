@@ -41,6 +41,7 @@ import re
 import sys
 
 from .goto import *
+from .release_notes import *
 
 class About(ApplicationCommand):
 	def __call__(self):

@@ -1,0 +1,14 @@
+{
+  "version": "1.7.5",
+  "build": 1,
+  "date": "2026-08-22",
+  "title": "Text viewer, pane customization, and release notes",
+  "notes": [
+    "Added an in-pane text viewer (\"View file\") for quickly viewing, and optionally editing, text files without leaving fman or waiting on an external editor.",
+    "Added commands to hide/show the Size and Modified columns per pane, for people who mostly care about file names.",
+    "The window title now shows both panes' current paths, and updates live as you navigate.",
+    "Added pane font size zoom (Alt+Up / Alt+Down, plus a palette-only Reset) so you can make file listings bigger or smaller on the fly. On Windows and Linux, \"go to parent directory\" moved from Alt+Up to Ctrl+Up to make room for this.",
+    "Added \"Show only active pane\" / \"Show all panes\" commands to temporarily collapse the dual-pane layout down to a single pane.",
+    "Added an in-app Release Notes viewer, reachable from the command palette, so you can browse past releases without leaving fman."
+  ]
+}

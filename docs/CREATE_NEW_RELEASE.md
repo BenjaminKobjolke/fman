@@ -128,19 +128,33 @@ Nothing in this repo calls `fbs`'s signing path anymore, so these are now inert,
 but they remain exposed in history. Rotate anything still live and consider
 purging history if this repo is or was ever public.
 
-**`release_notes/` is not yet bundled into the frozen app.** fbs auto-bundles
+**`release_notes/` is bundled into the frozen app.** fbs auto-bundles
 everything under `src/main/resources/base/` into the frozen output
-(`target/fman/`), so the straightforward fix is: before `freeze()` runs, copy
-`release_notes/` and `build_version.txt` into
-`src/main/resources/base/release_notes/` (see `src/build/python/build_impl/windows.py`
-`freeze()` — add the copy there, next to the existing `_copy_winpty_files()`
-step). This is a proposed follow-up, not yet implemented; do it before wiring up
-the in-app viewer in section 5, since the viewer needs to read the bundled files
-at runtime, not the source-tree copy.
+(`target/fman/`), but `release_notes/` lives at the project root (authored per
+release, not under `src/main/resources`), so it needs an explicit copy.
+`freeze()` in `src/build/python/build_impl/windows.py` copies it to
+`target/fman/release_notes/` via `_copy_release_notes()`, next to the existing
+`_copy_winpty_files()` step — skipped entirely if no release has been authored
+yet. `core.release_notes.release_notes_dir()` (Core plugin) finds it there at
+runtime, or falls back to the project-root `release_notes/` when running from
+source before any freeze.
 
 ## 5. In-app Release Notes view
 
-**Not implemented yet.** See `PLAN_RELEASE_NOTES.md` at the project root for the
-implementation plan (a new fman `ApplicationCommand`, newest-first with
-Older/Newer navigation, English fallback). Once built, document its exact
-location (menu/command name) here.
+See [`docs/views/RELEASE_NOTES.md`](views/RELEASE_NOTES.md) for full usage
+and implementation details. Summary:
+
+Command **"Release Notes"** (`core/commands/release_notes.py`,
+`ShowReleaseNotes`), invokable from the command palette. Lists every release
+in `release_notes/`, newest first, via the palette's quicksearch UI; picking
+one renders that release's notes read-only in the pane's text viewer
+(`show_text_in_viewer`, see `docs/views/TEXT_VIEWER.md`). Hidden
+(`is_visible()`) when no `release_notes/` folder is bundled.
+
+Locale is detected via `python_localization.detection.detect_system_language`
+(the `python-localization` dependency in `requirements/base.txt`), falling
+back to `en.json` when a release has no translation for the detected locale,
+or when the library itself is missing (defensive `ImportError` catch — Core's
+other commands must still load even if this one dependency is broken).
+Parsing/sorting/locale-fallback logic lives in `core/release_notes.py`
+(pure, unit-tested — see `core/tests/test_release_notes.py`).

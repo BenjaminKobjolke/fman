@@ -1,15 +1,22 @@
 """
 A minimal text viewer/editor shown inside a directory pane, in place of the
 file list. Triggered by the "View file" command (see core/commands/__init__.py
-- ViewFile). Enter/double-click still open files with the OS default app;
-this is a separate, palette-only path. Opens read-only; a viewer-scoped
-command palette (Ctrl+Shift+P, see PaneTextView) can switch it to editable
-for files that are safe to write back (see core.textviewer_io.is_editable).
+- ViewFile) via show_text_viewer(pane, url), which reads `url` from disk.
+Enter/double-click still open files with the OS default app; this is a
+separate, palette-only path. Opens read-only; a viewer-scoped command palette
+(Ctrl+Shift+P, see PaneTextView) can switch it to editable for files that are
+safe to write back (see core.textviewer_io.is_editable). show_text_in_viewer
+is a read-only sibling that mounts arbitrary text with no backing file - see
+core/commands/release_notes.py and docs/views/RELEASE_NOTES.md.
 """
 from core.key_bindings import get_shortcuts_for_command, format_shortcut_hint
 from core.quicksearch_matchers import contains_chars
 from core.textviewer_io import (
 	MAX_VIEW_BYTES as _MAX_VIEW_BYTES, read_text_for_view, load_for_view,
+)
+from core.textviewer_pane import (
+	caret_fix_css, confirm_close, begin_new_view, mount_view,
+	close_view as close_text_viewer,
 )
 from core.textviewer_zoom import (
 	get_saved_view_font_size, change_view_font_size, reset_view_font_size,
@@ -17,51 +24,14 @@ from core.textviewer_zoom import (
 )
 from fman import (
 	show_alert, show_prompt, show_quicksearch, show_status_message,
-	QuicksearchItem, YES, NO, CANCEL, load_json,
+	QuicksearchItem, YES, NO, load_json,
 )
 from fman.fs import notify_file_changed
 from fman.impl.util.qt.key_event import QtKeyEvent
 from fman.impl.util.qt.thread import run_in_main_thread
 from fman.url import as_human_readable
-from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtGui import QPalette
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QPlainTextEdit
-
-# Once the app-wide Theme.css ("* { font-size: ...pt; }", applied via
-# QApplication.setStyleSheet) touches a widget, Qt switches that widget from
-# palette-based rendering to the QSS style engine — and the QSS engine only
-# draws the blinking text caret if `color`/`background-color` are set
-# explicitly; otherwise it silently stops drawing it. This mirrors the same
-# wildcard-rule problem the font-size feature works around for the file list
-# (`FileListView { font-size: ...pt; }`, commands/__init__.py) — a local
-# type-selector override wins over the global `*` rule. `bg`/`fg` are read
-# from the live file view's palette (see show_text_viewer) so the viewer
-# always matches the pane colors, whatever theme set them. `font_size`, when
-# given, is the viewer's own zoom override (see _change_view_font_size) —
-# folded into the same local rule so it likewise beats the wildcard `*` rule.
-def _caret_fix_css(bg, fg, font_size=None):
-	css = 'QPlainTextEdit { color: %s; background-color: %s;' % (fg, bg)
-	if font_size is not None:
-		css += ' font-size: %dpt;' % font_size
-	return css + ' }'
-
-def _confirm_close(view):
-	"""
-	If `view` is mid-edit with unsaved changes, asks to save/discard/cancel.
-	Returns True if it's fine to proceed with closing or replacing the view
-	(nothing unsaved, or the user just saved/discarded), False if the caller
-	must abort (user cancelled). Shared by PaneTextView._exit_with_dirty_check
-	and show_text_viewer(), which otherwise would silently drop unsaved edits
-	when a second "View file" replaces the currently open buffer.
-	"""
-	if not (view._editing and view.document().isModified()):
-		return True
-	answer = show_alert('Save changes before closing?', YES | NO | CANCEL, YES)
-	if answer & CANCEL:
-		return False
-	if answer & YES:
-		view._save()
-	return True
 
 class PaneTextView(QPlainTextEdit):
 	def __init__(self, on_close, on_switch, bg, fg, path, url, editable):
@@ -74,17 +44,9 @@ class PaneTextView(QPlainTextEdit):
 		self._url = url
 		self._editable = editable
 		self._editing = False
-		self.setReadOnly(True)
-		# setReadOnly(True) alone leaves the cursor unable to move at all via
-		# the keyboard in this Qt build (verified: Right/Shift+Right are
-		# silently no-ops without this) — not just editing-disabled, as the
-		# name implies. Explicit flags restore keyboard navigation/selection
-		# while keeping the widget non-editable:
-		self.setTextInteractionFlags(
-			Qt.TextSelectableByKeyboard | Qt.TextSelectableByMouse
-		)
+		self._set_read_only()
 		self.setLineWrapMode(QPlainTextEdit.WidgetWidth)
-		self.setStyleSheet(_caret_fix_css(bg, fg, get_saved_view_font_size()))
+		self.setStyleSheet(caret_fix_css(bg, fg, get_saved_view_font_size()))
 	def keyPressEvent(self, event):
 		if (event.key() == Qt.Key_P and event.modifiers() & Qt.ControlModifier
 				and event.modifiers() & Qt.ShiftModifier):
@@ -125,7 +87,7 @@ class PaneTextView(QPlainTextEdit):
 	def _apply_font_size(self, size):
 		# Passed as the apply_size callback to core.textviewer_zoom, which
 		# stays PyQt/stylesheet-agnostic; size=None clears the override.
-		self.setStyleSheet(_caret_fix_css(self._bg, self._fg, size))
+		self.setStyleSheet(caret_fix_css(self._bg, self._fg, size))
 
 	def _open_palette(self):
 		result = show_quicksearch(self._suggest_actions)
@@ -223,59 +185,57 @@ class PaneTextView(QPlainTextEdit):
 		self.document().setModified(False)
 		if self._editing and not self._editable:
 			self._editing = False
-			self.setReadOnly(True)
-			self.setTextInteractionFlags(
-				Qt.TextSelectableByKeyboard | Qt.TextSelectableByMouse
-			)
+			self._set_read_only()
 
 	def _exit_with_dirty_check(self):
-		if _confirm_close(self):
+		if confirm_close(self):
 			self._on_close()
+
+	def _set_read_only(self):
+		self.setReadOnly(True)
+		# setReadOnly(True) alone leaves the cursor unable to move at all via
+		# the keyboard in this Qt build (verified: Right/Shift+Right are
+		# silently no-ops without this) — not just editing-disabled, as the
+		# name implies. Explicit flags restore keyboard navigation/selection
+		# while keeping the widget non-editable. Shared by __init__ and
+		# _revert (a reload that turns out non-editable falls back here too).
+		self.setTextInteractionFlags(
+			Qt.TextSelectableByKeyboard | Qt.TextSelectableByMouse
+		)
 
 @run_in_main_thread
 def show_text_viewer(pane, url):
-	widget = pane._widget
-	existing_view = getattr(widget, '_text_view', None)
-	if existing_view is not None and not _confirm_close(existing_view):
-		# User cancelled out of the save/discard prompt for the file
-		# currently open in this pane — leave it open, don't switch files.
+	prepared = begin_new_view(pane)
+	if prepared is None:
 		return
-	close_text_viewer(widget)
+	widget, bg, fg = prepared
 	path = as_human_readable(url)
 	text, editable = load_for_view(path)
-	palette = widget._file_view.palette()
-	bg = palette.color(QPalette.Base).name()
-	fg = palette.color(QPalette.Text).name()
 	view = PaneTextView(
 		lambda: close_text_viewer(widget),
 		lambda: pane.run_command('switch_panes'),
 		bg, fg, path, url, editable,
 	)
 	view.setPlainText(text)
-	widget.layout().addWidget(view)
-	widget._file_view.setVisible(False)
-	widget._text_view = view
-	# Re-point the pane's focus proxy at the viewer. switch_panes() ends by
-	# calling the *other* pane's focus(), which is setFocus() on this pane's
-	# widget — following the proxy. Without this it would land back on the
-	# hidden file view instead of the viewer when tabbing back.
-	widget.setFocusProxy(view)
-	# The command palette's modal dialog restores focus to the (now hidden)
-	# file view as it closes, right before this function runs. Grabbing
-	# focus here immediately gets clobbered by that restore, so the caret
-	# never shows. Defer one event-loop tick so we focus after it settles:
-	QTimer.singleShot(0, view.setFocus)
+	mount_view(pane, widget, view)
 
 @run_in_main_thread
-def close_text_viewer(pane_widget):
-	view = getattr(pane_widget, '_text_view', None)
-	if view is None:
+def show_text_in_viewer(pane, text):
+	"""
+	Shows arbitrary read-only text in the pane's viewer widget, with no
+	backing file — used by the "Release Notes" command (core/commands/
+	release_notes.py) to render a release's notes without writing a temp
+	file. Always read-only (there's nothing to save back to), unlike
+	show_text_viewer where editability depends on the source file.
+	"""
+	prepared = begin_new_view(pane)
+	if prepared is None:
 		return
-	pane_widget.layout().removeWidget(view)
-	view.deleteLater()
-	pane_widget._text_view = None
-	# Restore the pane's original focus proxy (set in DirectoryPaneWidget
-	# .__init__) before the file view reclaims focus.
-	pane_widget.setFocusProxy(pane_widget._file_view)
-	pane_widget._file_view.setVisible(True)
-	pane_widget._file_view.setFocus()
+	widget, bg, fg = prepared
+	view = PaneTextView(
+		lambda: close_text_viewer(widget),
+		lambda: pane.run_command('switch_panes'),
+		bg, fg, None, None, False,
+	)
+	view.setPlainText(text)
+	mount_view(pane, widget, view)
