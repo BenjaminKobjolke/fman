@@ -1,7 +1,7 @@
 from core.commands import History, Move, ShowAllPanes, ShowOnlyActivePane, \
 	_from_human_readable, get_dest_suggestion, _find_extension_start, \
 	_get_shortcuts_for_command, _clamp_font_size, _MIN_PANE_FONT_SIZE, \
-	_MAX_PANE_FONT_SIZE, _format_window_title
+	_MAX_PANE_FONT_SIZE, _format_window_title, _find_column_index
 from core.tests import StubUI
 from core.util import filenotfounderror
 from fman import OK, YES, NO, PLATFORM
@@ -321,6 +321,17 @@ class ClampFontSizeTest(TestCase):
 	def test_clamps_at_maximum(self):
 		self.assertEqual(
 			_MAX_PANE_FONT_SIZE, _clamp_font_size(_MAX_PANE_FONT_SIZE, +1)
+		)
+
+class FindColumnIndexTest(TestCase):
+	_COLUMNS = ['core.Name', 'core.Size', 'core.Modified']
+	def test_present(self):
+		self.assertEqual(1, _find_column_index(self._COLUMNS, 'core.Size'))
+	def test_absent(self):
+		# The Windows drives view only has a DriveName column - Size/Modified
+		# don't exist there, so toggling must not raise.
+		self.assertIsNone(
+			_find_column_index(['core.DriveName'], 'core.Size')
 		)
 
 class FormatWindowTitleTest(TestCase):
