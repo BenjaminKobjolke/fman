@@ -1,0 +1,67 @@
+{
+  "log_level": "all",
+  "max_lines_per_file": {
+    "enabled": true,
+    "warning": 300,
+    "error": 500,
+    "exclude_patterns": {
+      "python": [
+        "__pycache__/**",
+        "*.pyc",
+        "venv/**",
+        ".venv/**",
+        "*venv/**",
+        "env/**",
+        ".git/**",
+        "target/**",
+        "tmp/**",
+        "cache/**"
+      ]
+    }
+  },
+  "pmd_duplicates": {
+    "enabled": true,
+    "minimum_tokens": 100,
+    "exclude_patterns": {
+      "python": [
+        "__pycache__/**",
+        "*.pyc",
+        "venv/**",
+        ".venv/**",
+        "*venv/**",
+        "env/**",
+        ".git/**",
+        "target/**",
+        "tmp/**",
+        "cache/**"
+      ]
+    }
+  },
+  "pmd_similar_code": {
+    "enabled": false,
+    "minimum_tokens": 100,
+    "ignore_identifiers": true,
+    "ignore_literals": true,
+    "ignore_annotations": false,
+    "exclude_patterns": {
+      "python": [
+        "__pycache__/**",
+        "*.pyc",
+        "venv/**",
+        ".venv/**",
+        "*venv/**",
+        "env/**",
+        ".git/**",
+        "target/**",
+        "tmp/**",
+        "cache/**"
+      ]
+    }
+  },
+  "ruff_analyze": {
+    "enabled": true,
+    "select": ["E", "F", "W"],
+    "ignore": ["W191"],
+    "exclude_patterns": ["venv/**", "__pycache__/**", ".git/**", "target/**", "tmp/**", "cache/**"]
+  }
+}
