@@ -69,8 +69,28 @@ ones) for that release.
 
 ## 4. Build the release
 
+**First: close any running fman.exe.** `freeze()` (via PyInstaller) deletes and
+recreates `target/fman/` — if fman is running from that folder (e.g. you were
+just testing it), cleanup fails with `PermissionError: Access is denied` on a
+`.pyd`/`.exe` inside `target/fman/`. Close it, then build.
+
+**Always run `tools\build_increment.bat` first, then commit it**, regardless of
+which build path below you use — it bumps `build_version.txt` to the number
+you authored notes for (step 1/2), and `python build.py release` (below)
+**aborts immediately on any uncommitted change**, `build_version.txt` included:
+
 ```bat
-tools\build_increment.bat        :: bump build_version.txt to the number you just authored notes for
+tools\build_increment.bat
+git add build_version.txt
+git commit -m "RELEASE: bump build counter to <N>"
+```
+
+Skipping the increment means the build ships under the *previous* label, and
+step 4.5 below then can't find that label's `release_notes/` folder
+(`ERROR: release notes not found`). Skipping the commit means `python build.py
+release` refuses to start (`There are uncommitted changes. Aborting.`).
+
+```bat
 tools\build_windows.bat          :: python build.py freeze  -> target\fman\
 tools\build_windows_installer.bat:: python build.py installer -> target\fmanSetup.exe (fbs's own NSIS template)
 ```
@@ -81,14 +101,33 @@ tools\build_windows_installer.bat:: python build.py installer -> target\fmanSetu
 python build.py release
 ```
 
-This bumps `src/build/settings/base.json` to the release version, runs
-`publish()` (`freeze` → `sign` → `installer` → `sign_installer` → `upload`), tags
-the commit `v<version>` in git, bumps the settings file again for the next
-`-SNAPSHOT` dev cycle, and pushes. `installer()` on Windows still comes from fbs
-itself (fbs's built-in `Installer.nsi` template under
-`fbs/_defaults/src/installer/windows/`) — there is no separate project-owned
-installer config to maintain; override `src/installer/windows/Installer.nsi` in
-this repo only if the installer needs to differ from fbs's default.
+`release()` branches on whether `src/build/settings/base.json`'s `version` ends
+in `-SNAPSHOT`:
+
+- **`-SNAPSHOT` version** (fbs's original upstream workflow): bumps the settings
+  file to the release version, runs `publish()`, tags the commit `v<version>` in
+  git, bumps the settings file again for the next `-SNAPSHOT` dev cycle, and
+  pushes — fully automatic.
+- **Plain version, e.g. `1.7.5`** (this fork's actual convention — see step 1,
+  version is bumped by hand and never carries a `-SNAPSHOT` suffix): `release()`
+  just calls `publish()` directly. **No tag, no push happens automatically.**
+  After a successful build you must do it yourself before step 4.5:
+  ```bat
+  git tag v<version>
+  git push origin main
+  git push origin v<version>
+  ```
+
+`publish()` on Windows runs `freeze` → `sign` → `installer` → `sign_installer` →
+`upload`. `installer()` still comes from fbs itself (fbs's built-in
+`Installer.nsi` template under `fbs/_defaults/src/installer/windows/`) — there
+is no separate project-owned installer config to maintain; override
+`src/installer/windows/Installer.nsi` in this repo only if the installer needs
+to differ from fbs's default. **`upload()` is a no-op for this fork** —
+`src/build/python/build_impl/windows.py` disabled it (this fork has no access
+to the original project's AWS account and doesn't publish to
+`update.fman.io`, upstream's channel). Distribution is GitHub Releases only
+(step 4.5).
 
 ### Signing — XIDA network-share handshake, not fbs's local cert
 
