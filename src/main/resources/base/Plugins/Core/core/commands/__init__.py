@@ -1864,6 +1864,38 @@ class InitPaneFontSize(DirectoryPaneListener):
 		if size is not None:
 			_apply_pane_font_size(self.pane, size)
 
+_WINDOW_TITLE_PREFIX = 'fman - file manager'
+
+def _format_window_title(paths):
+	# Pure string builder, kept separate from the pane/Qt access so it's
+	# unit-testable without a running application.
+	paths = [path for path in paths if path]
+	if not paths:
+		return _WINDOW_TITLE_PREFIX
+	return _WINDOW_TITLE_PREFIX + ' - ' + ' | '.join(paths)
+
+def _path_for_title(pane):
+	try:
+		return as_human_readable(pane.get_path())
+	except Exception:
+		# Some locations (e.g. 'null://') can't be turned into a human
+		# path. Skip them rather than let the title update crash.
+		return ''
+
+@run_in_main_thread
+def _refresh_window_title(window):
+	paths = [_path_for_title(pane) for pane in window.get_panes()]
+	window._widget.setWindowTitle(_format_window_title(paths))
+
+class UpdateWindowTitle(DirectoryPaneListener):
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		# Set the initial title when fman starts (mirrors InitPaneFontSize),
+		# then keep it in sync as either pane navigates.
+		_refresh_window_title(self.pane.window)
+	def on_path_changed(self):
+		_refresh_window_title(self.pane.window)
+
 class SortByColumn(DirectoryPaneCommand):
 
 	_MATCHERS = (contains_chars_after_separator(' '), contains_chars)

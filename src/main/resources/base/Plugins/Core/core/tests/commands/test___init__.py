@@ -1,7 +1,7 @@
 from core.commands import History, Move, ShowAllPanes, ShowOnlyActivePane, \
 	_from_human_readable, get_dest_suggestion, _find_extension_start, \
 	_get_shortcuts_for_command, _clamp_font_size, _MIN_PANE_FONT_SIZE, \
-	_MAX_PANE_FONT_SIZE
+	_MAX_PANE_FONT_SIZE, _format_window_title
 from core.tests import StubUI
 from core.util import filenotfounderror
 from fman import OK, YES, NO, PLATFORM
@@ -321,6 +321,22 @@ class ClampFontSizeTest(TestCase):
 	def test_clamps_at_maximum(self):
 		self.assertEqual(
 			_MAX_PANE_FONT_SIZE, _clamp_font_size(_MAX_PANE_FONT_SIZE, +1)
+		)
+
+class FormatWindowTitleTest(TestCase):
+	def test_no_paths(self):
+		self.assertEqual('fman - file manager', _format_window_title([]))
+	def test_blank_paths_skipped(self):
+		self.assertEqual('fman - file manager', _format_window_title(['', '']))
+	def test_one_path(self):
+		self.assertEqual(
+			'fman - file manager - C:\\test',
+			_format_window_title(['C:\\test'])
+		)
+	def test_two_paths(self):
+		self.assertEqual(
+			'fman - file manager - C:\\test | D:\\other',
+			_format_window_title(['C:\\test', 'D:\\other'])
 		)
 
 class HistoryTest(TestCase):
