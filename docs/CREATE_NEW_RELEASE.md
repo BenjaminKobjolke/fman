@@ -128,6 +128,27 @@ Nothing in this repo calls `fbs`'s signing path anymore, so these are now inert,
 but they remain exposed in history. Rotate anything still live and consider
 purging history if this repo is or was ever public.
 
+## 4.5. Publish to GitHub Releases
+
+Prereq (one-time): [`gh` CLI](https://cli.github.com/) installed and on `PATH`,
+authenticated via `gh auth login` (scope: `repo`).
+
+After `python build.py release` (or a signed `python build.py publish`) has
+produced and signed `target\fmanSetup.exe` and pushed the `v<version>` tag, run:
+
+```bat
+tools\github_release.bat
+```
+
+This calls the shared `release-tool`'s `github-release` command (same
+signing-handshake repo as `sign_exe.bat`, see
+[`GITHUB_RELEASE_COMMAND.md`](https://github.com/BenjaminKobjolke/release-tool/blob/main/docs/GITHUB_RELEASE_COMMAND.md))
+to create a GitHub Release tagged `v<version>` at
+[github.com/BenjaminKobjolke/fman/releases](https://github.com/BenjaminKobjolke/fman/releases),
+attach `target\fmanSetup.exe`, and set the body from
+`release_notes\<label>\en.json`. Idempotent — re-running re-uploads the asset
+(`--clobber`) instead of failing.
+
 **`release_notes/` is bundled into the frozen app.** fbs auto-bundles
 everything under `src/main/resources/base/` into the frozen output
 (`target/fman/`), but `release_notes/` lives at the project root (authored per
