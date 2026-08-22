@@ -179,3 +179,18 @@ do. To open it with a key of your own, add it to your user
 Note this only opens the viewer — it doesn't replace `Enter`'s normal
 behaviour (navigate into folders / OS-open files), and it will show an
 alert if used on a directory or a non-local path.
+
+If you want the internal viewer to be your *default* action on `Enter`
+instead — e.g. you view files more often than you OS-open them — bind
+`Enter` to [`open_or_view`](functions/open-or-view.md) instead of
+`view_file` directly. Unlike `view_file`, `open_or_view` falls back to
+`open` (navigate in) when the cursor is on a directory, so folder
+navigation keeps working:
+
+```json
+[{ "keys": ["Enter"], "command": "open_or_view" },
+ { "keys": ["Shift+Enter"], "command": "open" }]
+```
+
+With this, `Enter` opens files in the internal viewer and still navigates
+into folders; `Shift+Enter` becomes the normal OS-open action.

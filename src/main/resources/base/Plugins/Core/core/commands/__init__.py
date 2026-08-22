@@ -439,6 +439,20 @@ class ViewFile(DirectoryPaneCommand):
 		else:
 			show_text_viewer(self.pane, url)
 
+class OpenOrView(DirectoryPaneCommand):
+
+	# Folder -> navigate in (like Open); file -> internal viewer (like
+	# ViewFile). Bind to Enter to make the viewer the default file action
+	# without losing folder navigation, which ViewFile alone does not allow.
+	aliases = ('Open or view', 'Open (internal viewer for files)')
+
+	def __call__(self):
+		url = self.pane.get_file_under_cursor()
+		if url and not is_dir(url):
+			self.pane.run_command('view_file')
+		else:
+			self.pane.run_command('open')
+
 class OpenWithEditor(DirectoryPaneCommand):
 
 	aliases = ('Edit',)

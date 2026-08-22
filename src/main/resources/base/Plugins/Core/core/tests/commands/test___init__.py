@@ -1,13 +1,15 @@
-from core.commands import History, Move, ShowAllPanes, ShowOnlyActivePane, \
-	_from_human_readable, get_dest_suggestion, _find_extension_start, \
-	_get_shortcuts_for_command, _clamp_font_size, _MIN_PANE_FONT_SIZE, \
-	_MAX_PANE_FONT_SIZE, _format_window_title, _find_column_index
+from core.commands import History, Move, OpenOrView, ShowAllPanes, \
+	ShowOnlyActivePane, _from_human_readable, get_dest_suggestion, \
+	_find_extension_start, _get_shortcuts_for_command, _clamp_font_size, \
+	_MIN_PANE_FONT_SIZE, _MAX_PANE_FONT_SIZE, _format_window_title, \
+	_find_column_index
 from core.tests import StubUI
 from core.util import filenotfounderror
 from fman import OK, YES, NO, PLATFORM
 from fman.url import join, as_human_readable, as_url, dirname
 from PyQt5.QtWidgets import QApplication
 from unittest import TestCase
+from unittest.mock import patch
 
 import os
 import os.path
@@ -272,19 +274,21 @@ class _FakeWindow:
 	def get_panes(self):
 		return self._panes
 
+def _two_pane_window():
+	window = _FakeWindow()
+	active, other = _FakePane(window), _FakePane(window)
+	window._panes = [active, other]
+	return window, active, other
+
 class ShowOnlyActivePaneTest(TestCase):
 	def test_hides_other_panes(self):
-		window = _FakeWindow()
-		active, other = _FakePane(window), _FakePane(window)
-		window._panes = [active, other]
+		window, active, other = _two_pane_window()
 		ShowOnlyActivePane(active)()
 		self.assertTrue(active._widget.isVisible())
 		self.assertFalse(other._widget.isVisible())
 		self.assertTrue(active.focused)
 	def test_visible_only_with_multiple_panes_all_shown(self):
-		window = _FakeWindow()
-		active, other = _FakePane(window), _FakePane(window)
-		window._panes = [active, other]
+		window, active, other = _two_pane_window()
 		self.assertTrue(ShowOnlyActivePane(active).is_visible())
 		other._widget.setVisible(False)
 		self.assertFalse(ShowOnlyActivePane(active).is_visible())
@@ -293,21 +297,41 @@ class ShowOnlyActivePaneTest(TestCase):
 
 class ShowAllPanesTest(TestCase):
 	def test_restores_all_panes(self):
-		window = _FakeWindow()
-		active, other = _FakePane(window), _FakePane(window)
+		window, active, other = _two_pane_window()
 		other._widget.setVisible(False)
-		window._panes = [active, other]
 		ShowAllPanes(active)()
 		self.assertTrue(active._widget.isVisible())
 		self.assertTrue(other._widget.isVisible())
 		self.assertTrue(active.focused)
 	def test_visible_only_when_a_pane_is_hidden(self):
-		window = _FakeWindow()
-		active, other = _FakePane(window), _FakePane(window)
-		window._panes = [active, other]
+		window, active, other = _two_pane_window()
 		self.assertFalse(ShowAllPanes(active).is_visible())
 		other._widget.setVisible(False)
 		self.assertTrue(ShowAllPanes(active).is_visible())
+
+class _FakeOpenOrViewPane:
+	def __init__(self, url):
+		self._url = url
+		self.commands_run = []
+	def get_file_under_cursor(self):
+		return self._url
+	def run_command(self, name):
+		self.commands_run.append(name)
+
+class OpenOrViewTest(TestCase):
+	def test_dispatches_by_cursor_target(self):
+		cases = (
+			('directory', True, 'open'),
+			('file', False, 'view_file'),
+			(None, False, 'open'),
+		)
+		for label, cursor_is_dir, expected_command in cases:
+			with self.subTest(label):
+				url = 'file://' + label if label else None
+				pane = _FakeOpenOrViewPane(url)
+				with patch('core.commands.is_dir', return_value=cursor_is_dir):
+					OpenOrView(pane)()
+				self.assertEqual([expected_command], pane.commands_run)
 
 class ClampFontSizeTest(TestCase):
 	def test_steps_up(self):
