@@ -1,11 +1,15 @@
 # View file
 
-Command palette entry that opens fman's internal text viewer on the
-file under the cursor, showing its contents inside the active pane instead
-of launching an external application.
+Command palette entry that opens fman's internal viewer on the file under
+the cursor, showing its contents inside the active pane instead of
+launching an external application. Image files (`.png`, `.jpg`, `.jpeg`,
+`.gif`, `.bmp`, `.webp`, `.ico`, `.svg`) open the
+[image viewer](../views/IMAGE_VIEWER.md); everything else opens the
+[text viewer](../views/TEXT_VIEWER.md).
 
-See [`docs/views/TEXT_VIEWER.md`](../views/TEXT_VIEWER.md) for how the
-viewer itself behaves (navigation, size limits, encoding, closing).
+See [`docs/views/TEXT_VIEWER.md`](../views/TEXT_VIEWER.md) and
+[`docs/views/IMAGE_VIEWER.md`](../views/IMAGE_VIEWER.md) for how each
+viewer behaves.
 
 ## Usage
 
@@ -42,8 +46,12 @@ Can be bound to a key in `Key Bindings.json` like any other command, e.g.:
 
 - `src/main/resources/base/Plugins/Core/core/commands/__init__.py` —
   `ViewFile` (`DirectoryPaneCommand`). Validates the file under the cursor
-  (exists, not a directory, local `file://` scheme) and then calls
-  `show_text_viewer(self.pane, url)`.
-- `src/main/resources/base/Plugins/Core/core/textviewer.py` — the viewer
-  itself (`show_text_viewer`, `PaneTextView`); see
+  (exists, not a directory, local `file://` scheme), then routes on
+  `is_image(url)`: image files call `show_image_viewer(self.pane, url)`,
+  everything else `show_text_viewer(self.pane, url)`.
+- `src/main/resources/base/Plugins/Core/core/textviewer.py` — the text
+  viewer (`show_text_viewer`, `PaneTextView`); see
   [`docs/views/TEXT_VIEWER.md`](../views/TEXT_VIEWER.md) for details.
+- `src/main/resources/base/Plugins/Core/core/imageviewer.py` — the image
+  viewer (`is_image`, `show_image_viewer`, `PaneImageView`); see
+  [`docs/views/IMAGE_VIEWER.md`](../views/IMAGE_VIEWER.md) for details.
