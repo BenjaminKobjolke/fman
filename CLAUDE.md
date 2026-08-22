@@ -16,6 +16,32 @@ this session: STOP, read it, then continue.
 Do not inline rules back into this file and do not use `@import` for
 `CODING_RULES.md` — it is intentionally referenced, not imported.
 
+## Testing
+
+After changing Core plugin code (`src/main/resources/base/Plugins/Core/core/**`),
+run:
+
+```bash
+powershell -Command "cd 'D:\GIT\BenjaminKobjolke\fman'; cmd /c '.\tools\run_core_tests.bat'"
+```
+
+Fast (~0.4s), covers all of `core`'s own tests. Do **not** use `python build.py test`
+for this — it also runs fbs's bundled `fman_unittest`/`fman_integrationtest` suites,
+which have a known intermittent hang (Qt/thread state leaking from
+`fman_integrationtest.test_qt` into a later widget test — unrelated to Core plugin
+changes, not yet root-caused).
+
+If you touched the zip/7-Zip filesystem code (`core/fs/zip.py` or
+`core/tests/fs/zip_test.py`), also run:
+
+```bash
+powershell -Command "cd 'D:\GIT\BenjaminKobjolke\fman'; cmd /c '.\tools\run_zip_tests.bat'"
+```
+
+These are excluded from `run_core_tests.bat` (filename doesn't match `test*.py`)
+because they spawn `7za.exe` via a real console (winpty) and can hang under
+AV/EDR interference.
+
 ## Code Analysis
 
 Two analysis modes — pick by situation:
