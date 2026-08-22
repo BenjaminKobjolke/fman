@@ -1,13 +1,22 @@
-from core.commands import History, Move, _from_human_readable, \
-	get_dest_suggestion, _find_extension_start, _get_shortcuts_for_command
+from core.commands import History, Move, ShowAllPanes, ShowOnlyActivePane, \
+	_from_human_readable, get_dest_suggestion, _find_extension_start, \
+	_get_shortcuts_for_command, _clamp_font_size, _MIN_PANE_FONT_SIZE, \
+	_MAX_PANE_FONT_SIZE
 from core.tests import StubUI
 from core.util import filenotfounderror
 from fman import OK, YES, NO, PLATFORM
 from fman.url import join, as_human_readable, as_url, dirname
+from PyQt5.QtWidgets import QApplication
 from unittest import TestCase
 
 import os
 import os.path
+
+# ShowOnlyActivePane is decorated with @run_in_main_thread, which needs a
+# QApplication instance to exist (even though it never enters its event
+# loop here, since the test runs on the same thread it dispatches to).
+# Keep a module-level reference so it isn't garbage-collected:
+_APP = QApplication.instance() or QApplication([])
 
 class FindExtensionStartTest(TestCase):
 	def test_no_extension(self):
@@ -240,6 +249,79 @@ class GetShortcutsForCommandTest(TestCase):
 	def _check(self, key_bindings, command, expected_shortcuts):
 		actual = list(_get_shortcuts_for_command(key_bindings, command))
 		self.assertEqual(expected_shortcuts, actual)
+
+class _FakeWidget:
+	def __init__(self, visible=True):
+		self._visible = visible
+	def isVisible(self):
+		return self._visible
+	def setVisible(self, visible):
+		self._visible = visible
+
+class _FakePane:
+	def __init__(self, window):
+		self.window = window
+		self._widget = _FakeWidget()
+		self.focused = False
+	def focus(self):
+		self.focused = True
+
+class _FakeWindow:
+	def __init__(self, panes=()):
+		self._panes = list(panes)
+	def get_panes(self):
+		return self._panes
+
+class ShowOnlyActivePaneTest(TestCase):
+	def test_hides_other_panes(self):
+		window = _FakeWindow()
+		active, other = _FakePane(window), _FakePane(window)
+		window._panes = [active, other]
+		ShowOnlyActivePane(active)()
+		self.assertTrue(active._widget.isVisible())
+		self.assertFalse(other._widget.isVisible())
+		self.assertTrue(active.focused)
+	def test_visible_only_with_multiple_panes_all_shown(self):
+		window = _FakeWindow()
+		active, other = _FakePane(window), _FakePane(window)
+		window._panes = [active, other]
+		self.assertTrue(ShowOnlyActivePane(active).is_visible())
+		other._widget.setVisible(False)
+		self.assertFalse(ShowOnlyActivePane(active).is_visible())
+		window._panes = [active]
+		self.assertFalse(ShowOnlyActivePane(active).is_visible())
+
+class ShowAllPanesTest(TestCase):
+	def test_restores_all_panes(self):
+		window = _FakeWindow()
+		active, other = _FakePane(window), _FakePane(window)
+		other._widget.setVisible(False)
+		window._panes = [active, other]
+		ShowAllPanes(active)()
+		self.assertTrue(active._widget.isVisible())
+		self.assertTrue(other._widget.isVisible())
+		self.assertTrue(active.focused)
+	def test_visible_only_when_a_pane_is_hidden(self):
+		window = _FakeWindow()
+		active, other = _FakePane(window), _FakePane(window)
+		window._panes = [active, other]
+		self.assertFalse(ShowAllPanes(active).is_visible())
+		other._widget.setVisible(False)
+		self.assertTrue(ShowAllPanes(active).is_visible())
+
+class ClampFontSizeTest(TestCase):
+	def test_steps_up(self):
+		self.assertEqual(10, _clamp_font_size(9, +1))
+	def test_steps_down(self):
+		self.assertEqual(8, _clamp_font_size(9, -1))
+	def test_clamps_at_minimum(self):
+		self.assertEqual(
+			_MIN_PANE_FONT_SIZE, _clamp_font_size(_MIN_PANE_FONT_SIZE, -1)
+		)
+	def test_clamps_at_maximum(self):
+		self.assertEqual(
+			_MAX_PANE_FONT_SIZE, _clamp_font_size(_MAX_PANE_FONT_SIZE, +1)
+		)
 
 class HistoryTest(TestCase):
 	def test_empty_back(self):

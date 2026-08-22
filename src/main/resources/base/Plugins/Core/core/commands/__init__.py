@@ -12,6 +12,7 @@ from fman.fs import exists, touch, mkdir, is_dir, delete, samefile, copy, \
 	iterdir, resolve, prepare_copy, prepare_move, prepare_delete, \
 	FileSystem, prepare_trash, query, makedirs, notify_file_added
 from fman.impl.util import get_user
+from fman.impl.util.qt.thread import run_in_main_thread
 from fman.url import splitscheme, as_url, join, basename, as_human_readable, \
 	dirname, relpath, normalize
 from io import UnsupportedOperation
@@ -20,7 +21,7 @@ from os import strerror
 from os.path import basename, pardir
 from pathlib import PurePath
 from PyQt5.QtCore import QUrl
-from PyQt5.QtGui import QDesktopServices
+from PyQt5.QtGui import QDesktopServices, QFontInfo
 from subprocess import Popen, DEVNULL, PIPE
 from tempfile import TemporaryDirectory
 from urllib.error import URLError
@@ -1755,6 +1756,113 @@ class SwitchPanes(DirectoryPaneCommand):
 		else:
 			pane = self.pane.window.get_panes()[pane_index]
 		pane.focus()
+
+def _any_pane_hidden(panes):
+	return any(not pane._widget.isVisible() for pane in panes)
+
+class ShowOnlyActivePane(DirectoryPaneCommand):
+
+	def is_visible(self):
+		panes = self.pane.window.get_panes()
+		return len(panes) > 1 and not _any_pane_hidden(panes)
+	@run_in_main_thread
+	def __call__(self):
+		for pane in self.pane.window.get_panes():
+			pane._widget.setVisible(pane is self.pane)
+		self.pane.focus()
+
+class ShowAllPanes(DirectoryPaneCommand):
+
+	def is_visible(self):
+		return _any_pane_hidden(self.pane.window.get_panes())
+	@run_in_main_thread
+	def __call__(self):
+		for pane in self.pane.window.get_panes():
+			pane._widget.setVisible(True)
+		self.pane.focus()
+
+_FALLBACK_PANE_FONT_SIZE = 11 if PLATFORM == 'Mac' else 9
+_MIN_PANE_FONT_SIZE = 6
+_MAX_PANE_FONT_SIZE = 40
+
+def _clamp_font_size(current, delta):
+	return max(_MIN_PANE_FONT_SIZE, min(_MAX_PANE_FONT_SIZE, current + delta))
+
+def _get_saved_pane_font_size():
+	return load_json('Core Settings.json', default={}).get('pane_font_size')
+
+def _save_pane_font_size(size):
+	# size=None clears the override (Reset), falling back to the theme's own
+	# font again.
+	settings = load_json('Core Settings.json', default={})
+	if size is None:
+		settings.pop('pane_font_size', None)
+	else:
+		settings['pane_font_size'] = size
+	save_json('Core Settings.json')
+
+def _effective_font_size(pane):
+	# Base to step from: the theme's actual pane font (respects a user
+	# Theme.css), read off the live view before any override is applied.
+	try:
+		size = QFontInfo(pane._widget._file_view.font()).pointSize()
+		if size > 0:
+			return size
+	except (AttributeError, RuntimeError):
+		pass
+	return _FALLBACK_PANE_FONT_SIZE
+
+@run_in_main_thread
+def _apply_pane_font_size(pane, size):
+	# size=None removes our override stylesheet so the pane falls back to
+	# whatever the app-wide theme (Theme.css) sets.
+	css = '' if size is None else 'FileListView { font-size: %dpt; }' % size
+	pane._widget._file_view.setStyleSheet(css)
+
+def _change_pane_font_size(window, delta):
+	base = _get_saved_pane_font_size()
+	if base is None:
+		base = _effective_font_size(window.get_panes()[0])
+	new_size = _clamp_font_size(base, delta)
+	_save_pane_font_size(new_size)
+	for pane in window.get_panes():
+		_apply_pane_font_size(pane, new_size)
+
+def _reset_pane_font_size(window):
+	_save_pane_font_size(None)
+	for pane in window.get_panes():
+		_apply_pane_font_size(pane, None)
+
+class IncreasePaneFontSize(DirectoryPaneCommand):
+
+	aliases = ('Increase font size', 'Zoom in', 'Larger pane font')
+
+	def __call__(self):
+		_change_pane_font_size(self.pane.window, +1)
+
+class DecreasePaneFontSize(DirectoryPaneCommand):
+
+	aliases = ('Decrease font size', 'Zoom out', 'Smaller pane font')
+
+	def __call__(self):
+		_change_pane_font_size(self.pane.window, -1)
+
+class ResetPaneFontSize(DirectoryPaneCommand):
+
+	# Palette-only by design — no default key binding requested.
+	aliases = ('Reset font size', 'Default font size')
+
+	def __call__(self):
+		_reset_pane_font_size(self.pane.window)
+
+class InitPaneFontSize(DirectoryPaneListener):
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		# Mirrors InitHiddenFilesFilter: fman instantiates commands lazily,
+		# so re-applying a saved setting on startup has to happen here.
+		size = _get_saved_pane_font_size()
+		if size is not None:
+			_apply_pane_font_size(self.pane, size)
 
 class SortByColumn(DirectoryPaneCommand):
 
