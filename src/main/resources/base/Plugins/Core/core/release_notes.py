@@ -29,6 +29,22 @@ def first_existing_dir(candidates):
 			return candidate
 	return None
 
+def _candidate_release_dirs(this_file):
+	"""
+	Candidate release_notes/ locations for `this_file` (this module's own
+	resolved path), checked in order - see release_notes_dir(). Split out so
+	the path arithmetic is testable without patching __file__: an
+	installed/frozen path (e.g. under Program Files) has far fewer parents
+	than the dev source tree, so the dev-source candidate is only included
+	when it's actually computable - indexing a too-short .parents raises
+	IndexError, which used to crash every command-palette lookup on an
+	installed build (see docs/CREATE_NEW_RELEASE.md).
+	"""
+	candidates = [this_file.parents[3] / 'release_notes']
+	if len(this_file.parents) > 7:
+		candidates.append(this_file.parents[7] / 'release_notes')
+	return candidates
+
 def release_notes_dir():
 	"""
 	Locates the bundled release_notes/ folder. Checked in order:
@@ -40,14 +56,13 @@ def release_notes_dir():
 	   release_notes/.
 	2. The project root's own release_notes/ - so running from source
 	   *before* that copy step (plain dev, no freeze yet) still finds the
-	   release notes authored there.
-	Returns None if neither exists (e.g. a checkout with no release notes
-	authored yet).
+	   release notes authored there. Only checked when this_file is deep
+	   enough for that to be a valid path (see _candidate_release_dirs).
+	Returns None if no candidate exists (e.g. a checkout with no release
+	notes authored yet).
 	"""
 	this_file = Path(__file__).resolve()
-	bundled = this_file.parents[3] / 'release_notes'
-	dev_source = this_file.parents[7] / 'release_notes'
-	return first_existing_dir([bundled, dev_source])
+	return first_existing_dir(_candidate_release_dirs(this_file))
 
 def list_releases(release_dir):
 	"""

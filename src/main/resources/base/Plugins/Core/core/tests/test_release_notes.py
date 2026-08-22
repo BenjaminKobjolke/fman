@@ -1,5 +1,6 @@
 from core.release_notes import (
-	first_existing_dir, list_releases, load_release, render_notes,
+	_candidate_release_dirs, first_existing_dir, list_releases, load_release,
+	render_notes,
 )
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -31,6 +32,26 @@ class FirstExistingDirTest(TestCase):
 			missing_a = Path(tmp) / 'a'
 			missing_b = Path(tmp) / 'b'
 			self.assertIsNone(first_existing_dir([missing_a, missing_b]))
+
+class CandidateReleaseDirsTest(TestCase):
+	def test_skips_dev_source_when_path_too_shallow(self):
+		# An installed/frozen path (e.g. under Program Files) doesn't have 7
+		# parents. Indexing that used to raise IndexError on every launch
+		# (see docs/CREATE_NEW_RELEASE.md).
+		installed = Path(
+			'C:/Program Files (x86)/fman/Plugins/Core/core/release_notes.py'
+		)
+		candidates = _candidate_release_dirs(installed)
+		self.assertEqual(
+			[Path('C:/Program Files (x86)/fman/release_notes')], candidates
+		)
+
+	def test_includes_dev_source_when_path_deep_enough(self):
+		deep = Path('/'.join(['x'] * 12)) / 'core' / 'release_notes.py'
+		candidates = _candidate_release_dirs(deep)
+		self.assertEqual(2, len(candidates))
+		self.assertEqual(deep.parents[3] / 'release_notes', candidates[0])
+		self.assertEqual(deep.parents[7] / 'release_notes', candidates[1])
 
 class ListReleasesTest(TestCase):
 	def test_sorts_newest_first_by_version_then_build(self):
