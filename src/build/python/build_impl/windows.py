@@ -1,5 +1,5 @@
-from build_impl import copy_python_library, upload_to_s3
-from fbs import path, SETTINGS
+from build_impl import copy_python_library
+from fbs import path
 from fbs.cmdline import command
 from fbs.freeze.windows import freeze_windows
 from os import remove
@@ -61,8 +61,8 @@ def _sign_exe(exe_path):
 
 @command
 def upload():
-	if SETTINGS['release']:
-		src_path = path('target/fmanSetup.exe')
-		dest_path = SETTINGS['version'] + '/fmanSetup.exe'
-		upload_to_s3(src_path, dest_path)
-		print('\nDone. Please upload fmanSetup.exe to update.fman.io now.')
+	# This fork does not have access to the original project's AWS account, and
+	# doesn't publish to update.fman.io (that's Michael Herrmann's distribution
+	# channel, not ours). Distribution instead goes through GitHub Releases —
+	# see docs/CREATE_NEW_RELEASE.md step 4.5 / tools/github_release.bat.
+	pass
