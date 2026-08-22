@@ -5,6 +5,7 @@ from fbs.freeze.windows import freeze_windows
 from os import remove
 from os.path import join, dirname
 from shutil import copy, rmtree
+from subprocess import run
 
 @command
 def freeze():
@@ -26,6 +27,20 @@ def _copy_winpty_files():
 	import winpty
 	winpty_dir = dirname(winpty.__file__)
 	copy(join(winpty_dir, 'winpty-agent.exe'), path('${freeze_dir}'))
+
+@command
+def sign():
+	# fbs's own sign() uses a local signtool + certificate.pfx that expired
+	# 2022-07-03. Use the XIDA network-share signing handshake instead
+	# (tools/sign_exe.bat -> release-tool's PreSigner).
+	_sign_exe(path('${freeze_dir}/fman.exe'))
+
+@command
+def sign_installer():
+	_sign_exe(path('target/fmanSetup.exe'))
+
+def _sign_exe(exe_path):
+	run([path('tools/sign_exe.bat'), exe_path], shell=True, check=True)
 
 @command
 def upload():
