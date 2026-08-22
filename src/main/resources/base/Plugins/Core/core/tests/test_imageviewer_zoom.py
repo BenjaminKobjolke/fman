@@ -1,0 +1,66 @@
+from core.imageviewer_zoom import (
+	MAX_SCALE, MIN_SCALE, change_image_scale, clamp_scale, reset_image_scale,
+)
+from unittest import TestCase
+
+class _FakeView:
+	# Stands in for PaneImageView.effective_scale() - the "what's actually
+	# on screen right now" fallback used when nothing is saved yet.
+	def effective_scale(self):
+		return 1.0
+
+class ClampScaleTest(TestCase):
+	def test_clamps_below_minimum(self):
+		self.assertEqual(MIN_SCALE, clamp_scale(0.01))
+
+	def test_clamps_above_maximum(self):
+		self.assertEqual(MAX_SCALE, clamp_scale(100))
+
+	def test_leaves_in_range_value_untouched(self):
+		self.assertEqual(2.0, clamp_scale(2.0))
+
+class ChangeImageScaleTest(TestCase):
+	def test_steps_up_from_saved_scale(self):
+		result = {}
+		change_image_scale(
+			_FakeView(), lambda s: result.setdefault('applied', s), +1,
+			get_saved=lambda: 1.0, save=lambda s: result.setdefault('saved', s),
+		)
+		self.assertAlmostEqual(1.25, result['applied'])
+		self.assertAlmostEqual(1.25, result['saved'])
+
+	def test_steps_down_from_saved_scale(self):
+		result = {}
+		change_image_scale(
+			_FakeView(), lambda s: result.setdefault('applied', s), -1,
+			get_saved=lambda: 1.25, save=lambda s: None,
+		)
+		self.assertAlmostEqual(1.0, result['applied'])
+
+	def test_falls_back_to_view_effective_scale_when_nothing_saved(self):
+		# Nothing saved (fit mode) - must step from the view's current
+		# effective scale, not a hardcoded 1.0.
+		result = {}
+		change_image_scale(
+			_FakeView(), lambda s: result.setdefault('applied', s), +1,
+			get_saved=lambda: None, save=lambda s: None,
+		)
+		self.assertAlmostEqual(1.25, result['applied'])
+
+	def test_clamps_to_maximum(self):
+		result = {}
+		change_image_scale(
+			_FakeView(), lambda s: result.setdefault('applied', s), +1,
+			get_saved=lambda: MAX_SCALE, save=lambda s: None,
+		)
+		self.assertEqual(MAX_SCALE, result['applied'])
+
+class ResetImageScaleTest(TestCase):
+	def test_clears_saved_scale_and_applies_fit_mode(self):
+		result = {}
+		reset_image_scale(
+			lambda s: result.setdefault('applied', s),
+			save=lambda s: result.setdefault('saved', s),
+		)
+		self.assertIsNone(result['saved'])
+		self.assertIsNone(result['applied'])

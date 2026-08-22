@@ -36,9 +36,13 @@ def confirm_close(view):
 	(nothing unsaved, or the user just saved/discarded), False if the caller
 	must abort (user cancelled). Shared by PaneTextView._exit_with_dirty_check
 	and begin_new_view(), which otherwise would silently drop unsaved edits
-	when a second view replaces the currently open buffer.
+	when a second view replaces the currently open buffer. Also shared by
+	non-text views (e.g. PaneImageView, core/imageviewer.py) that have no
+	`_editing`/`document()` of their own - getattr's False default short-
+	circuits before `document()` is ever called on them, so they always
+	report safe to close.
 	"""
-	if not (view._editing and view.document().isModified()):
+	if not (getattr(view, '_editing', False) and view.document().isModified()):
 		return True
 	answer = show_alert('Save changes before closing?', YES | NO | CANCEL, YES)
 	if answer & CANCEL:

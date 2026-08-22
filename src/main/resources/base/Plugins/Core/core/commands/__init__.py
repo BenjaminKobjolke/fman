@@ -4,6 +4,7 @@ from core.fileoperations import CopyFiles, MoveFiles
 from core.font_size import clamp_font_size as _clamp_font_size, \
 	MIN_FONT_SIZE as _MIN_PANE_FONT_SIZE, MAX_FONT_SIZE as _MAX_PANE_FONT_SIZE
 from core.github import find_repos, GitHubRepo
+from core.imageviewer import is_image, show_image_viewer
 from core.key_bindings import get_shortcuts_for_command as \
 	_get_shortcuts_for_command, format_shortcut_hint
 from core.os_ import open_terminal_in_directory, open_native_file_manager, \
@@ -433,7 +434,10 @@ class ViewFile(DirectoryPaneCommand):
 		if splitscheme(url)[0] != 'file://':
 			show_alert('Can only view local files.')
 			return
-		show_text_viewer(self.pane, url)
+		if is_image(url):
+			show_image_viewer(self.pane, url)
+		else:
+			show_text_viewer(self.pane, url)
 
 class OpenWithEditor(DirectoryPaneCommand):
 
