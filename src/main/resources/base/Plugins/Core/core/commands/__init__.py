@@ -1,12 +1,18 @@
 from core.commands.util import get_program_files, get_program_files_x86, \
 	is_hidden
 from core.fileoperations import CopyFiles, MoveFiles
+from core.font_size import clamp_font_size as _clamp_font_size, \
+	MIN_FONT_SIZE as _MIN_PANE_FONT_SIZE, MAX_FONT_SIZE as _MAX_PANE_FONT_SIZE
 from core.github import find_repos, GitHubRepo
+from core.key_bindings import get_shortcuts_for_command as \
+	_get_shortcuts_for_command, format_shortcut_hint
 from core.os_ import open_terminal_in_directory, open_native_file_manager, \
 	get_popen_kwargs_for_opening
+from core.settings import get_setting, save_setting
 from core.util import strformat_dict_values, listdir_absolute, is_parent
 from core.quicksearch_matchers import contains_chars, \
 	contains_chars_after_separator
+from core.textviewer import show_text_viewer
 from fman import *
 from fman.fs import exists, touch, mkdir, is_dir, delete, samefile, copy, \
 	iterdir, resolve, prepare_copy, prepare_move, prepare_delete, \
@@ -408,6 +414,25 @@ class OpenSelectedFiles(DirectoryPaneCommand):
 			_open_files([file_under_cursor], self.pane)
 	def is_visible(self):
 		return bool(self.get_chosen_files())
+
+class ViewFile(DirectoryPaneCommand):
+
+	# Palette-only by design, like ResetPaneFontSize — no default key
+	# binding, so it doesn't change Enter/double-click behaviour.
+	aliases = ('View file', 'View', 'Internal viewer')
+
+	def __call__(self):
+		url = self.pane.get_file_under_cursor()
+		if not url:
+			show_alert('No file is selected!')
+			return
+		if is_dir(url):
+			show_alert('Cannot view a directory.')
+			return
+		if splitscheme(url)[0] != 'file://':
+			show_alert('Can only view local files.')
+			return
+		show_text_viewer(self.pane, url)
 
 class OpenWithEditor(DirectoryPaneCommand):
 
@@ -1188,11 +1213,9 @@ class CommandPalette(DirectoryPaneCommand):
 				for i, matcher in enumerate(self._MATCHERS):
 					highlight = matcher(alias.lower(), query.lower())
 					if highlight is not None:
-						shortcuts = \
+						hint = format_shortcut_hint(
 							_get_shortcuts_for_command(key_bindings, cmd_name)
-						if PLATFORM == 'Mac':
-							shortcuts = map(_insert_mac_key_symbols, shortcuts)
-						hint = ', '.join(shortcuts)
+						)
 						item = QuicksearchItem(command, alias, highlight, hint)
 						result[i].append(item)
 						this_alias_matched = True
@@ -1217,35 +1240,10 @@ class CommandPalette(DirectoryPaneCommand):
 			result.append((cmd_name, aliases, command))
 		return result
 
-def _get_shortcuts_for_command(key_bindings, command):
-	shortcuts_occupied_by_other_commands = set()
-	for binding in key_bindings:
-		try:
-			binding_cmd = binding['command']
-		except (KeyError, TypeError):
-			# Malformed Key Bindings.json
-			continue
-		try:
-			shortcut = binding['keys'][0]
-		except (KeyError, IndexError, TypeError):
-			# Malformed Key Bindings.json
-			continue
-		if not isinstance(shortcut, str):
-			# Malformed Key Bindings.json
-			continue
-		if binding_cmd == command:
-			if shortcut not in shortcuts_occupied_by_other_commands:
-				yield shortcut
-		shortcuts_occupied_by_other_commands.add(shortcut)
-
-def _insert_mac_key_symbols(shortcut):
-	keys = shortcut.split('+')
-	return ''.join(_KEY_SYMBOLS_MAC.get(key, key) for key in keys)
-
-_KEY_SYMBOLS_MAC = {
-	'Cmd': '⌘', 'Alt': '⌥', 'Ctrl': '⌃', 'Shift': '⇧', 'Backspace': '⌫',
-	'Up': '↑', 'Down': '↓', 'Left': '←', 'Right': '→', 'Enter': '↩'
-}
+# _get_shortcuts_for_command / format_shortcut_hint live in core/key_bindings
+# (imported above as _get_shortcuts_for_command) so the text viewer's own
+# palette can reuse them without a circular import - see that module's
+# docstring.
 
 class CommandPaletteItem:
 	def __init__(self, run_fn, cmd_name):
@@ -1782,24 +1780,17 @@ class ShowAllPanes(DirectoryPaneCommand):
 		self.pane.focus()
 
 _FALLBACK_PANE_FONT_SIZE = 11 if PLATFORM == 'Mac' else 9
-_MIN_PANE_FONT_SIZE = 6
-_MAX_PANE_FONT_SIZE = 40
-
-def _clamp_font_size(current, delta):
-	return max(_MIN_PANE_FONT_SIZE, min(_MAX_PANE_FONT_SIZE, current + delta))
+# _clamp_font_size / _MIN_PANE_FONT_SIZE / _MAX_PANE_FONT_SIZE live in
+# core/font_size (imported above) so the text viewer's own zoom can reuse
+# them without a circular import - see that module's docstring.
 
 def _get_saved_pane_font_size():
-	return load_json('Core Settings.json', default={}).get('pane_font_size')
+	return get_setting('Core Settings.json', 'pane_font_size')
 
 def _save_pane_font_size(size):
 	# size=None clears the override (Reset), falling back to the theme's own
 	# font again.
-	settings = load_json('Core Settings.json', default={})
-	if size is None:
-		settings.pop('pane_font_size', None)
-	else:
-		settings['pane_font_size'] = size
-	save_json('Core Settings.json')
+	save_setting('Core Settings.json', 'pane_font_size', size)
 
 def _effective_font_size(pane):
 	# Base to step from: the theme's actual pane font (respects a user
@@ -1863,6 +1854,87 @@ class InitPaneFontSize(DirectoryPaneListener):
 		size = _get_saved_pane_font_size()
 		if size is not None:
 			_apply_pane_font_size(self.pane, size)
+
+# fman has no pane.set_columns(...) - the FileSystem owns the column set and
+# the model is rebuilt on every navigation. So we hide/show columns directly
+# on the live Qt view instead, keyed by the columns' qualified names.
+_COLUMN_SETTING_KEYS = {
+	'core.Size': 'hide_size_column',
+	'core.Modified': 'hide_modified_column',
+}
+
+def _find_column_index(columns, col_qual_name):
+	# Some filesystems (e.g. the Windows drives view) don't offer Size/
+	# Modified at all - callers must be able to skip those gracefully.
+	try:
+		return columns.index(col_qual_name)
+	except ValueError:
+		return None
+
+def _is_column_hidden(col_qual_name):
+	key = _COLUMN_SETTING_KEYS[col_qual_name]
+	return get_setting('Core Settings.json', key, False)
+
+def _set_column_hidden(col_qual_name, hidden):
+	save_setting('Core Settings.json', _COLUMN_SETTING_KEYS[col_qual_name], hidden)
+
+@run_in_main_thread
+def _apply_column_visibility(pane):
+	columns = pane.get_columns()
+	view = pane._widget._file_view
+	# setColumnHidden(...) resizes the section (to 0 when hiding, back to its
+	# old width when showing). Either resize fires sectionResized ->
+	# ResizeColumnsToContents._on_col_resized, which then overwrites the
+	# width we just set with its own idea of the "right" width - undoing the
+	# show/hide until the next navigation resets that handler's state.
+	# _handle_col_resize is the same reentrancy guard _on_col_resized itself
+	# uses; toggling it here (rather than view.horizontalHeader().blockSignals)
+	# only suppresses that one handler, so the header's other signals still
+	# fire and the view still repaints/relayouts normally.
+	view._handle_col_resize = False
+	try:
+		for col_qual_name in _COLUMN_SETTING_KEYS:
+			index = _find_column_index(columns, col_qual_name)
+			if index is not None:
+				view.setColumnHidden(index, _is_column_hidden(col_qual_name))
+	finally:
+		view._handle_col_resize = True
+	# setColumnHidden(...) alone doesn't relayout the visible columns to fill
+	# the freed/needed width - that normally only happens on the next
+	# resizeEvent (e.g. the user resizing the window). Force it now so
+	# toggling is visible immediately.
+	view.resizeColumnsToContents()
+
+def _toggle_column(window, col_qual_name):
+	_set_column_hidden(col_qual_name, not _is_column_hidden(col_qual_name))
+	for pane in window.get_panes():
+		_apply_column_visibility(pane)
+
+class ToggleSizeColumn(DirectoryPaneCommand):
+
+	# Palette-only by design - no default key binding requested.
+	aliases = ('Toggle size column', 'Show / hide size column')
+
+	def __call__(self):
+		_toggle_column(self.pane.window, 'core.Size')
+
+class ToggleModifiedColumn(DirectoryPaneCommand):
+
+	# Palette-only by design - no default key binding requested.
+	aliases = ('Toggle modified column', 'Show / hide modified column')
+
+	def __call__(self):
+		_toggle_column(self.pane.window, 'core.Modified')
+
+class InitColumnVisibility(DirectoryPaneListener):
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		# Mirrors InitPaneFontSize: re-apply the saved setting on startup.
+		_apply_column_visibility(self.pane)
+	def on_path_changed(self):
+		# The model (and its columns) is rebuilt on every navigation, so the
+		# hidden state has to be re-applied each time, not just on startup.
+		_apply_column_visibility(self.pane)
 
 _WINDOW_TITLE_PREFIX = 'fman - file manager'
 
