@@ -11,3 +11,5 @@ code_analysis_results/
 claude-plans
 .claude
 code_analysis_results
+PLAN_RELEASE_NOTES.md
+tmp/commit_msg.tmp
