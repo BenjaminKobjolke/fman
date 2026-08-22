@@ -6,5 +6,6 @@ venv/
 target/
 .DS_Store
 coding-rules.json
-.claude
+tools/analyze_code_config.bat
+code_analysis_results/
 claude-plans
