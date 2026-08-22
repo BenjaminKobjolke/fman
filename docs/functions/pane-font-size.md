@@ -12,6 +12,11 @@ original size.
    plus **Reset font size** (palette-only, no default key binding).
 3. The chosen size is remembered — it survives restarting fman.
 
+This only zooms the two file-list panes. The [text viewer](../views/TEXT_VIEWER.md#zoom)
+has its own, independent zoom that reuses these same shortcuts (whatever
+they're currently bound to) and adds matching palette entries scoped to the
+viewer.
+
 ## Commands
 
 | Command name               | Palette label / aliases                              | Default key binding |
@@ -77,3 +82,19 @@ These can be rebound in `Key Bindings.json` like any other command, e.g.:
   on Windows/Linux.
 - `src/main/resources/base/Plugins/Core/core/tests/commands/test___init__.py`
   — `ClampFontSizeTest` covers the pure step/clamp logic.
+- The clamp logic (`clamp_font_size`, 6–40pt bounds) and the shortcut-lookup
+  helpers (`get_shortcuts_for_command`, `format_shortcut_hint`) actually live
+  in `core/font_size.py` and `core/key_bindings.py` respectively, re-exported
+  into `core/commands/__init__.py` under their original private names
+  (`_clamp_font_size`, `_MIN_PANE_FONT_SIZE`, `_MAX_PANE_FONT_SIZE`,
+  `_get_shortcuts_for_command`) so this feature's code and tests didn't need
+  to change. They were split out so the
+  [text viewer's own zoom](../views/TEXT_VIEWER.md#zoom) could reuse them
+  without a circular import (`core/commands/__init__.py` imports
+  `core/textviewer.py` at module load, so the reverse import isn't possible).
+- Likewise, `_get_saved_pane_font_size`/`_save_pane_font_size` are now thin
+  wrappers over `core/settings.py`'s generic `get_setting`/`save_setting`
+  (`json_name, key[, value]`) — extracted once the text viewer's own zoom
+  needed the exact same "get/set one key in a JSON settings file, `None`
+  clears it" pattern under a different key
+  (`text_viewer_font_size` vs. `pane_font_size`).
