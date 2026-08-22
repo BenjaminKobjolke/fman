@@ -5,3 +5,5 @@ cache/
 venv/
 target/
 .DS_Store
+coding-rules.json
+.claude
