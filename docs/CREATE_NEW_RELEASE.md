@@ -30,6 +30,15 @@ Author release notes for the **next** label = `<version>_<build_get + 1>`. The
 increment itself happens via `tools\build_increment.bat` as part of cutting the
 release (step 4) — don't increment twice.
 
+### Bumping the version
+
+`build` is **per-version**, not a global counter — it does not reset itself.
+When you change `version` in `src/build/settings/base.json` (e.g. `1.7.5` →
+`1.7.6`), also reset `build_version.txt` to `0` by hand so the new version's
+first release is `<newversion>_1` instead of continuing the old version's
+count (e.g. `1.7.6_3`). Do this before authoring release notes (step 2), so
+the folder name and `tools\version_get.bat` output agree.
+
 ## 2. Release notes directory + `en.json` schema
 
 Create `release_notes/<version>_<build>/en.json`:
@@ -187,6 +196,22 @@ to create a GitHub Release tagged `v<version>` at
 attach `target\fmanSetup.exe`, and set the body from
 `release_notes\<label>\en.json`. Idempotent — re-running re-uploads the asset
 (`--clobber`) instead of failing.
+
+**Caveat: the GitHub tag is `v<version>` only — the build number is stripped**
+(see `TAG=v%VERSION%` in the bat). Every build under the *same* version maps to
+the *same* tag/release. Shipping a second build of an unchanged version
+therefore reuses the existing GitHub Release: the asset gets re-uploaded
+(`--clobber`), but the release-tool's "already exists" path does **not**
+update the title or body — it only uploads the asset (see
+`release-tool/src/release_tool/github_publisher.py`, `_ALREADY_EXISTS_MARKER`
+branch). If you ship a same-version rebuild, fix the notes by hand afterward:
+```bat
+gh release edit v<version> --repo BenjaminKobjolke/fman --title "fman <version>" --notes-file release_notes\<label>\en.json
+```
+(the `en.json` isn't directly Markdown, so render its `title`/`notes` into a
+`# title` + bullet-list `.md` file first). A **version bump** avoids this
+entirely — a new tag means a brand-new release with no reuse. See "Bumping the
+version" in step 1.
 
 **`release_notes/` is bundled into the frozen app.** fbs auto-bundles
 everything under `src/main/resources/base/` into the frozen output
