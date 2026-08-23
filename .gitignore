@@ -13,3 +13,6 @@ claude-plans
 code_analysis_results
 PLAN_RELEASE_NOTES.md
 tmp/commit_msg.tmp
+PLAN-changed-files.md
+PLAN.md
+PLAN_REFRACTOR.md
