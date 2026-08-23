@@ -34,11 +34,13 @@ global command palette (which can't reach the viewer anyway, since it only
 searches the file-list widget and that's hidden while viewing).
 
 **View-mode entries:** *Exit viewer*, *Edit file*, *Reload from disk*,
+*Enable/Disable auto-reload*, *Enable/Disable tail mode (follow end)*,
 *Increase font size*, *Decrease font size*, *Reset font size*.
 
 **Edit-mode entries:** *Save file*, *Save file as…*,
-*Revert / reload from disk*, *Increase font size*, *Decrease font size*,
-*Reset font size*, *Exit viewer*.
+*Revert / reload from disk*, *Enable/Disable auto-reload*,
+*Enable/Disable tail mode (follow end)*, *Increase font size*,
+*Decrease font size*, *Reset font size*, *Exit viewer*.
 
 Notes:
 
@@ -64,6 +66,26 @@ Notes:
 - **Save file as…** prompts for a full destination path and writes there;
   the viewer then continues editing/saving that new path.
 
+## Reload and auto-reload
+
+- **Reload keeps your place.** *Reload from disk* (view mode) and
+  *Revert / reload from disk* (edit mode) preserve the viewport's scroll
+  position and cursor location rather than jumping back to the top of the
+  file.
+- **Auto-reload** is an opt-in, per-view toggle (*Enable/Disable auto-reload*
+  in the palette): once enabled, the viewer watches the open file on disk and
+  reloads automatically whenever it changes, still preserving scroll
+  position. It's session-only — every newly opened file starts with
+  auto-reload off, and closing the viewer forgets the setting.
+- **Tail mode** (*Enable/Disable tail mode (follow end)*) is the log-following
+  variant of auto-reload: instead of preserving scroll position, each reload
+  jumps to the end of the file, like `tail -f`. Switching between plain
+  auto-reload and tail mode doesn't require turning auto-reload off first.
+- **Unsaved edits are never overwritten.** If the file changes on disk while
+  editing with unsaved changes, auto-reload/tail mode skips the reload and
+  shows a status message (`File changed on disk (not reloaded)`) instead of
+  discarding your edits.
+
 ## Zoom
 
 The viewer has its own font-size zoom, independent of the file-list panes'
@@ -82,6 +104,29 @@ zoom ([pane font size](../functions/pane-font-size.md)):
 Rebinding `increase_pane_font_size`/`decrease_pane_font_size` in
 `Key Bindings.json` changes what the viewer listens for too, since it looks
 up the *current* binding rather than hardcoding `Alt+Up`/`Alt+Down`.
+
+## Bindable commands
+
+Beyond zoom (already bindable via the pane font-size shortcut, above, and
+still read from `Key Bindings (<OS>).json`), the palette actions are
+viewer-only pseudo-commands you can bind your own key to in your own
+`Viewer Key Bindings (<OS>).json` — a **separate file**, see
+[`docs/KEYBINDINGS.md`](../KEYBINDINGS.md#viewer-specific-bindings). A
+rebind always wins over the default key listed below; the set differs by
+mode (see [Editing](#editing)).
+
+| Command                     | Default key             | Mode | Action                  |
+|-------------------------------|--------------------------|------|--------------------------|
+| `text_edit`                   | *(none — palette only)*  | view | Edit file                |
+| `text_reload`                 | *(none — palette only)*  | view | Reload from disk         |
+| `text_toggle_auto_reload`     | *(none — palette only)*  | view, with a backing file | Enable/disable auto-reload |
+| `text_toggle_tail`            | *(none — palette only)*  | view, with a backing file | Enable/disable tail mode |
+| `text_save`                   | *(none — palette only)*  | edit | Save file                |
+| `text_save_as`                | *(none — palette only)*  | edit | Save file as…            |
+| `text_revert`                 | *(none — palette only)*  | edit | Revert / reload from disk |
+| `viewer_close`                | Escape/Enter/Backspace   | both | Close viewer (edit mode: with unsaved-changes prompt) |
+| `viewer_switch_panes`         | Tab                      | view only | Switch panes — deliberately not bindable in edit mode, where Tab always types |
+| `viewer_open_palette`         | Ctrl+Shift+P             | both | Open viewer command palette |
 
 ## Behaviour
 
@@ -191,7 +236,17 @@ genuinely separate concerns (reading a file vs. the Qt widget vs. zoom):
   Mac-symbol substitution for display). Also shared with — and, after this
   feature, factored out of — `core/commands/__init__.py`'s `CommandPalette`,
   which uses the same two functions for its own hint display. Same
-  circular-import reason as `font_size.py`.
+  circular-import reason as `font_size.py`. `command_for_key_event(key_event,
+  key_bindings, command_names)` generalizes `zoom_delta_for` below (a single
+  hardcoded command pair) to an arbitrary set of viewer-only pseudo-commands:
+  first name in `command_names` whose shortcut matches, else `None`.
+  `dispatch_bindable_command(key_event, key_bindings, commands)` wraps it —
+  looks up and immediately calls the matched command, returning whether one
+  fired — so each viewer's `keyPressEvent` does one
+  `if dispatch_bindable_command(...): return` instead of repeating the
+  lookup-then-call sequence. Shared by all three viewers'
+  `_bindable_commands()` lookups (see "Bindable commands" above, and the
+  image/video viewer docs for their own lists).
 - `src/main/resources/base/Plugins/Core/core/textviewer_zoom.py` — the
   viewer's own zoom, independent of pane font size (own settings key
   `text_viewer_font_size` in `Core Settings.json` via `core/settings.py`, own
@@ -229,10 +284,52 @@ genuinely separate concerns (reading a file vs. the Qt widget vs. zoom):
   - `close_view(pane_widget)` — unmounts the current viewer and restores the
     file list; re-exported from `core/textviewer.py` as `close_text_viewer`
     for API stability.
+- `src/main/resources/base/Plugins/Core/core/textviewer_reload.py` — the
+  scroll/cursor-preserving reload shared by manual *Reload*/*Revert* and
+  auto-reload, split out of `core/textviewer.py` to stay under the 300-line
+  cap. Like `confirm_close` above, its functions operate directly on the
+  `PaneTextView` instance (`view`) passed in rather than staying fully
+  decoupled:
+  - `set_text_preserving_scroll(view, text)` — saves the scrollbar value and
+    cursor position, calls `setPlainText`, then restores both (clamped to the
+    new text's length, in case the file shrank) — restoring *after*
+    `setPlainText` because that call resets the scroll range.
+  - `scroll_to_end(view)` — moves the cursor to the end and the scrollbar to
+    its maximum; the tail-mode counterpart to the above.
+  - `reload_from_disk(view, tail)` — the shared pipeline: `load_for_view`,
+    update `_editable`, apply either `set_text_preserving_scroll` or (when
+    `tail`) `setPlainText` + `scroll_to_end`, and fall back to read-only via
+    `view._set_read_only()` if the reloaded file is no longer editable. Used
+    by `PaneTextView._revert` and by `core/textviewer_watch.py`'s
+    `on_file_changed`, so the load+editability+modified-state sequence is
+    specified once.
+- `src/main/resources/base/Plugins/Core/core/textviewer_watch.py` — auto-reload
+  and tail mode, also split out to stay under the 300-line cap:
+  - `start_watch(path, on_changed, parent)` — wraps `QFileSystemWatcher`,
+    parented to `parent` (the viewer widget) so it's destroyed automatically
+    when the widget is, with no separate teardown path. Re-adds `path` to the
+    watch list on every change, since many editors save via atomic rename
+    (write a temp file, rename over the original), which silently drops Qt's
+    watch on the original path.
+  - `toggle_auto_reload(view)` / `toggle_tail(view)` — the two palette
+    actions; each starts/stops watching depending on whether that specific
+    mode (plain vs. tail) is already active, so switching from one to the
+    other doesn't require turning auto-reload off first.
+  - `start_auto_reload(view, tail)` / `stop_auto_reload(view)` — the shared
+    start/stop logic behind both toggles, plus a status message
+    (`Auto-reload on`/`Tail mode on`/`Auto-reload off`).
+  - `on_file_changed(view)` — the `QFileSystemWatcher.fileChanged` handler:
+    skips the reload with a status message
+    (`File changed on disk (not reloaded)`) if `view` is mid-edit with
+    unsaved changes, skips silently if the path doesn't exist yet (transient
+    during an atomic save), otherwise calls `reload_from_disk`.
 - `src/main/resources/base/Plugins/Core/core/textviewer.py`:
   - `PaneTextView(QPlainTextEdit)` — the viewer/editor widget. Tracks
     `_editable` (can this file be edited at all) and `_editing` (is it
-    currently in edit mode) separately. `keyPressEvent`:
+    currently in edit mode) separately, plus `_watcher` (the active
+    `QFileSystemWatcher`, or `None` when auto-reload is off) and `_tail`
+    (plain auto-reload vs. tail mode) — both reset per view, so a newly
+    opened file always starts with auto-reload off. `keyPressEvent`:
     - `Ctrl+Shift+P` always opens the viewer-scoped palette
       (`_open_palette`/`_suggest_actions`/`_get_actions`, built on the same
       `show_quicksearch`/`QuicksearchItem` API as fman's global command
@@ -240,20 +337,35 @@ genuinely separate concerns (reading a file vs. the Qt widget vs. zoom):
     - A zoom-shortcut match (via `zoom_delta_for`) is checked next, before
       the edit-mode passthrough, so it zooms rather than getting typed into
       the buffer.
+    - A `_bindable_commands()` lookup (via
+      `core.key_bindings.command_for_key_event`, against
+      `Viewer Key Bindings.json` — see "Bindable commands" above) is checked
+      next, same reasoning: before the edit-mode
+      passthrough, so e.g. a user-bound `Ctrl+S`→`text_save` fires instead of
+      typing an `S`. `_bindable_commands()` mirrors `_get_actions`'s
+      view/edit split so a bound key always does what its palette entry
+      does; `viewer_switch_panes` is only present in the view-mode dict.
     - While `_editing`, everything else (including Tab) is forwarded to
       `QPlainTextEdit`'s native handling — Exit/Save/Revert become
-      palette-only so a stray keystroke can't lose focus or discard edits.
+      palette-only (or user-bound) so a stray keystroke can't lose focus or
+      discard edits.
     - Otherwise (view mode), Escape/Enter/Return/Backspace close and
       Tab/Shift+Tab switch panes, as before.
     - Action methods: `_enter_edit_mode`, `_write` (shared by `_save`/
-      `_save_as`), `_save`, `_save_as`, `_revert`, `_exit_with_dirty_check`,
+      `_save_as`), `_save`, `_save_as`, `_revert` (delegates the actual
+      reload to `core.textviewer_reload.reload_from_disk`, keeping only the
+      unsaved-changes confirmation here), `_exit_with_dirty_check`,
       `_apply_font_size` (the `apply_size` callback passed to
       `change_view_font_size`/`reset_view_font_size`), `_set_read_only`
       (the `setReadOnly(True)` + interaction-flags pair from the Qt quirk
-      below, shared by `__init__` and by `_revert` falling back to read-only
-      when a reload turns out non-editable). Dirty-checking reads
+      below, shared by `__init__` and by `reload_from_disk` falling back to
+      read-only when a reload turns out non-editable). Dirty-checking reads
       `self.document().isModified()`, which `setPlainText`/
-      `setModified(False)` reset naturally.
+      `setModified(False)` reset naturally. `_get_actions` builds the
+      auto-reload/tail palette entries' labels from `_watcher`/`_tail` and
+      wires them to `core.textviewer_watch.toggle_auto_reload`/
+      `toggle_tail`, only when `_path` is set (`show_text_in_viewer`'s
+      Release Notes view has no backing file to watch).
   - `show_text_viewer(pane, url)` / `show_text_in_viewer(pane, text)` /
     `close_text_viewer(pane_widget)` — mount/unmount the viewer in the
     pane's own `QVBoxLayout` (`pane._widget.layout()`). `show_text_viewer`
@@ -282,6 +394,9 @@ genuinely separate concerns (reading a file vs. the Qt widget vs. zoom):
   - `core/tests/test_textviewer_zoom.py` — `zoom_delta_for`'s shortcut
     matching, including that it follows a rebind rather than only the
     default `Alt+Up`/`Alt+Down`.
+  - `core/tests/test_key_bindings.py` — `command_for_key_event`'s matching,
+    order-independence across `command_names`, and no-match case; shared by
+    all three viewers.
   - `core/tests/test_textviewer_pane.py` — `caret_fix_css`'s color/font-size
     substitution and selector.
   - The remaining Qt-specific behaviour (interaction flags, actual caret

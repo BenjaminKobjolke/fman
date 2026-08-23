@@ -10,7 +10,10 @@ confirm_close() tolerating a view with no `_editing` attribute of its own.
 from core.imageviewer_zoom import (
 	change_image_scale, get_saved_scale, reset_image_scale, save_scale,
 )
-from core.key_bindings import get_shortcuts_for_command, format_shortcut_hint
+from core.key_bindings import (
+	dispatch_bindable_command, format_shortcut_hint, get_shortcuts_for_command,
+	VIEWER_KEY_BINDINGS_FILE,
+)
 from core.quicksearch_matchers import contains_chars
 from core.textviewer_pane import begin_new_view, mount_view, close_view as close_text_viewer
 from core.textviewer_zoom import zoom_delta_for
@@ -81,9 +84,17 @@ class PaneImageView(QScrollArea):
 			self._open_palette()
 			return
 		key_event = QtKeyEvent(event.key(), event.modifiers())
-		zoom_delta = zoom_delta_for(key_event, load_json('Key Bindings.json', default=[]))
+		key_bindings = load_json('Key Bindings.json', default=[])
+		zoom_delta = zoom_delta_for(key_event, key_bindings)
 		if zoom_delta is not None:
 			change_image_scale(self, self._apply_scale, zoom_delta)
+			return
+		# A user rebind always wins over the hardcoded defaults below -
+		# checked first for that reason. Viewer pseudo-commands are looked
+		# up in their own file, separate from the zoom binding above - see
+		# core.key_bindings.VIEWER_KEY_BINDINGS_FILE.
+		viewer_bindings = load_json(VIEWER_KEY_BINDINGS_FILE, default=[])
+		if dispatch_bindable_command(key_event, viewer_bindings, self._bindable_commands()):
 			return
 		if event.key() in (
 			Qt.Key_Escape, Qt.Key_Return, Qt.Key_Enter, Qt.Key_Backspace
@@ -97,6 +108,20 @@ class PaneImageView(QScrollArea):
 		# own handling, which pans via the scrollbars once zoomed in past
 		# the viewport size.
 		super().keyPressEvent(event)
+
+	def _bindable_commands(self):
+		# Viewer-only pseudo-commands this focused view matches against
+		# Viewer Key Bindings.json itself (see keyPressEvent) - not registered
+		# DirectoryPaneCommands, not in Core's own Key Bindings.json. Zoom
+		# in/out are deliberately not here: they already follow the pane
+		# font-size binding via zoom_delta_for, checked above.
+		return {
+			'image_reset_zoom': self._fit_to_window,
+			'image_actual_size': self._actual_size,
+			'viewer_close': self._on_close,
+			'viewer_switch_panes': self._on_switch,
+			'viewer_open_palette': self._open_palette,
+		}
 
 	def _apply_scale(self, scale):
 		self._scale = scale

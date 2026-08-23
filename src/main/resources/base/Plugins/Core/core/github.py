@@ -1,10 +1,8 @@
-from requests import RequestException
-from urllib.error import HTTPError, URLError
-from urllib.request import urlopen
+from core.net import get_bytes
+from urllib.error import HTTPError
 
 import json
 import re
-import requests
 import sys
 
 def find_repos(topics):
@@ -72,19 +70,4 @@ def _get_json(url):
 	return json.loads(_get(url).decode('utf-8'))
 
 def _get(url):
-	try:
-		return urlopen(url).read()
-	except HTTPError:
-		raise
-	except URLError:
-		# Fallback: Some users get "SSL: CERTIFICATE_VERIFY_FAILED" for urlopen.
-		try:
-			response = requests.get(url)
-		except RequestException as e:
-			raise URLError(e.__class__.__name__)
-		if response.status_code != 200:
-			raise HTTPError(
-				url, response.status_code, response.reason, response.headers,
-				None
-			)
-		return response.content
+	return get_bytes(url)

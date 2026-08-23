@@ -9,6 +9,27 @@ stay under the project's 300-line file cap. Pure (no Qt) throughout.
 # freeze the UI:
 MAX_VIEW_BYTES = 2 * 1024 * 1024
 
+# How much of a file is_text_file() sniffs to decide binary vs. text.
+SNIFF_BYTES = 8192
+
+def is_text_file(path):
+	"""
+	Cheap binary/text sniff used to decide whether the internal viewer should
+	touch `path` at all (see ViewFile/OpenOrView in core/commands/__init__.py)
+	rather than routing it to the text viewer, which would otherwise render
+	.exe/.zip/etc. as garbled replacement characters. Reads the first chunk
+	and calls anything containing a NUL byte binary — avoids maintaining an
+	extension whitelist.
+	# ponytail: NUL-byte heuristic; UTF-16 text reads as binary. Add an
+	# encoding probe only if that turns out to matter.
+	"""
+	try:
+		with open(path, 'rb') as f:
+			chunk = f.read(SNIFF_BYTES)
+	except OSError:
+		return False
+	return b'\x00' not in chunk
+
 def read_capped(path):
 	"""
 	Reads up to MAX_VIEW_BYTES of `path`. Returns (data, truncated) so

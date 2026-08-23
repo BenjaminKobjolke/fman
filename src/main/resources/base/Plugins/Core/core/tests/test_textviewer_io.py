@@ -1,6 +1,6 @@
 from core.textviewer_io import (
 	read_text_for_view, MAX_VIEW_BYTES, is_editable, read_capped,
-	load_for_view,
+	load_for_view, is_text_file,
 )
 from tempfile import NamedTemporaryFile
 from unittest import TestCase
@@ -90,3 +90,15 @@ class LoadForViewTest(TestCase):
 		text, editable = load_for_view(path)
 		self.assertIn('�', text)
 		self.assertFalse(editable)
+
+class IsTextFileTest(TestCase):
+	def test_plain_text_is_text(self):
+		path = _write_temp_file(self, b'hello world')
+		self.assertTrue(is_text_file(path))
+
+	def test_null_byte_is_binary(self):
+		path = _write_temp_file(self, b'MZ\x00\x00binary stuff')
+		self.assertFalse(is_text_file(path))
+
+	def test_missing_file_is_not_text(self):
+		self.assertFalse(is_text_file('/no/such/path/does-not-exist'))

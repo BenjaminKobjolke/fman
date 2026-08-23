@@ -9,7 +9,10 @@ safe to write back (see core.textviewer_io.is_editable). show_text_in_viewer
 is a read-only sibling that mounts arbitrary text with no backing file - see
 core/commands/release_notes.py and docs/views/RELEASE_NOTES.md.
 """
-from core.key_bindings import get_shortcuts_for_command, format_shortcut_hint
+from core.key_bindings import (
+	dispatch_bindable_command, format_shortcut_hint, get_shortcuts_for_command,
+	VIEWER_KEY_BINDINGS_FILE,
+)
 from core.quicksearch_matchers import contains_chars
 from core.textviewer_io import (
 	MAX_VIEW_BYTES as _MAX_VIEW_BYTES, read_text_for_view, load_for_view,
@@ -18,6 +21,8 @@ from core.textviewer_pane import (
 	caret_fix_css, confirm_close, begin_new_view, mount_view,
 	close_view as close_text_viewer,
 )
+from core.textviewer_reload import reload_from_disk
+from core.textviewer_watch import toggle_auto_reload, toggle_tail
 from core.textviewer_zoom import (
 	get_saved_view_font_size, change_view_font_size, reset_view_font_size,
 	zoom_delta_for,
@@ -44,6 +49,8 @@ class PaneTextView(QPlainTextEdit):
 		self._url = url
 		self._editable = editable
 		self._editing = False
+		self._watcher = None
+		self._tail = False
 		self._set_read_only()
 		self.setLineWrapMode(QPlainTextEdit.WidgetWidth)
 		self.setStyleSheet(caret_fix_css(bg, fg, get_saved_view_font_size()))
@@ -56,13 +63,22 @@ class PaneTextView(QPlainTextEdit):
 			self._open_palette()
 			return
 		key_event = QtKeyEvent(event.key(), event.modifiers())
-		zoom_delta = zoom_delta_for(key_event, load_json('Key Bindings.json', default=[]))
+		key_bindings = load_json('Key Bindings.json', default=[])
+		zoom_delta = zoom_delta_for(key_event, key_bindings)
 		if zoom_delta is not None:
 			# Whatever the user has increase/decrease pane font size bound
 			# to (default Alt+Up/Down) also zooms the viewer - works in both
 			# view and edit mode, and is checked before the edit-mode
 			# passthrough below so it never gets typed into the buffer.
 			change_view_font_size(self, self._apply_font_size, zoom_delta)
+			return
+		# Checked before the edit-mode passthrough (same reasoning as zoom
+		# above) so e.g. a user-bound Ctrl+S works while typing; unbound
+		# keys still fall through to normal typing. Viewer pseudo-commands
+		# are looked up in their own file, separate from the zoom binding
+		# above - see core.key_bindings.VIEWER_KEY_BINDINGS_FILE.
+		viewer_bindings = load_json(VIEWER_KEY_BINDINGS_FILE, default=[])
+		if dispatch_bindable_command(key_event, viewer_bindings, self._bindable_commands()):
 			return
 		if self._editing:
 			# Edit mode: everything, including Tab, goes to the editor as
@@ -84,6 +100,33 @@ class PaneTextView(QPlainTextEdit):
 			return
 		super().keyPressEvent(event)
 
+	def _bindable_commands(self):
+		# Viewer-only pseudo-commands this focused view matches against
+		# Viewer Key Bindings.json itself (see keyPressEvent) - not registered
+		# DirectoryPaneCommands, not in Core's own Key Bindings.json. Mirrors
+		# _get_actions's mode split so a bound key does the same thing its
+		# palette entry does. viewer_switch_panes is deliberately absent in
+		# edit mode - Tab must keep typing normally there (see keyPressEvent).
+		if self._editing:
+			return {
+				'text_save': self._save,
+				'text_save_as': self._save_as,
+				'text_revert': self._revert,
+				'viewer_close': self._exit_with_dirty_check,
+				'viewer_open_palette': self._open_palette,
+			}
+		commands = {
+			'text_edit': self._enter_edit_mode,
+			'text_reload': self._revert,
+			'viewer_close': self._on_close,
+			'viewer_switch_panes': self._on_switch,
+			'viewer_open_palette': self._open_palette,
+		}
+		if self._path is not None:
+			commands['text_toggle_auto_reload'] = lambda: toggle_auto_reload(self)
+			commands['text_toggle_tail'] = lambda: toggle_tail(self)
+		return commands
+
 	def _apply_font_size(self, size):
 		# Passed as the apply_size callback to core.textviewer_zoom, which
 		# stays PyQt/stylesheet-agnostic; size=None clears the override.
@@ -104,6 +147,21 @@ class PaneTextView(QPlainTextEdit):
 
 	def _get_actions(self):
 		key_bindings = load_json('Key Bindings.json', default=[])
+		watching = self._watcher is not None
+		reload_actions = []
+		if self._path is not None:
+			auto_label = (
+				'Disable auto-reload' if watching and not self._tail
+				else 'Enable auto-reload'
+			)
+			tail_label = (
+				'Disable tail mode' if watching and self._tail
+				else 'Enable tail mode (follow end)'
+			)
+			reload_actions = [
+				(auto_label, lambda: toggle_auto_reload(self), ''),
+				(tail_label, lambda: toggle_tail(self), ''),
+			]
 		zoom_actions = [
 			(
 				'Increase font size',
@@ -129,14 +187,14 @@ class PaneTextView(QPlainTextEdit):
 				('Save file', self._save, ''),
 				('Save file as…', self._save_as, ''),
 				('Revert / reload from disk', self._revert, ''),
-			] + zoom_actions + [
+			] + reload_actions + zoom_actions + [
 				('Exit viewer', self._exit_with_dirty_check, ''),
 			]
 		return [
 			('Exit viewer', self._on_close, ''),
 			('Edit file', self._enter_edit_mode, ''),
 			('Reload from disk', self._revert, ''),
-		] + zoom_actions
+		] + reload_actions + zoom_actions
 
 	def _enter_edit_mode(self):
 		if not self._editable:
@@ -179,13 +237,7 @@ class PaneTextView(QPlainTextEdit):
 				'Discard unsaved changes and reload from disk?', YES | NO, NO
 			) & YES:
 				return
-		text, editable = load_for_view(self._path)
-		self._editable = editable
-		self.setPlainText(text)
-		self.document().setModified(False)
-		if self._editing and not self._editable:
-			self._editing = False
-			self._set_read_only()
+		reload_from_disk(self, tail=False)
 
 	def _exit_with_dirty_check(self):
 		if confirm_close(self):
@@ -203,14 +255,13 @@ class PaneTextView(QPlainTextEdit):
 			Qt.TextSelectableByKeyboard | Qt.TextSelectableByMouse
 		)
 
-@run_in_main_thread
-def show_text_viewer(pane, url):
+def _mount_new_view(pane, text, path, url, editable):
+	# Shared by show_text_viewer/show_text_in_viewer below - both build a
+	# PaneTextView the same way and only differ in what they pass in.
 	prepared = begin_new_view(pane)
 	if prepared is None:
 		return
 	widget, bg, fg = prepared
-	path = as_human_readable(url)
-	text, editable = load_for_view(path)
 	view = PaneTextView(
 		lambda: close_text_viewer(widget),
 		lambda: pane.run_command('switch_panes'),
@@ -218,6 +269,12 @@ def show_text_viewer(pane, url):
 	)
 	view.setPlainText(text)
 	mount_view(pane, widget, view)
+
+@run_in_main_thread
+def show_text_viewer(pane, url):
+	path = as_human_readable(url)
+	text, editable = load_for_view(path)
+	_mount_new_view(pane, text, path, url, editable)
 
 @run_in_main_thread
 def show_text_in_viewer(pane, text):
@@ -228,14 +285,4 @@ def show_text_in_viewer(pane, text):
 	file. Always read-only (there's nothing to save back to), unlike
 	show_text_viewer where editability depends on the source file.
 	"""
-	prepared = begin_new_view(pane)
-	if prepared is None:
-		return
-	widget, bg, fg = prepared
-	view = PaneTextView(
-		lambda: close_text_viewer(widget),
-		lambda: pane.run_command('switch_panes'),
-		bg, fg, None, None, False,
-	)
-	view.setPlainText(text)
-	mount_view(pane, widget, view)
+	_mount_new_view(pane, text, None, None, False)

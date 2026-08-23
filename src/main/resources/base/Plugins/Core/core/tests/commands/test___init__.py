@@ -1,5 +1,5 @@
 from core.commands import History, Move, OpenOrView, ShowAllPanes, \
-	ShowOnlyActivePane, _from_human_readable, get_dest_suggestion, \
+	ShowOnlyActivePane, ViewFile, _from_human_readable, get_dest_suggestion, \
 	_find_extension_start, _get_shortcuts_for_command, _clamp_font_size, \
 	_MIN_PANE_FONT_SIZE, _MAX_PANE_FONT_SIZE, _format_window_title, \
 	_find_column_index
@@ -8,6 +8,7 @@ from core.util import filenotfounderror
 from fman import OK, YES, NO, PLATFORM
 from fman.url import join, as_human_readable, as_url, dirname
 from PyQt5.QtWidgets import QApplication
+from tempfile import NamedTemporaryFile
 from unittest import TestCase
 from unittest.mock import patch
 
@@ -321,17 +322,65 @@ class _FakeOpenOrViewPane:
 class OpenOrViewTest(TestCase):
 	def test_dispatches_by_cursor_target(self):
 		cases = (
-			('directory', True, 'open'),
-			('file', False, 'view_file'),
-			(None, False, 'open'),
+			# label, is_dir, is_viewable, expected command
+			('directory', True, True, 'open'),
+			('file', False, True, 'view_file'),
+			('binary', False, False, 'open'),
+			(None, False, True, 'open'),
 		)
-		for label, cursor_is_dir, expected_command in cases:
-			with self.subTest(label):
+		for label, cursor_is_dir, viewable, expected_command in cases:
+			with self.subTest(label=label, viewable=viewable):
 				url = 'file://' + label if label else None
 				pane = _FakeOpenOrViewPane(url)
-				with patch('core.commands.is_dir', return_value=cursor_is_dir):
+				with patch('core.commands.is_dir', return_value=cursor_is_dir), \
+						patch('core.commands._is_viewable', return_value=viewable):
 					OpenOrView(pane)()
 				self.assertEqual([expected_command], pane.commands_run)
+
+	def test_non_local_url_falls_back_to_open(self):
+		# Scheme check happens before _is_viewable, so a viewable-looking
+		# remote file still can't be handed to the (local-only) viewer.
+		pane = _FakeOpenOrViewPane('http://example.com/file.txt')
+		with patch('core.commands.is_dir', return_value=False), \
+				patch('core.commands._is_viewable', return_value=True):
+			OpenOrView(pane)()
+		self.assertEqual(['open'], pane.commands_run)
+
+class _FakeViewFilePane:
+	def __init__(self, url):
+		self._url = url
+	def get_file_under_cursor(self):
+		return self._url
+
+def _write_temp_file(test_case, data):
+	f = NamedTemporaryFile(delete=False)
+	try:
+		f.write(data)
+	finally:
+		f.close()
+	test_case.addCleanup(os.remove, f.name)
+	return f.name
+
+class ViewFileTest(TestCase):
+	def test_text_file_opens_text_viewer(self):
+		path = _write_temp_file(self, b'hello world')
+		pane = _FakeViewFilePane(as_url(path))
+		with patch('core.commands.is_dir', return_value=False), \
+				patch('core.commands.show_text_viewer') as show_text_viewer, \
+				patch('core.commands.show_alert') as show_alert:
+			ViewFile(pane)()
+		show_text_viewer.assert_called_once()
+		show_alert.assert_not_called()
+
+	def test_binary_file_shows_alert_instead_of_text_viewer(self):
+		path = _write_temp_file(self, b'MZ\x00\x00binary stuff')
+		pane = _FakeViewFilePane(as_url(path))
+		with patch('core.commands.is_dir', return_value=False), \
+				patch('core.commands.show_text_viewer') as show_text_viewer, \
+				patch('core.commands.show_alert') as show_alert:
+			ViewFile(pane)()
+		show_text_viewer.assert_not_called()
+		show_alert.assert_called_once()
 
 class ClampFontSizeTest(TestCase):
 	def test_steps_up(self):

@@ -155,16 +155,78 @@ or overriding.
 
 ## Viewer-specific bindings
 
-The [text viewer](views/TEXT_VIEWER.md) and
-[image viewer](views/IMAGE_VIEWER.md) only bind a few keys directly (the
-rest fall through to text navigation/selection, or panning for images):
+The [text viewer](views/TEXT_VIEWER.md), [image viewer](views/IMAGE_VIEWER.md),
+and [video viewer](views/VIDEO_VIEWER.md) each bind a handful of keys
+directly — the rest fall through to text navigation/selection, image panning,
+or (video) the hardcoded playback defaults below:
 
 | Keys | Effect |
 |------|--------|
 | `Escape` / `Enter` / `Backspace` | Close the viewer, return to the file list |
-| `Tab` / `Shift+Tab` | Switch panes (same as the file list) |
-| `Ctrl+Shift+P` | Open the viewer's own command palette (exit/edit/save, zoom) |
-| Whatever `increase_pane_font_size`/`decrease_pane_font_size` are bound to (`Alt+Up`/`Alt+Down` by default) | Zoom the viewer's text/image |
+| `Tab` / `Shift+Tab` | Switch panes (same as the file list) — view/text-edit-mode only, see below |
+| `Ctrl+Shift+P` | Open the viewer's own command palette (exit/edit/save, zoom, video/mute controls) |
+| Whatever `increase_pane_font_size`/`decrease_pane_font_size` are bound to (`Alt+Up`/`Alt+Down` by default) | Zoom the text/image viewer (video has no zoom) |
+
+**Video-only defaults** (no equivalent in the other two viewers):
+
+| Keys | Effect |
+|------|--------|
+| `Space` | Play / pause |
+| `Left` / `Right` | Seek −5s / +5s |
+| `Up` / `Down` | Volume −5 / +5, flashing `Volume: N` on screen |
+
+### Bindable viewer commands
+
+Every viewer action above — plus several that ship with **no** default key
+(video mute/reset-volume/restart, image reset-zoom/actual-size, several text
+palette actions) — is a **viewer-only pseudo-command** you can bind in your
+own `Viewer Key Bindings (<OS>).json`, a **separate file** from the
+`Key Bindings (<OS>).json` used for global/file-list shortcuts above. It
+follows the identical base → platform → user-override merge, just under its
+own filename (`core/key_bindings.py::VIEWER_KEY_BINDINGS_FILE`). These
+pseudo-commands are matched by the focused viewer widget itself
+(`core/key_bindings.py::command_for_key_event`, checked before that viewer's
+hardcoded fallback keys — a rebind always wins) — they are **not** registered
+`DirectoryPaneCommand`s and are **not** present in Core's own
+`Key Bindings.json`, so putting one there instead of `Viewer Key Bindings.json`
+triggers a "Command does not exist" startup alert and does nothing. They only
+do anything while the matching viewer has focus.
+
+| Command | Viewer | Default key | Action |
+|---------|--------|--------------|--------|
+| `viewer_close` | all | Escape/Enter/Backspace | Close viewer |
+| `viewer_switch_panes` | all (text: view mode only) | Tab | Switch panes |
+| `viewer_open_palette` | all | Ctrl+Shift+P | Open viewer command palette |
+| `video_toggle_pause` | video | Space | Play / pause |
+| `video_seek_forward` / `video_seek_backward` | video | Right / Left | Seek ±5s |
+| `video_volume_up` / `video_volume_down` | video | Up / Down | Volume ±5 |
+| `video_mute` | video | *(none)* | Toggle mute (persists) |
+| `video_reset_volume` | video | *(none)* | Volume → 100 |
+| `video_restart` | video | *(none)* | Restart from 0:00 |
+| `image_reset_zoom` | image | *(none)* | Fit to window |
+| `image_actual_size` | image | *(none)* | Actual size (100%) |
+| `text_edit` / `text_reload` | text (view mode) | *(none)* | Edit file / Reload from disk |
+| `text_toggle_auto_reload` / `text_toggle_tail` | text (view mode, backed file) | *(none)* | Toggle auto-reload / tail mode |
+| `text_save` / `text_save_as` / `text_revert` | text (edit mode) | *(none)* | Save / Save as… / Revert |
+
+See each viewer's own docs
+([video](views/VIDEO_VIEWER.md#bindable-commands),
+[image](views/IMAGE_VIEWER.md#bindable-commands),
+[text](views/TEXT_VIEWER.md#bindable-commands)) for the full per-mode list.
+Example — bind **M** to mute in the video viewer, in your user
+`Viewer Key Bindings (Windows).json`:
+
+```json
+{ "keys": ["M"], "command": "video_mute" }
+```
+
+Example — also bind **Ctrl+Left**/**Ctrl+Up** to close the viewer (in
+addition to the Escape/Enter/Backspace defaults above):
+
+```json
+[{ "keys": ["Ctrl+Left"], "command": "viewer_close" },
+ { "keys": ["Ctrl+Up"], "command": "viewer_close" }]
+```
 
 `view_file` (opens the internal viewer on the file under the cursor — see
 [`docs/functions/view-file.md`](functions/view-file.md)) ships with **no

@@ -67,6 +67,23 @@ whole image is always visible.
   `.webp`, `.ico`, `.svg`. Anything else opens in the
   [text viewer](TEXT_VIEWER.md) instead.
 
+## Bindable commands
+
+Beyond zoom (already bindable via the pane font-size shortcut, above, and
+still read from `Key Bindings (<OS>).json`), the viewer's other actions are
+viewer-only pseudo-commands you can bind your own key to in your own
+`Viewer Key Bindings (<OS>).json` — a **separate file**, see
+[`docs/KEYBINDINGS.md`](../KEYBINDINGS.md#viewer-specific-bindings). A
+rebind always wins over the default key listed below.
+
+| Command                | Default key            | Action                |
+|-------------------------|------------------------|------------------------|
+| `image_reset_zoom`      | *(none — palette only)* | Fit to window         |
+| `image_actual_size`     | *(none — palette only)* | Actual size (100%)    |
+| `viewer_close`          | Escape/Enter/Backspace | Close viewer           |
+| `viewer_switch_panes`   | Tab                    | Switch panes           |
+| `viewer_open_palette`   | Ctrl+Shift+P           | Open viewer command palette |
+
 ## Why it works while the file list is hidden
 
 Same mechanism as the text viewer — see
@@ -88,9 +105,12 @@ pane's focus proxy/Tab handling are re-pointed at it the same way.
     animates). `keyPressEvent` mirrors `PaneTextView`'s: Ctrl+Shift+P opens
     its own palette, a zoom-shortcut match (via
     `core.textviewer_zoom.zoom_delta_for`, reused rather than duplicated)
-    rescales, Escape/Enter/Backspace close, Tab/Backtab switch panes, and
-    everything else (arrow keys) falls through to `QScrollArea`'s own
-    panning. `resizeEvent` re-fits while in fit mode.
+    rescales, then a `_bindable_commands()` lookup (via
+    `core.key_bindings.command_for_key_event` — see "Bindable commands"
+    above, against `Viewer Key Bindings.json`) is checked before the
+    hardcoded Escape/Enter/Backspace close and Tab/Backtab switch-panes
+    fallbacks, so a rebind always wins; everything else (arrow keys) falls through to
+    `QScrollArea`'s own panning. `resizeEvent` re-fits while in fit mode.
   - `show_image_viewer(pane, url)` — mirrors `show_text_viewer`: mounts via
     `core/textviewer_pane.py`'s `begin_new_view`/`mount_view`, same as the
     text viewer.

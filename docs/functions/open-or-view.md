@@ -2,10 +2,11 @@
 
 Command that opens fman's internal viewer on the file under the cursor,
 same as [`view_file`](view-file.md) — but falls back to
-[`open`](../KEYBINDINGS.md) (navigate into the folder) when the cursor is
-on a directory, instead of showing an alert. Meant to be bound to `Enter`
-for users who want the internal viewer as their default open action
-without losing folder navigation.
+[`open`](../KEYBINDINGS.md) (OS default app, or navigate into the folder)
+whenever the internal viewer can't handle the target, instead of showing
+an alert. Meant to be bound to `Enter` for users who want the internal
+viewer as their default open action without losing folder navigation or
+having binaries (`.exe`, `.zip`, …) garbled by the text viewer.
 
 ## Usage
 
@@ -32,18 +33,20 @@ the full opt-in section.
 
 - **Directory under cursor** → delegates to `open` (navigates in), same as
   pressing default `Enter`.
-- **File under cursor** → delegates to `view_file` (internal viewer);
-  inherits its guards (non-local paths show an alert, image vs. text
-  routing).
+- **Viewable file under cursor** (image, video, or text — see
+  [`view-file.md`](view-file.md#notes)) → delegates to `view_file`
+  (internal viewer).
+- **Binary/archive/executable, or a non-local path** → delegates to `open`
+  (OS default app) instead of routing to the internal viewer, so `.exe`,
+  `.zip`, and similar files never end up garbled in the text viewer.
 - **Nothing under cursor** → delegates to `open` (its own no-op/handling).
-- `view_file` itself is unchanged — running it from the palette on a
-  directory still shows "Cannot view a directory."
 
 ## Implementation
 
 - `src/main/resources/base/Plugins/Core/core/commands/__init__.py` —
-  `OpenOrView` (`DirectoryPaneCommand`). Checks `is_dir` on the file under
-  the cursor and routes via `self.pane.run_command('view_file')` or
+  `OpenOrView` (`DirectoryPaneCommand`). Checks `is_dir`, the URL scheme,
+  and `_is_viewable` (shared with `ViewFile`) on the file under the
+  cursor, then routes via `self.pane.run_command('view_file')` or
   `self.pane.run_command('open')` — no duplicated open/view logic.
 - See [`docs/functions/view-file.md`](view-file.md) for what `view_file`
-  does once delegated to.
+  does once delegated to, including how it now refuses binaries itself.

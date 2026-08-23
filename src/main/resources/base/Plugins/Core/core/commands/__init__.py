@@ -14,6 +14,8 @@ from core.util import strformat_dict_values, listdir_absolute, is_parent
 from core.quicksearch_matchers import contains_chars, \
 	contains_chars_after_separator
 from core.textviewer import show_text_viewer
+from core.textviewer_io import is_text_file
+from core.videoviewer import is_video, show_video_viewer
 from fman import *
 from fman.fs import exists, touch, mkdir, is_dir, delete, samefile, copy, \
 	iterdir, resolve, prepare_copy, prepare_move, prepare_delete, \
@@ -417,6 +419,15 @@ class OpenSelectedFiles(DirectoryPaneCommand):
 	def is_visible(self):
 		return bool(self.get_chosen_files())
 
+def _is_viewable(url):
+	# Whether an internal viewer supports url's content: image/video by
+	# extension, everything else only if it sniffs as text (not a binary the
+	# text viewer would garble). Caller is expected to have already checked
+	# url is a local, non-directory file.
+	if is_image(url) or is_video(url):
+		return True
+	return is_text_file(as_human_readable(url))
+
 class ViewFile(DirectoryPaneCommand):
 
 	# Palette-only by design, like ResetPaneFontSize — no default key
@@ -436,19 +447,29 @@ class ViewFile(DirectoryPaneCommand):
 			return
 		if is_image(url):
 			show_image_viewer(self.pane, url)
-		else:
+		elif is_video(url):
+			show_video_viewer(self.pane, url)
+		elif is_text_file(as_human_readable(url)):
 			show_text_viewer(self.pane, url)
+		else:
+			show_alert(
+				"Can't view this file here — it looks binary. Press Enter "
+				'or use Open to launch it with the default app.'
+			)
 
 class OpenOrView(DirectoryPaneCommand):
 
-	# Folder -> navigate in (like Open); file -> internal viewer (like
-	# ViewFile). Bind to Enter to make the viewer the default file action
-	# without losing folder navigation, which ViewFile alone does not allow.
+	# Folder -> navigate in (like Open); viewable file -> internal viewer
+	# (like ViewFile); anything the viewer can't handle (binary, non-local)
+	# -> OS-open, same as before the viewer existed. Bind to Enter to make
+	# the viewer the default file action without losing folder navigation or
+	# garbling binaries.
 	aliases = ('Open or view', 'Open (internal viewer for files)')
 
 	def __call__(self):
 		url = self.pane.get_file_under_cursor()
-		if url and not is_dir(url):
+		if (url and not is_dir(url) and splitscheme(url)[0] == 'file://'
+				and _is_viewable(url)):
 			self.pane.run_command('view_file')
 		else:
 			self.pane.run_command('open')

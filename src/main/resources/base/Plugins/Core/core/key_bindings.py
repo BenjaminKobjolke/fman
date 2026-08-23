@@ -11,6 +11,12 @@ reverse import would be circular.
 """
 from fman import PLATFORM
 
+# Viewer-only pseudo-commands (viewer_close, video_mute, etc.) live in their
+# own file, never 'Key Bindings.json' - that one is loaded by fman's own
+# sanitizer, which flags any command it doesn't recognize as a startup-alert
+# error. A dedicated file sidesteps that entirely; see docs/KEYBINDINGS.md.
+VIEWER_KEY_BINDINGS_FILE = 'Viewer Key Bindings.json'
+
 _KEY_SYMBOLS_MAC = {
 	'Cmd': '⌘', 'Alt': '⌥', 'Ctrl': '⌃', 'Shift': '⇧', 'Backspace': '⌫',
 	'Up': '↑', 'Down': '↓', 'Left': '←', 'Right': '→', 'Enter': '↩'
@@ -36,6 +42,34 @@ def get_shortcuts_for_command(key_bindings, command):
 			if shortcut not in shortcuts_occupied_by_other_commands:
 				yield shortcut
 		shortcuts_occupied_by_other_commands.add(shortcut)
+
+def command_for_key_event(key_event, key_bindings, command_names):
+	"""
+	First command in command_names whose configured shortcut matches
+	key_event, else None. Generalizes core.textviewer_zoom.zoom_delta_for
+	(which hardcodes the two pane-font-size commands) to an arbitrary set of
+	viewer-only commands, so a viewer can look up "did this keystroke match
+	one of my bindable actions?" in one call.
+	"""
+	for command in command_names:
+		for shortcut in get_shortcuts_for_command(key_bindings, command):
+			if key_event.matches(shortcut):
+				return command
+	return None
+
+def dispatch_bindable_command(key_event, key_bindings, commands):
+	"""
+	Looks up key_event against commands (see command_for_key_event) and, if
+	one matches, calls it immediately. Returns whether a command fired, so
+	callers can just `if dispatch_bindable_command(...): return` from
+	keyPressEvent - shared by all three viewers' keyPressEvent to avoid
+	repeating the same lookup-then-call sequence in each.
+	"""
+	command = command_for_key_event(key_event, key_bindings, commands)
+	if command is not None:
+		commands[command]()
+		return True
+	return False
 
 def format_shortcut_hint(shortcuts):
 	if PLATFORM == 'Mac':
