@@ -1,0 +1,12 @@
+{
+  "version": "1.7.5",
+  "build": 2,
+  "date": "2026-08-23",
+  "title": "Prohlížení videí a obrázků, otevřít nebo zobrazit a oprava pádu",
+  "notes": [
+    "Interní prohlížeč nyní přehrává video soubory (přes přibalený libmpv načítaný na vyžádání) kromě textu a obrázků.",
+    "Textový prohlížeč nyní může automaticky znovu načítat soubor při jeho změnách na disku, s volitelným režimem tail pro sledování logů.",
+    "Přidán příkaz „Otevřít nebo zobrazit“, který otevírá soubory v interním prohlížeči a adresáře standardně, takže můžete jednu klávesu přiřadit oběma.",
+    "Opraven pád při spuštění u instalovaných sestavení, kdy otevření palety příkazů mohlo vyvolat chybu ještě předtím, než byly vůbec zkontrolovány poznámky k vydání."
+  ]
+}

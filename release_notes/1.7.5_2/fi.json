@@ -1,0 +1,12 @@
+{
+  "version": "1.7.5",
+  "build": 2,
+  "date": "2026-08-23",
+  "title": "Videoiden ja kuvien katselu, avaa-tai-katso sekä kaatumiskorjaus",
+  "notes": [
+    "Sisäinen katselin toistaa nyt videotiedostoja (mukana toimitetun, tarvittaessa ladattavan libmpv:n kautta) tekstin ja kuvien lisäksi.",
+    "Tekstikatselin voi nyt ladata tiedoston automaattisesti uudelleen sen muuttuessa levyllä, ja mukana on valinnainen tail-tila lokien seuraamiseen.",
+    "Lisättiin \"Avaa tai katso\" -komento, joka avaa tiedostot sisäiseen katselimeen ja hakemistot normaalisti, jotta voit sitoa yhden näppäimen molempiin.",
+    "Korjattiin kaatuminen käynnistyksen yhteydessä asennetuissa koosteissa, joissa komentopaletin avaaminen saattoi aiheuttaa virheen jo ennen kuin julkaisutiedotteita edes tarkistettiin."
+  ]
+}

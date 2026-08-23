@@ -1,0 +1,14 @@
+{
+  "version": "1.7.5",
+  "build": 1,
+  "date": "2026-08-22",
+  "title": "Pregledač teksta, prilagođavanje panela i beleške o izdanju",
+  "notes": [
+    "Dodat je pregledač teksta unutar panela („Prikaži datoteku“) za brzo pregledanje i, opciono, uređivanje tekstualnih datoteka bez napuštanja fman-a ili čekanja na spoljni editor.",
+    "Dodate su komande za skrivanje/prikaz kolona Veličina i Izmenjeno po panelu, za one kojima su uglavnom važna imena datoteka.",
+    "Naslov prozora sada prikazuje trenutne putanje oba panela i ažurira se uživo dok se krećete.",
+    "Dodat je zum veličine fonta u panelu (Alt+Gore / Alt+Dole, uz Reset dostupan samo u paleti) kako biste mogli da uvećate ili umanjite spiskove datoteka u hodu. Na Windows-u i Linux-u, „idi u nadređeni direktorijum“ je premešteno sa Alt+Gore na Ctrl+Gore da bi se oslobodio prostor za ovo.",
+    "Dodate su komande „Prikaži samo aktivni panel“ / „Prikaži sve panele“ za privremeno skupljanje rasporeda sa dva panela na jedan panel.",
+    "Dodat je pregledač beleški o izdanju unutar aplikacije, dostupan iz komandne palete, tako da možete da pregledate ranija izdanja bez napuštanja fman-a."
+  ]
+}

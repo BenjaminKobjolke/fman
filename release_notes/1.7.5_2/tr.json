@@ -1,0 +1,12 @@
+{
+  "version": "1.7.5",
+  "build": 2,
+  "date": "2026-08-23",
+  "title": "Video ve görüntü görüntüleme, aç-veya-görüntüle ve bir çökme düzeltmesi",
+  "notes": [
+    "Dahili görüntüleyici artık metin ve görüntülere ek olarak video dosyalarını da (paketle birlikte gelen, isteğe bağlı bir libmpv üzerinden) oynatıyor.",
+    "Metin görüntüleyici artık disk üzerindeki değişikliklere göre bir dosyayı otomatik yeniden yükleyebiliyor; günlükleri takip etmek için isteğe bağlı bir tail modu da var.",
+    "Dosyaları dahili görüntüleyicide, dizinleri ise normal şekilde açan bir \"Aç veya Görüntüle\" komutu eklendi; böylece tek bir tuşu her ikisine de bağlayabilirsiniz.",
+    "Komut paletini açmanın, sürüm notları daha kontrol edilmeden önce bile hata yükseltebildiği, kurulu derlemelerdeki başlangıçta yaşanan bir çökme düzeltildi."
+  ]
+}

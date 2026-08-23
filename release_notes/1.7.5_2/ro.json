@@ -1,0 +1,12 @@
+{
+  "version": "1.7.5",
+  "build": 2,
+  "date": "2026-08-23",
+  "title": "Vizualizare video și imagini, „Deschide sau Vizualizează” și o remediere pentru o blocare",
+  "notes": [
+    "Vizualizatorul intern redă acum fișiere video (printr-un libmpv inclus, la cerere), pe lângă text și imagini.",
+    "Vizualizatorul de text poate acum reîncărca automat un fișier pe măsură ce acesta se modifică pe disc, cu un mod tail opțional pentru urmărirea jurnalelor.",
+    "A fost adăugată comanda „Deschide sau Vizualizează”, care deschide fișierele în vizualizatorul intern și directoarele în mod normal, astfel încât să poți asocia o singură tastă pentru ambele.",
+    "A fost remediată o blocare la pornire pentru buildurile instalate, în care deschiderea paletei de comenzi putea genera o eroare înainte ca notele de lansare să fi fost verificate."
+  ]
+}

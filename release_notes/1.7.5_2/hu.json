@@ -1,0 +1,12 @@
+{
+  "version": "1.7.5",
+  "build": 2,
+  "date": "2026-08-23",
+  "title": "Videó- és képmegtekintés, „Megnyitás vagy megtekintés”, valamint egy összeomlásjavítás",
+  "notes": [
+    "A belső megjelenítő most már videófájlokat is lejátszik (egy csomagolt, igény szerint betöltött libmpv-n keresztül), a szöveg és a képek mellett.",
+    "A szövegmegtekintő most már automatikusan újratöltheti a fájlt, amikor az a lemezen megváltozik, opcionális tail móddal a naplók követéséhez.",
+    "Hozzáadtunk egy „Megnyitás vagy megtekintés” parancsot, amely a fájlokat a belső megjelenítőben nyitja meg, a könyvtárakat pedig a szokásos módon, így egyetlen billentyűt mindkettőhöz hozzárendelhetsz.",
+    "Javítottunk egy indításkori összeomlást a telepített buildeknél, amikor a parancspaletta megnyitása hibát dobhatott, még azelőtt, hogy a kiadási megjegyzéseket egyáltalán ellenőriztük volna."
+  ]
+}

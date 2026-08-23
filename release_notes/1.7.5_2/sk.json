@@ -1,0 +1,12 @@
+{
+  "version": "1.7.5",
+  "build": 2,
+  "date": "2026-08-23",
+  "title": "Prehrávanie videí a prehliadanie obrázkov, „Otvoriť alebo zobraziť“ a oprava pádu",
+  "notes": [
+    "Interný prehliadač teraz prehráva video súbory (cez pribalený, na požiadanie načítavaný libmpv) okrem textu a obrázkov.",
+    "Textový prehliadač teraz dokáže automaticky znovu načítať súbor pri jeho zmene na disku, s voliteľným režimom tail na sledovanie logov.",
+    "Pridaný príkaz „Otvoriť alebo zobraziť“, ktorý otvára súbory v internom prehliadači a priečinky štandardne, takže si môžete na oboje namapovať jedinú klávesu.",
+    "Opravený pád pri spustení v nainštalovaných buildoch, keď otvorenie palety príkazov mohlo vyvolať chybu ešte predtým, než sa vôbec skontrolovali poznámky k vydaniu."
+  ]
+}

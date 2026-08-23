@@ -1,0 +1,14 @@
+{
+  "version": "1.7.5",
+  "build": 1,
+  "date": "2026-08-22",
+  "title": "Teksta skatītājs, rūts pielāgošana un laidiena piezīmes",
+  "notes": [
+    "Pievienots rūts iekšējs teksta skatītājs (\"Skatīt failu\"), lai ātri skatītu un pēc izvēles rediģētu teksta failus, nepametot fman un negaidot ārēju redaktoru.",
+    "Pievienotas komandas, lai katrā rūtī paslēptu/parādītu kolonnas \"Izmērs\" un \"Modificēts\" tiem, kuriem galvenokārt rūp failu nosaukumi.",
+    "Loga virsraksts tagad rāda abu rūšu pašreizējos ceļus un atjauninās reāllaikā, pārvietojoties.",
+    "Pievienota rūts fonta izmēra tālummaiņa (Alt+Augšup / Alt+Lejup, kā arī tikai paletē pieejama \"Atiestatīt\"), lai varētu uzreiz palielināt vai samazināt failu sarakstus. Operētājsistēmās Windows un Linux komanda \"iet uz vecākmapi\" pārvietota no Alt+Augšup uz Ctrl+Augšup, lai atbrīvotu vietu šai funkcijai.",
+    "Pievienotas komandas \"Rādīt tikai aktīvo rūti\" / \"Rādīt visas rūtis\", lai uz laiku sakļautu divu rūšu izkārtojumu līdz vienai rūtij.",
+    "Pievienots lietotnē iebūvēts laidiena piezīmju skatītājs, kas pieejams no komandu paletes, lai varētu pārlūkot iepriekšējos laidienus, nepametot fman."
+  ]
+}

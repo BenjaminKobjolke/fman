@@ -1,0 +1,14 @@
+{
+  "version": "1.7.5",
+  "build": 1,
+  "date": "2026-08-22",
+  "title": "Visualizador de texto, personalização de painéis e notas de lançamento",
+  "notes": [
+    "Adicionado um visualizador de texto no painel (\"Ver ficheiro\") para visualizar rapidamente e, opcionalmente, editar ficheiros de texto sem sair do fman nem esperar por um editor externo.",
+    "Adicionados comandos para ocultar/mostrar as colunas Tamanho e Modificado por painel, para quem se preocupa sobretudo com os nomes dos ficheiros.",
+    "O título da janela passa agora a mostrar os caminhos atuais de ambos os painéis e é atualizado em tempo real à medida que navega.",
+    "Adicionado zoom do tamanho do tipo de letra do painel (Alt+Seta para cima / Alt+Seta para baixo, mais um Repor apenas na paleta) para poder aumentar ou diminuir as listagens de ficheiros no momento. No Windows e no Linux, \"ir para a pasta principal\" passou de Alt+Seta para cima para Ctrl+Seta para cima para dar espaço a isto.",
+    "Adicionados os comandos \"Mostrar apenas o painel ativo\" / \"Mostrar todos os painéis\" para colapsar temporariamente o esquema de dois painéis para um único painel.",
+    "Adicionado um visualizador de Notas de Lançamento na aplicação, acessível a partir da paleta de comandos, para poder consultar lançamentos anteriores sem sair do fman."
+  ]
+}

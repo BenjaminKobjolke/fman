@@ -1,0 +1,14 @@
+{
+  "version": "1.7.5",
+  "build": 1,
+  "date": "2026-08-22",
+  "title": "Preglednik teksta, prilagodba okna i bilješke o izdanju",
+  "notes": [
+    "Dodan je preglednik teksta unutar okna (\"Prikaži datoteku\") za brzo pregledavanje i, po želji, uređivanje tekstualnih datoteka bez napuštanja fman-a ili čekanja na vanjski uređivač.",
+    "Dodane su naredbe za skrivanje/prikaz stupaca Veličina i Izmijenjeno po oknu, za one kojima su uglavnom važna imena datoteka.",
+    "Naslov prozora sada prikazuje trenutne putanje oba okna te se ažurira uživo dok se krećete.",
+    "Dodano je zumiranje veličine fonta u oknu (Alt+Gore / Alt+Dolje, uz Reset dostupan samo u paleti) kako biste mogli u hodu povećati ili smanjiti prikaz popisa datoteka. Na Windowsu i Linuxu, \"idi u nadređeni direktorij\" premješteno je s Alt+Gore na Ctrl+Gore kako bi se oslobodio prostor za ovu funkciju.",
+    "Dodane su naredbe \"Prikaži samo aktivno okno\" / \"Prikaži sva okna\" za privremeno sažimanje rasporeda s dva okna na jedno okno.",
+    "Dodan je preglednik Bilješki o izdanju unutar aplikacije, dostupan iz palete naredbi, kako biste mogli pregledavati prethodna izdanja bez napuštanja fman-a."
+  ]
+}

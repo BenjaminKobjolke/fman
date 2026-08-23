@@ -1,0 +1,12 @@
+{
+  "version": "1.7.5",
+  "build": 2,
+  "date": "2026-08-23",
+  "title": "Visualización de vídeo e imágenes, abrir o ver y una corrección de fallo",
+  "notes": [
+    "El visor interno ahora reproduce archivos de vídeo (mediante un libmpv incluido, bajo demanda), además de texto e imágenes.",
+    "El visor de texto ahora puede recargar automáticamente un archivo a medida que cambia en el disco, con un modo tail opcional para seguir registros.",
+    "Se ha añadido un comando \"Abrir o ver\" que abre los archivos en el visor interno y los directorios de forma normal, para que puedas asignar una única tecla a ambos.",
+    "Se ha corregido un fallo al iniciar en compilaciones instaladas, en las que al abrir la paleta de comandos podía producirse un error antes incluso de que se comprobara si había notas de la versión."
+  ]
+}

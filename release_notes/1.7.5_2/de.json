@@ -1,0 +1,12 @@
+{
+  "version": "1.7.5",
+  "build": 2,
+  "date": "2026-08-23",
+  "title": "Video- und Bildanzeige, „Öffnen oder Anzeigen“ und ein Crash-Fix",
+  "notes": [
+    "Der interne Viewer spielt jetzt Videodateien ab (über ein gebündeltes, bei Bedarf geladenes libmpv), zusätzlich zu Text und Bildern.",
+    "Der Text-Viewer kann eine Datei jetzt automatisch neu laden, während sie sich auf der Festplatte ändert, mit einem optionalen Tail-Modus zum Verfolgen von Logs.",
+    "Es wurde ein Befehl „Öffnen oder Anzeigen“ hinzugefügt, der Dateien im internen Viewer öffnet und Verzeichnisse wie gewohnt, sodass du eine einzige Taste für beides belegen kannst.",
+    "Ein Crash beim Start wurde für installierte Builds behoben, bei dem das Öffnen der Befehlspalette einen Fehler auslösen konnte, noch bevor die Release Notes überhaupt geprüft wurden."
+  ]
+}

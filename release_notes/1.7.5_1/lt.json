@@ -1,0 +1,14 @@
+{
+  "version": "1.7.5",
+  "build": 1,
+  "date": "2026-08-22",
+  "title": "Teksto peržiūros priemonė, skydelių pritaikymas ir leidimo pastabos",
+  "notes": [
+    "Pridėta skydelyje veikianti teksto peržiūros priemonė („Peržiūrėti failą“), skirta greitai peržiūrėti ir, jei reikia, redaguoti tekstinius failus neišeinant iš fman ir nelaukiant išorinio redaktoriaus.",
+    "Pridėtos komandos slėpti/rodyti stulpelius Dydis ir Pakeista kiekviename skydelyje – tiems, kuriems daugiausia rūpi failų pavadinimai.",
+    "Langų antraštė dabar rodo abiejų skydelių dabartinius kelius ir atnaujinama realiuoju laiku naršant.",
+    "Pridėtas skydelio šrifto dydžio mastelio keitimas (Alt+Up / Alt+Down, taip pat tik paletėje esantis Atstatyti), kad galėtumėte greitai padidinti arba sumažinti failų sąrašus. Windows ir Linux sistemose komanda „eiti į tėvinį katalogą“ perkelta iš Alt+Up į Ctrl+Up, kad tam atsirastų vietos.",
+    "Pridėtos komandos „Rodyti tik aktyvų skydelį“ / „Rodyti visus skydelius“, leidžiančios laikinai sutraukti dviejų skydelių išdėstymą iki vieno skydelio.",
+    "Pridėta programoje integruota Leidimo pastabų peržiūros priemonė, pasiekiama per komandų paletę, kad galėtumėte naršyti ankstesnius leidimus neišeidami iš fman."
+  ]
+}

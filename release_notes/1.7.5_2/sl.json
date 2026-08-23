@@ -1,0 +1,12 @@
+{
+  "version": "1.7.5",
+  "build": 2,
+  "date": "2026-08-23",
+  "title": "Ogled videa in slik, odpri-ali-oglej ter popravek sesutja",
+  "notes": [
+    "Notranji pregledovalnik zdaj predvaja video datoteke (prek priloženega libmpv, naloženega na zahtevo), poleg besedila in slik.",
+    "Pregledovalnik besedila lahko zdaj samodejno znova naloži datoteko, ko se ta spremeni na disku, z izbirnim načinom tail za sledenje dnevnikom.",
+    "Dodan je ukaz »Odpri ali oglej«, ki datoteke odpre v notranjem pregledovalniku, mape pa normalno, tako da lahko na eno tipko vežete oboje.",
+    "Odpravljeno sesutje ob zagonu pri nameščenih različicah, kjer je odpiranje palete ukazov lahko sprožilo napako, še preden so bile sploh preverjene opombe ob izdaji."
+  ]
+}

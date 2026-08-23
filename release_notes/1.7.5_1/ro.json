@@ -1,0 +1,14 @@
+{
+  "version": "1.7.5",
+  "build": 1,
+  "date": "2026-08-22",
+  "title": "Vizualizator de text, personalizarea panourilor și notele de lansare",
+  "notes": [
+    "Am adăugat un vizualizator de text în panou („Vizualizează fișierul”) pentru a vizualiza rapid și, opțional, a edita fișiere text fără a părăsi fman sau a aștepta un editor extern.",
+    "Am adăugat comenzi pentru a ascunde/afișa coloanele Dimensiune și Modificat pentru fiecare panou, pentru cei care sunt interesați în principal de numele fișierelor.",
+    "Titlul ferestrei afișează acum căile curente ale ambelor panouri și se actualizează în timp real pe măsură ce navigați.",
+    "Am adăugat zoom pentru dimensiunea fontului din panou (Alt+Sus / Alt+Jos, plus un Reset disponibil doar din paletă), astfel încât să puteți mări sau micșora lista fișierelor din mers. Pe Windows și Linux, „mergi la directorul părinte” a fost mutat de la Alt+Sus la Ctrl+Sus pentru a face loc acestei funcții.",
+    "Am adăugat comenzile „Afișează doar panoul activ” / „Afișează toate panourile” pentru a restrânge temporar aspectul cu două panouri la un singur panou.",
+    "Am adăugat un vizualizator de Note de lansare în aplicație, accesibil din paleta de comenzi, astfel încât să puteți răsfoi lansările anterioare fără a părăsi fman."
+  ]
+}

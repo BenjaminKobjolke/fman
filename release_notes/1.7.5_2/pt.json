@@ -1,0 +1,12 @@
+{
+  "version": "1.7.5",
+  "build": 2,
+  "date": "2026-08-23",
+  "title": "Visualização de vídeo e imagens, abrir-ou-visualizar e correção de uma falha",
+  "notes": [
+    "O visualizador interno agora reproduz ficheiros de vídeo (através de uma libmpv incluída e carregada a pedido), para além de texto e imagens.",
+    "O visualizador de texto pode agora recarregar automaticamente um ficheiro à medida que este é alterado no disco, com um modo tail opcional para acompanhar registos.",
+    "Adicionado um comando \"Abrir ou Visualizar\" que abre ficheiros no visualizador interno e diretórios normalmente, para que possa associar uma única tecla a ambos.",
+    "Corrigida uma falha no arranque em compilações instaladas em que abrir a paleta de comandos podia gerar um erro antes de as notas de versão serem sequer verificadas."
+  ]
+}

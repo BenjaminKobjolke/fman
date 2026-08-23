@@ -1,0 +1,14 @@
+{
+  "version": "1.7.5",
+  "build": 1,
+  "date": "2026-08-22",
+  "title": "Prehliadač textu, prispôsobenie panelov a poznámky k vydaniu",
+  "notes": [
+    "Pridaný prehliadač textu priamo v paneli („Zobraziť súbor“) na rýchle prezeranie a voliteľne aj úpravu textových súborov bez opustenia fman alebo čakania na externý editor.",
+    "Pridané príkazy na skrytie/zobrazenie stĺpcov Veľkosť a Upravené pre každý panel, pre ľudí, ktorým väčšinou záleží najmä na názvoch súborov.",
+    "Názov okna teraz zobrazuje aktuálne cesty oboch panelov a priebežne sa aktualizuje pri navigácii.",
+    "Pridané priblíženie/oddialenie veľkosti písma v paneli (Alt+Hore / Alt+Dole, plus Reset iba v palete príkazov), aby ste mohli za chodu zväčšiť alebo zmenšiť zoznam súborov. Vo Windows a Linuxe sa „prejsť do nadradeného priečinka“ presunulo z Alt+Hore na Ctrl+Hore, aby sa uvoľnilo miesto pre túto funkciu.",
+    "Pridané príkazy „Zobraziť iba aktívny panel“ / „Zobraziť všetky panely“ na dočasné zbalenie rozloženia s dvoma panelmi na jeden panel.",
+    "Pridaný prehliadač poznámok k vydaniu priamo v aplikácii, dostupný z palety príkazov, aby ste si mohli prezerať staršie vydania bez opustenia fman."
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": "1.7.5",
+  "build": 2,
+  "date": "2026-08-23",
+  "title": "Video- ja piltide vaatamine, „Ava või vaata“ ning krahhiparandus",
+  "notes": [
+    "Sisseehitatud vaatur esitab nüüd lisaks tekstile ja piltidele ka videofaile (kaasa pakitud, nõudmisel laaditava libmpv kaudu).",
+    "Tekstivaatur saab nüüd faili automaatselt uuesti laadida, kui see kettal muutub, ning lisaks on valikuline tail-režiim logide jälgimiseks.",
+    "Lisatud on käsk „Ava või vaata“, mis avab failid sisseehitatud vaaturis ja kataloogid tavapäraselt, nii et saad mõlemale siduda ühe klahvi.",
+    "Parandatud on krahh käivitamisel paigaldatud versioonides, kus käsupaleti avamine võis tekitada vea enne, kui väljalaskemärkmeid üldse jõuti kontrollida."
+  ]
+}

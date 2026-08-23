@@ -1,0 +1,14 @@
+{
+  "version": "1.7.5",
+  "build": 1,
+  "date": "2026-08-22",
+  "title": "Tekstivaatur, paanide kohandamine ja väljalaskemärkmed",
+  "notes": [
+    "Lisatud paanisisene tekstivaatur (\"Vaata faili\") tekstifailide kiireks vaatamiseks ja soovi korral redigeerimiseks, ilma fmanist lahkumata või välise redaktori järel ootamata.",
+    "Lisatud käsud paani kaupa veergude Suurus ja Muudetud peitmiseks/kuvamiseks kasutajatele, keda huvitavad peamiselt failinimed.",
+    "Akna pealkiri näitab nüüd mõlema paani praeguseid asukohti ja uueneb navigeerimisel reaalajas.",
+    "Lisatud paani fondisuuruse suum (Alt+Üles / Alt+Alla, lisaks paletis ainult lähtestamine), et saaksid faililoendid jooksvalt suuremaks või väiksemaks teha. Windowsis ja Linuxis viidi \"mine ülemkataloogi\" Alt+Üles pealt Ctrl+Üles peale, et sellele ruumi teha.",
+    "Lisatud käsud \"Näita ainult aktiivset paani\" / \"Näita kõiki paane\" kahepaansuse paigutuse ajutiseks kokkutõmbamiseks üheks paaniks.",
+    "Lisatud rakendusesisene väljalaskemärkmete vaatur, millele pääseb ligi käsupaletist, et saaksid varasemaid väljalaskeid sirvida fmanist lahkumata."
+  ]
+}

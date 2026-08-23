@@ -1,0 +1,12 @@
+{
+  "version": "1.7.5",
+  "build": 2,
+  "date": "2026-08-23",
+  "title": "Visning af video og billeder, åbn-eller-vis, samt en rettelse af et nedbrud",
+  "notes": [
+    "Den interne fremviser afspiller nu videofiler (via en medfølgende libmpv, der indlæses efter behov) ud over tekst og billeder.",
+    "Tekstfremviseren kan nu automatisk genindlæse en fil, efterhånden som den ændres på disken, med en valgfri \"tail\"-tilstand til at følge logfiler.",
+    "Tilføjede en kommando \"Åbn eller vis\", der åbner filer i den interne fremviser og mapper på normal vis, så du kan binde en enkelt tast til begge dele.",
+    "Rettede et nedbrud ved opstart for installerede builds, hvor åbning af kommandopaletten kunne udløse en fejl, før udgivelsesnoter overhovedet blev tjekket."
+  ]
+}

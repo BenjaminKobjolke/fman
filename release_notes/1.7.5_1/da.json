@@ -1,0 +1,14 @@
+{
+  "version": "1.7.5",
+  "build": 1,
+  "date": "2026-08-22",
+  "title": "Tekstfremviser, tilpasning af ruder og udgivelsesnoter",
+  "notes": [
+    "Tilføjet en tekstfremviser i ruden (\"Vis fil\") til hurtigt at se og eventuelt redigere tekstfiler uden at forlade fman eller vente på en ekstern editor.",
+    "Tilføjet kommandoer til at skjule/vise kolonnerne Størrelse og Ændret pr. rude, for personer der mest går op i filnavne.",
+    "Vinduestitlen viser nu begge ruders aktuelle stier og opdateres løbende, mens du navigerer.",
+    "Tilføjet zoom af rudens skriftstørrelse (Alt+Op / Alt+Ned, plus en nulstilling kun i paletten), så du kan gøre fillister større eller mindre undervejs. På Windows og Linux er \"gå til overordnet mappe\" flyttet fra Alt+Op til Ctrl+Op for at gøre plads til dette.",
+    "Tilføjet kommandoerne \"Vis kun aktiv rude\" / \"Vis alle ruder\" til midlertidigt at folde to-rude-layoutet sammen til en enkelt rude.",
+    "Tilføjet en fremviser til udgivelsesnoter i appen, som kan åbnes fra kommandopaletten, så du kan gennemse tidligere udgivelser uden at forlade fman."
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": "1.7.5",
+  "build": 2,
+  "date": "2026-08-23",
+  "title": "Pregled video zapisa i slika, „Otvori ili prikaži“ i ispravka pada aplikacije",
+  "notes": [
+    "Interni pregledač sada reprodukuje video datoteke (preko priložene, po potrebi učitavane biblioteke libmpv), pored teksta i slika.",
+    "Pregledač teksta sada može automatski ponovo učitati datoteku dok se menja na disku, uz opcioni režim „tail“ za praćenje logova.",
+    "Dodata je komanda „Otvori ili prikaži“ koja otvara datoteke u internom pregledaču, a direktorijume na uobičajen način, tako da možete vezati jedan taster za oba.",
+    "Ispravljen je pad pri pokretanju u instaliranim izdanjima, gde je otvaranje palete komandi moglo izazvati grešku pre nego što su uopšte bile proverene beleške o izdanju."
+  ]
+}

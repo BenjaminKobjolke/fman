@@ -1,0 +1,14 @@
+{
+  "version": "1.7.5",
+  "build": 1,
+  "date": "2026-08-22",
+  "title": "Visualizzatore di testo, personalizzazione dei riquadri e note di rilascio",
+  "notes": [
+    "Aggiunto un visualizzatore di testo nel riquadro (\"Visualizza file\") per visualizzare rapidamente e, opzionalmente, modificare i file di testo senza uscire da fman o attendere un editor esterno.",
+    "Aggiunti comandi per nascondere/mostrare le colonne Dimensione e Modificato per riquadro, per chi si interessa principalmente ai nomi dei file.",
+    "Il titolo della finestra ora mostra i percorsi correnti di entrambi i riquadri e si aggiorna in tempo reale durante la navigazione.",
+    "Aggiunto lo zoom della dimensione del carattere del riquadro (Alt+Su / Alt+Giù, più un Reimposta disponibile solo nella palette) così puoi rendere gli elenchi dei file più grandi o più piccoli al volo. Su Windows e Linux, \"vai alla cartella superiore\" è stato spostato da Alt+Su a Ctrl+Su per fare spazio a questa funzione.",
+    "Aggiunti i comandi \"Mostra solo il riquadro attivo\" / \"Mostra tutti i riquadri\" per comprimere temporaneamente il layout a due riquadri in un singolo riquadro.",
+    "Aggiunto un visualizzatore delle Note di rilascio nell'app, accessibile dalla palette dei comandi, così puoi consultare le versioni precedenti senza uscire da fman."
+  ]
+}

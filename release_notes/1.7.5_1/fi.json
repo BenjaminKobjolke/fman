@@ -1,0 +1,14 @@
+{
+  "version": "1.7.5",
+  "build": 1,
+  "date": "2026-08-22",
+  "title": "Tekstin katselu, ruutujen mukautus ja julkaisutiedot",
+  "notes": [
+    "Lisätty ruudun sisäinen tekstin katseluohjelma (\"Näytä tiedosto\") tekstityöstötiedostojen nopeaan katseluun ja haluttaessa muokkaamiseen poistumatta fmanista tai odottamatta ulkoista editoria.",
+    "Lisätty komennot Piilota/Näytä Koko- ja Muokattu-sarakkeet ruutukohtaisesti niille, joille tiedostonimet ovat tärkein asia.",
+    "Ikkunan otsikko näyttää nyt molempien ruutujen nykyiset polut ja päivittyy reaaliajassa navigoidessasi.",
+    "Lisätty ruudun fonttikoon zoomaus (Alt+Ylös / Alt+Alas sekä vain komentopalettiin \"Palauta\") jotta voit suurentaa tai pienentää tiedostoluetteloita lennossa. Windowsissa ja Linuxissa \"siirry ylähakemistoon\" siirrettiin Alt+Ylös-yhdistelmästä Ctrl+Ylös-yhdistelmään tämän tieltä.",
+    "Lisätty komennot \"Näytä vain aktiivinen ruutu\" / \"Näytä kaikki ruudut\" kaksiruutuisen asettelun tilapäiseen tiivistämiseen yhdeksi ruuduksi.",
+    "Lisätty sovelluksen sisäinen Julkaisutiedot-katseluohjelma, joka löytyy komentopalettiin, jotta voit selata aiempia julkaisuja poistumatta fmanista."
+  ]
+}

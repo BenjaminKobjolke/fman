@@ -1,0 +1,14 @@
+{
+  "version": "1.7.5",
+  "build": 1,
+  "date": "2026-08-22",
+  "title": "Trình xem văn bản, tùy biến ngăn và ghi chú phát hành",
+  "notes": [
+    "Đã thêm trình xem văn bản ngay trong ngăn (\"Xem tệp\") để xem nhanh và (tùy chọn) chỉnh sửa các tệp văn bản mà không cần rời khỏi fman hoặc chờ một trình soạn thảo bên ngoài.",
+    "Đã thêm lệnh ẩn/hiện các cột Kích thước và Đã sửa đổi theo từng ngăn, dành cho những người chủ yếu quan tâm đến tên tệp.",
+    "Tiêu đề cửa sổ giờ hiển thị đường dẫn hiện tại của cả hai ngăn và cập nhật trực tiếp khi bạn điều hướng.",
+    "Đã thêm thu phóng cỡ chữ của ngăn (Alt+Up / Alt+Down, cùng một lệnh Đặt lại chỉ có trong bảng lệnh) để bạn có thể làm danh sách tệp lớn hoặc nhỏ ngay lập tức. Trên Windows và Linux, lệnh \"đi tới thư mục cha\" đã chuyển từ Alt+Up sang Ctrl+Up để nhường chỗ cho tính năng này.",
+    "Đã thêm các lệnh \"Chỉ hiển thị ngăn đang hoạt động\" / \"Hiển thị tất cả các ngăn\" để tạm thời thu gọn bố cục hai ngăn xuống còn một ngăn.",
+    "Đã thêm trình xem Ghi chú phát hành ngay trong ứng dụng, có thể truy cập từ bảng lệnh, để bạn có thể xem các bản phát hành trước mà không cần rời khỏi fman."
+  ]
+}

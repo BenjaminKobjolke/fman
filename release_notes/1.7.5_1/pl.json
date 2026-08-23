@@ -1,0 +1,14 @@
+{
+  "version": "1.7.5",
+  "build": 1,
+  "date": "2026-08-22",
+  "title": "Przeglądarka tekstu, personalizacja paneli i informacje o wydaniu",
+  "notes": [
+    "Dodano przeglądarkę tekstu w panelu („Wyświetl plik”) do szybkiego podglądu i opcjonalnej edycji plików tekstowych bez opuszczania fman ani czekania na zewnętrzny edytor.",
+    "Dodano polecenia ukrywania/pokazywania kolumn Rozmiar i Zmodyfikowano w każdym panelu — dla osób, które w większości dbają tylko o nazwy plików.",
+    "Tytuł okna pokazuje teraz bieżące ścieżki obu paneli i aktualizuje się na żywo podczas nawigacji.",
+    "Dodano powiększanie/zmniejszanie rozmiaru czcionki w panelu (Alt+Up / Alt+Down oraz Reset dostępny tylko z palety poleceń), aby można było na bieżąco zwiększać lub zmniejszać rozmiar listy plików. W systemach Windows i Linux polecenie „przejdź do katalogu nadrzędnego” zostało przeniesione z Alt+Up na Ctrl+Up, aby zrobić na to miejsce.",
+    "Dodano polecenia „Pokaż tylko aktywny panel” / „Pokaż wszystkie panele”, aby tymczasowo zwinąć układ dwupanelowy do jednego panelu.",
+    "Dodano wbudowaną przeglądarkę Informacji o wydaniu, dostępną z palety poleceń, dzięki czemu można przeglądać poprzednie wydania bez opuszczania fman."
+  ]
+}

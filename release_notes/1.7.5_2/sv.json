@@ -1,0 +1,12 @@
+{
+  "version": "1.7.5",
+  "build": 2,
+  "date": "2026-08-23",
+  "title": "Video- och bildvisning, öppna-eller-visa och en kraschfix",
+  "notes": [
+    "Den interna visaren spelar nu upp videofiler (via en medföljande libmpv som laddas vid behov), utöver text och bilder.",
+    "Textvisaren kan nu automatiskt läsa in en fil på nytt när den ändras på disken, med ett valfritt tail-läge för att följa loggar.",
+    "Lade till ett kommando \"Öppna eller visa\" som öppnar filer i den interna visaren och kataloger som vanligt, så att du kan binda en enda tangent till båda.",
+    "Åtgärdade en krasch vid start för installerade versioner där öppning av kommandopaletten kunde orsaka ett fel innan versionsnyheterna ens hade kontrollerats."
+  ]
+}

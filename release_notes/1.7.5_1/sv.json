@@ -1,0 +1,14 @@
+{
+  "version": "1.7.5",
+  "build": 1,
+  "date": "2026-08-22",
+  "title": "Textvisare, anpassning av paneler och versionsnyheter",
+  "notes": [
+    "Lade till en textvisare i panelen (”Visa fil”) för snabb visning och, valfritt, redigering av textfiler utan att lämna fman eller vänta på en extern redigerare.",
+    "Lade till kommandon för att dölja/visa kolumnerna Storlek och Ändrad per panel, för dem som mest bryr sig om filnamn.",
+    "Fönstertiteln visar nu båda panelernas aktuella sökvägar och uppdateras i realtid när du navigerar.",
+    "Lade till zoom för panelens teckenstorlek (Alt+Upp / Alt+Ner, samt en återställning som endast finns i paletten) så att du kan göra fillistor större eller mindre direkt. På Windows och Linux flyttades ”gå till överordnad katalog” från Alt+Upp till Ctrl+Upp för att ge plats åt detta.",
+    "Lade till kommandona ”Visa endast aktiv panel” / ”Visa alla paneler” för att tillfälligt fälla ihop dubbelpanelslayouten till en enda panel.",
+    "Lade till en inbyggd visare för versionsnyheter, som nås via kommandopaletten, så att du kan bläddra i tidigare versioner utan att lämna fman."
+  ]
+}

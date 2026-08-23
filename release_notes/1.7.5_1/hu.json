@@ -1,0 +1,14 @@
+{
+  "version": "1.7.5",
+  "build": 1,
+  "date": "2026-08-22",
+  "title": "Szövegmegjelenítő, panel testreszabása és kiadási megjegyzések",
+  "notes": [
+    "Hozzáadtunk egy panelen belüli szövegmegjelenítőt („Fájl megtekintése”) szövegfájlok gyors megtekintéséhez, és opcionálisan szerkesztéséhez, anélkül hogy el kellene hagynod az fmant, vagy külső szerkesztőre kellene várnod.",
+    "Hozzáadtunk parancsokat a Méret és Módosítva oszlopok panelenkénti elrejtéséhez/megjelenítéséhez azoknak, akiknek főként a fájlnevek számítanak.",
+    "Az ablak címe most mindkét panel aktuális elérési útját mutatja, és navigálás közben valós időben frissül.",
+    "Hozzáadtuk a panel betűméretének nagyítását/kicsinyítését (Alt+Fel / Alt+Le, valamint egy csak parancspalettából elérhető Visszaállítás), hogy menet közben nagyobbá vagy kisebbé tudd tenni a fájllistákat. Windows és Linux rendszeren a „szülőkönyvtárba lépés” az Alt+Fel helyett Ctrl+Fel lett, hogy helyet adjon ennek.",
+    "Hozzáadtuk a „Csak az aktív panel megjelenítése” / „Minden panel megjelenítése” parancsokat, hogy ideiglenesen egyetlen panelre tudd összecsukni a kétpaneles elrendezést.",
+    "Hozzáadtunk egy alkalmazáson belüli Kiadási megjegyzések megjelenítőt, amely a parancspalettából érhető el, így az fman elhagyása nélkül böngészheted a korábbi kiadásokat."
+  ]
+}

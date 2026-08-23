@@ -1,0 +1,12 @@
+{
+  "version": "1.7.5",
+  "build": 2,
+  "date": "2026-08-23",
+  "title": "Xem video và hình ảnh, mở-hoặc-xem, và bản sửa lỗi treo",
+  "notes": [
+    "Trình xem nội bộ giờ đây có thể phát các tệp video (thông qua libmpv đi kèm, tải theo yêu cầu), ngoài văn bản và hình ảnh.",
+    "Trình xem văn bản giờ đây có thể tự động tải lại tệp khi nó thay đổi trên đĩa, với chế độ tail tùy chọn để theo dõi log.",
+    "Đã thêm lệnh \"Mở hoặc Xem\" mở tệp trong trình xem nội bộ và thư mục như bình thường, để bạn có thể gán một phím duy nhất cho cả hai.",
+    "Đã sửa lỗi treo khi khởi động đối với các bản dựng đã cài đặt, trong đó việc mở bảng lệnh có thể gây lỗi trước cả khi ghi chú phát hành được kiểm tra."
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": "1.7.5",
+  "build": 2,
+  "date": "2026-08-23",
+  "title": "Visualizzazione di video e immagini, Apri o Visualizza e correzione di un crash",
+  "notes": [
+    "Il visualizzatore interno ora riproduce file video (tramite una libmpv inclusa e caricata su richiesta), oltre a testo e immagini.",
+    "Il visualizzatore di testo ora può ricaricare automaticamente un file quando cambia su disco, con una modalità tail opzionale per seguire i log.",
+    "Aggiunto un comando \"Apri o Visualizza\" che apre i file nel visualizzatore interno e le directory normalmente, così puoi assegnare un solo tasto a entrambi.",
+    "Corretto un crash all'avvio per le build installate, in cui l'apertura della tavolozza dei comandi poteva generare un errore prima ancora che venissero controllate le note di rilascio."
+  ]
+}

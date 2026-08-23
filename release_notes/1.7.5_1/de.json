@@ -1,0 +1,14 @@
+{
+  "version": "1.7.5",
+  "build": 1,
+  "date": "2026-08-22",
+  "title": "Textbetrachter, Bereichsanpassung und Versionshinweise",
+  "notes": [
+    "Einen Textbetrachter im Bereich („Datei anzeigen“) hinzugefügt, um Textdateien schnell anzusehen und optional zu bearbeiten, ohne fman zu verlassen oder auf einen externen Editor warten zu müssen.",
+    "Befehle hinzugefügt, um die Spalten „Größe“ und „Geändert“ pro Bereich ein-/auszublenden – für alle, die sich hauptsächlich für Dateinamen interessieren.",
+    "Der Fenstertitel zeigt jetzt die aktuellen Pfade beider Bereiche an und aktualisiert sich live beim Navigieren.",
+    "Zoom für die Schriftgröße im Bereich hinzugefügt (Alt+Pfeil hoch / Alt+Pfeil runter, plus ein „Zurücksetzen“ nur in der Palette), damit du Dateilisten spontan größer oder kleiner machen kannst. Unter Windows und Linux wurde „zum übergeordneten Verzeichnis“ von Alt+Pfeil hoch auf Strg+Pfeil hoch verschoben, um dafür Platz zu schaffen.",
+    "Befehle „Nur aktiven Bereich anzeigen“ / „Alle Bereiche anzeigen“ hinzugefügt, um das Zwei-Bereich-Layout vorübergehend auf einen einzelnen Bereich zu reduzieren.",
+    "Einen integrierten Versionshinweise-Betrachter hinzugefügt, erreichbar über die Befehlspalette, damit du frühere Releases durchsuchen kannst, ohne fman zu verlassen."
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": "1.7.5",
+  "build": 2,
+  "date": "2026-08-23",
+  "title": "Vaizdo įrašų ir vaizdų peržiūra, „Atidaryti arba peržiūrėti“ ir strigties pataisymas",
+  "notes": [
+    "Vidinė peržiūros priemonė dabar, be teksto ir vaizdų, taip pat leidžia leisti vaizdo įrašų failus (per įtrauktą, pagal poreikį įkeliamą „libmpv“).",
+    "Teksto peržiūros priemonė dabar gali automatiškai iš naujo įkelti failą jam pasikeitus diske, su pasirenkamu „tail“ režimu žurnalams sekti.",
+    "Pridėta komanda „Atidaryti arba peržiūrėti“, kuri failus atidaro vidinėje peržiūros priemonėje, o katalogus — įprastai, todėl abiem galite priskirti vieną klavišą.",
+    "Ištaisyta strigtis paleidžiant įdiegtas versijas, kai atidarant komandų paletę galėjo būti iškeliama klaida dar prieš patikrinant leidimo pastabas."
+  ]
+}

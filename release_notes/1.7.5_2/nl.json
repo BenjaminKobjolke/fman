@@ -1,0 +1,12 @@
+{
+  "version": "1.7.5",
+  "build": 2,
+  "date": "2026-08-23",
+  "title": "Video- en afbeeldingsweergave, openen-of-bekijken en een crashfix",
+  "notes": [
+    "De interne viewer kan nu videobestanden afspelen (via een meegeleverde, on-demand libmpv), naast tekst en afbeeldingen.",
+    "De tekstviewer kan nu een bestand automatisch opnieuw laden terwijl het op schijf verandert, met een optionele tail-modus om logs te volgen.",
+    "Een opdracht \"Openen of Bekijken\" toegevoegd die bestanden opent in de interne viewer en mappen normaal, zodat je één enkele toets aan beide kunt koppelen.",
+    "Een crash bij het opstarten opgelost voor geïnstalleerde builds waarbij het openen van het opdrachtenpalet een fout kon veroorzaken nog voordat de release-opmerkingen überhaupt waren gecontroleerd."
+  ]
+}

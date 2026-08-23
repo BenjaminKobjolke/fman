@@ -1,0 +1,14 @@
+{
+  "version": "1.7.5",
+  "build": 1,
+  "date": "2026-08-22",
+  "title": "Visor de texto, personalización de paneles y notas de la versión",
+  "notes": [
+    "Se ha añadido un visor de texto dentro del panel («Ver archivo») para ver rápidamente y, opcionalmente, editar archivos de texto sin salir de fman ni esperar a un editor externo.",
+    "Se han añadido comandos para ocultar/mostrar las columnas Tamaño y Modificado por panel, para quienes se preocupan principalmente por los nombres de los archivos.",
+    "El título de la ventana ahora muestra las rutas actuales de ambos paneles y se actualiza en vivo mientras navegas.",
+    "Se ha añadido el zoom del tamaño de fuente del panel (Alt+Arriba / Alt+Abajo, además de un Restablecer solo en la paleta) para que puedas hacer las listas de archivos más grandes o más pequeñas al vuelo. En Windows y Linux, «ir al directorio padre» se ha movido de Alt+Arriba a Ctrl+Arriba para dejar espacio a esto.",
+    "Se han añadido los comandos «Mostrar solo el panel activo» / «Mostrar todos los paneles» para contraer temporalmente el diseño de doble panel a un solo panel.",
+    "Se ha añadido un visor de Notas de la versión dentro de la aplicación, accesible desde la paleta de comandos, para que puedas consultar versiones anteriores sin salir de fman."
+  ]
+}

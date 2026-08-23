@@ -1,0 +1,12 @@
+{
+  "version": "1.7.5",
+  "build": 2,
+  "date": "2026-08-23",
+  "title": "Video- og bildevisning, åpne-eller-vis, og en krasjfiks",
+  "notes": [
+    "Den interne visningen spiller nå av videofiler (via en medfølgende libmpv som lastes ved behov), i tillegg til tekst og bilder.",
+    "Tekstvisningen kan nå automatisk laste inn en fil på nytt når den endres på disk, med en valgfri tail-modus for å følge logger.",
+    "La til en «Åpne eller vis»-kommando som åpner filer i den interne visningen og kataloger på vanlig måte, slik at du kan binde én enkelt tast til begge.",
+    "Rettet en krasj ved oppstart for installerte bygg der åpning av kommandopaletten kunne utløse en feil før versjonsnotatene i det hele tatt var sjekket."
+  ]
+}

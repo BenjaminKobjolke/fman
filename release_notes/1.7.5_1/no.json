@@ -1,0 +1,14 @@
+{
+  "version": "1.7.5",
+  "build": 1,
+  "date": "2026-08-22",
+  "title": "Tekstviser, tilpasning av paneler og versjonsnotater",
+  "notes": [
+    "La til en tekstviser i panelet («Vis fil») for raskt å vise, og eventuelt redigere, tekstfiler uten å forlate fman eller vente på en ekstern editor.",
+    "La til kommandoer for å skjule/vise kolonnene Størrelse og Endret per panel, for de som stort sett bryr seg om filnavn.",
+    "Vindustittelen viser nå gjeldende stier for begge panelene, og oppdateres fortløpende mens du navigerer.",
+    "La til zoom for skriftstørrelse i panelet (Alt+Opp / Alt+Ned, samt en Tilbakestill kun i paletten) slik at du kan gjøre fillistinger større eller mindre på farten. På Windows og Linux ble «gå til overordnet mappe» flyttet fra Alt+Opp til Ctrl+Opp for å gi plass til dette.",
+    "La til kommandoene «Vis kun aktivt panel» / «Vis alle paneler» for midlertidig å slå sammen topaneloppsettet til ett enkelt panel.",
+    "La til en innebygd viser for versjonsnotater, tilgjengelig fra kommandopaletten, slik at du kan bla i tidligere utgivelser uten å forlate fman."
+  ]
+}

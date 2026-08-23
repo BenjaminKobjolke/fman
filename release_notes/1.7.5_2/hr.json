@@ -1,0 +1,12 @@
+{
+  "version": "1.7.5",
+  "build": 2,
+  "date": "2026-08-23",
+  "title": "Pregledavanje videa i slika, \"Otvori ili prikaži\" i ispravak rušenja",
+  "notes": [
+    "Interni preglednik sada reproducira video datoteke (putem priloženog libmpv-a koji se učitava na zahtjev), uz tekst i slike.",
+    "Preglednik teksta sada može automatski ponovno učitati datoteku kako se mijenja na disku, uz opcionalni način tail za praćenje zapisa.",
+    "Dodana je naredba \"Otvori ili prikaži\" koja otvara datoteke u internom pregledniku, a direktorije uobičajeno, tako da možete jednoj tipki dodijeliti obje radnje.",
+    "Ispravljeno je rušenje pri pokretanju za instalirane verzije, gdje je otvaranje palete naredbi moglo izazvati pogrešku prije nego što su se uopće provjerile napomene o izdanju."
+  ]
+}

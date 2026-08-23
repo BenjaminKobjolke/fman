@@ -1,0 +1,12 @@
+{
+  "version": "1.7.5",
+  "build": 2,
+  "date": "2026-08-23",
+  "title": "Video and image viewing, open-or-view, and a crash fix",
+  "notes": [
+    "The internal viewer now plays video files (via a bundled, on-demand libmpv), in addition to text and images.",
+    "The text viewer can now auto-reload a file as it changes on disk, with an optional tail mode for following logs.",
+    "Added an \"Open or View\" command that opens files in the internal viewer and directories normally, so you can bind a single key to both.",
+    "Fixed a crash on startup for installed builds where opening the command palette could raise an error before release notes were even checked."
+  ]
+}

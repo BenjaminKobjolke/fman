@@ -1,0 +1,14 @@
+{
+  "version": "1.7.5",
+  "build": 1,
+  "date": "2026-08-22",
+  "title": "Pregledovalnik besedila, prilagajanje podoken in opombe ob izdaji",
+  "notes": [
+    "Dodan pregledovalnik besedila znotraj podokna (»Poglej datoteko«) za hitro ogledovanje in po želji urejanje besedilnih datotek, ne da bi zapustili fman ali čakali na zunanji urejevalnik.",
+    "Dodani ukazi za skrivanje/prikaz stolpcev Velikost in Spremenjeno za posamezno podokno, za ljudi, ki jih večinoma zanimajo imena datotek.",
+    "Naslov okna zdaj prikazuje trenutni poti obeh podoken in se sproti posodablja med krmarjenjem.",
+    "Dodano povečanje/pomanjšanje velikosti pisave v podoknu (Alt+Gor / Alt+Dol, plus ponastavitev samo v paleti), da lahko sproti naredite sezname datotek večje ali manjše. V sistemih Windows in Linux je bil ukaz »pojdi v nadrejeno mapo« prestavljen z Alt+Gor na Ctrl+Gor, da se naredi prostor za to.",
+    "Dodani ukazi »Pokaži samo aktivno podokno« / »Pokaži vsa podokna« za začasno strnitev dvopodoknega pogleda na eno samo podokno.",
+    "Dodan pregledovalnik opomb ob izdaji v aplikaciji, dostopen iz ukazne palete, da lahko brskate po preteklih izdajah, ne da bi zapustili fman."
+  ]
+}

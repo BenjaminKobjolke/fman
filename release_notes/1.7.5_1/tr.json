@@ -1,0 +1,14 @@
+{
+  "version": "1.7.5",
+  "build": 1,
+  "date": "2026-08-22",
+  "title": "Metin görüntüleyici, bölme özelleştirmeleri ve sürüm notları",
+  "notes": [
+    "fman’den ayrılmadan veya harici bir düzenleyiciyi beklemeden metin dosyalarını hızlıca görüntülemek ve isteğe bağlı olarak düzenlemek için bölme içi bir metin görüntüleyici (\"Dosyayı görüntüle\") eklendi.",
+    "Çoğunlukla dosya adlarını önemseyen kullanıcılar için, her bölmede Boyut ve Değiştirildi sütunlarını gizleme/gösterme komutları eklendi.",
+    "Pencere başlığı artık her iki bölmenin geçerli yollarını gösteriyor ve gezinirken anlık olarak güncelleniyor.",
+    "Bölme yazı tipi boyutunu yakınlaştırma/uzaklaştırma (Alt+Yukarı / Alt+Aşağı, ayrıca yalnızca komut paletinden kullanılabilen bir Sıfırla) eklendi; böylece dosya listelerini anında büyütebilir veya küçültebilirsiniz. Windows ve Linux’ta, buna yer açmak için \"üst dizine git\" Alt+Yukarı’dan Ctrl+Yukarı’ya taşındı.",
+    "Çift bölmeli düzeni geçici olarak tek bir bölmeye daraltmak için \"Yalnızca etkin bölmeyi göster\" / \"Tüm bölmeleri göster\" komutları eklendi.",
+    "Komut paletinden erişilebilen, uygulama içi bir Sürüm Notları görüntüleyicisi eklendi; böylece fman’den ayrılmadan geçmiş sürümlere göz atabilirsiniz."
+  ]
+}

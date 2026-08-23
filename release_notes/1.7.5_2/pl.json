@@ -1,0 +1,12 @@
+{
+  "version": "1.7.5",
+  "build": 2,
+  "date": "2026-08-23",
+  "title": "Odtwarzanie wideo i przeglądanie obrazów, „Otwórz lub wyświetl” oraz poprawka awarii",
+  "notes": [
+    "Wewnętrzna przeglądarka odtwarza teraz pliki wideo (za pomocą dołączonej, ładowanej na żądanie biblioteki libmpv), oprócz tekstu i obrazów.",
+    "Przeglądarka tekstu może teraz automatycznie przeładowywać plik, gdy ten zmienia się na dysku, z opcjonalnym trybem „tail” do śledzenia logów.",
+    "Dodano polecenie „Otwórz lub wyświetl”, które otwiera pliki w wewnętrznej przeglądarce, a katalogi w zwykły sposób, dzięki czemu możesz przypisać jeden skrót klawiszowy do obu.",
+    "Naprawiono awarię podczas uruchamiania w wersjach instalowanych, gdzie otwarcie palety poleceń mogło zgłosić błąd, zanim w ogóle sprawdzono informacje o wydaniu."
+  ]
+}

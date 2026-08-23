@@ -1,0 +1,14 @@
+{
+  "version": "1.7.5",
+  "build": 1,
+  "date": "2026-08-22",
+  "title": "Visionneuse de texte, personnalisation des volets et notes de version",
+  "notes": [
+    "Ajout d’une visionneuse de texte intégrée au volet (« Afficher le fichier ») pour consulter rapidement et, si souhaité, modifier des fichiers texte sans quitter fman ni attendre un éditeur externe.",
+    "Ajout de commandes pour masquer/afficher les colonnes Taille et Modifié par volet, pour les personnes qui s’intéressent surtout aux noms de fichiers.",
+    "Le titre de la fenêtre affiche désormais les chemins actuels des deux volets et se met à jour en temps réel lors de la navigation.",
+    "Ajout du zoom de la taille de police du volet (Alt+Haut / Alt+Bas, plus une commande Réinitialiser disponible uniquement via la palette) afin d’agrandir ou de réduire la liste des fichiers à la volée. Sous Windows et Linux, la commande « aller au dossier parent » est passée de Alt+Haut à Ctrl+Haut pour faire de la place à ce raccourci.",
+    "Ajout des commandes « Afficher uniquement le volet actif » / « Afficher tous les volets » pour réduire temporairement la disposition à deux volets à un seul volet.",
+    "Ajout d’une visionneuse des notes de version intégrée à l’application, accessible depuis la palette de commandes, afin de consulter les versions précédentes sans quitter fman."
+  ]
+}

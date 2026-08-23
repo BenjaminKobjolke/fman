@@ -1,0 +1,14 @@
+{
+  "version": "1.7.5",
+  "build": 1,
+  "date": "2026-08-22",
+  "title": "Tekstviewer, paneelaanpassing en releaseopmerkingen",
+  "notes": [
+    "Een tekstviewer in het paneel (\"Bestand weergeven\") toegevoegd om tekstbestanden snel te bekijken en desgewenst te bewerken, zonder fman te verlaten of op een externe editor te wachten.",
+    "Opdrachten toegevoegd om de kolommen Grootte en Gewijzigd per paneel te verbergen/tonen, voor mensen die vooral om bestandsnamen geven.",
+    "De venstertitel toont nu de huidige paden van beide panelen en wordt live bijgewerkt terwijl je navigeert.",
+    "Zoom voor de lettergrootte per paneel toegevoegd (Alt+Omhoog / Alt+Omlaag, plus een Alleen-palet Reset) zodat je bestandslijsten onderweg groter of kleiner kunt maken. Op Windows en Linux is \"naar bovenliggende map\" verplaatst van Alt+Omhoog naar Ctrl+Omhoog om hiervoor ruimte te maken.",
+    "De opdrachten \"Alleen actief paneel tonen\" / \"Alle panelen tonen\" toegevoegd om de indeling met twee panelen tijdelijk in te klappen naar één paneel.",
+    "Een Release Notes-viewer in de app toegevoegd, bereikbaar via het opdrachtpalet, zodat je eerdere releases kunt bekijken zonder fman te verlaten."
+  ]
+}

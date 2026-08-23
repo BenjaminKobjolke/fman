@@ -1,0 +1,12 @@
+{
+  "version": "1.7.5",
+  "build": 2,
+  "date": "2026-08-23",
+  "title": "Visionnage de vidéos et d’images, ouverture ou affichage, et correction d’un plantage",
+  "notes": [
+    "Le visualiseur interne lit désormais les fichiers vidéo (via une libmpv intégrée, chargée à la demande), en plus du texte et des images.",
+    "Le visualiseur de texte peut désormais recharger automatiquement un fichier lorsqu’il change sur le disque, avec un mode « tail » optionnel pour suivre les journaux.",
+    "Ajout d’une commande « Ouvrir ou afficher » qui ouvre les fichiers dans le visualiseur interne et les répertoires normalement, afin que vous puissiez associer une seule touche aux deux.",
+    "Correction d’un plantage au démarrage dans les versions installées : l’ouverture de la palette de commandes pouvait provoquer une erreur avant même que les notes de version ne soient vérifiées."
+  ]
+}

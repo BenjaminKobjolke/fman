@@ -1,0 +1,12 @@
+{
+  "version": "1.7.5",
+  "build": 2,
+  "date": "2026-08-23",
+  "title": "Video un attēlu skatīšana, “Atvērt vai skatīt” un avārijas labojums",
+  "notes": [
+    "Iebūvētais skatītājs tagad atskaņo video failus (izmantojot komplektā iekļauto, pēc pieprasījuma ielādējamo libmpv) papildus tekstam un attēliem.",
+    "Teksta skatītājs tagad var automātiski pārlādēt failu, kad tas tiek mainīts diskā, ar izvēles “tail” režīmu žurnālu sekošanai.",
+    "Pievienota komanda “Atvērt vai skatīt”, kas atver failus iebūvētajā skatītājā, bet direktorijas — kā parasti, lai varētu piesaistīt vienu taustiņu abiem.",
+    "Novērsta avārija startēšanas laikā instalētajās versijās, kad komandu paletes atvēršana varēja izraisīt kļūdu, vēl pirms tika pārbaudītas laidiena piezīmes."
+  ]
+}
