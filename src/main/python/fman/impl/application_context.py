@@ -58,8 +58,11 @@ class DevelopmentApplicationContext(ApplicationContext):
 	def __init__(self):
 		super().__init__()
 		self._main_window = None
+		self._demo_mode = False
 	def run(self):
 		self.init_logging()
+		if '--automation-demo' in sys.argv:
+			return self._run_demo()
 		if self.single_instance_enabled:
 			# Touch self.app first: QLocalSocket needs a QApplication instance.
 			_ = self.app
@@ -70,6 +73,46 @@ class DevelopmentApplicationContext(ApplicationContext):
 		self._start_metrics()
 		self._load_plugins()
 		self.session_manager.show_main_window(self.window)
+		return self.app.exec_()
+	def _run_demo(self):
+		# Play a scripted demo for the automated-application-screenshots tool
+		# (see fman.impl.demo). Bypasses single-instance + onboarding so the
+		# recording is a clean, deterministic run.
+		log = logging.getLogger(__name__)
+		try:
+			from automated_screenshot_connector import DemoClient, \
+				localize_script, parse_demo_args
+			from fman.impl.demo import DEMOS, DemoPlayer
+		except ImportError:
+			log.error(
+				'Demo mode needs the automated-screenshot-connector. Install '
+				'it with: pip install -r requirements/windows-debug.txt'
+			)
+			return 1
+		options, leftover = parse_demo_args(sys.argv[1:])
+		if options.demo not in DEMOS:
+			log.error(
+				'Unknown demo id %s (available: %s)',
+				options.demo, sorted(DEMOS)
+			)
+			return 2
+		# session.py reads sys.argv[1:] raw to open pane paths, so strip the
+		# --automation-demo* flags and leave only the folder arguments.
+		sys.argv[1:] = leftover
+		self._demo_mode = True
+		self._load_plugins()
+		self.session_manager.show_main_window(self.window)
+		if options.demo_width is not None and options.demo_height is not None:
+			# show_main_window may maximize (settings-less run) or restore old
+			# geometry; the recording needs the size the tool asked for.
+			self.main_window.showNormal()
+			self.main_window.resize(options.demo_width, options.demo_height)
+		script = localize_script(DEMOS[options.demo], dict(options.demo_texts))
+		client = DemoClient(options.demo_port)
+		player = DemoPlayer(
+			self.main_window, client, script, int(self.main_window.winId())
+		)
+		player.start()
 		return self.app.exec_()
 	@cached_property
 	def single_instance_enabled(self):
@@ -113,6 +156,9 @@ class DevelopmentApplicationContext(ApplicationContext):
 	def fman_version(self):
 		return PUBLIC_SETTINGS['version']
 	def on_main_window_shown(self):
+		if self._demo_mode:
+			# No splash/tutorial during a recording.
+			return
 		if self.is_licensed:
 			if not self.session_manager.was_licensed_on_last_run:
 				self.metrics.track('InstalledLicenseKey')

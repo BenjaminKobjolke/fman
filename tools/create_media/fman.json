@@ -1,0 +1,15 @@
+{
+  "process_name": "python.exe",
+  "title_substring": "fman",
+  "output_dir": "D:/GIT/BenjaminKobjolke/fman/media",
+  "launch": {
+    "command": ["cmd", "/c",
+      "D:/GIT/BenjaminKobjolke/fman/tools/create_media/run_fman_demo.bat",
+      "{demo_id}", "{port}", "{width}", "{height}"],
+    "cwd": "D:/GIT/BenjaminKobjolke/fman"
+  },
+  "demos": [
+    {"id": 1, "name": "overview", "fps": 10, "formats": ["gif", "mp4"],
+     "width": 1280, "height": 800}
+  ]
+}
