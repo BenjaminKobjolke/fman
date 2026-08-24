@@ -13,7 +13,9 @@ claude-plans
 code_analysis_results
 PLAN_RELEASE_NOTES.md
 tmp/commit_msg.tmp
+.php-cs-fixer.cache
 PLAN-changed-files.md
 PLAN.md
 PLAN_REFRACTOR.md
 /PLAN_*.md
+graphify-out
