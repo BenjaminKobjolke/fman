@@ -1,0 +1,10 @@
+{
+  "version": "1.7.6",
+  "build": 1,
+  "date": "2026-08-24",
+  "title": "Náhled v druhém panelu a oprava pádu u vlastností",
+  "notes": [
+    "Nyní si můžete zobrazit náhled souboru v protějším panelu, takže se můžete podívat na soubor a přitom zůstat na svém místě v aktuální složce.",
+    "Opraveny pády, které mohly nastat při otevírání vlastností souboru."
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "version": "1.7.6",
+  "build": 1,
+  "date": "2026-08-24",
+  "title": "Pregled u drugom panelu i ispravka pada pri prikazu svojstava",
+  "notes": [
+    "Sada možete da pregledate datoteku u suprotnom panelu, tako da možete da pogledate datoteku dok zadržavate svoje mesto u trenutnoj fascikli.",
+    "Ispravljeni su padovi do kojih je moglo da dođe prilikom otvaranja svojstava datoteke."
+  ]
+}

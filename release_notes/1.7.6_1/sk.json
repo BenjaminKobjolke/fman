@@ -1,0 +1,10 @@
+{
+  "version": "1.7.6",
+  "build": 1,
+  "date": "2026-08-24",
+  "title": "Náhľad v druhom paneli a oprava pádu pri vlastnostiach",
+  "notes": [
+    "Teraz si môžete zobraziť náhľad súboru v opačnom paneli, takže si môžete pozrieť súbor a zároveň si ponechať svoje miesto v aktuálnom priečinku.",
+    "Opravené pády, ku ktorým mohlo dôjsť pri otváraní vlastností súboru."
+  ]
+}

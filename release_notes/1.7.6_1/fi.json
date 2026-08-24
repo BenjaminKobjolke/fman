@@ -1,0 +1,10 @@
+{
+  "version": "1.7.6",
+  "build": 1,
+  "date": "2026-08-24",
+  "title": "Esikatselu toisessa paneelissa ja ominaisuuksien kaatumiskorjaus",
+  "notes": [
+    "Voit nyt esikatsella tiedostoa vastakkaisessa paneelissa, jotta voit tarkastella tiedostoa samalla kun pysyt nykyisen kansion kohdassa.",
+    "Korjattu kaatumiset, joita saattoi tapahtua avattaessa tiedoston ominaisuuksia."
+  ]
+}

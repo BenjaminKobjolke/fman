@@ -1,0 +1,10 @@
+{
+  "version": "1.7.6",
+  "build": 1,
+  "date": "2026-08-24",
+  "title": "Diğer bölmede önizleme ve özellikler çökmesi düzeltmesi",
+  "notes": [
+    "Artık bir dosyayı karşı bölmede önizleyebilirsiniz; böylece geçerli klasördeki yerinizi korurken bir dosyayı görüntüleyebilirsiniz.",
+    "Bir dosyanın özellikleri açılırken meydana gelebilen çökmeler düzeltildi."
+  ]
+}

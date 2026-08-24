@@ -1,0 +1,10 @@
+{
+  "version": "1.7.6",
+  "build": 1,
+  "date": "2026-08-24",
+  "title": "Previzualizare în celălalt panou și remedierea unei erori de blocare la proprietăți",
+  "notes": [
+    "Acum poți previzualiza un fișier în panoul opus, astfel încât să poți vizualiza un fișier păstrându-ți poziția în folderul curent.",
+    "Au fost remediate blocările care puteau apărea la deschiderea proprietăților unui fișier."
+  ]
+}

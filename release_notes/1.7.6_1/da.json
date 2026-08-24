@@ -1,0 +1,10 @@
+{
+  "version": "1.7.6",
+  "build": 1,
+  "date": "2026-08-24",
+  "title": "Forhåndsvisning i den anden rude og rettelse af nedbrud i Egenskaber",
+  "notes": [
+    "Du kan nu forhåndsvise en fil i den modsatte rude, så du kan se på en fil, mens du bevarer din plads i den aktuelle mappe.",
+    "Rettede nedbrud, der kunne opstå, når man åbnede en fils egenskaber."
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "version": "1.7.6",
+  "build": 1,
+  "date": "2026-08-24",
+  "title": "Förhandsgranskning i den andra panelen och en kraschfix för egenskaper",
+  "notes": [
+    "Du kan nu förhandsgranska en fil i den motsatta panelen, så att du kan titta på en fil samtidigt som du behåller din plats i den aktuella mappen.",
+    "Åtgärdade krascher som kunde inträffa när man öppnade en fils egenskaper."
+  ]
+}

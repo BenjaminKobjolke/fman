@@ -1,0 +1,10 @@
+{
+  "version": "1.7.6",
+  "build": 1,
+  "date": "2026-08-24",
+  "title": "Előnézet a másik panelen és javítás az összeomlásra a tulajdonságoknál",
+  "notes": [
+    "Mostantól megtekinthetsz egy fájlt előnézetben az ellenkező panelen, így meg tudsz nézni egy fájlt, miközben megtartod a helyed az aktuális mappában.",
+    "Javítva az összeomlások, amelyek a fájl tulajdonságainak megnyitásakor előfordulhattak."
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "version": "1.7.6",
+  "build": 1,
+  "date": "2026-08-24",
+  "title": "Vista previa en el otro panel y corrección de un fallo en las propiedades",
+  "notes": [
+    "Ahora puedes previsualizar un archivo en el panel opuesto, para poder ver un archivo mientras mantienes tu posición en la carpeta actual.",
+    "Se han corregido fallos que podían producirse al abrir las propiedades de un archivo."
+  ]
+}

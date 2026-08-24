@@ -1,0 +1,10 @@
+{
+  "version": "1.7.6",
+  "build": 1,
+  "date": "2026-08-24",
+  "title": "Voorbeeld in het andere paneel en een oplossing voor een crash in Eigenschappen",
+  "notes": [
+    "Je kunt nu een bestand in het tegenoverliggende paneel bekijken, zodat je een bestand kunt bekijken terwijl je je plek in de huidige map behoudt.",
+    "Crashes opgelost die konden optreden bij het openen van de eigenschappen van een bestand."
+  ]
+}

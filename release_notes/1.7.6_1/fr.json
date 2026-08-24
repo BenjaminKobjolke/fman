@@ -1,0 +1,10 @@
+{
+  "version": "1.7.6",
+  "build": 1,
+  "date": "2026-08-24",
+  "title": "Aperçu dans l’autre volet et correction d’un plantage lié aux propriétés",
+  "notes": [
+    "Vous pouvez désormais prévisualiser un fichier dans le volet opposé, ce qui vous permet de consulter un fichier tout en conservant votre position dans le dossier actuel.",
+    "Correction de plantages pouvant survenir lors de l’ouverture des propriétés d’un fichier."
+  ]
+}

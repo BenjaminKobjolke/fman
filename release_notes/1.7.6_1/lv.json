@@ -1,0 +1,10 @@
+{
+  "version": "1.7.6",
+  "build": 1,
+  "date": "2026-08-24",
+  "title": "Priekšskatījums otrā rūtī un labots avārijas kritiens, atverot īpašības",
+  "notes": [
+    "Tagad varat priekšskatīt failu pretējā rūtī, lai varētu apskatīt failu, vienlaikus saglabājot savu vietu pašreizējā mapē.",
+    "Novērsti avārijas kritieni, kas varēja notikt, atverot faila īpašības."
+  ]
+}

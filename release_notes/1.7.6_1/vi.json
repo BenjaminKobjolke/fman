@@ -1,0 +1,10 @@
+{
+  "version": "1.7.6",
+  "build": 1,
+  "date": "2026-08-24",
+  "title": "Xem trước ở ngăn còn lại và sửa lỗi sập khi mở Thuộc tính",
+  "notes": [
+    "Giờ đây bạn có thể xem trước một tệp trong ngăn đối diện, để có thể xem một tệp mà vẫn giữ nguyên vị trí trong thư mục hiện tại.",
+    "Đã sửa các lỗi sập có thể xảy ra khi mở Thuộc tính của tệp."
+  ]
+}

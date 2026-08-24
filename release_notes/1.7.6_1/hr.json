@@ -1,0 +1,10 @@
+{
+  "version": "1.7.6",
+  "build": 1,
+  "date": "2026-08-24",
+  "title": "Pretpregled u drugom oknu i ispravak rušenja pri prikazu svojstava",
+  "notes": [
+    "Sada možete pretpregledati datoteku u suprotnom oknu, tako da možete gledati datoteku i pritom zadržati svoje mjesto u trenutnoj mapi.",
+    "Ispravljena su rušenja koja su se mogla dogoditi pri otvaranju svojstava datoteke."
+  ]
+}

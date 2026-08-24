@@ -1,0 +1,10 @@
+{
+  "version": "1.7.6",
+  "build": 1,
+  "date": "2026-08-24",
+  "title": "Anteprima nell’altro riquadro e correzione di un crash nelle proprietà",
+  "notes": [
+    "Ora puoi visualizzare l’anteprima di un file nel riquadro opposto, così puoi guardare un file mantenendo la posizione nella cartella corrente.",
+    "Risolti i crash che potevano verificarsi durante l’apertura delle proprietà di un file."
+  ]
+}

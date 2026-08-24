@@ -1,0 +1,10 @@
+{
+  "version": "1.7.6",
+  "build": 1,
+  "date": "2026-08-24",
+  "title": "Vorschau im anderen Bereich und ein Fix für einen Absturz bei den Eigenschaften",
+  "notes": [
+    "Du kannst jetzt eine Datei im gegenüberliegenden Bereich in der Vorschau anzeigen, sodass du dir eine Datei ansehen kannst, während du deinen Platz im aktuellen Ordner beibehältst.",
+    "Abstürze behoben, die beim Öffnen der Eigenschaften einer Datei auftreten konnten."
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "version": "1.7.6",
+  "build": 1,
+  "date": "2026-08-24",
+  "title": "Predogled v drugem podoknu in popravek zrušitve pri lastnostih",
+  "notes": [
+    "Zdaj lahko datoteko predogledate v nasprotnem podoknu, tako da si lahko ogledate datoteko, hkrati pa ohranite svoje mesto v trenutni mapi.",
+    "Odpravili smo zrušitve, do katerih je lahko prišlo pri odpiranju lastnosti datoteke."
+  ]
+}

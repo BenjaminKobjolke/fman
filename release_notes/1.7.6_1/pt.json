@@ -1,0 +1,10 @@
+{
+  "version": "1.7.6",
+  "build": 1,
+  "date": "2026-08-24",
+  "title": "Pré-visualização no outro painel e correção de falha nas propriedades",
+  "notes": [
+    "Agora pode pré-visualizar um ficheiro no painel oposto, para poder ver um ficheiro enquanto mantém a sua posição na pasta atual.",
+    "Foram corrigidas falhas que podiam ocorrer ao abrir as propriedades de um ficheiro."
+  ]
+}

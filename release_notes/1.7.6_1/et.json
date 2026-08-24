@@ -1,0 +1,10 @@
+{
+  "version": "1.7.6",
+  "build": 1,
+  "date": "2026-08-24",
+  "title": "Eelvaade teises paanis ja krahhiparandus omaduste vaates",
+  "notes": [
+    "Nüüd saad faili eelvaadata vastaspaanil, nii et saad faili vaadata, säilitades samal ajal oma koha praeguses kaustas.",
+    "Parandatud krahhid, mis võisid juhtuda faili omaduste avamisel."
+  ]
+}

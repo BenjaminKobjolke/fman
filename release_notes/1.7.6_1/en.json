@@ -1,0 +1,10 @@
+{
+  "version": "1.7.6",
+  "build": 1,
+  "date": "2026-08-24",
+  "title": "Preview in the other pane and a properties crash fix",
+  "notes": [
+    "You can now preview a file in the opposite pane, so you can look at a file while keeping your place in the current folder.",
+    "Fixed crashes that could happen when opening a file's properties."
+  ]
+}

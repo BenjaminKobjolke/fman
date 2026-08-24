@@ -1,0 +1,10 @@
+{
+  "version": "1.7.6",
+  "build": 1,
+  "date": "2026-08-24",
+  "title": "Podgląd w drugim panelu oraz poprawka awarii właściwości",
+  "notes": [
+    "Możesz teraz wyświetlić podgląd pliku w przeciwnym panelu, dzięki czemu możesz oglądać plik, zachowując swoje miejsce w bieżącym folderze.",
+    "Naprawiono awarie, które mogły wystąpić podczas otwierania właściwości pliku."
+  ]
+}

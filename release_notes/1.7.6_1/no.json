@@ -1,0 +1,10 @@
+{
+  "version": "1.7.6",
+  "build": 1,
+  "date": "2026-08-24",
+  "title": "Forhåndsvisning i den andre ruten og feilretting for krasj i egenskaper",
+  "notes": [
+    "Du kan nå forhåndsvise en fil i den motsatte ruten, slik at du kan se på en fil samtidig som du beholder plassen din i den gjeldende mappen.",
+    "Rettet krasj som kunne oppstå når du åpnet egenskapene til en fil."
+  ]
+}

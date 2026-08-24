@@ -1,0 +1,10 @@
+{
+  "version": "1.7.6",
+  "build": 1,
+  "date": "2026-08-24",
+  "title": "Peržiūra kitame polangyje ir ištaisytas strigimas atidarant ypatybes",
+  "notes": [
+    "Dabar galite peržiūrėti failą priešingame polangyje, kad galėtumėte peržiūrėti failą išlaikydami vietą dabartiniame aplanke.",
+    "Ištaisyti strigimai, kurie galėjo įvykti atidarant failo ypatybes."
+  ]
+}
