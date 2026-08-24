@@ -2,6 +2,19 @@
 
 A cross-platform dual-pane file manager.
 
+## Demo
+
+![fman overview demo](media/demos/overview/demo.gif)
+
+Two-pane browsing, the inline name filter, and the command palette
+(`Ctrl+Shift+P`). Also available as [MP4](media/demos/overview/demo.mp4).
+
+| Panes | Navigate | Filter | Command palette |
+|---|---|---|---|
+| ![panes](media/demos/overview/panes.png) | ![navigate](media/demos/overview/navigate.png) | ![filter](media/demos/overview/filter.png) | ![command palette](media/demos/overview/command-palette.png) |
+
+<sub>Regenerate with `tools\demos_record.bat` — see [docs/DEMOS.md](docs/DEMOS.md).</sub>
+
 ## Single instance
 
 fman runs as a single instance by default: launching it with a path while it is
