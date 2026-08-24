@@ -1,14 +1,10 @@
 from fman import DirectoryPaneCommand, show_alert
 from fman.fs import resolve
 from fman.url import splitscheme, as_human_readable, basename, dirname
-from pywintypes import com_error
-from win32com.shell.shell import SHILCreateFromPath, SHGetDesktopFolder, \
-	IID_IShellFolder, IID_IContextMenu
-from win32com.shell.shellcon import CMF_EXPLORE
 
 import ctypes.wintypes
+import os
 import re
-import win32gui
 
 class ShowExplorerProperties(DirectoryPaneCommand):
 
@@ -78,34 +74,25 @@ class ShowExplorerProperties(DirectoryPaneCommand):
 		return re.match('^[A-Z]:$', path)
 
 def _show_file_properties(dir_, filenames):
-	# Note: If you ever want to extend this method so it can handle files in
-	# multiple directories, take a look at SHMultiFileProperties and [1].
-	# [1]: https://stackoverflow.com/a/34551988/1839209.
-	folder = SHILCreateFromPath(dir_, 0)[0]
-	desktop = SHGetDesktopFolder()
-	shell_folder = desktop.BindToObject(folder, None, IID_IShellFolder)
-	children = []
+	# ShellExecuteEx opens one dialog per file, so multi-select shows a dialog
+	# per selected file. Combining them into a single dialog would need
+	# SHMultiFileProperties, which isn't available in this pywin32 build.
 	for filename in filenames:
-		try:
-			pidl = shell_folder.ParseDisplayName(None, None, filename)[1]
-		except com_error:
-			pass
-		else:
-			children.append(pidl)
-	cm = shell_folder.GetUIObjectOf(None, children, IID_IContextMenu, 0)[1]
-	if not cm:
-		return
-	hMenu = win32gui.CreatePopupMenu()
-	cm.QueryContextMenu(hMenu, 0, 1, 0x7FFF, CMF_EXPLORE)
-	cm.InvokeCommand((0, None, 'properties', '', '', 1, 0, None))
-	cm.QueryContextMenu(hMenu, 0, 1, 0x7FFF, CMF_EXPLORE)
+		_show_properties_via_shellexecute(os.path.join(dir_, filename))
 
 def _show_drive_properties(drive_nobackslash):
+	_show_properties_via_shellexecute(drive_nobackslash + '\\')
+
+def _show_properties_via_shellexecute(path):
+	# Invoke the shell "properties" verb through ShellExecuteEx. We deliberately
+	# avoid the IContextMenu.InvokeCommand("properties") route: invoked with a
+	# null owner hwnd on fman's Qt main thread it access-violates and crashes
+	# the whole app.
 	sei = SHELLEXECUTEINFO()
 	sei.cbSize = ctypes.sizeof(sei)
 	sei.fMask = _SEE_MASK_NOCLOSEPROCESS | _SEE_MASK_INVOKEIDLIST
 	sei.lpVerb = "properties"
-	sei.lpFile = drive_nobackslash + '\\'
+	sei.lpFile = path
 	sei.nShow = 1
 	ShellExecuteEx(ctypes.byref(sei))
 
