@@ -1,0 +1,8 @@
+TODO
+====
+
+[ ] Draft the release notes
+[ ] Record the overview demo
+[x] Collect sample assets
+[ ] Review the config defaults
+[ ] Tag version 1.0

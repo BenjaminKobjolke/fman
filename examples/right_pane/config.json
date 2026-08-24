@@ -1,0 +1,9 @@
+{
+  "theme": "dark",
+  "fps": 10,
+  "formats": ["gif", "mp4"],
+  "window": {
+    "width": 1280,
+    "height": 800
+  }
+}

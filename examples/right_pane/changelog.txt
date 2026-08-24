@@ -1,0 +1,6 @@
+Changelog
+=========
+
+1.2.0 - Added export to MP4 and GIF.
+1.1.0 - Introduced the two-pane layout.
+1.0.0 - First public release.
