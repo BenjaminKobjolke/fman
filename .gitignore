@@ -16,3 +16,4 @@ tmp/commit_msg.tmp
 PLAN-changed-files.md
 PLAN.md
 PLAN_REFRACTOR.md
+/PLAN_*.md
