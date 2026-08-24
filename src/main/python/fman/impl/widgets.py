@@ -1,5 +1,5 @@
 from fbs_runtime.platform import is_windows, is_mac
-from fman import OK
+from fman import OK, links
 from fman.impl.model import SortedFileSystemModel
 from fman.impl.quicksearch import Quicksearch
 from fman.impl.util.qt import disable_window_animations_mac, Key_Escape, \
@@ -619,7 +619,7 @@ class SplashScreen(QDialog):
 				'</span>'
 				'<br/>'
 				'For more information, please '
-				'<a href="https://fman.io/account/login?email=' + email + '">'
+				'<a href="' + links.LOGIN + '?email=' + email + '">'
 					'log in to fman.io'
 				'</a>.',
 				"To continue without a license, press button %s."
@@ -633,7 +633,7 @@ class SplashScreen(QDialog):
 				buy_link_style = " style='color: #00ff00;'"
 			paragraphs = [
 				"To remove this annoying popup, please "
-				"<a href='https://fman.io/buy?s=f'" + buy_link_style + ">"
+				"<a href='" + links.BUY + "'" + buy_link_style + ">"
 					"obtain a license"
 				"</a>."
 				"<br/>"

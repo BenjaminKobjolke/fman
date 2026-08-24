@@ -1,5 +1,5 @@
 from fbs_runtime.platform import is_mac, is_windows
-from fman import load_json, show_alert, CANCEL, OK
+from fman import load_json, show_alert, CANCEL, OK, links
 from fman.impl.onboarding import Tour, TourStep
 from fman.impl.util import is_below_dir
 from fman.impl.util.qt import connect_once
@@ -49,7 +49,7 @@ class Tutorial(Tour):
 				OK | CANCEL, OK
 			)
 			if response == OK:
-				webbrowser.open('https://fman.io/docs/macos?s=f')
+				webbrowser.open(links.MACOS_DOCS)
 	def _get_steps(self):
 		return [
 			TourStep(

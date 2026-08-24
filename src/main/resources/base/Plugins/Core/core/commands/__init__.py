@@ -20,6 +20,7 @@ from fman import *
 from fman.fs import exists, touch, mkdir, is_dir, delete, samefile, copy, \
 	iterdir, resolve, prepare_copy, prepare_move, prepare_delete, \
 	FileSystem, prepare_trash, query, makedirs, notify_file_added
+from fman import links
 from fman.impl.util import get_user
 from fman.impl.util.qt.thread import run_in_main_thread
 from fman.url import splitscheme, as_url, join, basename, as_human_readable, \
@@ -65,7 +66,7 @@ class Help(ApplicationCommand):
 	aliases = ('Help', 'Show keyboard shortcuts', 'Show key bindings')
 
 	def __call__(self):
-		QDesktopServices.openUrl(QUrl('https://fman.io/docs/key-bindings?s=f'))
+		QDesktopServices.openUrl(QUrl(links.HELP))
 
 class MoveCursorDown(DirectoryPaneCommand):
 	def __call__(self, toggle_selection=False):
@@ -1356,7 +1357,7 @@ class ZenOfFman(ApplicationCommand):
 	def __call__(self):
 		show_alert(
 			"The Zen of fman\n"
-			"https://fman.io/zen\n\n"
+			+ links.ZEN + "\n\n"
 			"Looks matter\n"
 			"Speed counts\n"
 			"Extending must be easy\n"
@@ -1702,8 +1703,8 @@ elif PLATFORM == 'Windows':
 				show_alert(
 					'Sorry, the module for displaying file properties %r could '
 					'not be loaded. Please file a bug report at '
-					'<a href="https://fman.io/issues?s=f">'
-					'https://fman.io/issues</a> mentioning your Windows '
+					'<a href="' + links.ISSUES + '">'
+					+ links.ISSUES + '</a> mentioning your Windows '
 					'version (eg. Windows 10) and architecture (eg. 64 bit).'
 					% error.name
 				)

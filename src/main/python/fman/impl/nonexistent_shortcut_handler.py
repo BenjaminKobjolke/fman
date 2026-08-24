@@ -1,6 +1,6 @@
 from fbs_runtime.platform import is_mac
 from fman import show_alert, YES, NO, run_application_command, load_json, \
-	save_json, DATA_DIRECTORY, unload_plugin, load_plugin
+	save_json, DATA_DIRECTORY, unload_plugin, load_plugin, links
 from fman.fs import is_dir
 from fman.impl.html_style import highlight
 from fman.impl.util.qt import Key_Up
@@ -254,7 +254,7 @@ class NonexistentShortcutHandler:
 			load_plugin(settings_plugin)
 			show_alert(
 				'Your key bindings were updated. To change them later, please '
-				'see the <a href="https://fman.io/docs/custom-shortcuts?s=f">'
+				'see the <a href="' + links.CUSTOM_SHORTCUTS + '">'
 				'Shortcuts</a> section on fman\'s web site.'
 			)
 	def _offer_to_install_arrownavigation_plugin(self, pretext):
