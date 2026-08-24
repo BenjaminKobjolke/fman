@@ -1,8 +1,8 @@
 from core.commands import History, Move, OpenOrView, ShowAllPanes, \
-	ShowOnlyActivePane, ViewFile, _from_human_readable, get_dest_suggestion, \
-	_find_extension_start, _get_shortcuts_for_command, _clamp_font_size, \
-	_MIN_PANE_FONT_SIZE, _MAX_PANE_FONT_SIZE, _format_window_title, \
-	_find_column_index
+	ShowOnlyActivePane, ViewFile, ViewFileInOtherPane, _from_human_readable, \
+	get_dest_suggestion, _find_extension_start, _get_shortcuts_for_command, \
+	_clamp_font_size, _MIN_PANE_FONT_SIZE, _MAX_PANE_FONT_SIZE, \
+	_format_window_title, _find_column_index
 from core.tests import StubUI
 from core.util import filenotfounderror
 from fman import OK, YES, NO, PLATFORM
@@ -381,6 +381,57 @@ class ViewFileTest(TestCase):
 			ViewFile(pane)()
 		show_text_viewer.assert_not_called()
 		show_alert.assert_called_once()
+
+class _FakeViewInOtherPane:
+	def __init__(self, url, window):
+		self._url = url
+		self.window = window
+		self.focused = False
+	def get_file_under_cursor(self):
+		return self._url
+	def focus(self):
+		self.focused = True
+
+class ViewFileInOtherPaneTest(TestCase):
+	def test_mounts_in_other_pane_without_stealing_focus(self):
+		path = _write_temp_file(self, b'hello world')
+		window = _FakeWindow()
+		source = _FakeViewInOtherPane(as_url(path), window)
+		target = _FakeViewInOtherPane(None, window)
+		window._panes = [source, target]
+		with patch('core.commands.is_dir', return_value=False), \
+				patch('core.commands.show_text_viewer') as show_text_viewer, \
+				patch('core.commands.show_alert') as show_alert:
+			ViewFileInOtherPane(source)()
+		# Mounted into the OTHER pane, and told not to grab keyboard focus so
+		# browsing stays in the source pane.
+		self.assertIs(target, show_text_viewer.call_args[0][0])
+		self.assertFalse(show_text_viewer.call_args.kwargs['focus_view'])
+		show_alert.assert_not_called()
+
+	def test_single_pane_views_in_place_and_takes_focus(self):
+		path = _write_temp_file(self, b'hello world')
+		window = _FakeWindow()
+		only = _FakeViewInOtherPane(as_url(path), window)
+		window._panes = [only]
+		with patch('core.commands.is_dir', return_value=False), \
+				patch('core.commands.show_text_viewer') as show_text_viewer, \
+				patch('core.commands.show_alert') as show_alert:
+			ViewFileInOtherPane(only)()
+		self.assertIs(only, show_text_viewer.call_args[0][0])
+		self.assertTrue(show_text_viewer.call_args.kwargs['focus_view'])
+		show_alert.assert_not_called()
+
+	def test_validation_failure_mounts_nothing(self):
+		window = _FakeWindow()
+		source = _FakeViewInOtherPane(None, window)  # no file selected
+		target = _FakeViewInOtherPane(None, window)
+		window._panes = [source, target]
+		with patch('core.commands.show_text_viewer') as show_text_viewer, \
+				patch('core.commands.show_alert') as show_alert:
+			ViewFileInOtherPane(source)()
+		show_alert.assert_called_once()
+		show_text_viewer.assert_not_called()
 
 class ClampFontSizeTest(TestCase):
 	def test_steps_up(self):

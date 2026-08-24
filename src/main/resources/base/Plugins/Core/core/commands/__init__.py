@@ -428,6 +428,32 @@ def _is_viewable(url):
 		return True
 	return is_text_file(as_human_readable(url))
 
+def _view_file_in(source_pane, target_pane, focus_view=True):
+	# Read the file under source_pane's cursor and mount the matching viewer
+	# into target_pane. focus_view is forwarded to the viewer so it can be
+	# mounted without grabbing keyboard focus (see ViewFileInOtherPane).
+	url = source_pane.get_file_under_cursor()
+	if not url:
+		show_alert('No file is selected!')
+		return
+	if is_dir(url):
+		show_alert('Cannot view a directory.')
+		return
+	if splitscheme(url)[0] != 'file://':
+		show_alert('Can only view local files.')
+		return
+	if is_image(url):
+		show_image_viewer(target_pane, url, focus_view=focus_view)
+	elif is_video(url):
+		show_video_viewer(target_pane, url, focus_view=focus_view)
+	elif is_text_file(as_human_readable(url)):
+		show_text_viewer(target_pane, url, focus_view=focus_view)
+	else:
+		show_alert(
+			"Can't view this file here — it looks binary. Press Enter "
+			'or use Open to launch it with the default app.'
+		)
+
 class ViewFile(DirectoryPaneCommand):
 
 	# Palette-only by design, like ResetPaneFontSize — no default key
@@ -435,27 +461,20 @@ class ViewFile(DirectoryPaneCommand):
 	aliases = ('View file', 'View', 'Internal viewer')
 
 	def __call__(self):
-		url = self.pane.get_file_under_cursor()
-		if not url:
-			show_alert('No file is selected!')
-			return
-		if is_dir(url):
-			show_alert('Cannot view a directory.')
-			return
-		if splitscheme(url)[0] != 'file://':
-			show_alert('Can only view local files.')
-			return
-		if is_image(url):
-			show_image_viewer(self.pane, url)
-		elif is_video(url):
-			show_video_viewer(self.pane, url)
-		elif is_text_file(as_human_readable(url)):
-			show_text_viewer(self.pane, url)
-		else:
-			show_alert(
-				"Can't view this file here — it looks binary. Press Enter "
-				'or use Open to launch it with the default app.'
-			)
+		_view_file_in(self.pane, self.pane)
+
+class ViewFileInOtherPane(DirectoryPaneCommand):
+
+	# Like ViewFile, but mounts the viewer in the *other* pane so this pane's
+	# file list stays visible. Keyboard focus deliberately stays here, so you
+	# can keep browsing files while each one previews in the other pane. With
+	# only one pane open, target is this pane, so the viewer takes focus as
+	# usual. Palette-only by default (no key binding).
+	aliases = ('View file in other pane', 'View in other pane')
+
+	def __call__(self):
+		target = _get_opposite_pane(self.pane)
+		_view_file_in(self.pane, target, focus_view=target is self.pane)
 
 class OpenOrView(DirectoryPaneCommand):
 

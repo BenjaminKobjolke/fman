@@ -191,7 +191,7 @@ class PaneImageView(QScrollArea):
 		self._apply_scale(1.0)
 
 @run_in_main_thread
-def show_image_viewer(pane, url):
+def show_image_viewer(pane, url, focus_view=True):
 	prepared = begin_new_view(pane)
 	if prepared is None:
 		return
@@ -202,4 +202,4 @@ def show_image_viewer(pane, url):
 		lambda: pane.run_command('switch_panes'),
 		bg, path,
 	)
-	mount_view(pane, widget, view)
+	mount_view(pane, widget, view, focus_view=focus_view)

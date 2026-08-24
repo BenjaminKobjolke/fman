@@ -255,7 +255,7 @@ class PaneTextView(QPlainTextEdit):
 			Qt.TextSelectableByKeyboard | Qt.TextSelectableByMouse
 		)
 
-def _mount_new_view(pane, text, path, url, editable):
+def _mount_new_view(pane, text, path, url, editable, focus_view=True):
 	# Shared by show_text_viewer/show_text_in_viewer below - both build a
 	# PaneTextView the same way and only differ in what they pass in.
 	prepared = begin_new_view(pane)
@@ -268,13 +268,13 @@ def _mount_new_view(pane, text, path, url, editable):
 		bg, fg, path, url, editable,
 	)
 	view.setPlainText(text)
-	mount_view(pane, widget, view)
+	mount_view(pane, widget, view, focus_view=focus_view)
 
 @run_in_main_thread
-def show_text_viewer(pane, url):
+def show_text_viewer(pane, url, focus_view=True):
 	path = as_human_readable(url)
 	text, editable = load_for_view(path)
-	_mount_new_view(pane, text, path, url, editable)
+	_mount_new_view(pane, text, path, url, editable, focus_view=focus_view)
 
 @run_in_main_thread
 def show_text_in_viewer(pane, text):

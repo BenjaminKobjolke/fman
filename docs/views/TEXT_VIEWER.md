@@ -8,7 +8,9 @@ can switch eligible files to editable — see [Editing](#editing) below.
 
 ## Usage
 
-1. Put the cursor on a file and run **"View file"** from the command palette.
+1. Put the cursor on a file and run **"View file"** from the command palette
+   (or **"View file in other pane"** to open it in the opposite pane, keeping
+   this pane's file list visible).
 2. The file's contents fill the active pane, in place of the file list.
 3. Navigate with the mouse or keyboard: arrow keys move the cursor,
    **Shift+arrow** selects text, the mouse selects too, and long lines wrap
@@ -276,11 +278,16 @@ genuinely separate concerns (reading a file vs. the Qt widget vs. zoom):
     replaces the pane's currently open view, so running **View file** again
     on a different file (or opening Release Notes) can't silently discard
     unsaved edits in the one already open.
-  - `begin_new_view(pane)` / `mount_view(pane, widget, view)` — the shared
-    "replace whatever's currently mounted, then swap the new `PaneTextView`
-    into the pane's layout" sequence (confirm-close, read live palette
-    colors, hide the file list, re-point the focus proxy, deferred
+  - `begin_new_view(pane)` / `mount_view(pane, widget, view, focus_view=True)`
+    — the shared "replace whatever's currently mounted, then swap the new
+    `PaneTextView` into the pane's layout" sequence (confirm-close, read live
+    palette colors, hide the file list, re-point the focus proxy, deferred
     `setFocus`), used by both `show_text_viewer` and `show_text_in_viewer`.
+    `focus_view=False` mounts the viewer without grabbing focus and instead
+    re-focuses the *opposite* pane — used when viewing into the other pane
+    (`view_file_in_other_pane`, see
+    [`docs/functions/view-file.md`](../functions/view-file.md)) so browsing
+    stays in the pane the command ran from.
   - `close_view(pane_widget)` — unmounts the current viewer and restores the
     file list; re-exported from `core/textviewer.py` as `close_text_viewer`
     for API stability.

@@ -11,7 +11,8 @@ launch. Always read-only.
 1. Put the cursor on an image file and run **"View file"** from the command
    palette — the same command as the text viewer; see
    [`docs/functions/view-file.md`](../functions/view-file.md) for how it
-   picks which viewer to open.
+   picks which viewer to open. (**"View file in other pane"** opens the image
+   viewer in the opposite pane instead.)
 2. The image fills the active pane, in place of the file list, scaled to fit
    the pane by default.
 3. Press **Escape**, **Enter**, or **Backspace** to close the viewer and

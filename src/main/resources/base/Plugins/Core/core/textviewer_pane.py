@@ -71,11 +71,15 @@ def begin_new_view(pane):
 	fg = palette.color(QPalette.Text).name()
 	return widget, bg, fg
 
-def mount_view(pane, widget, view):
+def mount_view(pane, widget, view, focus_view=True):
 	"""
 	Swaps `view` into the pane's layout in place of the (hidden) file list.
 	Shared tail of show_text_viewer/show_text_in_viewer once the PaneTextView
 	itself has been constructed and its text set.
+
+	focus_view=False mounts the viewer without grabbing keyboard focus — used
+	when viewing into the *other* pane (ViewFileInOtherPane), so the pane the
+	command ran from stays focused for continued browsing.
 	"""
 	widget.layout().addWidget(view)
 	widget._file_view.setVisible(False)
@@ -83,13 +87,25 @@ def mount_view(pane, widget, view):
 	# Re-point the pane's focus proxy at the viewer. switch_panes() ends by
 	# calling the *other* pane's focus(), which is setFocus() on this pane's
 	# widget — following the proxy. Without this it would land back on the
-	# hidden file view instead of the viewer when tabbing back.
+	# hidden file view instead of the viewer when tabbing back. Set even when
+	# not grabbing focus now, so tabbing into this pane later lands on the
+	# viewer rather than the hidden file list.
 	widget.setFocusProxy(view)
-	# The command palette's modal dialog restores focus to the (now hidden)
-	# file view as it closes, right before this function runs. Grabbing
-	# focus here immediately gets clobbered by that restore, so the caret
-	# never shows. Defer one event-loop tick so we focus after it settles:
-	QTimer.singleShot(0, view.setFocus)
+	if focus_view:
+		# The command palette's modal dialog restores focus to the (now hidden)
+		# file view as it closes, right before this function runs. Grabbing
+		# focus here immediately gets clobbered by that restore, so the caret
+		# never shows. Defer one event-loop tick so we focus after it settles:
+		QTimer.singleShot(0, view.setFocus)
+	else:
+		# Viewing into the *other* pane: keep focus on the pane the command ran
+		# from (the opposite of this target pane) so browsing continues there.
+		# Just skipping the setFocus above isn't enough — mounting the viewer
+		# still blurs the source pane's file list — so actively re-focus it,
+		# on the same deferred tick, to win over that blur.
+		panes = pane.window.get_panes()
+		source = panes[(panes.index(pane) + 1) % len(panes)]
+		QTimer.singleShot(0, source.focus)
 
 @run_in_main_thread
 def close_view(pane_widget):

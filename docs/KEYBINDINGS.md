@@ -242,6 +242,17 @@ Note this only opens the viewer — it doesn't replace `Enter`'s normal
 behaviour (navigate into folders / OS-open files), and it will show an
 alert if used on a directory or a non-local path.
 
+`view_file_in_other_pane` is the sibling command that opens the viewer in the
+**other** pane, keeping the current pane's file list visible **and focused** —
+so you can keep moving the cursor through the folder and preview each file in
+the other pane as you go (with only one pane open it views in place). It also
+ships with **no default binding** — bind it in your user
+`Key Bindings (<OS>).json`, e.g.:
+
+```json
+{ "keys": ["Ctrl+Shift+Enter"], "command": "view_file_in_other_pane" }
+```
+
 If you want the internal viewer to be your *default* action on `Enter`
 instead — e.g. you view files more often than you OS-open them — bind
 `Enter` to [`open_or_view`](functions/open-or-view.md) instead of

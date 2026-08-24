@@ -245,7 +245,7 @@ class PaneVideoView(QWidget):
 			('Exit viewer', self._on_close, ''),
 		]
 
-def show_video_viewer(pane, url):
+def show_video_viewer(pane, url, focus_view=True):
 	"""
 	Not @run_in_main_thread (see module docstring) - runs on the calling
 	DirectoryPaneCommand's own background thread, so the libmpv download
@@ -264,10 +264,10 @@ def show_video_viewer(pane, url):
 	except OSError as e:
 		show_alert('Cannot play video - %s' % e)
 		return
-	_open_video_view(pane, url, mpv_module)
+	_open_video_view(pane, url, mpv_module, focus_view=focus_view)
 
 @run_in_main_thread
-def _open_video_view(pane, url, mpv_module):
+def _open_video_view(pane, url, mpv_module, focus_view=True):
 	prepared = begin_new_view(pane)
 	if prepared is None:
 		return
@@ -278,7 +278,7 @@ def _open_video_view(pane, url, mpv_module):
 		lambda: pane.run_command('switch_panes'),
 		bg,
 	)
-	mount_view(pane, widget, view)
+	mount_view(pane, widget, view, focus_view=focus_view)
 	# Defer starting playback one event-loop tick, same technique mount_view
 	# already uses for view.setFocus() - ensures the widget's addWidget/show
 	# has actually been processed (real geometry, native window) before mpv

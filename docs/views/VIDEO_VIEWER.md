@@ -12,7 +12,8 @@ sliders.
 1. Put the cursor on a video file and run **"View file"** from the command
    palette — the same command as the text and image viewers; see
    [`docs/functions/view-file.md`](../functions/view-file.md) for how it
-   picks which viewer to open.
+   picks which viewer to open. (**"View file in other pane"** opens the video
+   viewer in the opposite pane instead.)
 2. The video fills the active pane, in place of the file list, and starts
    playing immediately. A `current / total` time readout
    (e.g. `0:12 / 3:45`) sits below it.
