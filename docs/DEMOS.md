@@ -44,6 +44,17 @@ The recording tool itself is a separate checkout and runs with
     tools\demos_record.bat            REM every demo
     tools\demos_record.bat --demo 1   REM one demo (any tool args pass through)
 
+Two demos ship:
+
+- **1 `overview`** — short; the four stills in the README feature grid
+  (both panes, internal image viewer, inline filter, select-all). Uses the
+  committed `examples/left_pane` + `examples/right_pane`.
+- **2 `tour`** — the longer clip for the README's main GIF/MP4: select all,
+  copy every file to the right pane, then play the video in the internal
+  viewer. Its right pane is a **fresh temp dir** (`run_fman_demo.bat` creates
+  it for demo id 2), so the copy is visible and repeatable and never touches
+  the committed example folders.
+
 Output lands in the tool's configured folder — currently
 `media/demos/<name>/` (see `output_dir` in `tools/create_media/fman.json`):
 `demo.gif`, `demo.mp4`, and one PNG per `Screenshot` step.

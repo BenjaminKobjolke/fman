@@ -4,14 +4,17 @@ A cross-platform dual-pane file manager.
 
 ## Demo
 
-![fman overview demo](media/demos/overview/demo.gif)
+![fman demo](media/demos/tour/demo.gif)
 
-Two-pane browsing, the inline name filter, and the command palette
-(`Ctrl+Shift+P`). Also available as [MP4](media/demos/overview/demo.mp4).
+Select all, copy across panes, and play a video in the internal viewer — all
+from the keyboard. Also available as [MP4](media/demos/tour/demo.mp4).
 
-| Panes | Navigate | Filter | Command palette |
+More of the UI — the two-pane layout, internal image viewer, inline name
+filter, and command palette (`Ctrl+Shift+P`):
+
+| Panes | Internal viewer | Filter | Select all |
 |---|---|---|---|
-| ![panes](media/demos/overview/panes.png) | ![navigate](media/demos/overview/navigate.png) | ![filter](media/demos/overview/filter.png) | ![command palette](media/demos/overview/command-palette.png) |
+| ![panes](media/demos/overview/panes.png) | ![internal viewer](media/demos/overview/view-image.png) | ![filter](media/demos/overview/filter.png) | ![select all](media/demos/overview/select-all.png) |
 
 <sub>Regenerate with `tools\demos_record.bat` — see [docs/DEMOS.md](docs/DEMOS.md).</sub>
 

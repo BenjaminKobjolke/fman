@@ -14,9 +14,15 @@ set "VIRTUAL_ENV="
 if not defined FMAN_PYTHON set "FMAN_PYTHON=python"
 cd /d "%~dp0..\.."
 set "PYTHONPATH=%CD%\src\main\python"
+REM Demo 2 (the "tour") copies files into its right pane, so give it a fresh
+REM empty temp dir instead of the committed examples\right_pane.
+set "RIGHT=%CD%\examples\right_pane"
+if "%~1"=="2" set "RIGHT=%TEMP%\fman-demo-tour"
+if "%~1"=="2" if exist "%RIGHT%" rmdir /s /q "%RIGHT%"
+if "%~1"=="2" mkdir "%RIGHT%"
 "%FMAN_PYTHON%" src\main\python\fman\main.py ^
   --automation-demo %1 ^
   --automation-demo-port %2 ^
   --automation-demo-width %3 ^
   --automation-demo-height %4 ^
-  examples\left_pane examples\right_pane
+  examples\left_pane "%RIGHT%"

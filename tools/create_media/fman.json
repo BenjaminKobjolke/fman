@@ -10,6 +10,8 @@
   },
   "demos": [
     {"id": 1, "name": "overview", "fps": 10, "formats": ["gif", "mp4"],
+     "width": 1280, "height": 800},
+    {"id": 2, "name": "tour", "fps": 10, "formats": ["gif", "mp4"],
      "width": 1280, "height": 800}
   ]
 }

@@ -19,7 +19,7 @@ from PyQt5.QtGui import QKeyEvent, QKeySequence
 from PyQt5.QtWidgets import QApplication
 
 from automated_screenshot_connector import (
-	DemoScript, Pause, PressKey, Screenshot, TypeText,
+	Command, DemoScript, Pause, PressKey, Screenshot, TypeText,
 )
 from automated_screenshot_connector.steps import (
 	CustomStep, InsertChar, PressReturn, SendKey, SendScreenshot, flatten,
@@ -131,23 +131,50 @@ DEMOS = {
 		steps=(
 			Pause(0.8),
 			Screenshot('panes'),
-			# Move the cursor down the left pane's file list.
-			PressKey('Down'), PressKey('Down'), PressKey('Down'),
-			Pause(0.6),
-			Screenshot('navigate'),
+			# Preview a file in the OTHER pane with fman's internal viewer,
+			# while the left pane's list stays visible. Row 0 sorts to the
+			# video; one Down lands on the first image.
+			PressKey('Down'), Pause(0.4),
+			# Open the palette, then type the command + Return to run it.
+			PressKey('Ctrl+Shift+P'), Pause(0.5),
+			Command('view in other'),  # palette alias 'View in other pane'
+			Pause(1.0),
+			Screenshot('view-image'),
 			# Inline name filter: typing activates fman's FilterBar.
-			TypeText('dummy_1'),
-			Pause(0.6),
+			TypeText('dummy_1'), Pause(0.6),
 			Screenshot('filter'),
-			PressKey('Escape'),
-			Pause(0.4),
-			# Command palette, filtered to the "go" commands.
-			PressKey('Ctrl+Shift+P'),
-			Pause(0.5),
-			TypeText('go'),
-			Pause(0.6),
-			Screenshot('command-palette'),
-			PressKey('Escape'),
+			PressKey('Escape'), Pause(0.3),
+			# A real command run from the palette: select every file.
+			PressKey('Ctrl+Shift+P'), Pause(0.5),
+			Command('select all'),
+			Pause(0.8),
+			Screenshot('select-all'),
+			Pause(1.0),
+		),
+	),
+	# The longer "tour" for the README's main GIF/MP4. Its right pane is a
+	# fresh empty temp dir (run_fman_demo.bat sets it up for demo id 2), so the
+	# copy step is visible, repeatable, and never touches the example folders.
+	2: DemoScript(
+		id=2,
+		name='tour',
+		steps=(
+			Pause(1.2),
+			# Select every file with the direct shortcut (no palette).
+			PressKey('Ctrl+A'), Pause(1.2),
+			# Copy the selection into the empty right pane via the palette.
+			# The palette is a modal dialog, so give it time to open before
+			# typing, and time to close before the next beat.
+			PressKey('Ctrl+Shift+P'), Pause(1.0),
+			Command('copy'),         # runs Copy -> opens the destination prompt
+			Pause(1.3),
+			PressKey('Return'),      # confirm the destination (right pane dir)
+			Pause(3.0),              # let the files copy into the right pane
+			# Play the video in the right pane via the internal viewer.
+			PressKey('Home'), Pause(0.7),   # cursor onto the video (row 0)
+			PressKey('Ctrl+Shift+P'), Pause(1.0),
+			Command('view in other'),
+			Pause(4.0),              # let it play a moment
 			Pause(1.0),
 		),
 	),
