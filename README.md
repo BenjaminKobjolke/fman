@@ -2,6 +2,13 @@
 
 A cross-platform dual-pane file manager.
 
+## Web help system
+
+A searchable, mobile-friendly reference of all keyboard shortcuts lives in its own
+repo: [fman-web-help-system](https://github.com/BenjaminKobjolke/fman-web-help-system).
+It regenerates its data from this repo's source; point its `fman_repo_dir` config at
+a local fman checkout.
+
 ## Development instructions
 
 fman currently uses Python 3.14.
