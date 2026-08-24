@@ -24,17 +24,20 @@ from fman.impl.plugins.error import PluginErrorHandler
 from fman.impl.plugins.key_bindings import KeyBindings
 from fman.impl.plugins.mother_fs import MotherFileSystem
 from fman.impl.session import SessionManager
+from fman.impl.single_instance import SingleInstance, server_name_for, \
+	open_paths_in_running_instance
 from fman.impl.theme import Theme
 from fman.impl.onboarding import TourController
 from fman.impl.onboarding.cleanup_guide import CleanupGuide
 from fman.impl.onboarding.tutorial import Tutorial
 from fman.impl.usage_helper import UsageHelper
 from fman.impl.util import os_
+from fman.impl.util.path import make_absolute
 from fman.impl.util.qt import connect_once
 from fman.impl.util.settings import Settings
 from fman.impl.view import ProxyStyle
 from fman.impl.widgets import MainWindow, SplashScreen, Application
-from os import makedirs
+from os import makedirs, getcwd
 from os.path import dirname, join
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor, QPalette
@@ -57,10 +60,32 @@ class DevelopmentApplicationContext(ApplicationContext):
 		self._main_window = None
 	def run(self):
 		self.init_logging()
+		if self.single_instance_enabled:
+			# Touch self.app first: QLocalSocket needs a QApplication instance.
+			_ = self.app
+			abs_paths = [make_absolute(a, getcwd()) for a in sys.argv[1:]]
+			if self.single_instance.try_forward(abs_paths):
+				return 0
+			self.single_instance.start_listening()
 		self._start_metrics()
 		self._load_plugins()
 		self.session_manager.show_main_window(self.window)
 		return self.app.exec_()
+	@cached_property
+	def single_instance_enabled(self):
+		settings = Settings(self._get_local_data_file('Settings.json'))
+		return settings.get('single_instance', True)
+	@cached_property
+	def single_instance(self):
+		return SingleInstance(
+			server_name_for(DATA_DIRECTORY), self._on_single_instance_message
+		)
+	def _on_single_instance_message(self, abs_paths):
+		# Runs on the Qt main thread via QLocalServer.newConnection.
+		open_paths_in_running_instance(
+			self.main_window, self.plugin_support, self.session_manager,
+			abs_paths
+		)
 	def init_logging(self):
 		logging.basicConfig()
 	def _start_metrics(self):

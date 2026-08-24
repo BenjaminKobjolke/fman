@@ -2,6 +2,13 @@
 
 A cross-platform dual-pane file manager.
 
+## Single instance
+
+fman runs as a single instance by default: launching it with a path while it is
+already running opens that folder in the active pane of the existing window
+instead of spawning a new one. See [docs/single_instance.md](docs/single_instance.md)
+for details and the `single_instance` setting to disable it.
+
 ## Web help system
 
 A searchable, mobile-friendly reference of all keyboard shortcuts lives in its own

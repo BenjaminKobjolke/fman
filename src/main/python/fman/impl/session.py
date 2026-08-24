@@ -103,8 +103,20 @@ class SessionManager:
 			path = pane_info.get('location')
 			if not path or path == 'null://':
 				path = expanduser('~')
-		url = path if '://' in path else as_url(path)
+		self.open_path_in_pane(pane, path, error_label=cmdline)
 		col_widths = pane_info.get('col_widths')
+		if col_widths:
+			try:
+				pane._widget.set_column_widths(col_widths)
+			except ValueError:
+				# This for instance happens when the old and new numbers of
+				# columns don't match (eg. 2 columns before, 3 now).
+				pass
+	def open_path_in_pane(self, pane, path, error_label=None):
+		# Resolve a filesystem path or URL into a pane location and load it.
+		# If path points at a file, its parent dir is opened and the cursor is
+		# placed on the file. Shared by startup and single-instance forwarding.
+		url = path if '://' in path else as_url(path)
 		callback = None
 		home_dir = as_url(expanduser('~'))
 		try:
@@ -123,7 +135,7 @@ class SessionManager:
 			pane.set_path(location, callback)
 		except Exception:
 			msg = 'Could not load folder %s.' % \
-			      (cmdline or as_human_readable(url))
+			      (error_label or as_human_readable(url))
 			self._error_handler.report(msg, exc=False)
 			try:
 				pane.set_path(home_dir)
@@ -140,13 +152,6 @@ class SessionManager:
 					pane.set_path(root)
 				except Exception:
 					_LOG.exception('Could not open %s.', root)
-		if col_widths:
-			try:
-				pane._widget.set_column_widths(col_widths)
-			except ValueError:
-				# This for instance happens when the old and new numbers of
-				# columns don't match (eg. 2 columns before, 3 now).
-				pass
 	def _exists_and_is_dir(self, url):
 		try:
 			return self._fs.is_dir(url)
