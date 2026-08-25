@@ -12,7 +12,7 @@ from core.os_ import open_terminal_in_directory, open_native_file_manager, \
 from core.settings import get_setting, save_setting
 from core.util import strformat_dict_values, listdir_absolute, is_parent
 from core.quicksearch_matchers import contains_chars, \
-	contains_chars_after_separator
+	contains_chars_after_separator, contains_chars_any_order
 from core.textviewer import show_text_viewer
 from core.textviewer_io import is_text_file
 from core.videoviewer import is_video, show_video_viewer
@@ -1235,7 +1235,10 @@ def _get_volumes_url():
 
 class CommandPalette(DirectoryPaneCommand):
 
-	_MATCHERS = (contains_chars_after_separator(' '), contains_chars)
+	_MATCHERS = (
+		contains_chars_after_separator(' '), contains_chars,
+		contains_chars_any_order
+	)
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)

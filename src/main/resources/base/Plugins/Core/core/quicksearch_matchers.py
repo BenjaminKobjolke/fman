@@ -26,6 +26,21 @@ def contains_chars(text, query):
 		i += 1
 	return indices
 
+def contains_chars_any_order(text, query):
+	# Like contains_chars, but each space-separated word is matched
+	# independently, so word order in the query does not matter:
+	# 'panes show' finds 'show all panes'.
+	words = query.split()
+	if not words:
+		return None
+	matched = set()
+	for word in words:
+		indices = contains_chars(text, word)
+		if indices is None:
+			return None
+		matched.update(indices)
+	return sorted(matched)
+
 def contains_substring(text, query):
 	try:
 		start = text.index(query)
