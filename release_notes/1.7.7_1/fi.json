@@ -1,0 +1,12 @@
+{
+  "version": "1.7.7",
+  "build": 1,
+  "date": "2026-08-25",
+  "title": "Yksi ikkuna, nopeammat verkkojaot ja tiedostojen selailu katseluohjelmissa",
+  "notes": [
+    "fman toimii nyt yhtenä ikkunana: kansion tai tiedoston avaaminen Resurssienhallinnasta tai komentoriviltä lähettää sen jo avoinna olevaan ikkunaan sen sijaan, että käynnistettäisiin toinen.",
+    "Voit siirtyä seuraavaan tai edelliseen tiedostoon suoraan teksti-, kuva- ja videokatseluohjelmista, joten voit selata kansion sisältöä palaamatta tiedostolistaan.",
+    "Verkkojaon selaaminen pysyy sujuvana: kansiot latautuvat nyt asteittain sen sijaan, että ohjelma jäätyisi Windowsin etsiessä kuvakkeita ja piilotiedostoja.",
+    "Komentopaletti löytää komennon, vaikka kirjoittaisit sen sanat eri järjestyksessä."
+  ]
+}

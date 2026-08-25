@@ -1,0 +1,12 @@
+{
+  "version": "1.7.7",
+  "build": 1,
+  "date": "2026-08-25",
+  "title": "Eén venster, snellere netwerkshares en bestandsnavigatie in viewers",
+  "notes": [
+    "fman draait nu in één enkel venster: als je een map of bestand opent vanuit Verkenner of de opdrachtregel, wordt het naar het venster gestuurd dat je al open hebt in plaats van een tweede te starten.",
+    "Je kunt rechtstreeks vanuit de tekst-, afbeeldings- en videoviewers naar het volgende of vorige bestand springen, zodat je door een map kunt bladeren zonder terug te gaan naar de bestandslijst.",
+    "Het bladeren door netwerkshares blijft responsief: mappen laden nu geleidelijk in plaats van vast te lopen terwijl Windows pictogrammen en verborgen bestanden opzoekt.",
+    "Het opdrachtpalet vindt een opdracht, zelfs wanneer je de woorden in een andere volgorde typt."
+  ]
+}

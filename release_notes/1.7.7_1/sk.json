@@ -1,0 +1,12 @@
+{
+  "version": "1.7.7",
+  "build": 1,
+  "date": "2026-08-25",
+  "title": "Jedno okno, rýchlejšie sieťové zdieľania a navigácia medzi súbormi v prehliadačoch",
+  "notes": [
+    "fman teraz beží ako jedno okno: otvorenie priečinka alebo súboru z Prieskumníka alebo príkazového riadka ho odošle do okna, ktoré už máte otvorené, namiesto spustenia druhého.",
+    "V textovom, obrazovom a video prehliadači môžete preskočiť na ďalší alebo predchádzajúci súbor, takže môžete prechádzať priečinkom bez návratu do zoznamu súborov.",
+    "Prehliadanie sieťových zdieľaní zostáva plynulé: priečinky sa teraz načítavajú postupne namiesto zamrznutia, kým Windows vyhľadáva ikony a skryté súbory.",
+    "Paleta príkazov nájde príkaz aj vtedy, keď zadáte jeho slová v inom poradí."
+  ]
+}

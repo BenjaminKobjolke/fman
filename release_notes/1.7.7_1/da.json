@@ -1,0 +1,12 @@
+{
+  "version": "1.7.7",
+  "build": 1,
+  "date": "2026-08-25",
+  "title": "Ét vindue, hurtigere netværksdeling og filnavigation i visere",
+  "notes": [
+    "fman kører nu som ét vindue: når du åbner en mappe eller fil fra Stifinder eller kommandolinjen, sendes den til det vindue, du allerede har åbent, i stedet for at starte et andet.",
+    "Du kan hoppe til den næste eller forrige fil direkte fra tekst-, billed- og videovisere, så du kan bladre gennem en mappe uden at gå tilbage til fillisten.",
+    "Gennemse netværksdelinger forbliver responsivt: mapper indlæses nu gradvist i stedet for at fryse, mens Windows slår ikoner og skjulte filer op.",
+    "Kommandopaletten finder en kommando, selv når du skriver dens ord i en anden rækkefølge."
+  ]
+}

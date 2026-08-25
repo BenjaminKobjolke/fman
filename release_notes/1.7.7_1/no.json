@@ -1,0 +1,12 @@
+{
+  "version": "1.7.7",
+  "build": 1,
+  "date": "2026-08-25",
+  "title": "Ett vindu, raskere nettverksdelinger og filnavigasjon i visere",
+  "notes": [
+    "fman kjører nå som ett enkelt vindu: å åpne en mappe eller fil fra Utforsker eller kommandolinjen sender den til vinduet du allerede har åpent i stedet for å starte et nytt.",
+    "Du kan hoppe til neste eller forrige fil direkte fra tekst-, bilde- og videovisere, slik at du kan bla gjennom en mappe uten å gå tilbake til fillisten.",
+    "Å bla gjennom nettverksdelinger forblir responsivt: mapper lastes nå inn gradvis i stedet for at det fryser mens Windows slår opp ikoner og skjulte filer.",
+    "Kommandopaletten finner en kommando selv når du skriver ordene i en annen rekkefølge."
+  ]
+}

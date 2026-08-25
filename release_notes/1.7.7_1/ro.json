@@ -1,0 +1,12 @@
+{
+  "version": "1.7.7",
+  "build": 1,
+  "date": "2026-08-25",
+  "title": "O singură fereastră, partajări de rețea mai rapide și navigare prin fișiere în vizualizatoare",
+  "notes": [
+    "fman rulează acum într-o singură fereastră: deschiderea unui folder sau a unui fișier din Explorer sau din linia de comandă îl trimite către fereastra pe care o ai deja deschisă, în loc să pornească una a doua.",
+    "Poți să sari la fișierul următor sau anterior direct din vizualizatoarele de text, imagini și video, astfel încât poți răsfoi un folder fără să revii la lista de fișiere.",
+    "Navigarea prin partajările de rețea rămâne receptivă: folderele se încarcă acum progresiv, în loc să se blocheze în timp ce Windows caută pictograme și fișiere ascunse.",
+    "Paleta de comenzi găsește o comandă chiar și atunci când tastezi cuvintele ei într-o ordine diferită."
+  ]
+}

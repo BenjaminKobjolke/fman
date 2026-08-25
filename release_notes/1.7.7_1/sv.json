@@ -1,0 +1,12 @@
+{
+  "version": "1.7.7",
+  "build": 1,
+  "date": "2026-08-25",
+  "title": "Ett fönster, snabbare nätverksresurser och filnavigering i visare",
+  "notes": [
+    "fman körs nu som ett enda fönster: när du öppnar en mapp eller fil från Utforskaren eller kommandoraden skickas den till fönstret du redan har öppet i stället för att starta ett andra.",
+    "Du kan hoppa till nästa eller föregående fil direkt från text-, bild- och videovisarna, så att du kan bläddra igenom en mapp utan att gå tillbaka till fillistan.",
+    "Bläddring i nätverksresurser förblir responsiv: mappar läses nu in stegvis i stället för att låsa sig medan Windows letar upp ikoner och dolda filer.",
+    "Kommandopaletten hittar ett kommando även när du skriver dess ord i en annan ordning."
+  ]
+}

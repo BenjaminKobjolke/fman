@@ -1,0 +1,12 @@
+{
+  "version": "1.7.7",
+  "build": 1,
+  "date": "2026-08-25",
+  "title": "Jedno okno, szybsze udziały sieciowe i nawigacja po plikach w przeglądarkach",
+  "notes": [
+    "fman działa teraz w jednym oknie: otwieranie folderu lub pliku z Eksploratora lub z wiersza poleceń wysyła je do już otwartego okna zamiast uruchamiać drugie.",
+    "Możesz przejść do następnego lub poprzedniego pliku bezpośrednio z przeglądarek tekstu, obrazów i wideo, dzięki czemu możesz przeglądać folder bez wracania do listy plików.",
+    "Przeglądanie udziałów sieciowych pozostaje responsywne: foldery ładują się teraz stopniowo, zamiast zawieszać się, gdy Windows wyszukuje ikony i ukryte pliki.",
+    "Paleta poleceń znajduje polecenie nawet wtedy, gdy wpisujesz jego słowa w innej kolejności."
+  ]
+}

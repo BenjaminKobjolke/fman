@@ -1,0 +1,12 @@
+{
+  "version": "1.7.7",
+  "build": 1,
+  "date": "2026-08-25",
+  "title": "Ein Fenster, schnellere Netzwerkfreigaben und Dateinavigation in Viewern",
+  "notes": [
+    "fman läuft jetzt als einzelnes Fenster: Wenn du einen Ordner oder eine Datei aus dem Explorer oder der Befehlszeile öffnest, wird sie an das bereits geöffnete Fenster übergeben, statt ein zweites zu starten.",
+    "Du kannst in den Text-, Bild- und Video-Viewern direkt zur nächsten oder vorherigen Datei springen, sodass du einen Ordner durchblättern kannst, ohne zur Dateiliste zurückzugehen.",
+    "Das Durchsuchen von Netzwerkfreigaben bleibt reaktionsschnell: Ordner werden jetzt schrittweise geladen, statt einzufrieren, während Windows Symbole und versteckte Dateien ermittelt.",
+    "Die Befehlspalette findet einen Befehl auch dann, wenn du seine Wörter in einer anderen Reihenfolge eingibst."
+  ]
+}

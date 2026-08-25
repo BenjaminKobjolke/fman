@@ -1,0 +1,12 @@
+{
+  "version": "1.7.7",
+  "build": 1,
+  "date": "2026-08-25",
+  "title": "Jedan prozor, brža mrežna deljenja i navigacija kroz fajlove u pregledačima",
+  "notes": [
+    "fman sada radi kao jedan prozor: otvaranje fascikle ili fajla iz Explorer-a ili iz komandne linije šalje to u prozor koji već imate otvoren, umesto da pokrene drugi.",
+    "Možete da pređete na sledeći ili prethodni fajl direktno iz pregledača teksta, slika i video-snimaka, pa možete da listate fasciklu bez vraćanja na listu fajlova.",
+    "Pregledanje mrežnih deljenja ostaje odzivno: fascikle se sada učitavaju postepeno umesto da se aplikacija zamrzne dok Windows traži ikonice i skrivene fajlove.",
+    "Paleta komandi pronalazi komandu čak i kada reči unesete drugačijim redosledom."
+  ]
+}

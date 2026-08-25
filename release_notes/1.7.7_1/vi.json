@@ -1,0 +1,12 @@
+{
+  "version": "1.7.7",
+  "build": 1,
+  "date": "2026-08-25",
+  "title": "Một cửa sổ, chia sẻ mạng nhanh hơn và điều hướng tệp trong trình xem",
+  "notes": [
+    "fman giờ chạy dưới dạng một cửa sổ duy nhất: khi mở một thư mục hoặc tệp từ Explorer hoặc dòng lệnh, nó sẽ gửi đến cửa sổ bạn đang mở thay vì khởi chạy một cửa sổ thứ hai.",
+    "Bạn có thể chuyển thẳng đến tệp tiếp theo hoặc trước đó ngay trong trình xem văn bản, hình ảnh và video, để có thể lướt qua một thư mục mà không cần quay lại danh sách tệp.",
+    "Duyệt các chia sẻ mạng vẫn mượt mà: các thư mục giờ tải dần thay vì bị đứng khi Windows tra cứu biểu tượng và tệp ẩn.",
+    "Bảng lệnh tìm thấy một lệnh ngay cả khi bạn gõ các từ của nó theo thứ tự khác."
+  ]
+}

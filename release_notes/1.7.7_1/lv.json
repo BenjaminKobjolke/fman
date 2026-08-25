@@ -1,0 +1,12 @@
+{
+  "version": "1.7.7",
+  "build": 1,
+  "date": "2026-08-25",
+  "title": "Viens logs, ātrāki tīkla koplietojumi un failu pārlūkošana skatītājos",
+  "notes": [
+    "fman tagad darbojas kā viens logs: atverot mapi vai failu no Explorer vai komandrindas, tas tiek nosūtīts uz jau atvērto logu, nevis tiek palaists otrs.",
+    "Varat pāriet uz nākamo vai iepriekšējo failu tieši no teksta, attēlu un video skatītājiem, lai varētu pāršķirstīt mapi, neatgriežoties failu sarakstā.",
+    "Tīkla koplietojumu pārlūkošana saglabājas atsaucīga: mapes tagad ielādējas pakāpeniski, nevis iesalst, kamēr Windows meklē ikonas un slēptos failus.",
+    "Komandu palete atrod komandu pat tad, ja tās vārdus ierakstāt citā secībā."
+  ]
+}

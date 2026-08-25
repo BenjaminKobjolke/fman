@@ -1,0 +1,12 @@
+{
+  "version": "1.7.7",
+  "build": 1,
+  "date": "2026-08-25",
+  "title": "Una finestra, condivisioni di rete più veloci e navigazione dei file nei visualizzatori",
+  "notes": [
+    "fman ora funziona in una sola finestra: aprire una cartella o un file da Esplora file o dalla riga di comando lo invia alla finestra che hai già aperta invece di avviarne una seconda.",
+    "Puoi passare al file successivo o precedente direttamente dai visualizzatori di testo, immagini e video, così puoi scorrere una cartella senza tornare all’elenco dei file.",
+    "La navigazione delle condivisioni di rete rimane reattiva: le cartelle ora si caricano progressivamente invece di bloccarsi mentre Windows cerca icone e file nascosti.",
+    "La tavolozza dei comandi trova un comando anche quando digiti le sue parole in un ordine diverso."
+  ]
+}

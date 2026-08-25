@@ -1,0 +1,12 @@
+{
+  "version": "1.7.7",
+  "build": 1,
+  "date": "2026-08-25",
+  "title": "Üks aken, kiiremad võrgukettad ja failides navigeerimine vaaturites",
+  "notes": [
+    "fman töötab nüüd ühe aknana: kausta või faili avamine Explorerist või käsurealt saadab selle olemasolevasse avatud aknasse, selle asemel et käivitada teine.",
+    "Saad liikuda järgmise või eelmise faili juurde otse teksti-, pildi- ja videovaaturites, nii et saad kausta faile läbi lehitseda ilma faililoendisse naasmata.",
+    "Võrguketaste sirvimine püsib sujuv: kaustad laaditakse nüüd järk-järgult, selle asemel et hanguda, kui Windows otsib ikoone ja peidetud faile.",
+    "Käskude palett leiab käsu isegi siis, kui sisestad selle sõnad teises järjekorras."
+  ]
+}

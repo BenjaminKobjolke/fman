@@ -1,0 +1,12 @@
+{
+  "version": "1.7.7",
+  "build": 1,
+  "date": "2026-08-25",
+  "title": "One window, faster network shares, and file navigation in viewers",
+  "notes": [
+    "fman now runs as a single window: opening a folder or file from Explorer or the command line sends it to the window you already have open instead of starting a second one.",
+    "You can jump to the next or previous file straight from the text, image, and video viewers, so you can flip through a folder without going back to the file list.",
+    "Browsing network shares stays responsive: folders now load progressively instead of freezing while Windows looks up icons and hidden files.",
+    "The command palette finds a command even when you type its words in a different order."
+  ]
+}

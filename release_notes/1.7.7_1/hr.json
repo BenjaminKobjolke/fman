@@ -1,0 +1,12 @@
+{
+  "version": "1.7.7",
+  "build": 1,
+  "date": "2026-08-25",
+  "title": "Jedan prozor, brže mrežne dijeljene mape i navigacija datotekama u preglednicima",
+  "notes": [
+    "fman sada radi u jednom prozoru: otvaranje mape ili datoteke iz Explorera ili naredbenog retka šalje je u prozor koji je već otvoren umjesto da pokrene drugi.",
+    "Možete skočiti na sljedeću ili prethodnu datoteku izravno iz preglednika teksta, slika i videozapisa, tako da možete listati mapu bez povratka na popis datoteka.",
+    "Pregledavanje mrežnih dijeljenih mapa ostaje responzivno: mape se sada učitavaju postupno umjesto da se zamrznu dok Windows traži ikone i skrivene datoteke.",
+    "Paleta naredbi pronalazi naredbu čak i kada upišete njezine riječi drugim redoslijedom."
+  ]
+}

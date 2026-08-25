@@ -1,0 +1,12 @@
+{
+  "version": "1.7.7",
+  "build": 1,
+  "date": "2026-08-25",
+  "title": "Egyetlen ablak, gyorsabb hálózati megosztások és fájlnavigáció a megjelenítőkben",
+  "notes": [
+    "Az fman mostantól egyetlen ablakban fut: ha az Intézőből vagy a parancssorból nyitsz meg egy mappát vagy fájlt, azt a már megnyitott ablakba küldi, ahelyett hogy egy másodikat indítana.",
+    "A szöveg-, kép- és videómegjelenítőből közvetlenül a következő vagy az előző fájlra ugorhatsz, így egy mappát végiglapozhatsz anélkül, hogy vissza kellene menned a fájllistához.",
+    "A hálózati megosztások böngészése továbbra is reszponzív: a mappák mostantól fokozatosan töltődnek be, ahelyett hogy lefagyna a felület, amíg a Windows ikonokat és rejtett fájlokat keres.",
+    "A parancspaletta akkor is megtalál egy parancsot, ha a szavait más sorrendben írod be."
+  ]
+}

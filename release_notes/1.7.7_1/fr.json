@@ -1,0 +1,12 @@
+{
+  "version": "1.7.7",
+  "build": 1,
+  "date": "2026-08-25",
+  "title": "Une seule fenêtre, partages réseau plus rapides et navigation entre fichiers dans les visionneuses",
+  "notes": [
+    "fman s’exécute désormais dans une seule fenêtre : ouvrir un dossier ou un fichier depuis l’Explorateur ou la ligne de commande l’envoie vers la fenêtre déjà ouverte au lieu d’en démarrer une deuxième.",
+    "Vous pouvez passer directement au fichier suivant ou précédent depuis les visionneuses de texte, d’images et de vidéos, ce qui permet de parcourir un dossier sans revenir à la liste des fichiers.",
+    "La navigation dans les partages réseau reste réactive : les dossiers se chargent désormais progressivement au lieu de se figer pendant que Windows recherche les icônes et les fichiers cachés.",
+    "La palette de commandes trouve une commande même lorsque vous saisissez ses mots dans un ordre différent."
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": "1.7.7",
+  "build": 1,
+  "date": "2026-08-25",
+  "title": "Jedno okno, rychlejší síťová sdílení a procházení souborů v prohlížečích",
+  "notes": [
+    "fman nyní běží jako jediné okno: otevření složky nebo souboru z Průzkumníka nebo z příkazového řádku jej odešle do okna, které už máte otevřené, místo aby se spustilo druhé.",
+    "V textovém, obrazovém a video prohlížeči můžete přejít rovnou na další nebo předchozí soubor, takže můžete listovat složkou bez návratu do seznamu souborů.",
+    "Procházení síťových sdílení zůstává svižné: složky se nyní načítají postupně, místo aby aplikace zamrzla, když Windows dohledává ikony a skryté soubory.",
+    "Paleta příkazů najde příkaz, i když zadáte jeho slova v jiném pořadí."
+  ]
+}

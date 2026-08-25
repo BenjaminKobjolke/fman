@@ -1,0 +1,12 @@
+{
+  "version": "1.7.7",
+  "build": 1,
+  "date": "2026-08-25",
+  "title": "Uma janela, partilhas de rede mais rápidas e navegação de ficheiros nos visualizadores",
+  "notes": [
+    "O fman passa agora a executar-se numa única janela: ao abrir uma pasta ou ficheiro a partir do Explorador ou da linha de comandos, este é enviado para a janela que já tem aberta, em vez de iniciar uma segunda.",
+    "Pode saltar para o ficheiro seguinte ou anterior diretamente a partir dos visualizadores de texto, imagem e vídeo, permitindo percorrer uma pasta sem regressar à lista de ficheiros.",
+    "A navegação em partilhas de rede mantém-se responsiva: as pastas passam agora a carregar progressivamente, em vez de bloquear enquanto o Windows procura ícones e ficheiros ocultos.",
+    "A paleta de comandos encontra um comando mesmo quando escreve as palavras numa ordem diferente."
+  ]
+}

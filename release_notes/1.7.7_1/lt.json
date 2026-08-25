@@ -1,0 +1,12 @@
+{
+  "version": "1.7.7",
+  "build": 1,
+  "date": "2026-08-25",
+  "title": "Vienas langas, greitesni tinklo bendrinimai ir failų naršymas peržiūros programose",
+  "notes": [
+    "fman dabar veikia kaip vienas langas: atidarius aplanką ar failą iš „Explorer“ arba komandinės eilutės, jis atsiunčiamas į jau atidarytą langą, užuot paleidus antrą.",
+    "Galite pereiti prie kito arba ankstesnio failo tiesiai iš teksto, vaizdų ir vaizdo įrašų peržiūros programų, todėl galite perversti aplanką negrįždami į failų sąrašą.",
+    "Tinklo bendrinimų naršymas išlieka sklandus: aplankai dabar įkeliami palaipsniui, užuot užšalus, kol „Windows“ ieško piktogramų ir paslėptų failų.",
+    "Komandų paletė randa komandą net tada, kai įvedate jos žodžius kita tvarka."
+  ]
+}

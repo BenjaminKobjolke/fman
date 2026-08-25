@@ -1,0 +1,12 @@
+{
+  "version": "1.7.7",
+  "build": 1,
+  "date": "2026-08-25",
+  "title": "Una sola ventana, recursos compartidos de red más rápidos y navegación de archivos en los visores",
+  "notes": [
+    "fman ahora se ejecuta en una sola ventana: al abrir una carpeta o un archivo desde el Explorador o la línea de comandos, se envía a la ventana que ya tienes abierta en lugar de iniciar una segunda.",
+    "Puedes saltar al archivo siguiente o anterior directamente desde los visores de texto, imagen y vídeo, para que puedas recorrer una carpeta sin volver a la lista de archivos.",
+    "La navegación por recursos compartidos de red sigue siendo fluida: las carpetas ahora se cargan de forma progresiva en lugar de quedarse congeladas mientras Windows busca iconos y archivos ocultos.",
+    "La paleta de comandos encuentra un comando incluso cuando escribes sus palabras en un orden diferente."
+  ]
+}

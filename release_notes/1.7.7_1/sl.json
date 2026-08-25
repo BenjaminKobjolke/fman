@@ -1,0 +1,12 @@
+{
+  "version": "1.7.7",
+  "build": 1,
+  "date": "2026-08-25",
+  "title": "Eno okno, hitrejše omrežne skupne rabe in krmarjenje po datotekah v pregledovalnikih",
+  "notes": [
+    "fman zdaj deluje kot eno samo okno: odpiranje mape ali datoteke iz Raziskovalca ali ukazne vrstice jo pošlje v okno, ki ga imate že odprtega, namesto da zažene drugo.",
+    "V besedilnem, slikovnem in video pregledovalniku lahko skočite na naslednjo ali prejšnjo datoteko, zato lahko prelistate mapo, ne da bi se vračali na seznam datotek.",
+    "Brskanje po omrežnih skupnih rabah ostaja odzivno: mape se zdaj nalagajo postopoma, namesto da bi vse zamrznilo, medtem ko Windows išče ikone in skrite datoteke.",
+    "Paleta ukazov najde ukaz, tudi če njegove besede vnesete v drugačnem vrstnem redu."
+  ]
+}

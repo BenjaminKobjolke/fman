@@ -1,0 +1,12 @@
+{
+  "version": "1.7.7",
+  "build": 1,
+  "date": "2026-08-25",
+  "title": "Tek pencere, daha hızlı ağ paylaşımları ve görüntüleyicilerde dosya gezintisi",
+  "notes": [
+    "fman artık tek pencere olarak çalışıyor: Explorer’dan veya komut satırından bir klasör ya da dosya açtığınızda, ikinci bir tane başlatmak yerine zaten açık olan pencereye gönderilir.",
+    "Metin, resim ve video görüntüleyicilerinden doğrudan bir sonraki veya önceki dosyaya atlayabilirsiniz; böylece dosya listesine geri dönmeden bir klasör içinde hızlıca gezinebilirsiniz.",
+    "Ağ paylaşımlarında gezinme akıcı kalır: Windows simgeleri ve gizli dosyaları ararken donmak yerine klasörler artık kademeli olarak yüklenir.",
+    "Komut paleti, sözcüklerini farklı bir sırayla yazsanız bile bir komutu bulur."
+  ]
+}
