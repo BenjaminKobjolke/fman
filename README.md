@@ -25,6 +25,16 @@ already running opens that folder in the active pane of the existing window
 instead of spawning a new one. See [docs/single_instance.md](docs/single_instance.md)
 for details and the `single_instance` setting to disable it.
 
+## Windows network drives
+
+UNC paths (`\\server\share`, RDP-redirected drives like `\\tsclient\C\...`)
+no longer freeze the window: the hidden-file filter reads fman's cached `stat`
+instead of doing its own blocking call on the GUI thread, the background loader
+stops retrying files it cannot load, and files on a share get one generic icon
+per extension rather than a per-file Windows shell lookup. See
+[docs/WINDOWS_NETWORK_SUPPORT.md](docs/WINDOWS_NETWORK_SUPPORT.md) for the
+`Toggle network drive icons` command that restores real icons.
+
 ## Web help system
 
 A searchable, mobile-friendly reference of all keyboard shortcuts lives in its own

@@ -1,16 +1,35 @@
 from fman.fs import Column
 from fman.impl.model import Model, Cell
+from fman.impl.model import model as model_module
+from fman.impl.model.file_watcher import FileWatcher
 from fman.impl.model.model import File, _NOT_LOADED
 from fman.impl.util.qt.thread import Executor
-from fman.url import splitscheme
+from fman.url import basename, splitscheme
 from fman_unittest.impl.model import StubFileSystem
 from PyQt5.QtCore import QObject, pyqtSignal
 from random import shuffle, random
 from unittest import TestCase
+from unittest.mock import MagicMock, patch
 
 import random
 
-class ModelRecordFilesTest(TestCase):
+class ExecutorTestCase(TestCase):
+
+	"""
+	Base for tests that let @run_in_main_thread methods run inline.
+	"""
+
+	def setUp(self):
+		super().setUp()
+		self._app = StubApp()
+		self._executor_before = Executor._INSTANCE # Typically None
+		Executor._INSTANCE = Executor(self._app)
+	def tearDown(self):
+		self._app.aboutToQuit.emit()
+		Executor._INSTANCE = self._executor_before
+		super().tearDown()
+
+class ModelRecordFilesTest(ExecutorTestCase):
 	def test_load_file(self):
 		f_not_loaded = f('s://a', [c('')], False)
 		self._model._record_files([f_not_loaded])
@@ -137,16 +156,9 @@ class ModelRecordFilesTest(TestCase):
 		], message)
 	def setUp(self):
 		super().setUp()
-		self._app = StubApp()
-		self._executor_before = Executor._INSTANCE # Typically None
-		Executor._INSTANCE = Executor(self._app)
 		self._fs = StubFileSystem({})
 		self._model = Model(self._fs, 'null://', [Column()])
 		self.maxDiff = None
-	def tearDown(self):
-		self._app.aboutToQuit.emit()
-		Executor._INSTANCE = self._executor_before
-		super().tearDown()
 	def _expect_data(self, expected, message=None):
 		m = self._model
 		actual = [
@@ -154,6 +166,86 @@ class ModelRecordFilesTest(TestCase):
 			for i in range(m.rowCount())
 		]
 		self.assertEqual(expected, actual, message)
+
+class LoadRemainingFilesTest(ExecutorTestCase):
+
+	"""
+	A file whose stat() keeps failing yields cells identical to its unloaded
+	placeholder, so RecordFiles sees no change and the row stays .is_loaded ==
+	False. #_load_remaining_files(...) must still give up on it - it used to
+	re-submit itself forever, hammering the FS and the GUI thread.
+	"""
+
+	def test_unloadable_row_is_attempted_once(self):
+		self._add_unloadable_row('s://a')
+		self._load_remaining_files()
+		self._load_remaining_files()
+		self.assertEqual(['s://a'], self._loaded)
+	def test_reload_retries(self):
+		self._add_unloadable_row('s://a')
+		self._load_remaining_files()
+		self._model._load_attempted.clear()
+		self._load_remaining_files()
+		self.assertEqual(['s://a', 's://a'], self._loaded)
+	def _add_unloadable_row(self, url):
+		self._model._record_files([f(url, [c('a')], is_loaded=False)])
+	def _load_remaining_files(self):
+		# Bypass @transaction: it submits to a worker thread that these tests
+		# never start.
+		Model._load_remaining_files.__wrapped__(self._model)
+	def _load_file(self, url):
+		self._loaded.append(url)
+		# What a failing stat() produces: same cells as the placeholder.
+		return f(url, [c('a')], is_loaded=True)
+	def setUp(self):
+		super().setUp()
+		self._loaded = []
+		self._model = Model(StubFileSystem({}), 'null://', [Column()])
+		self._model._load_file = self._load_file
+
+class InitStreamsFilesTest(ExecutorTestCase):
+
+	"""
+	#_init(...) used to drain iterdir(...) completely before committing a single
+	row. On a slow file system - network:// enumerating shares - that left the
+	pane empty for the whole enumeration.
+	"""
+
+	def test_slow_listing_shows_rows_early(self):
+		self._patch('_INIT_BATCH_SECS', 0)
+		self._init(['a', 'b', 'c'])
+		self.assertEqual([0, 1, 2], self._rows_while_listing)
+		self.assertEqual(3, self._model.rowCount())
+	def test_fast_listing_commits_once(self):
+		self._init(['a', 'b', 'c'])
+		self.assertEqual([0, 0, 0], self._rows_while_listing)
+		self.assertEqual(3, self._model.rowCount())
+	def _patch(self, attribute, value):
+		patcher = patch.object(model_module, attribute, value)
+		patcher.start()
+		self.addCleanup(patcher.stop)
+	def _init(self, file_names):
+		def iterdir(_):
+			for file_name in file_names:
+				self._rows_while_listing.append(self._model.rowCount())
+				yield file_name
+		self._fs.iterdir = iterdir
+		# Bypass @transaction: it submits to a worker thread that these tests
+		# never start.
+		Model._init.__wrapped__(self._model, lambda: None)
+	def setUp(self):
+		super().setUp()
+		self._rows_while_listing = []
+		self._fs = StubFileSystem({})
+		self._model = Model(self._fs, 'stub://', [NameColumn()])
+		self._model._file_watcher = MagicMock(spec=FileWatcher)
+		self._model._load_remaining_files = lambda *_, **__: None
+		# The real one builds a QPixmap, which aborts without a QApplication:
+		self._patch('_get_empty_icon', lambda *_: None)
+
+class NameColumn(Column):
+	def get_str(self, url):
+		return basename(url)
 
 def f(url, cells, is_loaded=False, is_dir=False):
 	return File(url, None, is_dir, cells, is_loaded)

@@ -13,15 +13,13 @@ class NetworkFileSystem(FileSystem):
 
 	def resolve(self, path):
 		if '/' in path:
-			return as_url(r'\\' + path.replace('/', '\\'))
+			return as_url(_to_unc(path))
 		return super().resolve(path)
 	def exists(self, path):
 		if not path:
 			return True
-		nr = NETRESOURCE()
-		nr.lpRemoteName = r'\\' + path.replace('/', '\\')
 		try:
-			WNetGetResourceInformation(nr)
+			_get_resource(path)
 		except WNetError:
 			return False
 		return True
@@ -31,10 +29,8 @@ class NetworkFileSystem(FileSystem):
 		raise filenotfounderror(existing_path)
 	def iterdir(self, path):
 		if path:
-			handle = NETRESOURCE()
-			handle.lpRemoteName = r'\\' + path.replace('/', '\\')
 			try:
-				WNetGetResourceInformation(handle)
+				handle = _get_resource(path)
 			except WNetError:
 				raise filenotfounderror(path)
 		else:
@@ -66,8 +62,29 @@ class NetworkFileSystem(FileSystem):
 						path = item.lpRemoteName
 						if path.startswith(r'\\'):
 							yield path[2:].replace('\\', '/').rstrip('/')
-						if path not in already_visited:
+						# Only descend into containers (providers, domains). A
+						# \\-prefixed name is a server or a share, and opening
+						# one costs a network connection that can block for
+						# seconds on an unreachable host. We never need it:
+						# #iterdir(...) keeps only the direct children of the
+						# requested path, and those are already enumerated one
+						# level up.
+						if not path.startswith(r'\\') \
+							and path not in already_visited:
 							already_visited.add(path)
 							yield from self._iter_handle(item, already_visited)
 			finally:
 				enum.Close()
+
+def _to_unc(path):
+	return r'\\' + path.replace('/', '\\')
+
+def _get_resource(path):
+	"""
+	The NETRESOURCE Windows knows for `path`. Raises WNetError if `path` is not
+	a network resource.
+	"""
+	result = NETRESOURCE()
+	result.lpRemoteName = _to_unc(path)
+	WNetGetResourceInformation(result)
+	return result

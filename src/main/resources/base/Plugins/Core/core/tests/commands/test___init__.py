@@ -2,14 +2,15 @@ from core.commands import History, Move, OpenOrView, ShowAllPanes, \
 	ShowOnlyActivePane, ViewFile, ViewFileInOtherPane, _from_human_readable, \
 	get_dest_suggestion, _find_extension_start, _get_shortcuts_for_command, \
 	_clamp_font_size, _MIN_PANE_FONT_SIZE, _MAX_PANE_FONT_SIZE, \
-	_format_window_title, _find_column_index
+	_format_window_title, _find_column_index, _hidden_file_filter
 from core.tests import StubUI
 from core.util import filenotfounderror
 from fman import OK, YES, NO, PLATFORM
 from fman.url import join, as_human_readable, as_url, dirname
 from PyQt5.QtWidgets import QApplication
+from stat import FILE_ATTRIBUTE_HIDDEN, FILE_ATTRIBUTE_NORMAL
 from tempfile import NamedTemporaryFile
-from unittest import TestCase
+from unittest import TestCase, skipIf
 from unittest.mock import patch
 
 import os
@@ -514,3 +515,31 @@ class HistoryTest(TestCase):
 	def _go_to(self, *paths):
 		for path in paths:
 			self._history.path_changed(path)
+
+@skipIf(PLATFORM != 'Windows', 'Skip Windows-only test')
+class HiddenFileFilterTest(TestCase):
+
+	"""
+	The filter runs in the GUI thread (Model#_record_files_main/#update), so it
+	must not perform an FS round trip of its own - see #_stat(...).
+	"""
+
+	_URL = 'file://C:/dir/file.txt'
+
+	def test_hidden(self):
+		self.assertFalse(self._filter(stat=_StubStat(FILE_ATTRIBUTE_HIDDEN)))
+	def test_not_hidden(self):
+		self.assertTrue(self._filter(stat=_StubStat(FILE_ATTRIBUTE_NORMAL)))
+	def test_stat_fails(self):
+		self.assertTrue(self._filter(error=OSError()))
+	def test_other_scheme_is_not_stated(self):
+		with patch('core.commands.query') as query:
+			self.assertTrue(_hidden_file_filter('zip://C:/a.zip/file.txt'))
+		query.assert_not_called()
+	def _filter(self, stat=None, error=None, url=_URL):
+		with patch('core.commands.query', return_value=stat, side_effect=error):
+			return _hidden_file_filter(url)
+
+class _StubStat:
+	def __init__(self, st_file_attributes):
+		self.st_file_attributes = st_file_attributes

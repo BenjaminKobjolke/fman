@@ -7,14 +7,16 @@ from fman.impl.util.qt import disable_window_animations_mac, Key_Escape, \
 from fman.impl.util.qt.thread import run_in_main_thread
 from fman.impl.view.location_bar import LocationBar
 from fman.impl.view import FileListView, Layout, set_selection
-from fman.url import as_human_readable, basename
+from fman.url import as_human_readable, basename, splitscheme
 from PyQt5.QtCore import pyqtSignal, QTimer, Qt, QEvent, QSize
 from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import QWidget, QMainWindow, QSplitter, QStatusBar, \
 	QMessageBox, QInputDialog, QLineEdit, QFileDialog, QLabel, QDialog, \
 	QHBoxLayout, QPushButton, QVBoxLayout, QSplitterHandle, QApplication, \
 	QFrame, QAction, QSizePolicy, QProgressDialog, QProgressBar
+from collections import namedtuple
 from random import randint, randrange
+from time import time
 
 import re
 
@@ -40,6 +42,26 @@ class Application(QApplication):
 		if new_state == Qt.ApplicationActive:
 			for pane in self._main_window.get_panes():
 				pane.reload()
+
+NETWORK_SCHEME = 'network://'
+# `detail` is formatted with the elapsed seconds. The ticking number is the
+# point: a message that never changes on an empty pane reads as a frozen app.
+LoadingMessage = namedtuple('LoadingMessage', ('title', 'detail'))
+LOADING_MESSAGE = LoadingMessage(
+	'Loading…', 'Still reading this folder (%d s).'
+)
+LOADING_MESSAGE_NETWORK = LoadingMessage(
+	'Searching network shares…',
+	'Waiting for Windows to return the network browse list (%d s).\n'
+	'A machine that is switched off or unreachable can hold this up.'
+)
+# Only show the indicator once a listing is visibly slow - without this, every
+# local directory would flash it. Doubles as the redraw interval, so the
+# elapsed seconds stay current.
+LOADING_INDICATOR_DELAY_MS = 400
+
+def format_loading_message(message, elapsed_secs):
+	return '%s\n\n%s' % (message.title, message.detail % elapsed_secs)
 
 class DirectoryPaneWidget(QWidget):
 
@@ -68,6 +90,11 @@ class DirectoryPaneWidget(QWidget):
 			lambda: self.location_bar_clicked.emit(self)
 		)
 		self._filter_bar = FilterBar(self, self._model, self._file_view)
+		self._loading_message = LOADING_MESSAGE
+		self._loading_started = 0.0
+		self._loading_timer = QTimer(self)
+		self._loading_timer.setInterval(LOADING_INDICATOR_DELAY_MS)
+		self._loading_timer.timeout.connect(self._on_loading_timeout)
 	def resizeEvent(self, e):
 		super().resizeEvent(e)
 		self._filter_bar.reposition()
@@ -187,7 +214,19 @@ class DirectoryPaneWidget(QWidget):
 	def _on_location_changed(self, url):
 		self._filter_bar.close()
 		self._location_bar.setText(as_human_readable(url))
+		if splitscheme(url)[0] == NETWORK_SCHEME:
+			self._loading_message = LOADING_MESSAGE_NETWORK
+		else:
+			self._loading_message = LOADING_MESSAGE
+		self._loading_started = time()
+		self._loading_timer.start()
+	def _on_loading_timeout(self):
+		self._file_view.set_loading(format_loading_message(
+			self._loading_message, time() - self._loading_started
+		))
 	def _on_location_loaded(self, url):
+		self._loading_timer.stop()
+		self._file_view.set_loading('')
 		if not self.get_file_under_cursor():
 			self.move_cursor_home()
 		self._file_view.resizeColumnsToContents()

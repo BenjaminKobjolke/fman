@@ -1,3 +1,4 @@
+from fman import load_json, PLATFORM
 from fman.impl.util import filenotfounderror
 from fman.url import splitscheme
 from functools import lru_cache
@@ -10,6 +11,11 @@ import logging
 import sys
 
 _LOG = logging.getLogger(__name__)
+
+# Opting back in to real per-file icons on network drives. Written by the Core
+# plugin's ToggleNetworkIcons command - keep both names in sync.
+_SETTINGS_FILE = 'Core Settings.json'
+_NETWORK_ICONS_KEY = 'network_file_icons'
 
 class IconProvider:
 	def __init__(self, qt_icon_provider, fs, cache_dir):
@@ -24,11 +30,21 @@ class IconProvider:
 	def get_icon(self, url):
 		scheme, path = splitscheme(url)
 		if scheme == 'file://':
-			return self._get_qt_icon(path)
+			return self._get_file_icon(url, path)
 		url = self._fs.resolve(url)
 		scheme, path = splitscheme(url)
 		if scheme == 'file://':
-			return self._get_qt_icon(path)
+			return self._get_file_icon(url, path)
+		return self._get_generic_icon(url, path)
+	def _get_file_icon(self, url, path):
+		if _is_network_path(path) and not _network_icons_enabled():
+			# Asking the Windows shell for the icon of a file on a network share
+			# means reading that file over the wire - .exe and .dll icons are
+			# embedded in the file itself. One generic icon per extension keeps
+			# the listing usable. ToggleNetworkIcons opts back in.
+			return self._get_generic_icon(url, path)
+		return self._get_qt_icon(path)
+	def _get_generic_icon(self, url, path):
 		if self._fs.is_dir(url):
 			return self._folder_icon
 		suffix = PurePosixPath(path).suffix
@@ -119,3 +135,11 @@ class GnomeFileIconProvider(QFileIconProvider):
 
 class GnomeNotAvailable(RuntimeError):
 	pass
+
+def _is_network_path(path):
+	# splitscheme(...) hands us the forward-slash form, so a UNC path
+	# arrives as //server/share.
+	return PLATFORM == 'Windows' and path.startswith('//')
+
+def _network_icons_enabled():
+	return load_json(_SETTINGS_FILE, default={}).get(_NETWORK_ICONS_KEY, False)

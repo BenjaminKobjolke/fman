@@ -29,6 +29,7 @@ from io import UnsupportedOperation
 from itertools import chain
 from os import strerror
 from os.path import basename, pardir
+from stat import FILE_ATTRIBUTE_HIDDEN
 from pathlib import PurePath
 from PyQt5.QtCore import QUrl
 from PyQt5.QtGui import QDesktopServices, QFontInfo
@@ -1156,7 +1157,20 @@ def _hidden_file_filter(url):
 	if PLATFORM == 'Mac' and url == 'file:///Volumes':
 		return True
 	scheme, path = splitscheme(url)
-	return scheme != 'file://' or not is_hidden(path)
+	if scheme != 'file://':
+		return True
+	if PLATFORM == 'Windows':
+		# This filter runs in the GUI thread (Model#_record_files_main and
+		# #update are @run_in_main_thread), so it must not perform an FS call of
+		# its own: QFileInfo#isHidden() is uncached and froze the whole window
+		# on network drives, where every call is a round trip. fman's own stat
+		# is cached and has already been loaded for the Size/Modified columns.
+		try:
+			attrs = query(url, 'stat').st_file_attributes
+		except OSError:
+			return True
+		return not attrs & FILE_ATTRIBUTE_HIDDEN
+	return not is_hidden(path)
 
 class _OpenInPaneCommand(DirectoryPaneCommand):
 	def __call__(self):
@@ -2102,6 +2116,27 @@ class RememberSortSettings(DirectoryPaneListener):
 class Minimize(ApplicationCommand):
 	def __call__(self):
 		self.window.minimize()
+
+# Read by IconProvider in fman.impl.model.icon_provider - keep in sync:
+_NETWORK_ICONS_KEY = 'network_file_icons'
+
+class ToggleNetworkIcons(ApplicationCommand):
+
+	aliases = ('Toggle network drive icons', 'Show real icons on network drives')
+
+	def __call__(self):
+		show_real_icons = not _is_showing_network_icons()
+		# None clears the key so the file doesn't carry the default around:
+		save_setting(
+			'Core Settings.json', _NETWORK_ICONS_KEY, show_real_icons or None
+		)
+		# Model#reload() clears the FS cache for the pane's location, which is
+		# where the icons computed under the old setting are held:
+		for pane in self.window.get_panes():
+			pane.reload()
+
+def _is_showing_network_icons():
+	return get_setting('Core Settings.json', _NETWORK_ICONS_KEY, False)
 
 class LocationBarListener(DirectoryPaneListener):
 	def on_location_bar_clicked(self):

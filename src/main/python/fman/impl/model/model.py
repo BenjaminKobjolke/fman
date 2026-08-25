@@ -13,6 +13,13 @@ from PyQt5.QtGui import QIcon, QPixmap
 from threading import Event
 from time import time
 
+# How long #_init(...) enumerates a directory before showing what it has so far.
+# Slow file systems - network:// walking the browse list, a high-latency UNC
+# share - used to leave the pane empty until the very last entry had been
+# enumerated. A directory that lists faster than this never reaches the first
+# flush, so local listings behave exactly as they did before.
+_INIT_BATCH_SECS = .5
+
 def transaction(priority, synchronous=False):
 	def decorator(f):
 		@wraps(f)
@@ -64,6 +71,11 @@ class Model(SortFilterTableModel, DragAndDrop):
 		self._columns = columns
 		self._num_rows_to_preload = num_rows_to_preload
 		self._files = {}
+		# Rows whose #_load_file(...) has been tried once already. Without this,
+		# a file whose stat() keeps failing never becomes .is_loaded (its cells
+		# stay empty, so RecordFiles sees no change and keeps the unloaded row)
+		# and #_load_remaining_files(...) re-submits itself forever.
+		self._load_attempted = set()
 		self._file_watcher = FileWatcher(fs, self)
 		self._worker = Worker()
 		self._shutdown = False
@@ -78,6 +90,8 @@ class Model(SortFilterTableModel, DragAndDrop):
 		except FileNotFoundError:
 			self.location_disappeared.emit(self._location)
 			return
+		batch = []
+		batch_deadline = time() + _INIT_BATCH_SECS
 		while not self._shutdown:
 			try:
 				file_name = next(file_names)
@@ -93,6 +107,11 @@ class Model(SortFilterTableModel, DragAndDrop):
 				except OSError:
 					continue
 				files.append(file_)
+				batch.append(file_)
+				if time() >= batch_deadline:
+					self._record_files(batch)
+					batch = []
+					batch_deadline = time() + _INIT_BATCH_SECS
 		else:
 			assert self._shutdown
 			return
@@ -271,6 +290,7 @@ class Model(SortFilterTableModel, DragAndDrop):
 	@transaction(priority=5)
 	def reload(self):
 		self._fs.clear_cache(self._location)
+		self._load_attempted.clear()
 		files = []
 		try:
 			file_names = iter(self._fs.iterdir(self._location))
@@ -383,8 +403,9 @@ class Model(SortFilterTableModel, DragAndDrop):
 				return
 			if time() > end_time:
 				break
-			if row.is_loaded:
+			if row.is_loaded or row.url in self._load_attempted:
 				continue
+			self._load_attempted.add(row.url)
 			try:
 				files.append(self._load_file(row.url))
 			except FileNotFoundError:

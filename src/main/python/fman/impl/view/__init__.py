@@ -9,7 +9,7 @@ from fman.impl.view.single_row_mode import SingleRowMode
 from PyQt5.QtCore import QEvent, QItemSelectionModel as QISM, QRect, Qt, \
 	pyqtSignal, QRectF
 from PyQt5.QtGui import QPen, QContextMenuEvent, QKeySequence, QPainterPath, \
-	QRegion
+	QRegion, QPainter, QPalette
 from PyQt5.QtWidgets import QTableView, QLineEdit, QVBoxLayout, QStyle, \
 	QStyledItemDelegate, QProxyStyle, QHeaderView, QToolTip, QMenu, QAction
 
@@ -37,6 +37,13 @@ class FileListView(
 		self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 		self.setContextMenuPolicy(Qt.DefaultContextMenu)
 		self._urls_being_loaded = []
+		self._loading_text = ''
+	def set_loading(self, text):
+		"""
+		Show `text` while the pane has no rows yet. Pass '' to hide it again.
+		"""
+		self._loading_text = text
+		self.viewport().update()
 	def contextMenuEvent(self, event):
 		index = self.indexAt(event.pos())
 		updated_selection = False
@@ -177,6 +184,19 @@ class FileListView(
 				self._on_rows_loaded(location, missing_urls)
 			self.model().load_rows(missing_rows, callback=callback)
 		super().paintEvent(event)
+		if self._loading_text and not self.model().rowCount():
+			self._paint_loading_text()
+	def _paint_loading_text(self):
+		painter = QPainter(self.viewport())
+		painter.setPen(
+			self.palette().color(QPalette.Disabled, QPalette.Text)
+		)
+		painter.drawText(
+			# Keep the text off the pane's edges so it still wraps readably when
+			# the pane is narrow:
+			self.viewport().rect().adjusted(16, 0, -16, 0),
+			Qt.AlignCenter | Qt.TextWordWrap, self._loading_text
+		)
 	def _get_rows_to_load(self):
 		rows = self._get_rows_visible_but_not_loaded()
 		urls = [
