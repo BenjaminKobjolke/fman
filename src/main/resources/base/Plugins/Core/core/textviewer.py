@@ -13,7 +13,6 @@ from core.key_bindings import (
 	dispatch_bindable_command, format_shortcut_hint, get_shortcuts_for_command,
 	VIEWER_KEY_BINDINGS_FILE,
 )
-from core.quicksearch_matchers import contains_chars
 from core.textviewer_io import (
 	MAX_VIEW_BYTES as _MAX_VIEW_BYTES, read_text_for_view, load_for_view,
 )
@@ -27,9 +26,9 @@ from core.textviewer_zoom import (
 	get_saved_view_font_size, change_view_font_size, reset_view_font_size,
 	zoom_delta_for,
 )
+from core.viewer_navigation import open_viewer_palette, ViewerNavigator
 from fman import (
-	show_alert, show_prompt, show_quicksearch, show_status_message,
-	QuicksearchItem, YES, NO, load_json,
+	show_alert, show_prompt, show_status_message, YES, NO, load_json,
 )
 from fman.fs import notify_file_changed
 from fman.impl.util.qt.key_event import QtKeyEvent
@@ -39,10 +38,11 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QPlainTextEdit
 
 class PaneTextView(QPlainTextEdit):
-	def __init__(self, on_close, on_switch, bg, fg, path, url, editable):
+	def __init__(self, on_close, on_switch, pane, bg, fg, path, url, editable):
 		super().__init__()
 		self._on_close = on_close
 		self._on_switch = on_switch
+		self._nav = ViewerNavigator(pane, 'text')
 		self._bg = bg
 		self._fg = fg
 		self._path = path
@@ -125,6 +125,8 @@ class PaneTextView(QPlainTextEdit):
 		if self._path is not None:
 			commands['text_toggle_auto_reload'] = lambda: toggle_auto_reload(self)
 			commands['text_toggle_tail'] = lambda: toggle_tail(self)
+		if self._url is not None:
+			commands.update(self._nav.commands())
 		return commands
 
 	def _apply_font_size(self, size):
@@ -133,17 +135,7 @@ class PaneTextView(QPlainTextEdit):
 		self.setStyleSheet(caret_fix_css(self._bg, self._fg, size))
 
 	def _open_palette(self):
-		result = show_quicksearch(self._suggest_actions)
-		if result:
-			_query, action = result
-			if action:
-				action()
-
-	def _suggest_actions(self, query):
-		for title, action, hint in self._get_actions():
-			highlight = contains_chars(title.lower(), query.lower())
-			if highlight is not None:
-				yield QuicksearchItem(action, title, highlight, hint)
+		open_viewer_palette(self._get_actions)
 
 	def _get_actions(self):
 		key_bindings = load_json('Key Bindings.json', default=[])
@@ -190,11 +182,16 @@ class PaneTextView(QPlainTextEdit):
 			] + reload_actions + zoom_actions + [
 				('Exit viewer', self._exit_with_dirty_check, ''),
 			]
+		# Navigation is view-mode only (this branch), and only for a real backing
+		# file - show_text_in_viewer mounts text with url=None (release notes),
+		# where directory navigation is meaningless. Mirrors the self._path gate
+		# on reload_actions.
+		nav_actions = self._nav.actions() if self._url is not None else []
 		return [
 			('Exit viewer', self._on_close, ''),
 			('Edit file', self._enter_edit_mode, ''),
 			('Reload from disk', self._revert, ''),
-		] + reload_actions + zoom_actions
+		] + reload_actions + zoom_actions + nav_actions
 
 	def _enter_edit_mode(self):
 		if not self._editable:
@@ -265,7 +262,7 @@ def _mount_new_view(pane, text, path, url, editable, focus_view=True):
 	view = PaneTextView(
 		lambda: close_text_viewer(widget),
 		lambda: pane.run_command('switch_panes'),
-		bg, fg, path, url, editable,
+		pane, bg, fg, path, url, editable,
 	)
 	view.setPlainText(text)
 	mount_view(pane, widget, view, focus_view=focus_view)

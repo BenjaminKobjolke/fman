@@ -129,6 +129,15 @@ mode (see [Editing](#editing)).
 | `viewer_close`                | Escape/Enter/Backspace   | both | Close viewer (edit mode: with unsaved-changes prompt) |
 | `viewer_switch_panes`         | Tab                      | view only | Switch panes — deliberately not bindable in edit mode, where Tab always types |
 | `viewer_open_palette`         | Ctrl+Shift+P             | both | Open viewer command palette |
+| `viewer_next_file` / `viewer_previous_file` | *(none — palette only)* | view, with a backing file | View next / previous file in the directory |
+| `viewer_toggle_same_type_advance` | *(none — palette only)* | view, with a backing file | Toggle "advance only for same type" |
+
+Next/previous and the same-type toggle are **shared** across all three viewers
+(view mode only here — never while editing, and not in the backing-file-less
+release-notes view) — see
+[File viewers](../viewers/FILE_VIEWERS.md#shared-behaviour) for how they behave
+and [`docs/KEYBINDINGS.md`](../KEYBINDINGS.md#viewer-specific-bindings) for
+suggested keys.
 
 ## Behaviour
 
@@ -337,10 +346,13 @@ genuinely separate concerns (reading a file vs. the Qt widget vs. zoom):
     `QFileSystemWatcher`, or `None` when auto-reload is off) and `_tail`
     (plain auto-reload vs. tail mode) — both reset per view, so a newly
     opened file always starts with auto-reload off. `keyPressEvent`:
-    - `Ctrl+Shift+P` always opens the viewer-scoped palette
-      (`_open_palette`/`_suggest_actions`/`_get_actions`, built on the same
-      `show_quicksearch`/`QuicksearchItem` API as fman's global command
-      palette, filtered with `core.quicksearch_matchers.contains_chars`).
+    - `Ctrl+Shift+P` always opens the viewer-scoped palette: `_open_palette`
+      hands `_get_actions` to the shared `open_viewer_palette` in
+      `core.viewer_navigation`, built on the same
+      `show_quicksearch`/`QuicksearchItem` API as fman's global command palette
+      and filtered with `core.quicksearch_matchers.contains_chars`. That helper
+      (and the per-viewer `ViewerNavigator`) is shared by all three viewers, so
+      the palette plumbing lives in one place instead of being copied into each.
     - A zoom-shortcut match (via `zoom_delta_for`) is checked next, before
       the edit-mode passthrough, so it zooms rather than getting typed into
       the buffer.

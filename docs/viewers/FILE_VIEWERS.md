@@ -42,6 +42,14 @@ All three viewers work the same way where it counts:
 - **Own command palette:** `Ctrl+Shift+P` opens a **viewer-scoped** palette,
   separate from the global one (which can't reach a viewer while the file list
   is hidden) — see [`docs/COMMAND_PALLETTE.md`](../COMMAND_PALLETTE.md).
+- **Next / previous file:** **"Next file"** / **"Previous file"** in the viewer
+  palette advance to the neighbouring file in the directory (following the
+  pane's own sort order) without closing the viewer. A per-viewer
+  **"Advance only for same type"** toggle (on by default) keeps e.g. the image
+  viewer from stepping into a video; turn it off to walk across every viewable
+  file, switching viewer type as needed. No default keys — bind your own (see
+  [`docs/KEYBINDINGS.md`](../KEYBINDINGS.md#viewer-specific-bindings) for
+  suggestions).
 - **Bindable keys:** viewer actions are pseudo-commands you rebind in a
   **separate** `Viewer Key Bindings (<OS>).json` — see
   [`docs/KEYBINDINGS.md`](../KEYBINDINGS.md#viewer-specific-bindings).

@@ -84,6 +84,13 @@ rebind always wins over the default key listed below.
 | `viewer_close`          | Escape/Enter/Backspace | Close viewer           |
 | `viewer_switch_panes`   | Tab                    | Switch panes           |
 | `viewer_open_palette`   | Ctrl+Shift+P           | Open viewer command palette |
+| `viewer_next_file` / `viewer_previous_file` | *(none — palette only)* | View next / previous file in the directory |
+| `viewer_toggle_same_type_advance` | *(none — palette only)* | Toggle "advance only for same type" |
+
+Next/previous and the same-type toggle are **shared** across all three viewers
+— see [File viewers](../viewers/FILE_VIEWERS.md#shared-behaviour) for how they
+behave and [`docs/KEYBINDINGS.md`](../KEYBINDINGS.md#viewer-specific-bindings)
+for suggested keys.
 
 ## Why it works while the file list is hidden
 
@@ -112,9 +119,20 @@ pane's focus proxy/Tab handling are re-pointed at it the same way.
     hardcoded Escape/Enter/Backspace close and Tab/Backtab switch-panes
     fallbacks, so a rebind always wins; everything else (arrow keys) falls through to
     `QScrollArea`'s own panning. `resizeEvent` re-fits while in fit mode.
+    A `ViewerNavigator(pane, 'image')` (from `core/viewer_navigation.py`)
+    supplies the Next/Previous-file actions, the same-type toggle, and their
+    bindable pseudo-commands; `_open_palette` delegates to that module's shared
+    `open_viewer_palette`.
   - `show_image_viewer(pane, url)` — mirrors `show_text_viewer`: mounts via
     `core/textviewer_pane.py`'s `begin_new_view`/`mount_view`, same as the
     text viewer.
+- `src/main/resources/base/Plugins/Core/core/viewer_navigation.py` — shared by
+  all three viewers: `advance(pane, direction, category)` walks the pane's own
+  cursor to the next/previous viewable file (skipping non-viewable and, when the
+  per-viewer "advance only for same type" toggle is on, other-category files)
+  and re-runs `view_file`; `ViewerNavigator` bundles the per-viewer actions and
+  commands; `open_viewer_palette` is the shared Ctrl+Shift+P handler. Same-type
+  toggles persist per viewer in `Core Settings.json` (`image_viewer_advance_same_type`, etc.).
 - `src/main/resources/base/Plugins/Core/core/imageviewer_zoom.py` — the
   viewer's scale persistence, mirroring `core/textviewer_zoom.py`'s
   font-size persistence but for a multiplicative scale factor (own settings

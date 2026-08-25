@@ -35,9 +35,9 @@ different commands — the ones that make sense for what you're viewing:
 
 | Viewer | Palette entries (summary) |
 |--------|----------------------------|
-| [Text viewer](views/TEXT_VIEWER.md#editing) | Exit, Edit file, Save / Save as…, Reload / Revert, auto-reload & tail toggles, font-size zoom |
-| [Image viewer](views/IMAGE_VIEWER.md#zoom) | Zoom in/out, Fit to window, Actual size (100%), Reset zoom, Exit |
-| [Video viewer](views/VIDEO_VIEWER.md#controls) | Play/Pause, Restart, Mute/Unmute, Reset volume, Exit |
+| [Text viewer](views/TEXT_VIEWER.md#editing) | Exit, Edit file, Save / Save as…, Reload / Revert, auto-reload & tail toggles, font-size zoom, Next/Previous file, Advance-same-type toggle |
+| [Image viewer](views/IMAGE_VIEWER.md#zoom) | Zoom in/out, Fit to window, Actual size (100%), Reset zoom, Next/Previous file, Advance-same-type toggle, Exit |
+| [Video viewer](views/VIDEO_VIEWER.md#controls) | Play/Pause, Restart, Mute/Unmute, Reset volume, Next/Previous file, Advance-same-type toggle, Exit |
 
 Notes:
 

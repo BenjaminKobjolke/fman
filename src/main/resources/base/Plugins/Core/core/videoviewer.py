@@ -28,10 +28,10 @@ Qt widget construction (_open_video_view) marshals onto the main thread.
 """
 from core.key_bindings import dispatch_bindable_command, VIEWER_KEY_BINDINGS_FILE
 from core.libmpv import ensure_libmpv_on_path
-from core.quicksearch_matchers import contains_chars
 from core.settings import get_setting, save_setting
 from core.textviewer_pane import begin_new_view, mount_view, close_view as close_text_viewer
-from fman import show_alert, show_quicksearch, QuicksearchItem, load_json
+from core.viewer_navigation import open_viewer_palette, ViewerNavigator
+from fman import show_alert, load_json
 from fman.impl.util.qt.key_event import QtKeyEvent
 from fman.impl.util.qt.thread import run_in_main_thread
 from fman.url import as_human_readable
@@ -74,10 +74,11 @@ def format_time(seconds):
 	return '%d:%02d' % (minutes, secs)
 
 class PaneVideoView(QWidget):
-	def __init__(self, on_close, on_switch, bg):
+	def __init__(self, on_close, on_switch, pane, bg):
 		super().__init__()
 		self._on_close = on_close
 		self._on_switch = on_switch
+		self._nav = ViewerNavigator(pane, 'video')
 		self._player = None
 		self._muted = False
 		layout = QVBoxLayout(self)
@@ -221,20 +222,11 @@ class PaneVideoView(QWidget):
 			'viewer_close': self._on_close,
 			'viewer_switch_panes': self._on_switch,
 			'viewer_open_palette': self._open_palette,
+			**self._nav.commands(),
 		}
 
 	def _open_palette(self):
-		result = show_quicksearch(self._suggest_actions)
-		if result:
-			_query, action = result
-			if action:
-				action()
-
-	def _suggest_actions(self, query):
-		for title, action, hint in self._get_actions():
-			highlight = contains_chars(title.lower(), query.lower())
-			if highlight is not None:
-				yield QuicksearchItem(action, title, highlight, hint)
+		open_viewer_palette(self._get_actions)
 
 	def _get_actions(self):
 		return [
@@ -242,6 +234,7 @@ class PaneVideoView(QWidget):
 			('Restart', self._restart, ''),
 			('Mute / Unmute', self._toggle_mute, ''),
 			('Reset volume', self._reset_volume, ''),
+		] + self._nav.actions() + [
 			('Exit viewer', self._on_close, ''),
 		]
 
@@ -276,7 +269,7 @@ def _open_video_view(pane, url, mpv_module, focus_view=True):
 	view = PaneVideoView(
 		lambda: close_text_viewer(widget),
 		lambda: pane.run_command('switch_panes'),
-		bg,
+		pane, bg,
 	)
 	mount_view(pane, widget, view, focus_view=focus_view)
 	# Defer starting playback one event-loop tick, same technique mount_view

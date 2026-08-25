@@ -14,10 +14,10 @@ from core.key_bindings import (
 	dispatch_bindable_command, format_shortcut_hint, get_shortcuts_for_command,
 	VIEWER_KEY_BINDINGS_FILE,
 )
-from core.quicksearch_matchers import contains_chars
 from core.textviewer_pane import begin_new_view, mount_view, close_view as close_text_viewer
 from core.textviewer_zoom import zoom_delta_for
-from fman import show_quicksearch, QuicksearchItem, load_json
+from core.viewer_navigation import open_viewer_palette, ViewerNavigator
+from fman import load_json
 from fman.impl.util.qt.key_event import QtKeyEvent
 from fman.impl.util.qt.thread import run_in_main_thread
 from fman.url import as_human_readable
@@ -31,10 +31,11 @@ def is_image(url):
 	return url.lower().endswith(IMAGE_EXTENSIONS)
 
 class PaneImageView(QScrollArea):
-	def __init__(self, on_close, on_switch, bg, path):
+	def __init__(self, on_close, on_switch, pane, bg, path):
 		super().__init__()
 		self._on_close = on_close
 		self._on_switch = on_switch
+		self._nav = ViewerNavigator(pane, 'image')
 		self._scale = get_saved_scale()
 		self._movie = None
 		self._pixmap = None
@@ -121,6 +122,7 @@ class PaneImageView(QScrollArea):
 			'viewer_close': self._on_close,
 			'viewer_switch_panes': self._on_switch,
 			'viewer_open_palette': self._open_palette,
+			**self._nav.commands(),
 		}
 
 	def _apply_scale(self, scale):
@@ -146,17 +148,7 @@ class PaneImageView(QScrollArea):
 		self._label.resize(target)
 
 	def _open_palette(self):
-		result = show_quicksearch(self._suggest_actions)
-		if result:
-			_query, action = result
-			if action:
-				action()
-
-	def _suggest_actions(self, query):
-		for title, action, hint in self._get_actions():
-			highlight = contains_chars(title.lower(), query.lower())
-			if highlight is not None:
-				yield QuicksearchItem(action, title, highlight, hint)
+		open_viewer_palette(self._get_actions)
 
 	def _get_actions(self):
 		key_bindings = load_json('Key Bindings.json', default=[])
@@ -180,6 +172,7 @@ class PaneImageView(QScrollArea):
 				zoom_out_hint,
 			),
 			('Reset zoom', self._fit_to_window, ''),
+		] + self._nav.actions() + [
 			('Exit viewer', self._on_close, ''),
 		]
 
@@ -200,6 +193,6 @@ def show_image_viewer(pane, url, focus_view=True):
 	view = PaneImageView(
 		lambda: close_text_viewer(widget),
 		lambda: pane.run_command('switch_panes'),
-		bg, path,
+		pane, bg, path,
 	)
 	mount_view(pane, widget, view, focus_view=focus_view)

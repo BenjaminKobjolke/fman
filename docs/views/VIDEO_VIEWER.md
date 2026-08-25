@@ -86,6 +86,13 @@ listed in Controls above.
 | `viewer_close`          | Escape/Enter/Backspace | Close viewer       |
 | `viewer_switch_panes`   | Tab        | Switch panes                  |
 | `viewer_open_palette`   | Ctrl+Shift+P | Open viewer command palette |
+| `viewer_next_file` / `viewer_previous_file` | *(none)* | View next / previous file in the directory |
+| `viewer_toggle_same_type_advance` | *(none)* | Toggle "advance only for same type" |
+
+Next/previous and the same-type toggle are **shared** across all three viewers
+— see [File viewers](../viewers/FILE_VIEWERS.md#shared-behaviour) for how they
+behave and [`docs/KEYBINDINGS.md`](../KEYBINDINGS.md#viewer-specific-bindings)
+for suggested keys.
 
 ## Playback backend
 
@@ -201,6 +208,12 @@ The video viewer reuses the identical pane-mounting glue
       through `_show_osd`, which calls mpv's own `show_text(text, ms)` — no
       Qt overlay widget, since there's no reliable way to composite one over
       the native `wid=`-embedded mpv surface.
+    - A `ViewerNavigator(pane, 'video')` (from `core/viewer_navigation.py`,
+      shared with the image/text viewers) supplies the Next/Previous-file
+      actions, the same-type toggle, and their bindable pseudo-commands;
+      `_open_palette` delegates to that module's `open_viewer_palette`. See the
+      [image viewer](IMAGE_VIEWER.md#implementation) for the module's own
+      description.
     - **`start_playback(mpv_module, path)` is separate from `__init__`, and
       must run only after the view is mounted into the pane and shown.**
       Creating the mpv player (which grabs `winId()`) and calling `.play()`

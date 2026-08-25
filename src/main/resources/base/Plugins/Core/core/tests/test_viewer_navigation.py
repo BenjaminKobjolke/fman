@@ -1,0 +1,206 @@
+from core.viewer_navigation import (
+	advance, get_same_type_only, open_viewer_palette, toggle_same_type_only,
+	ViewerNavigator,
+)
+from unittest import TestCase
+from unittest.mock import patch
+
+class _StubPane:
+	# Minimal stand-in for a DirectoryPane: a fixed url list plus a cursor that
+	# clamps at both ends, exactly like Qt's moveCursor (see
+	# fman/impl/view/cursor_movement.py). run_command just records the call so
+	# tests can assert view_file was (or wasn't) re-run.
+	def __init__(self, urls, cursor=0):
+		self._urls = urls
+		self._cursor = cursor
+		self.commands = []
+
+	def get_file_under_cursor(self):
+		if 0 <= self._cursor < len(self._urls):
+			return self._urls[self._cursor]
+		return None
+
+	def move_cursor_down(self):
+		if self._cursor < len(self._urls) - 1:
+			self._cursor += 1
+
+	def move_cursor_up(self):
+		if self._cursor > 0:
+			self._cursor -= 1
+
+	def place_cursor_at(self, url):
+		self._cursor = self._urls.index(url)
+
+	def run_command(self, name):
+		self.commands.append(name)
+
+def _fake_category(url):
+	if url.endswith('.png'):
+		return 'image'
+	if url.endswith('.mp4'):
+		return 'video'
+	if url.endswith('.txt'):
+		return 'text'
+	return None
+
+class AdvanceTest(TestCase):
+	def setUp(self):
+		# Classify by suffix so no real files are touched; _category's own
+		# file-sniffing is delegation and not exercised here.
+		patcher = patch('core.viewer_navigation._category', _fake_category)
+		patcher.start()
+		self.addCleanup(patcher.stop)
+
+	def _set_same_type(self, value):
+		patcher = patch(
+			'core.viewer_navigation.get_same_type_only', lambda category: value
+		)
+		patcher.start()
+		self.addCleanup(patcher.stop)
+
+	def test_next_walks_to_immediate_neighbour(self):
+		self._set_same_type(False)
+		pane = _StubPane(['file:///a.png', 'file:///b.png'], cursor=0)
+		advance(pane, +1, 'image')
+		self.assertEqual('file:///b.png', pane.get_file_under_cursor())
+		self.assertEqual(['view_file'], pane.commands)
+
+	def test_previous_walks_backwards(self):
+		self._set_same_type(False)
+		pane = _StubPane(['file:///a.png', 'file:///b.png'], cursor=1)
+		advance(pane, -1, 'image')
+		self.assertEqual('file:///a.png', pane.get_file_under_cursor())
+		self.assertEqual(['view_file'], pane.commands)
+
+	def test_same_type_off_crosses_into_other_category(self):
+		self._set_same_type(False)
+		pane = _StubPane(['file:///a.png', 'file:///b.mp4'], cursor=0)
+		advance(pane, +1, 'image')
+		self.assertEqual('file:///b.mp4', pane.get_file_under_cursor())
+		self.assertEqual(['view_file'], pane.commands)
+
+	def test_same_type_on_skips_differing_category(self):
+		self._set_same_type(True)
+		pane = _StubPane(
+			['file:///a.png', 'file:///b.mp4', 'file:///c.png'], cursor=0
+		)
+		advance(pane, +1, 'image')
+		self.assertEqual('file:///c.png', pane.get_file_under_cursor())
+		self.assertEqual(['view_file'], pane.commands)
+
+	def test_skips_non_viewable_entries(self):
+		self._set_same_type(False)
+		# The middle entry classifies as None (a directory / binary).
+		pane = _StubPane(
+			['file:///a.png', 'file:///sub', 'file:///c.txt'], cursor=0
+		)
+		advance(pane, +1, 'image')
+		self.assertEqual('file:///c.txt', pane.get_file_under_cursor())
+		self.assertEqual(['view_file'], pane.commands)
+
+	def test_boundary_with_no_match_restores_cursor_and_does_not_view(self):
+		self._set_same_type(True)
+		pane = _StubPane(['file:///a.png', 'file:///b.mp4'], cursor=0)
+		with patch('core.viewer_navigation.show_status_message') as status:
+			advance(pane, +1, 'image')
+		self.assertEqual('file:///a.png', pane.get_file_under_cursor())
+		self.assertEqual([], pane.commands)
+		status.assert_called_once()
+
+class _FakeSettings:
+	# Same thin-wrapper fake used by test_videoviewer.py: core.settings itself
+	# is untested elsewhere, so fake the get_setting/save_setting functions.
+	def __init__(self):
+		self._values = {}
+
+	def get(self, json_name, key, default=None):
+		return self._values.get(key, default)
+
+	def save(self, json_name, key, value):
+		if value is None:
+			self._values.pop(key, None)
+		else:
+			self._values[key] = value
+
+class SameTypePersistenceTest(TestCase):
+	def setUp(self):
+		self._settings = _FakeSettings()
+		patcher_get = patch(
+			'core.viewer_navigation.get_setting', self._settings.get
+		)
+		patcher_save = patch(
+			'core.viewer_navigation.save_setting', self._settings.save
+		)
+		patcher_get.start()
+		patcher_save.start()
+		self.addCleanup(patcher_get.stop)
+		self.addCleanup(patcher_save.stop)
+
+	def test_defaults_to_true_when_nothing_saved(self):
+		self.assertIs(True, get_same_type_only('image'))
+
+	def test_toggle_flips_and_persists(self):
+		self.assertIs(False, toggle_same_type_only('image'))
+		self.assertIs(False, get_same_type_only('image'))
+		self.assertIs(True, toggle_same_type_only('image'))
+		self.assertIs(True, get_same_type_only('image'))
+
+	def test_toggle_is_per_category(self):
+		toggle_same_type_only('image')
+		self.assertIs(False, get_same_type_only('image'))
+		# Other viewers keep their own default, untouched.
+		self.assertIs(True, get_same_type_only('video'))
+		self.assertIs(True, get_same_type_only('text'))
+
+	def test_unknown_category_raises(self):
+		with self.assertRaises(KeyError):
+			get_same_type_only('bogus')
+
+class ViewerNavigatorTest(TestCase):
+	def test_next_and_previous_delegate_to_advance(self):
+		nav = ViewerNavigator(pane='p', category='image')
+		with patch('core.viewer_navigation.advance') as adv:
+			nav.next_file()
+			nav.previous_file()
+		self.assertEqual(
+			[('p', +1, 'image'), ('p', -1, 'image')],
+			[call.args for call in adv.call_args_list],
+		)
+
+	def test_same_type_label_reflects_state(self):
+		nav = ViewerNavigator(pane='p', category='video')
+		with patch('core.viewer_navigation.get_same_type_only', lambda c: True):
+			self.assertEqual('Advance across all file types', nav.same_type_label())
+		with patch('core.viewer_navigation.get_same_type_only', lambda c: False):
+			self.assertEqual('Advance only for same type', nav.same_type_label())
+
+	def test_commands_expose_the_three_bindable_pseudo_commands(self):
+		nav = ViewerNavigator(pane='p', category='text')
+		commands = nav.commands()
+		expected = {
+			'viewer_next_file': nav.next_file,
+			'viewer_previous_file': nav.previous_file,
+			'viewer_toggle_same_type_advance': nav.toggle_same_type,
+		}
+		self.assertEqual(expected, commands)
+
+class OpenViewerPaletteTest(TestCase):
+	def test_runs_the_action_the_picker_returns(self):
+		ran = []
+		def actions():
+			return [('Do it', lambda: ran.append(True), '')]
+		# show_quicksearch returns (query, action); open_viewer_palette calls it.
+		with patch(
+			'core.viewer_navigation.show_quicksearch',
+			return_value=('', lambda: ran.append(True)),
+		):
+			open_viewer_palette(actions)
+		self.assertEqual([True], ran)
+
+	def test_does_nothing_when_picker_cancelled(self):
+		def actions():
+			return [('Do it', lambda: None, '')]
+		with patch(
+			'core.viewer_navigation.show_quicksearch', return_value=None
+		):
+			open_viewer_palette(actions)  # must not raise

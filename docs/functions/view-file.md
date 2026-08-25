@@ -57,6 +57,10 @@ viewing in place (and there the viewer takes focus as usual).
   text — the check reads a chunk of the file and looks for a NUL byte)
   shows an alert instead of dumping garbled bytes into the text viewer.
 - Running it with nothing under the cursor shows "No file is selected!".
+- **Next / previous file** inside an open viewer re-runs `view_file` under the
+  hood: it steps the pane cursor to the neighbouring file and re-routes to the
+  matching viewer. See
+  [File viewers](../viewers/FILE_VIEWERS.md#shared-behaviour).
 
 ## Implementation
 
@@ -92,3 +96,7 @@ viewing in place (and there the viewer takes focus as usual).
 - `src/main/resources/base/Plugins/Core/core/videoviewer.py` — the video
   viewer (`is_video`, `show_video_viewer`, `PaneVideoView`); see
   [`docs/views/VIDEO_VIEWER.md`](../views/VIDEO_VIEWER.md) for details.
+- `src/main/resources/base/Plugins/Core/core/viewer_navigation.py` — shared
+  next/previous-file navigation (`advance` re-runs this command via
+  `pane.run_command('view_file')`) and the per-viewer "advance only for same
+  type" toggle; see [`docs/views/IMAGE_VIEWER.md`](../views/IMAGE_VIEWER.md#implementation).
