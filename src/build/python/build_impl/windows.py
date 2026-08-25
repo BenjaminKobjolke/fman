@@ -41,9 +41,25 @@ def _copy_release_notes():
 		copytree(src_dir, path('${freeze_dir}/release_notes'))
 
 def _copy_winpty_files():
+	# pywinpty >= 2 defaults to the ConPTY backend, whose conpty.dll launches
+	# OpenConsole.exe from its own directory. PyInstaller only picks up the DLLs
+	# next to _winpty.pyd, so without this the pseudo-console never starts and
+	# 7-Zip dies with STATUS_CONTROL_C_EXIT (0xC000013A) before any output -
+	# breaking every core.fs.zip call that uses pty=True (extract with progress,
+	# add to archive, rename inside an archive).
+	# winpty-agent.exe is the equivalent helper for the legacy WinPTY backend
+	# (PYWINPTY_BACKEND=1); it also belongs next to winpty.dll, not at the
+	# freeze root where it was placed for pywinpty 0.5.x.
 	import winpty
-	winpty_dir = dirname(winpty.__file__)
-	copy(join(winpty_dir, 'winpty-agent.exe'), path('${freeze_dir}'))
+	src_dir = dirname(winpty.__file__)
+	dst_dir = path('${freeze_dir}/_internal/winpty')
+	if not isdir(dst_dir):
+		raise FileNotFoundError(
+			'PyInstaller did not bundle winpty at %s. Did the contents dir '
+			'name change?' % dst_dir
+		)
+	for name in ('OpenConsole.exe', 'winpty-agent.exe'):
+		copy(join(src_dir, name), dst_dir)
 
 @command
 def sign():
