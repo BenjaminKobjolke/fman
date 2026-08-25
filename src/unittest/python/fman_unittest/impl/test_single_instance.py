@@ -33,7 +33,7 @@ class SingleInstanceTest(TestCase):
 
 class OpenPathInPaneTest(TestCase):
 	def _create_session_manager(self, fs):
-		return SessionManager({}, fs, _RecordingErrorHandler(), '0', False)
+		return SessionManager({}, fs, _RecordingErrorHandler(), '0')
 	def test_open_directory_sets_that_location(self):
 		fs = _FakeFs(dirs=['file://C:/a'])
 		pane = _FakePane()

@@ -7,7 +7,6 @@ from fbs_runtime.platform import is_mac
 from fman import PLATFORM, DATA_DIRECTORY, Window
 from fman.impl.controller import Controller
 from fman.impl.font_database import FontDatabase
-from fman.impl.licensing import User
 from fman.impl.metrics import Metrics, ServerBackend, AsynchronousMetrics, \
 	LoggingBackend
 from fman.impl.model.icon_provider import GnomeFileIconProvider, \
@@ -36,7 +35,7 @@ from fman.impl.util.path import make_absolute
 from fman.impl.util.qt import connect_once
 from fman.impl.util.settings import Settings
 from fman.impl.view import ProxyStyle
-from fman.impl.widgets import MainWindow, SplashScreen, Application
+from fman.impl.widgets import MainWindow, Application
 from os import makedirs, getcwd
 from os.path import dirname, join
 from PyQt5.QtCore import Qt
@@ -157,21 +156,12 @@ class DevelopmentApplicationContext(ApplicationContext):
 		return PUBLIC_SETTINGS['version']
 	def on_main_window_shown(self):
 		if self._demo_mode:
-			# No splash/tutorial during a recording.
+			# No tutorial during a recording.
 			return
-		if self.is_licensed:
-			if not self.session_manager.was_licensed_on_last_run:
-				self.metrics.track('InstalledLicenseKey')
-				self.metrics.update_user(
-					is_licensed=True, email=self.user.email
-				)
-		else:
-			if self.session_manager.is_first_run:
-				pane = self.plugin_support.get_panes()[0]
-				tutorial = self.tutorial_factory(pane)
-				self.tour_controller.start(tutorial)
-			else:
-				self.splash_screen.exec()
+		if self.session_manager.is_first_run:
+			pane = self.plugin_support.get_panes()[0]
+			tutorial = self.tutorial_factory(pane)
+			self.tour_controller.start(tutorial)
 	def on_main_window_close(self):
 		self.session_manager.on_close(self.main_window)
 	def on_quit(self):
@@ -225,7 +215,7 @@ class DevelopmentApplicationContext(ApplicationContext):
 			self.app.set_main_window(self._main_window)
 		return self._main_window
 	def _get_main_window_title(self):
-		return 'fman' if self.is_licensed else 'fman – NOT REGISTERED'
+		return 'fman'
 	@cached_property
 	def help_menu_actions(self):
 		if is_mac():
@@ -279,16 +269,6 @@ class DevelopmentApplicationContext(ApplicationContext):
 	@cached_property
 	def config(self):
 		return Config(PLATFORM)
-	@cached_property
-	def splash_screen(self):
-		user = self.user
-		license_expired = user.has_license() and \
-						  not user.license_is_valid_for_curr_version(
-							  self.fman_version
-						  )
-		return SplashScreen(
-			self.main_window, self.app, license_expired, user.email
-		)
 	@cached_property
 	def tour_controller(self):
 		return TourController()
@@ -413,23 +393,6 @@ class DevelopmentApplicationContext(ApplicationContext):
 		)
 		return result
 	@cached_property
-	def user(self):
-		json_path = self._get_local_data_file('User.json')
-		try:
-			with open(json_path, 'r') as f:
-				data = json.load(f)
-		except (IOError, ValueError):
-			data = {}
-		if not isinstance(data, dict):
-			# Malformed User.json file:
-			data = {}
-		email = data.get('email', '')
-		key = data.get('key', '')
-		return User(email, key)
-	@cached_property
-	def is_licensed(self):
-		return self.user.is_licensed(self.fman_version)
-	@cached_property
 	def main_window_palette(self):
 		result = QPalette(self.palette)
 		result.setColor(QPalette.Window, QColor(0x44, 0x44, 0x44))
@@ -450,7 +413,7 @@ class DevelopmentApplicationContext(ApplicationContext):
 		settings = Settings(self._get_local_data_file('Session.json'))
 		return SessionManager(
 			settings, self.mother_fs, self.plugin_error_handler,
-			self.fman_version, self.is_licensed
+			self.fman_version
 		)
 	@cached_property
 	def theme(self):

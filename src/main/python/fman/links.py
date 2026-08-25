@@ -15,5 +15,3 @@ ZEN              = 'https://fman.io/zen'
 TERMINAL_DOCS    = 'https://fman.io/docs/terminal?s=f'
 CUSTOM_SHORTCUTS = 'https://fman.io/docs/custom-shortcuts?s=f'
 MACOS_DOCS       = 'https://fman.io/docs/macos?s=f'
-BUY              = 'https://fman.io/buy?s=f'
-LOGIN            = 'https://fman.io/account/login'  # caller appends ?email=...

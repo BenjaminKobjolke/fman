@@ -26,9 +26,9 @@ fman - file manager - C:\test | D:\GIT\BenjaminKobjolke\fman\debug
 
 ## Notes
 
-- This replaces the previous static title (`fman`, or `fman – NOT REGISTERED`
-  when unlicensed) once the main window is shown — the unlicensed marker is
-  not folded into the new title.
+- This replaces the static title set by the core app (`fman`) once the main
+  window is shown. There is no registration marker to fold in: this fork has
+  no licensing (see `docs/PURCHASING.md`).
 
 ## Implementation
 
