@@ -1,12 +1,25 @@
 # fman
 
-A cross-platform dual-pane file manager.
+**A file manager you drive entirely from the keyboard.**
 
-## Demo
+Preview text, images and video *inside* the pane. Step into a `.zip` like it's
+a folder. Run any command from a fuzzy palette. Extend it in Python.
+
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/version-1.7.8-blue.svg)](https://github.com/BenjaminKobjolke/fman/releases/latest)
+[![Windows installer](https://img.shields.io/badge/Windows-signed%20installer-0078d4.svg)](https://github.com/BenjaminKobjolke/fman/releases/latest)
+
+### [⬇ Download for Windows](https://github.com/BenjaminKobjolke/fman/releases/latest)
+
+v1.7.8 · signed installer, ~76 MB · no license key, no trial, no nag screen
+
+*macOS and Linux: fman runs on both — [build from source](#build-from-source).*
+
+## See it work
 
 https://github.com/user-attachments/assets/a2d9524b-1c91-4a82-ad79-29786b0243b4
 
-The tour above, driven from the keyboard, no mouse at any point:
+The whole tour is driven from the keyboard. The mouse is never touched.
 
 | | |
 |---|---|
@@ -16,49 +29,77 @@ The tour above, driven from the keyboard, no mouse at any point:
 | Video that actually plays | pause, seek and volume in-pane - and previewing into the *other* pane while you keep browsing |
 | Archives are just folders | pack with `Alt+F5`, `Enter` to step inside the zip, `F5` to copy back out |
 
-Full shortcut reference: **[workflow-tools.com/fast-file-manager/help/keybindings](https://workflow-tools.com/fast-file-manager/help/keybindings)**.
-
-More of the UI - the two-pane layout, internal image viewer, inline name
-filter, and command palette (`Ctrl+Shift+P`):
-
 | Panes | Internal viewer | Filter | Select all |
 |---|---|---|---|
 | ![panes](media/demos/overview/panes.png) | ![internal viewer](media/demos/overview/view-image.png) | ![filter](media/demos/overview/filter.png) | ![select all](media/demos/overview/select-all.png) |
 
+## What you get
+
+**Navigate.** `Ctrl+P` jumps to any folder by fuzzy name, with tab-completion
+and your visited paths ranked first. `Alt+←`/`Alt+→` walk your history.
+`Alt+F1`/`Alt+F2` list drives, `Ctrl+\` goes to the drive root,
+`Ctrl+→`/`Ctrl+←` push a folder into the other pane. Panes update themselves
+when files change on disk. → [KEYBINDINGS.md](docs/KEYBINDINGS.md)
+
+**Move files.** `F5` copy and `F6` move across panes, with progress, conflict
+prompts and cancel. `F7` new folder, `Shift+F6` rename, `Shift+F5` symlink.
+`F8` goes to the recycle bin, `Shift+Del` doesn't. Explorer's clipboard works
+(`Ctrl+C`/`X`/`V`), so does drag & drop. `F11` copies paths, `Ctrl+.` toggles
+hidden files, and *Compare directories* selects whatever the other pane is
+missing.
+
+**Preview without leaving.** Text, image and video viewers open *in the pane*,
+not in another app. Each has its own command palette and its own rebindable
+keys, and you can step to the next file without going back to the list. Text
+opens read-only, switches to editable, and saves — with **tail mode that
+follows a growing log**. Images zoom; video seeks and remembers its volume.
+→ [FILE_VIEWERS.md](docs/viewers/FILE_VIEWERS.md)
+
+**Archives are folders.** `.zip`, `.7z` and `.tar` open with `Enter`, and you
+copy in and out of them like any directory. A bundled `7za` ships for Windows,
+macOS and Linux — nothing to install. On Windows this is **~6× faster than it
+was**, with a progress bar that actually moves: a 62 MB, 992-file zip went from
+9.8 s to 1.7 s. → [ARCHIVES.md](docs/ARCHIVES.md)
+
+**Make it yours.** 11 bundled themes, switched live from the palette, no
+restart. Your own theme is one small JSON file of colors. Plus window
+transparency, pane font zoom (`Alt+↑`/`Alt+↓`), toggleable columns,
+single-pane mode, and every key rebindable.
+→ [THEMES.md](docs/THEMES.md) · [COMMAND_PALLETTE.md](docs/COMMAND_PALLETTE.md)
+
+**Extend it in Python.** Plugins add commands, columns, listeners — even whole
+filesystems, which is how FTP and process browsing work below. Install one
+**from inside fman**: it searches GitHub and loads the plugin without a
+restart. → [Plugins](#plugins)
+
+**Fits your desktop.** Opening a folder from Explorer or the command line
+reuses the window you already have. On Windows, network shares stay responsive
+instead of freezing the UI. Release notes are translated into 40 languages and
+readable in-app. → [SINGLE_INSTANCE.md](docs/SINGLE_INSTANCE.md) ·
+[WINDOWS_NETWORK_SUPPORT.md](docs/WINDOWS_NETWORK_SUPPORT.md)
+
+Full shortcut reference:
+**[workflow-tools.com/fast-file-manager/help/keybindings](https://workflow-tools.com/fast-file-manager/help/keybindings)**
+
 ## Themes
+
+Eleven bundled themes — Monokai, Dark, Light, Solarized Dark/Light, Nord,
+Dracula, Gruvbox Dark, High Contrast, WezTerm, Matrix. Run *Select theme* from
+the command palette; it applies immediately, no restart.
 
 ![themes](media/demos/themes/themes.gif)
 
-## Documentation
-
-More on individual features in [docs/](docs/):
-
-| Doc | Topic |
-|---|---|
-| [ARCHIVES.md](docs/ARCHIVES.md) | `.zip`, `.7z`, `.tar` browsed like folders, backed by a bundled `7za` |
-| [COMMAND_PALLETTE.md](docs/COMMAND_PALLETTE.md) | The `Ctrl+Shift+P` palette |
-| [DEMOS.md](docs/DEMOS.md) | How the demo recordings are made |
-| [KEYBINDINGS.md](docs/KEYBINDINGS.md) | Default key bindings |
-| [SINGLE_INSTANCE.md](docs/SINGLE_INSTANCE.md) | Reusing a running window, and the `single_instance` setting |
-| [THEMES.md](docs/THEMES.md) | Theme files and switching |
-| [WINDOWS_NETWORK_SUPPORT.md](docs/WINDOWS_NETWORK_SUPPORT.md) | UNC paths, network drive icons |
-| [WINDOW_TITLE.md](docs/WINDOW_TITLE.md) | Window title format |
-| [PURCHASING.md](docs/PURCHASING.md) | License / purchasing |
-| [CREATE_NEW_RELEASE.md](docs/CREATE_NEW_RELEASE.md) | Release process |
-
-## Web help system
-
-A searchable, mobile-friendly reference of all keyboard shortcuts is online at
-**[workflow-tools.com/fast-file-manager/help](https://workflow-tools.com/fast-file-manager/help/)**.
-
-It is generated by its own repo,
-[fman-web-help-system](https://github.com/BenjaminKobjolke/fman-web-help-system),
-which regenerates its data from this repo's source; point its `fman_repo_dir`
-config at a local fman checkout.
+Writing your own is one JSON file listing only the colors you want to change —
+see [THEMES.md](docs/THEMES.md).
 
 ## Plugins
 
-fman plugins maintained on this account:
+fman is extensible in Python, and installs plugins **from inside the app**: run
+*Install plugin* from the command palette and it searches GitHub, downloads and
+hot-loads it. Plugins can add commands, columns, context-menu entries and
+entire filesystems.
+
+These are the ones maintained on this account:
 
 | Plugin | What it does |
 |---|---|
@@ -81,11 +122,34 @@ fman plugins maintained on this account:
 | [FManSharexExtension](https://github.com/BenjaminKobjolke/FManSharexExtension) | Send the selected file to ShareX. Windows only. |
 | [FmanSaveAsDialogExtension](https://github.com/BenjaminKobjolke/FmanSaveAsDialogExtension) | Use fman's last-used directories inside the Windows Save-As dialog. Windows only. |
 
-## Development instructions
+## Documentation
 
-fman currently uses Python 3.14.
+| Doc | Topic |
+|---|---|
+| [ARCHIVES.md](docs/ARCHIVES.md) | `.zip`, `.7z`, `.tar` browsed like folders, backed by a bundled `7za` |
+| [COMMAND_PALLETTE.md](docs/COMMAND_PALLETTE.md) | The `Ctrl+Shift+P` palette |
+| [DEMOS.md](docs/DEMOS.md) | How the demo recordings are made |
+| [KEYBINDINGS.md](docs/KEYBINDINGS.md) | Default key bindings |
+| [SINGLE_INSTANCE.md](docs/SINGLE_INSTANCE.md) | Reusing a running window, and the `single_instance` setting |
+| [THEMES.md](docs/THEMES.md) | Theme files and switching |
+| [WINDOWS_NETWORK_SUPPORT.md](docs/WINDOWS_NETWORK_SUPPORT.md) | UNC paths, network drive icons |
+| [WINDOW_TITLE.md](docs/WINDOW_TITLE.md) | Window title format |
+| [PURCHASING.md](docs/PURCHASING.md) | Why there is nothing to buy |
+| [CREATE_NEW_RELEASE.md](docs/CREATE_NEW_RELEASE.md) | Release process |
 
-Install the requirements for your operating system. For example:
+A searchable, mobile-friendly reference of all keyboard shortcuts is online at
+**[workflow-tools.com/fast-file-manager/help](https://workflow-tools.com/fast-file-manager/help/)**.
+It is generated by its own repo,
+[fman-web-help-system](https://github.com/BenjaminKobjolke/fman-web-help-system),
+which regenerates its data from this repo's source; point its `fman_repo_dir`
+config at a local fman checkout.
+
+## Build from source
+
+Needed on macOS and Linux, and for developing fman itself. fman currently uses
+Python 3.14.
+
+Install the requirements for your operating system:
 
     pip install -Ur requirements/mac.txt       # macOS
     pip install -Ur requirements/ubuntu.txt    # Ubuntu/Debian
@@ -93,13 +157,27 @@ Install the requirements for your operating system. For example:
     pip install -Ur requirements/fedora.txt    # Fedora
     pip install -Ur requirements/windows.txt   # Windows
 
-Then you can use `python build.py` to run, compile etc. fman. For example:
+Then run it:
 
     python build.py run
 
 Call `python build.py` without arguments to see a list of available commands.
-This uses [fman build system](https://build-system.fman.io/).
+This uses the [fman build system](https://build-system.fman.io/).
 
-You can run automated tests with `python build.py test`. On Windows, this
-requires Developer Mode (Settings -> System -> Advanced) to be enabled, or some
-tests related to symlinks will fail.
+The video viewer needs the native `libmpv` library. On Windows fman downloads
+it on first use; on macOS install it with `brew install mpv`, on Debian/Ubuntu
+with `apt install libmpv2`.
+
+Run the automated tests with `python build.py test`. On Windows this requires
+Developer Mode (Settings -> System -> Advanced) to be enabled, or some tests
+related to symlinks will fail.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
+
+Upstream fman is commercial software. This fork **removed** that machinery
+rather than disabling it: the license validator, the nag screen, the
+`NOT REGISTERED` title marker and the licensee-email telemetry ping are all
+deleted. Every installation is fully activated, and nothing phones home. See
+[PURCHASING.md](docs/PURCHASING.md).
