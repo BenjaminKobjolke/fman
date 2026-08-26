@@ -11,7 +11,7 @@ a folder. Run any command from a fuzzy palette. Extend it in Python.
 
 ### [⬇ Download for Windows](https://github.com/BenjaminKobjolke/fman/releases/latest)
 
-v1.7.8 · signed installer, ~76 MB · no license key, no trial, no nag screen
+v1.7.8 · signed installer, 75 MB · no license key, no trial, no nag screen
 
 *macOS and Linux: fman runs on both — [build from source](#build-from-source).*
 
@@ -41,6 +41,8 @@ and your visited paths ranked first. `Alt+←`/`Alt+→` walk your history.
 `Ctrl+→`/`Ctrl+←` push a folder into the other pane. Panes update themselves
 when files change on disk. → [KEYBINDINGS.md](docs/KEYBINDINGS.md)
 
+![Go to: press Ctrl+P, type a fragment, tab-complete, jump](media/demos/features/goto.gif)
+
 **Move files.** `F5` copy and `F6` move across panes, with progress, conflict
 prompts and cancel. `F7` new folder, `Shift+F6` rename, `Shift+F5` symlink.
 `F8` goes to the recycle bin, `Shift+Del` doesn't. Explorer's clipboard works
@@ -54,6 +56,8 @@ keys, and you can step to the next file without going back to the list. Text
 opens read-only, switches to editable, and saves — with **tail mode that
 follows a growing log**. Images zoom; video seeks and remembers its volume.
 → [FILE_VIEWERS.md](docs/viewers/FILE_VIEWERS.md)
+
+![Tail mode: the text viewer following a log while it grows](media/demos/features/tail.gif)
 
 **Archives are folders.** `.zip`, `.7z` and `.tar` open with `Enter`, and you
 copy in and out of them like any directory. A bundled `7za` ships for Windows,

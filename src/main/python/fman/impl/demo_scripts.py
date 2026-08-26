@@ -25,6 +25,8 @@ from automated_screenshot_connector import (
 	Command, DemoScript, Pause, PressKey, Screenshot, TypeText,
 )
 
+from fman.impl.demo_scripts_tour import TOUR_CHAPTERS
+
 # Every recording starts translucent, so fman is shown the way it is meant to
 # be used and the overview's opacity chapter has something to move away from.
 # Forced in application_context._run_demo rather than read from the demo
@@ -60,8 +62,11 @@ DEMOS = {
 			TypeText('dummy_1'), Pause(0.6),
 			Screenshot('filter'),
 			PressKey('Escape'), Pause(0.3),
-			# A real command run from the palette: select every file.
+			# A real command run from the palette: select every file. The
+			# still is taken while the palette is open, because the README's
+			# feature grid shows the palette itself.
 			PressKey('Ctrl+Shift+P'), Pause(0.5),
+			Screenshot('command-palette'),
 			Command('select all'),
 			Pause(0.8),
 			Screenshot('select-all'),
@@ -86,167 +91,69 @@ DEMOS = {
 			Command('80'), Pause(1.8),
 		),
 	),
-	# ---------------------------------------------------------------------
-	# Chapters of the README's feature tour. Recorded separately and joined
-	# by tools/create_media/build_tour.py, because the recorder holds every
-	# frame in RAM (~30 MB per second at 10 fps) and aborts a single demo at
-	# 300 s. They emit no Screenshot steps on purpose: those only write PNG
-	# stills, which the tour doesn't need, and the tool's no-event watchdog
-	# is satisfied by demo_started alone at these lengths.
-	# ---------------------------------------------------------------------
-	3: DemoScript(
-		id=3,
-		name='tour-a-panes',
+}
+
+# The tour chapters live in their own module; merged in below so
+# ``--automation-demo <id>`` still resolves every demo from one registry.
+DEMOS.update(TOUR_CHAPTERS)
+
+# Standalone feature clips for the README's feature index. Deliberately NOT
+# named tour-*: build_tour.py picks up every tour-* demo, so a tour-* name here
+# would silently lengthen the joined feature tour. tools/demo_build_feature_gifs.bat
+# turns these into the committed GIFs under media/demos/features/.
+FEATURE_CLIPS = {
+	8: DemoScript(
+		id=8,
+		name='feature-goto',
 		steps=(
 			Pause(1.5),
-			PressKey('Down'), Pause(0.5),
-			PressKey('Down'), Pause(0.5),
-			PressKey('Down'), Pause(0.5),
-			PressKey('Down'), Pause(0.8),
-			# Insert selects and advances - the orthodox file-manager key.
-			PressKey('Ins'), Pause(0.6),
-			PressKey('Ins'), Pause(0.6),
-			PressKey('Ins'), Pause(1.2),
-			PressKey('Ctrl+D'), Pause(1.0),   # deselect again
-			PressKey('Ctrl+A'), Pause(1.4),   # ... and select everything
-			PressKey('F5'), Pause(1.8),       # Copy, prefilled with the right pane
-			PressKey('Return'), Pause(4.0),   # ~20 MB, dummy.mp4 included
-			PressKey('Ctrl+D'), Pause(1.0),
-			PressKey('Tab'), Pause(1.2),      # over to the copies
-			PressKey('Ctrl+R'), Pause(1.5),   # re-list, so the filter sees them
-			TypeText('dummy_1'), Pause(1.8),  # inline type-to-filter
-			PressKey('Escape'), Pause(1.0),
-			TypeText('read'), Pause(1.8),
-			PressKey('Escape'), Pause(1.0),
-			PressKey('Ctrl+F2'), Pause(1.8),  # sort by size
-			PressKey('Ctrl+F1'), Pause(1.4),  # back to name
-			PressKey('Tab'), Pause(1.2),
-		),
-	),
-	4: DemoScript(
-		id=4,
-		name='tour-b-organize',
-		steps=(
-			Pause(1.5),
-			PressKey('F7'), Pause(1.8),       # prompt prefilled with the stem
-			TypeText('documents'), Pause(1.0),
-			PressKey('Return'), Pause(1.6),   # created, cursor placed on it
-			PressKey('Down'), Pause(0.6),
-			PressKey('Ins'), Pause(0.6),
-			PressKey('Ins'), Pause(0.6),
-			PressKey('Ins'), Pause(1.2),      # the three text files
-			PressKey('F6'), Pause(1.8),
-			# A bare name in the Move prompt resolves against the SOURCE pane,
-			# and the target already exists as a directory, so moving into it
-			# needs no further confirmation.
-			TypeText('documents'), Pause(1.0),
-			PressKey('Return'), Pause(2.5),
-			PressKey('Home'), Pause(0.8),     # directories sort first
-			PressKey('Return'), Pause(1.8),   # step into it
-			PressKey('Shift+F6'), Pause(1.6), # inline editor, extension kept
-			TypeText('history'), Pause(1.0),
-			PressKey('Return'), Pause(1.8),
-			PressKey('Backspace'), Pause(2.0),
+			# Ctrl+P is Go to: a fuzzy jump over the folders you have already
+			# visited, with tab-completion. run_fman_demo.bat seeds this id's
+			# Visited Paths.json with the scratch tree, which is what keeps
+			# the suggestion list deterministic - AND keeps the recordist's
+			# own folders off camera. See the privacy note in docs/DEMOS.md.
+			PressKey('Ctrl+P'), Pause(1.6),
+			# Two characters on purpose: SuggestLocations only reaches out to
+			# the Windows Search index once the query is LONGER than two, and
+			# that index would answer with folders from anywhere on the disk.
+			TypeText('re'), Pause(1.8),
+			PressKey('Return'), Pause(2.4),   # jump into reports/
+			PressKey('Ctrl+P'), Pause(1.6),
+			TypeText('al'), Pause(1.8),
+			# Tab completes the highlighted suggestion into the input, so the
+			# full path is visible before it is opened.
+			PressKey('Tab'), Pause(1.6),
+			PressKey('Return'), Pause(2.4),   # ... into projects/alpha
+			PressKey('Backspace'), Pause(1.8),
+			PressKey('Backspace'), Pause(1.8),
 			Pause(1.0),
 		),
 	),
-	5: DemoScript(
-		id=5,
-		name='tour-c-viewers',
+	9: DemoScript(
+		id=9,
+		name='feature-tail',
 		steps=(
-			Pause(1.2),
-			PressKey('Down'), Pause(0.35),
-			PressKey('Down'), Pause(0.35),
-			PressKey('Down'), Pause(0.35),
-			PressKey('Down'), Pause(0.8),     # dummy_1.jpg
-			PressKey('Ctrl+Shift+P'), Pause(1.0),
-			Command('view file'), Pause(2.2),
-			PressKey('Alt+Up'), Pause(0.7),
-			PressKey('Alt+Up'), Pause(1.4),
-			# Ctrl+Shift+P inside a viewer opens that viewer's OWN palette -
-			# the global one can't reach a viewer while the list is hidden.
-			PressKey('Ctrl+Shift+P'), Pause(1.2),
-			Command('next'), Pause(2.2),      # on to dummy_2.jpg
-			PressKey('Ctrl+Shift+P'), Pause(1.0),
-			Command('fit'), Pause(1.4),       # Fit to window, clears the saved zoom
-			PressKey('Escape'), Pause(1.2),
-			PressKey('Home'), Pause(0.8),     # changelog.txt
-			PressKey('Ctrl+Shift+P'), Pause(1.0),
-			Command('view file'), Pause(2.0),
-			PressKey('Ctrl+Shift+P'), Pause(1.0),
-			Command('edit'), Pause(1.0),
-			PressKey('Ctrl+End'), Pause(0.5),
-			PressKey('Return'), Pause(0.3),   # a newline; TypeText can't carry one
-			TypeText('Edited in fman'), Pause(1.3),
-			PressKey('Ctrl+Shift+P'), Pause(1.0),
-			Command('save'), Pause(1.5),      # straight to disk, no dialog
-			PressKey('Ctrl+Shift+P'), Pause(1.0),
-			Command('exit'), Pause(1.2),      # Escape doesn't close in edit mode
-		),
-	),
-	6: DemoScript(
-		id=6,
-		name='tour-d-video',
-		steps=(
-			Pause(1.2),
-			PressKey('Down'), Pause(0.3),
-			PressKey('Down'), Pause(0.3),
-			PressKey('Down'), Pause(0.8),     # dummy.mp4
-			PressKey('Ctrl+Shift+P'), Pause(1.0),
-			Command('view file'), Pause(3.5), # libmpv embeds, then plays
 			Pause(1.5),
-			PressKey('Space'), Pause(1.6),    # pause
-			PressKey('Space'), Pause(1.4),    # play
-			PressKey('Right'), Pause(1.0),    # seek +5 s
-			PressKey('Right'), Pause(1.0),
-			PressKey('Up'), Pause(1.4),       # volume +5, with mpv's OSD
-			PressKey('Escape'), Pause(1.2),
-			# The same viewer, but in the OTHER pane: the list stays usable,
-			# so arrowing down keeps previewing.
-			PressKey('Down'), Pause(0.6),
+			# service.log sorts second-to-last (todo.txt is last), so End+Up
+			# lands on it without counting a dozen Downs.
+			PressKey('End'), Pause(0.8),
+			PressKey('Up'), Pause(1.2),
 			PressKey('Ctrl+Shift+P'), Pause(1.0),
-			Command('view in other'), Pause(3.0),
-			PressKey('Down'), Pause(1.5),
-			PressKey('Down'), Pause(1.5),
-			Pause(1.2),
-		),
-	),
-	7: DemoScript(
-		id=7,
-		name='tour-e-archives',
-		steps=(
-			Pause(1.2),
-			PressKey('Down'), Pause(0.35),
-			PressKey('Down'), Pause(0.35),
-			PressKey('Down'), Pause(0.35),
-			PressKey('Down'), Pause(0.8),
-			PressKey('Ins'), Pause(0.6),
-			PressKey('Ins'), Pause(0.6),
-			PressKey('Ins'), Pause(1.2),      # dummy_1..3.jpg
-			PressKey('Alt+F5'), Pause(1.8),   # Pack, suggesting the right pane
-			# Replace the whole suggestion: a bare name keeps the archive here,
-			# so extracting it into the empty right pane can't hit a conflict.
-			PressKey('Ctrl+A'), Pause(0.5),
-			TypeText('images.zip'), Pause(1.0),
-			PressKey('Return'), Pause(3.5),   # 7za builds it
-			# The pane doesn't re-list itself once the archive appears, so the
-			# filter below would find nothing without this reload.
-			PressKey('Ctrl+R'), Pause(1.5),
-			TypeText('ima'), Pause(1.8),      # filter down to the new archive
-			PressKey('Return'), Pause(2.5),   # ... and step inside it
-			PressKey('F5'), Pause(1.8),       # copy back out of the archive
-			PressKey('Return'), Pause(2.5),
-			PressKey('Backspace'), Pause(2.0),
-			PressKey('Ctrl+Shift+P'), Pause(1.4),
-			# Typed as two word-prefixes, to show the palette's fuzzy matching
-			# before the command runs.
-			TypeText('comp dir'), Pause(2.0),
-			PressKey('Return'), Pause(2.0),
-			PressKey('Return'), Pause(1.8),   # dismiss the result dialog
-			Pause(1.2),
+			Command('view file'), Pause(2.4),
+			# The text viewer's OWN palette. 'tail' matches the entry
+			# 'Enable tail mode (follow end)'.
+			PressKey('Ctrl+Shift+P'), Pause(1.2),
+			Command('tail'), Pause(2.0),
+			# run_fman_demo.bat is appending a line every 1.5 s in the
+			# background, so this hold is the whole point of the chapter:
+			# the view follows the end of the file while it grows.
+			Pause(8.0),
+			PressKey('Escape'), Pause(1.5),
 		),
 	),
 }
+
+DEMOS.update(FEATURE_CLIPS)
 
 def build_themes_script(names):
 	"""The themes demo for the installed themes `names`, one still each.

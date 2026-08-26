@@ -2,7 +2,7 @@
 
 fman can record animated demos (GIF/MP4 + PNG stills) of its UI with the
 [automated-application-screenshots](https://github.com/BenjaminKobjolke/automated-application-screenshots)
-tool. The recorded demos are shown in the [README](../README.md#demo).
+tool. The recorded demos are shown in the [README](../README.md#see-it-work).
 
 Recording the feature tour end to end is five commands (see
 [Recording checklist](#recording-checklist)); the rest of this document is what
@@ -14,7 +14,11 @@ In demo mode fman plays a scripted sequence of UI actions and reports events
 over a socket so the tool can capture the window. The wiring:
 
 - `src/main/python/fman/impl/demo_scripts.py` — the `DEMOS` registry, one
-  `DemoScript` per recordable demo.
+  `DemoScript` per recordable demo: the overview demo, the `feature-*` clips,
+  and the themes builder.
+- `src/main/python/fman/impl/demo_scripts_tour.py` — the `tour-*` chapters,
+  merged into `DEMOS` by `demo_scripts.py`. Split out to keep both files
+  under the project's 300-line limit.
 - `src/main/python/fman/impl/demo.py` — the PyQt5 demo player that turns those
   scripts into key events.
 - `src/main/python/fman/impl/application_context.py` — `run()` enters demo mode
@@ -28,6 +32,9 @@ over a socket so the tool can capture the window. The wiring:
   recorded tour chapters into the README's feature-tour MP4.
 - `tools/create_media/build_themes.py` + `tools/demo_themes_record.bat` — record
   one still per theme and join them into the README's themes GIF.
+- `tools/demo_build_feature_gifs.bat` + `tools/demo_features_record.bat` —
+  record the standalone `feature-*` clips and encode them into the GIFs the
+  README's feature index shows.
 
 fman itself never captures or encodes anything. It only posts key events and
 sends `demo_started` / `screenshot` / `demo_ended` over a socket; the tool grabs
@@ -45,6 +52,14 @@ fixtures, wiped and re-seeded on each run:
 | `%TEMP%\fman-demo-<id>-left` | both example folders merged — 11 images/video + 6 text files |
 | `%TEMP%\fman-demo-<id>-right` | empty |
 | `%TEMP%\fman-demo-profile` | the throwaway fman data directory |
+
+Two ids get extra seeding on top of that shared copy, because their feature
+cannot be shown without it:
+
+| id | extra |
+|----|-------|
+| 8 | `projects\alpha`, `projects\beta` and `reports` in the left folder, plus a 5-entry `Visited Paths.json` in the demo profile — see [Chapter 8 records a suggestion list](#chapter-8-records-a-suggestion-list---check-it) |
+| 9 | `service.log` in the left folder, plus a background PowerShell appender that adds a line every 1.5 s for 60 s, so tail mode has something to follow |
 
 Every run sets `FMAN_DATA_DIRECTORY` to that profile and wipes its `Plugins`
 folder. Recording against your own profile would load your third-party plugins,
@@ -120,6 +135,15 @@ live in that interpreter's user site-packages, so another `python` on `PATH`
        tools\demos_record.bat --demo 6
        tools\demos_record.bat --demo 7
 
+   Ids 8 and 9 are NOT part of the tour - they are the standalone
+   `feature-*` clips, and have their own one-liner that records both and
+   encodes the GIFs:
+
+       tools\demo_features_record.bat
+
+   (or `tools\demos_record.bat --demo 8` and `--demo 9` separately, then
+   `tools\demo_build_feature_gifs.bat` to re-encode without re-recording).
+
 5. **Join them:** `tools\demo_build_tour.bat` → `media/demos/tour/feature-tour.mp4`.
 6. **Watch the result** before committing. The build prints the size; the last
    run was 2:32 and 2.3 MB.
@@ -131,11 +155,12 @@ live in that interpreter's user site-packages, so another `python` on `PATH`
 arguments pass straight through to the tool.
 
 The themes GIF is its own one-liner, `tools\demo_themes_record.bat` — see
-[The themes demo](#the-themes-demo).
+[The themes demo](#the-themes-demo). The feature GIFs are
+`tools\demo_features_record.bat`.
 
 ## What ships
 
-- **1 `overview`** — short; the four stills in the README feature grid
+- **1 `overview`** — short; the stills in the README feature grid
   (both panes, internal image viewer, inline filter, select-all). The only
   demo whose PNGs are committed - the themes demo's are an intermediate.
 - **2 `themes`** — one still per bundled theme, joined into the README's
@@ -150,6 +175,43 @@ The themes GIF is its own one-liner, `tools\demo_themes_record.bat` — see
   | 6 | `tour-d-video` | video playing in the pane, and previewing into the other one | 276 frames, 27.6 s |
   | 7 | `tour-e-archives` | pack, browse inside the zip, copy out, fuzzy palette | 354 frames, 35.4 s |
 
+- **8-9, the `feature-*` clips** - standalone, NOT part of the joined tour.
+  `tools\demo_features_record.bat` records both and encodes them into the
+  committed GIFs the README's feature index shows
+  (`media/demos/features/goto.gif`, `tail.gif`):
+
+  | id | name | shows | measured |
+  |----|------|-------|----------|
+  | 8 | `feature-goto` | `Ctrl+P` Go to: fuzzy jump, tab-complete, Enter | 101 frames, 20.2 s |
+  | 9 | `feature-tail` | tail mode following a log while it grows | 105 frames, 21.0 s |
+
+  They record at **`fps: 5`**, not 10. Capture could not keep up with an
+  animated theme behind the window (~4.8 fps measured), and the exporter writes
+  the frames it got at whatever fps the config names - so 10 produced a clip
+  that played at double speed. Match the fps to what the machine can capture,
+  or the demo lies about how fast it was.
+
+  Their names deliberately avoid the `tour-` prefix: `build_tour.py::chapters()`
+  joins **every** `tour-*` demo, so naming one of these `tour-f-*` silently
+  lengthens the README hero video the next time the tour is rebuilt.
+
+### Chapter 8 records a suggestion list - check it
+
+Go to (`Ctrl+P`) suggests **real folders from the recording machine**, so this
+is the one chapter that can put private directory names on camera.
+`SuggestLocations` (`core/commands/goto.py`) draws them from two places:
+
+| source | when | what it would show |
+|--------|------|--------------------|
+| `_get_default_paths()` | `Visited Paths.json` holds **2 or fewer** entries | every non-hidden subdir of your home directory, plus the non-empty dirs in `C:\` |
+| `find_folders_starting_with()` | the typed query is **longer than 2 chars** | up to 5 folders from the Windows Search index, from anywhere on the disk |
+
+`run_fman_demo.bat` closes both for id 8: it seeds a 5-entry
+`Visited Paths.json` pointing only at that run scratch tree (so the fallback
+never fires), and the script never types more than two characters (so the
+index is never queried). Keep both properties if you edit the chapter - and
+watch the take before publishing it.
+
 The chapters exist because of hard limits in the recorder, not taste:
 
 | limit | value | consequence |
@@ -161,8 +223,11 @@ The chapters exist because of hard limits in the recorder, not taste:
 
 Output lands in `media/demos/<name>/` (see `output_dir` in
 `tools/create_media/fman.json`): `demo.mp4`, plus `demo.gif` and one PNG per
-`Screenshot` step if the demo asks for them. The tour chapters are `mp4` only —
-a 2.5-minute GIF would be tens of megabytes for a worse picture.
+`Screenshot` step if the demo asks for them. The tour chapters and the
+`feature-*` clips are `mp4` only — a 2.5-minute GIF would be tens of
+megabytes for a worse picture, and the feature GIFs are encoded from the mp4
+afterwards (a 64-colour palette at 800 px keeps each one under half a
+megabyte).
 
 `demo_build_tour.bat` burns each chapter's caption over its first 5 s and
 concatenates all of them. Chapter order comes from `fman.json` (every demo whose
@@ -172,7 +237,8 @@ to 1280 wide with `setsar=1`: the capture is the window *including* its frame
 (1284x847 last time), and clips recorded in different sessions can differ by a
 pixel, which plain `concat` rejects. Only the joined MP4 is committed — the
 per-chapter `media/demos/tour-*/` folders are regenerable intermediates and
-gitignored.
+gitignored. The same holds for `media/demos/feature-*/`: only the encoded
+`media/demos/features/*.gif` are committed.
 
 ### Publishing the tour
 
@@ -246,6 +312,8 @@ every risky step landed:
 | 5 `tour-c-viewers` | `changelog.txt` ends with `Edited in fman` |
 | 6 `tour-d-video` | `Core Settings (Windows).json` has `video_viewer_volume` — written only from the video viewer's own key handler, so it proves the viewer had keyboard focus |
 | 7 `tour-e-archives` | `images.zip` in the left folder holds three JPEGs, and the right folder holds the one copied back out |
+| 8 `feature-goto` | the left pane ends on `projects\alpha` — and `Visited Paths.json` in the demo profile lists only `fman-demo-8-*` paths |
+| 9 `feature-tail` | `service.log` is longer than the 12 seeded lines (the appender adds ~40 more over a minute) |
 
 **Estimate a script's length** without running it:
 
@@ -302,6 +370,14 @@ naturally. The seeded scratch folder is therefore always:
 `dummy_10.jpg` sorts after `dummy_9.jpg` because the comparison is natural, not
 lexicographic. The cursor starts on row 0, so every `Down` count in a script is
 written against this table — re-check them if the fixtures ever change.
+
+**Ids 8 and 9 do not match that table.** Their extra fixtures shift every row:
+demo 8 adds `projects` and `reports`, which sort *before* every file because
+directories sort first, and demo 9 adds `service.log` between `readme.md` and
+`todo.txt`. Both scripts therefore avoid `Down` counts entirely — demo 9 uses
+`End` then `Up` to land on the log, and demo 8 navigates by typing. Do the
+same in any new clip that seeds extra files, or recount against the real
+listing.
 
 ### Palette queries
 
@@ -376,7 +452,13 @@ start, and end with a `Pause(1.0)` so the recording doesn't cut off abruptly.
    `"formats": []` and needs no `CAPTIONS` entry.
 3. If the name starts with `tour-`, add a caption for it in `CAPTIONS` in
    `tools/create_media/build_tour.py` — the build refuses to run otherwise.
-4. Preview it, check its side effects, then record:
+   Put the script in `demo_scripts_tour.py` rather than `demo_scripts.py`.
+4. If it is a standalone clip for the README's feature index, name it
+   `feature-*` — **not** `tour-*`, or `build_tour.py::chapters()` will join it
+   into the hero video. Add a `call :gif <demo-name> <gif-name>` line to
+   `tools/demo_build_feature_gifs.bat` (it names its clips explicitly) and a
+   `call ... --demo <id>` line to `tools/demo_features_record.bat`.
+5. Preview it, check its side effects, then record:
    `tools\demos_record.bat --demo <id>`.
 
 ## Troubleshooting
@@ -393,6 +475,7 @@ start, and end with a `Pause(1.0)` so the recording doesn't cut off abruptly.
 | `Demo exceeded 300s cap` | one script is too long | split it into chapters |
 | `No demo event for 60s` | a long stretch with no `Screenshot` step | add `Screenshot` heartbeats or shorten the chapter |
 | the recording is huge or the machine swaps | frames are all held in RAM | shorter chapters, or a lower `fps` in `fman.json` |
+| the clip plays too fast (a 20 s demo lasts 10 s) | capture couldn't hit the configured `fps` — an animated theme behind the window is enough — and the exporter writes the frames it got at the configured rate | lower `fps` in `fman.json` to what the machine actually captures (frames ÷ scripted seconds), then re-record |
 | `demo_build_tour.bat` says a clip is missing | that chapter wasn't recorded | record it; the message names the exact command |
 | a theme is missing from the themes GIF | its still was never written — the typed name matched another theme first | lengthen or rename; see [The themes demo](#the-themes-demo) |
 | a still shows the wrong theme | same cause, but the file name says otherwise | as above; the file count alone won't catch it |

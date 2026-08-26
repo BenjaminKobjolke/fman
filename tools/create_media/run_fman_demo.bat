@@ -66,6 +66,24 @@ if %1 GEQ 3 (
 	xcopy /q /y "%CD%\examples\right_pane\*" "!LEFT!\" >nul
 )
 
+REM Chapter 8 (Go to) jumps around a small folder tree, and seeds this run
+REM with its OWN Visited Paths.json. Both matter: SuggestLocations falls back
+REM to the home directory subdirs when it finds 2 or fewer visited paths, and
+REM it queries the Windows Search index once a query is longer than two chars
+REM - either would put the recordist private folders on camera.
+if "%1"=="8" mkdir "%LEFT%\projects\alpha" 2>nul
+if "%1"=="8" mkdir "%LEFT%\projects\beta" 2>nul
+if "%1"=="8" mkdir "%LEFT%\reports" 2>nul
+if "%1"=="8" set "SETTINGS_DIR=%FMAN_DATA_DIRECTORY%\Plugins\User\Settings"
+if "%1"=="8" powershell -NoProfile -Command "$s=$env:SETTINGS_DIR; New-Item -ItemType Directory -Force -Path $s | Out-Null; $l=$env:LEFT; $p=Join-Path $l 'projects'; $h=[ordered]@{}; $h[$l]=5; $h[$p]=4; $h[(Join-Path $p 'alpha')]=3; $h[(Join-Path $p 'beta')]=2; $h[(Join-Path $l 'reports')]=1; [System.IO.File]::WriteAllText((Join-Path $s 'Visited Paths.json'), ($h | ConvertTo-Json))"
+
+REM Chapter 9 (tail mode) needs a log that actually GROWS while the viewer is
+REM open - a static file cannot show the view following the end. Append a line
+REM every 1.5 s for 60 s in the background, then stop on its own.
+if "%1"=="9" set "LOGFILE=%LEFT%\service.log"
+if "%1"=="9" powershell -NoProfile -Command "1..12 | ForEach-Object { Add-Content -LiteralPath $env:LOGFILE -Value ('{0:HH:mm:ss}  service started, worker {1} ready' -f (Get-Date), $_) }"
+if "%1"=="9" start "" /b powershell -NoProfile -Command "1..40 | ForEach-Object { Add-Content -LiteralPath $env:LOGFILE -Value ('{0:HH:mm:ss}  request {1} handled in {2} ms' -f (Get-Date), $_, (Get-Random -Minimum 4 -Maximum 90)); Start-Sleep -Milliseconds 1500 }"
+
 REM Clear the desktop before fman exists. The recorder grabs screen pixels of
 REM fman's window rect, so anything drawn over it lands in the recording - and
 REM the tool spawns one console per demo. This runs inside that console, so it

@@ -27,5 +27,7 @@ graphify-out/.graphify_root
 
 # Recorded tour chapters - intermediates, joined into media/demos/tour/feature-tour.mp4
 media/demos/tour-*/
+# Standalone feature clips - intermediates for media/demos/features/*.gif
+media/demos/feature-*/
 # Theme stills - intermediates, joined into media/demos/themes/themes.gif
 media/demos/themes/*.png

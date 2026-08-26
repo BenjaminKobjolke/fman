@@ -22,6 +22,10 @@
     {"id": 6, "name": "tour-d-video", "fps": 10, "formats": ["mp4"],
      "width": 1280, "height": 800},
     {"id": 7, "name": "tour-e-archives", "fps": 10, "formats": ["mp4"],
+     "width": 1280, "height": 800},
+    {"id": 8, "name": "feature-goto", "fps": 5, "formats": ["mp4"],
+     "width": 1280, "height": 800},
+    {"id": 9, "name": "feature-tail", "fps": 5, "formats": ["mp4"],
      "width": 1280, "height": 800}
   ]
 }
