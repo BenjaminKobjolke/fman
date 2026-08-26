@@ -19,18 +19,18 @@ falls back to DEFAULT_COLORS, which holds exactly the values fman shipped
 before themes existed. That is what makes the default theme provably
 identical to the old look: its file is empty.
 
-Beside its colors a theme may carry five things that are not colors:
-opacity, icon set, icon size, icon color and font family. They share one
-read-and-validate path (_load_theme_value) and one precedence chain
-(ThemeController._get), so a sixth is a key and a validator.
+Beside its colors a theme may carry six things that are not colors:
+opacity, icon set, icon size, icon color, font family and background
+images. The first five share one read-and-validate path
+(_load_theme_value) and one precedence chain (ThemeController._get), so a
+seventh of that shape is a key and a validator. The images are the
+exception on both counts - see load_backgrounds and impl/background.py.
 
 See docs/THEMES.md for the token reference and how to add a theme.
 """
-from fman.impl.util.qt.thread import run_in_main_thread
-from collections import namedtuple
+from fman.impl.background import normalize_backgrounds
 from fbs_runtime import platform
-from fman.impl.model.icon_set import DEFAULT_ICON_SET, ICON_SET_SETTING, \
-	is_valid_icon_set_name, list_icon_sets, load_icon_set
+from fman.impl.model.icon_set import is_valid_icon_set_name
 from glob import glob
 from os.path import basename, join, splitext
 from PyQt5.QtGui import QColor, QPalette
@@ -97,7 +97,7 @@ _DEFAULT_FONTS = {
 }
 DEFAULT_FONT = _DEFAULT_FONTS[platform.name()]
 
-# The keys a theme file uses for the five things in it that are not colors.
+# The keys a theme file uses for the six things in it that are not colors.
 # They sit beside "colors" rather than in it because resolve_colors drops
 # every value that is not a valid QColor - and icon_color is a color that
 # deliberately is not a token: it paints image files, not a stylesheet.
@@ -106,6 +106,11 @@ _ICONS_KEY = 'icons'
 _ICON_SIZE_KEY = 'icon_size'
 _ICON_COLOR_KEY = 'icon_color'
 _FONT_KEY = 'font'
+# The sixth non-color key. Unlike the five above it is a list of objects
+# rather than a scalar, and its values are file paths that only mean
+# something relative to the theme file they came from - which is why it
+# does not go through _load_theme_value. See impl/background.py.
+_BACKGROUNDS_KEY = 'backgrounds'
 
 # Every color fman draws, with the values it used before themes existed.
 # A token appears here iff it is referenced from styles.qss, Theme.css or
@@ -277,7 +282,18 @@ def _read_theme_json(name, dirs):
 	Later dirs win, so a user theme shadows a bundled one of the same name.
 	Never raises: a broken theme file must not stop fman from starting.
 	"""
+	return _read_theme_json_with_dir(name, dirs)[0]
+
+def _read_theme_json_with_dir(name, dirs):
+	"""
+	The same, plus the directory the winning file was read from (None if
+	there was none). Only load_backgrounds needs the directory - it
+	resolves the theme's image paths against it - but it has to be the
+	*same* read: a second pass over `dirs` would be a second copy of the
+	"later dirs win" rule, free to disagree with this one.
+	"""
 	result = {}
+	result_dir = None
 	for dir_ in dirs:
 		try:
 			with open(join(dir_, name + '.json'), 'r') as f:
@@ -289,7 +305,8 @@ def _read_theme_json(name, dirs):
 		# a file the way an unreadable one is ignored.
 		if isinstance(contents, dict):
 			result = contents
-	return result
+			result_dir = dir_
+	return result, result_dir
 
 def load_theme(name, dirs):
 	"""
@@ -301,8 +318,9 @@ def load_theme(name, dirs):
 def _load_theme_value(name, dirs, key, normalize):
 	"""
 	Theme `name`'s value for the non-color `key`, or None if it asks for
-	none or asks for something unusable. One read-and-validate path for all
-	five of them, so a new non-color key is a key and a validator.
+	none or asks for something unusable. One read-and-validate path for the
+	five scalar ones, so a new non-color key of that shape is a key and a
+	validator. `backgrounds` is not of that shape - see load_backgrounds.
 	"""
 	return normalize(_read_theme_json(name, dirs).get(key))
 
@@ -338,6 +356,19 @@ def load_font(name, dirs):
 	The font family theme `name` asks for, or None if it asks for none.
 	"""
 	return _load_theme_value(name, dirs, _FONT_KEY, _normalize_font)
+
+def load_backgrounds(name, dirs):
+	"""
+	The images theme `name` places behind fman's UI, or an empty tuple if
+	it places none - and likewise for every entry that asks for something
+	unusable.
+
+	The one non-color key that does not go through _load_theme_value: its
+	validator also needs the directory the theme file was read from,
+	because a theme states its image paths relative to itself.
+	"""
+	contents, dir_ = _read_theme_json_with_dir(name, dirs)
+	return normalize_backgrounds(contents.get(_BACKGROUNDS_KEY), dir_)
 
 def scale_icon_size(icon_size, factor):
 	"""

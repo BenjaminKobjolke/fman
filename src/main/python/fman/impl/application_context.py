@@ -234,6 +234,12 @@ class DevelopmentApplicationContext(ApplicationContext):
 			self._main_window.set_file_list_icon_size(
 				self.theme_controller.get_icon_size()
 			)
+			# Likewise the theme's background images. The window has no
+			# panes yet - the session opens them - so this only stores
+			# them; add_pane is what hands each pane its own.
+			self._main_window.set_backgrounds(
+				self.theme_controller.get_backgrounds()
+			)
 			# Before show() for the same reason as the opacity above, and a
 			# stronger one: setWindowFlags on a visible window recreates the
 			# native one - see fman.impl.window_chrome.
@@ -516,23 +522,23 @@ class FrozenApplicationContext(DevelopmentApplicationContext):
 			PyInstaller sets LD_LIBRARY_PATH to /opt/fman. Processes we spawn,
 			be it via Popen(...) or QDesktopServices.openUrl(...), inherit this
 			value. This leads to problems, especially when the app we launch is
-			based on Qt. The reason is that the OS then attempts to load our 
+			based on Qt. The reason is that the OS then attempts to load our
 			libraries, which are most likely incompatible with those of the app.
-			An example where this happens is VLC, which errors out with 'This 
+			An example where this happens is VLC, which errors out with 'This
 			application failed to start because it could not find or load the Qt
 			platform plugin "xcb"'. Plugin developers have also encountered this
 			unexpected behaviour when trying to launch apps.
-			
+
 			To fix the problem, we restore LD_LIBRARY_PATH to its original value
 			here. According to the docs [1], PyInstaller stores this value in a
 			separate environment variable.
-			
+
 			A drawback of unsetting the environment variable here is that
 			libraries from PyInstaller's search path cannot be loaded after this
 			method was called. In other words, we assume that all required
 			libraries have been loaded once we reach here. This assumption may
 			turn out to be wrong in the future.
-			
+
 			[1]: http://pyinstaller.readthedocs.io/en/stable/runtime-information.html#ld-library-path-libpath-considerations
 			"""
 			lp_orig = os.environ.pop('LD_LIBRARY_PATH_ORIG', None)

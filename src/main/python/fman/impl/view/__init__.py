@@ -1,6 +1,9 @@
 from fbs_runtime.platform import is_mac
+from fman.impl.background import chrome_is_transparent, focus_changes_pane, \
+	for_pane, pane_is_transparent
 from fman.impl.util.qt import WA_MacShowFocusRect, Key_Home, Key_End, \
 	ShiftModifier, Key_Return, Key_Enter, ToolTipRole, connect_once
+from fman.impl.view.backgrounds import PAINTER, set_transparent
 from fman.impl.view.drag_and_drop import DragAndDrop
 from fman.impl.view.move_without_updating_selection import \
 	MoveWithoutUpdatingSelection
@@ -38,6 +41,26 @@ class FileListView(
 		self.setContextMenuPolicy(Qt.DefaultContextMenu)
 		self._urls_being_loaded = []
 		self._loading_text = ''
+		# Every background the theme places, plus this pane's position in
+		# the window. Both are needed at paint time rather than only the
+		# resolved list, because "pane.active" changes hands as the user
+		# moves between panes - see fman.impl.background.for_pane.
+		self._backgrounds = ()
+		self._pane_index = 0
+	def set_backgrounds(self, backgrounds, pane_index):
+		"""
+		The images the active theme places, and which pane this is. Also
+		switches this pane's opaque background off when something is
+		drawn behind it, and its header's when the *window* is what is
+		drawn there - a pane image stays inside its pane.
+		"""
+		self._backgrounds = backgrounds
+		self._pane_index = pane_index
+		set_transparent(self, pane_is_transparent(backgrounds, pane_index))
+		set_transparent(
+			self.horizontalHeader(), chrome_is_transparent(backgrounds)
+		)
+		self.viewport().update()
 	def set_loading(self, text):
 		"""
 		Show `text` while the pane has no rows yet. Pass '' to hide it again.
@@ -183,9 +206,38 @@ class FileListView(
 			def callback(location=self.model().get_location()):
 				self._on_rows_loaded(location, missing_urls)
 			self.model().load_rows(missing_rows, callback=callback)
+		# Before super(), so the rows are drawn on top of the image. The
+		# QSS rule that lets it show through is keyed on the property
+		# set_backgrounds sets - see impl/view/backgrounds.py.
+		self._paint_backgrounds()
 		super().paintEvent(event)
 		if self._loading_text and not self.model().rowCount():
 			self._paint_loading_text()
+	def _paint_backgrounds(self):
+		backgrounds = for_pane(
+			self._backgrounds, self._pane_index, self.hasFocus()
+		)
+		if not backgrounds:
+			# Nothing of this pane's own. The viewport may still be
+			# transparent because the *window* has an image, and then
+			# painting the theme color here would hide it.
+			return
+		viewport = self.viewport()
+		painter = QPainter(viewport)
+		# The color the QSS rule just stopped painting, so a partly
+		# transparent image blends with the theme rather than with
+		# whatever happens to be behind the pane.
+		painter.fillRect(viewport.rect(), self.palette().color(QPalette.Base))
+		PAINTER.paint(painter, viewport.rect(), backgrounds)
+	def focusInEvent(self, event):
+		super().focusInEvent(event)
+		self._repaint_if_focus_matters()
+	def focusOutEvent(self, event):
+		super().focusOutEvent(event)
+		self._repaint_if_focus_matters()
+	def _repaint_if_focus_matters(self):
+		if focus_changes_pane(self._backgrounds, self._pane_index):
+			self.viewport().update()
 	def _paint_loading_text(self):
 		painter = QPainter(self.viewport())
 		painter.setPen(

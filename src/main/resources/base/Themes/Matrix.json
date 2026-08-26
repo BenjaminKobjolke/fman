@@ -24,6 +24,15 @@
 		"window_bg": "#000a03"
 	},
 	"opacity": 0.92,
+	"backgrounds": [
+		{
+			"image": "Matrix/corner.png",
+			"target": "pane.1",
+			"fit": "contain",
+			"anchor": "bottom-right",
+			"opacity": 0.6
+		}
+	],
 	"icons": "Material",
 	"icon_color": "#00ff41",
 	"font": "Share Tech Mono"

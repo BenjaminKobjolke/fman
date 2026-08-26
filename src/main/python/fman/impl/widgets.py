@@ -1,16 +1,18 @@
 from fbs_runtime.platform import is_windows, is_mac
 from fman import OK
+from fman.impl.background import chrome_is_transparent, for_window
 from fman.impl.model import SortedFileSystemModel
 from fman.impl.quicksearch import Quicksearch
 from fman.impl.util.qt import disable_window_animations_mac, Key_Escape, \
 	NoFocus, Key_Backspace, DisplayRole
 from fman.impl.util.qt.thread import run_in_main_thread
+from fman.impl.view.backgrounds import PAINTER, set_transparent
 from fman.impl.view.location_bar import LocationBar
 from fman.impl.view import FileListView, Layout, set_selection
 from fman.url import as_human_readable, basename, splitscheme
 from PyQt5.QtCore import pyqtSignal, QTimer, Qt, QEvent, QSize, QPoint, \
 	QRect
-from PyQt5.QtGui import QKeySequence
+from PyQt5.QtGui import QKeySequence, QPainter
 from PyQt5.QtWidgets import QWidget, QMainWindow, QSplitter, QStatusBar, \
 	QMessageBox, QInputDialog, QLineEdit, QFileDialog, QLabel, QDialog, \
 	QHBoxLayout, QPushButton, QVBoxLayout, QSplitterHandle, QApplication, \
@@ -105,6 +107,12 @@ class DirectoryPaneWidget(QWidget):
 		self._file_view.setIconSize(
 			QSize() if size is None else QSize(size, size)
 		)
+	def set_backgrounds(self, backgrounds, pane_index):
+		# The seam the window talks to: nothing outside this class
+		# reaches into _file_view. The location bar is chrome like the
+		# column header and the status bar, so it clears the same way.
+		self._file_view.set_backgrounds(backgrounds, pane_index)
+		set_transparent(self._location_bar, chrome_is_transparent(backgrounds))
 	def resizeEvent(self, e):
 		super().resizeEvent(e)
 		self._filter_bar.reposition()
@@ -363,6 +371,7 @@ class MainWindow(QMainWindow):
 		self._null_location = null_location
 		self._panes = []
 		self._file_list_icon_size = None
+		self._backgrounds = ()
 		self._splitter = Splitter(self)
 		self.setCentralWidget(self._splitter)
 		self._status_bar = QStatusBar(self)
@@ -391,6 +400,25 @@ class MainWindow(QMainWindow):
 		self._file_list_icon_size = size
 		for pane in self._panes:
 			pane.set_icon_size(size)
+	@run_in_main_thread
+	def set_backgrounds(self, backgrounds):
+		# Remembered as well as applied, for the same reason as the icon
+		# size above - and for one more: at startup this runs before the
+		# session has opened a single pane.
+		self._backgrounds = backgrounds
+		set_transparent(self._status_bar, chrome_is_transparent(backgrounds))
+		for index, pane in enumerate(self._panes):
+			pane.set_backgrounds(backgrounds, index)
+		self.update()
+	def paintEvent(self, event):
+		super().paintEvent(event)
+		backgrounds = for_window(self._backgrounds)
+		if backgrounds:
+			# Over QMainWindow's own fill but under its children, which
+			# is where a background belongs. The panes, the header and
+			# the status bar only let it through once set_transparent
+			# has switched their opaque backgrounds off.
+			PAINTER.paint(QPainter(self), self.rect(), backgrounds)
 	def _init_help_menu(self, help_menu_actions):
 		if not help_menu_actions:
 			return
@@ -509,6 +537,9 @@ class MainWindow(QMainWindow):
 		)
 		result.set_icon_size(self._file_list_icon_size)
 		self._panes.append(result)
+		# After the append, because the pane's own index is what decides
+		# which of the theme's images belong to it.
+		result.set_backgrounds(self._backgrounds, len(self._panes) - 1)
 		self._splitter.addWidget(result)
 		return result
 	def get_panes(self):

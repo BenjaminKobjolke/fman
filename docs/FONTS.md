@@ -86,7 +86,7 @@ name.
 
 ## What a theme can ask for
 
-A theme may name a font family beside its colors — one of the five things in
+A theme may name a font family beside its colors — one of the six things in
 a theme file that are not colors, see [THEMES.md](THEMES.md):
 
 ```json

@@ -1,7 +1,7 @@
 """
 Applying a theme while fman is running.
 
-fman.impl.themes owns the *data*: the color tokens, the five non-color keys
+fman.impl.themes owns the *data*: the color tokens, the six non-color keys
 a theme file may carry, and the validators each of them answers to. This
 module owns the *push* - resolving the user's choice against the theme's and
 handing the result to the QApplication, the main window, the icon provider
@@ -17,9 +17,9 @@ from fman.impl.themes import DEFAULT_FONT, DEFAULT_ICON_COLOR, \
 	MIN_OPACITY, OPACITY_SETTING, THEME_SETTING, _normalize_font, \
 	_normalize_icon_color, _normalize_icon_set_name, _normalize_icon_size, \
 	_normalize_opacity, build_main_window_palette, build_palette, \
-	build_progress_bar_palette, build_tokens, list_themes, load_font, \
-	load_icon_color, load_icon_set_name, load_icon_size, load_opacity, \
-	load_theme, scale_icon_size
+	build_progress_bar_palette, build_tokens, list_themes, load_backgrounds, \
+	load_font, load_icon_color, load_icon_set_name, load_icon_size, \
+	load_opacity, load_theme, scale_icon_size
 from fman.impl.util.qt.thread import run_in_main_thread
 from PyQt5.QtGui import QFontDatabase
 
@@ -56,8 +56,15 @@ _FONT = _ThemeProperty(
 # Everything a theme switch has to hand to the UI at once. set_theme
 # resolves all of it for the *incoming* theme, because that theme's name is
 # not saved yet when _apply runs.
+#
+# `backgrounds` is here but is deliberately *not* a sixth _ThemeProperty:
+# that tuple exists to let a saved setting beat the theme's value, and
+# the background images have no such setting - a theme file is the only
+# place they can be written. A `setting` key nothing ever writes would be
+# dead config.
 _Appearance = namedtuple(
-	'_Appearance', 'colors opacity icon_set icon_size icon_color font'
+	'_Appearance',
+	'colors opacity icon_set icon_size icon_color font backgrounds'
 )
 
 class ThemeController:
@@ -90,6 +97,15 @@ class ThemeController:
 
 	def get_opacity(self):
 		return self._get_opacity(self.get_theme())
+
+	def get_backgrounds(self):
+		"""
+		The images the active theme places behind fman's UI, or an empty
+		tuple if it places none. What ApplicationContext hands the window
+		at startup, so there is no second place that knows how a theme's
+		backgrounds are resolved.
+		"""
+		return self._load_backgrounds(self.get_theme())
 
 	def get_icon_sets(self):
 		return list_icon_sets(self._ctxt.icon_dirs)
@@ -248,7 +264,8 @@ class ThemeController:
 			self._load_icon_set(self._get(_ICON_SET, theme_name)),
 			self._get(_ICON_SIZE, theme_name),
 			self._get(_ICON_COLOR, theme_name),
-			self._get(_FONT, theme_name)
+			self._get(_FONT, theme_name),
+			self._load_backgrounds(theme_name)
 		)
 
 	@run_in_main_thread
@@ -259,6 +276,9 @@ class ThemeController:
 
 	def _load_icon_set(self, name):
 		return load_icon_set(name, self._ctxt.icon_dirs)
+
+	def _load_backgrounds(self, theme_name):
+		return load_backgrounds(theme_name, self._ctxt.theme_dirs)
 
 	@run_in_main_thread
 	def _apply_opacity(self, opacity):
@@ -290,9 +310,14 @@ class ThemeController:
 			build_progress_bar_palette(colors)
 		)
 		# A theme may ask for an opacity, an icon set, an icon size, an icon
-		# color and a font too, so switching theme has to move all five - back
-		# to fman's defaults included, when the new theme asks for nothing.
+		# color, a font and background images too, so switching theme has to
+		# move all six - back to fman's defaults included, when the new theme
+		# asks for nothing.
 		main_window.setWindowOpacity(appearance.opacity)
+		# Before the stylesheet below: set_backgrounds flips the property
+		# the new QSS rules are keyed on, and setStyleSheet re-polishes
+		# every widget, so this order restyles them once instead of twice.
+		main_window.set_backgrounds(appearance.backgrounds)
 		# The icons are image files, not stylesheet tokens, so they do not go
 		# through Theme - not even the color, which is painted onto them
 		# rather than substituted into QSS. Panes still hold icons made under

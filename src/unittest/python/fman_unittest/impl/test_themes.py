@@ -7,9 +7,9 @@ from fman.impl.themes import DEFAULT_COLORS, DEFAULT_FONT, \
 	DEFAULT_ICON_SIZE_PX, DEFAULT_THEME, DEFAULT_TOKENS, FALLBACKS, \
 	MAX_ICON_SIZE, MIN_ICON_SIZE, MIN_OPACITY, build_main_window_palette, \
 	build_palette, build_progress_bar_palette, build_tokens, \
-	is_valid_color, list_themes, load_font, load_icon_color, \
-	load_icon_set_name, load_icon_size, load_opacity, load_theme, \
-	resolve_colors, scale_icon_size, substitute
+	is_valid_color, list_themes, load_backgrounds, load_font, \
+	load_icon_color, load_icon_set_name, load_icon_size, load_opacity, \
+	load_theme, resolve_colors, scale_icon_size, substitute
 from os.path import dirname, exists, join
 from PyQt5.QtGui import QColor, QPalette
 from tempfile import TemporaryDirectory
@@ -166,6 +166,16 @@ class BundledThemesTest(TestCase):
 						data[key], load(name, [_THEMES_DIR]),
 						'%s: %s=%r' % (name, key, data[key])
 					)
+			if 'backgrounds' in data:
+				# Same reason, but it cannot join the loop above: the
+				# loader answers Background tuples, not the raw JSON. An
+				# entry fman drops is one whose image file went missing
+				# from the resources tree, or whose fit/anchor is a typo.
+				self.assertEqual(
+					len(data['backgrounds']),
+					len(load_backgrounds(name, [_THEMES_DIR])),
+					'%s: backgrounds=%r' % (name, data['backgrounds'])
+				)
 			if 'icons' in data:
 				# A bundled theme may only name a set fman actually ships.
 				self.assertIn(

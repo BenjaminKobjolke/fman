@@ -49,6 +49,27 @@ QTableView::item:focus {
 	background-color: $pane_cursor_bg;
 }
 
+/*
+ * A theme may place background images (see docs/THEMES.md). Where one is
+ * drawn, the surface above it must stop painting its own background or
+ * nothing of the image would show. The fman_background property is set
+ * from Python - impl/view/backgrounds.py, set_transparent() - because
+ * which surfaces are covered depends on what the theme asked for.
+ *
+ * The cursor row above keeps its fill: it is the one thing that has to
+ * stay readable over any artwork. Selected rows give theirs up, since
+ * $pane_selected_fg already tells them apart and an opaque block would
+ * punch a hole through the image.
+ */
+QTableView[fman_background="true"],
+QTableView[fman_background="true"]::item:selected,
+QHeaderView[fman_background="true"],
+QHeaderView[fman_background="true"]::section,
+QStatusBar[fman_background="true"],
+LocationBar[fman_background="true"] {
+	background: transparent;
+}
+
 QTableView #editor {
 	/*
 	 * The Qt "editor" when renaming a file. It's a QLineEdit, which has a

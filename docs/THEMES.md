@@ -47,8 +47,9 @@ has to exist when the `QApplication` is created.
 ## Writing a theme
 
 A theme is **one JSON file** listing only the colors it changes (plus,
-optionally, an [opacity](#opacity), an [icon set, an icon size and an icon
-color](#icons), and a [font](#fonts)):
+optionally, an [opacity](#opacity), [background images](#background-images),
+an [icon set, an icon size and an icon color](#icons), and a
+[font](#fonts)):
 
 ```json
 {
@@ -160,7 +161,7 @@ carrying the strength:
 
 ### Opacity
 
-A theme may also make fman's window see-through. This is one of three things
+A theme may also make fman's window see-through. This is one of six things
 in a theme file that are *not* colors, so it sits beside `colors`, not in it:
 
 ```json
@@ -182,6 +183,98 @@ in a theme file that are *not* colors, so it sits beside `colors`, not in it:
   [Set window opacity](functions/window-opacity.md). Their choice survives a
   theme switch until they pick **Theme default** again.
 - Bundled example: `Matrix.json`.
+
+### Background images
+
+A theme may also place **images** behind fman's UI — one behind the whole
+window, or a different one per pane:
+
+```json
+{
+	"colors": { "pane_bg": "#000000" },
+	"backgrounds": [
+		{ "image": "Matrix/wall.png", "target": "window" },
+		{
+			"image": "Matrix/corner.png",
+			"target": "pane.1",
+			"fit": "contain",
+			"anchor": "bottom-right",
+			"opacity": 0.6
+		}
+	]
+}
+```
+
+`backgrounds` is a **list**, so a theme may place as many images as it
+likes. Each entry takes:
+
+| Key | Values | Default |
+|---|---|---|
+| `image` | Path to the file. Relative paths resolve against the theme's *own* `Themes` directory; absolute paths are allowed. **Required.** | — |
+| `target` | Which surface it goes behind — see below | `window` |
+| `fit` | `cover`, `contain`, `stretch`, `tile`, `none` | `cover` |
+| `anchor` | `top-left`, `top`, `top-right`, `left`, `center`, `right`, `bottom-left`, `bottom`, `bottom-right` | `center` |
+| `opacity` | `0.0`–`1.0`. Blended over the surface's own theme color, so `0.15` gives a watermark rather than a wallpaper. | `1.0` |
+
+**Targets**
+
+| `target` | Where the image is drawn |
+|---|---|
+| `window` | Behind everything: all panes, their column headers, and the status bar |
+| `pane` | Behind every pane's file list |
+| `pane.0`, `pane.1`, … | Behind one pane, counted from the left |
+| `pane.active` | Behind whichever pane currently has focus |
+| `pane.inactive` | Behind every pane that does not |
+
+**Fit modes**
+
+| `fit` | What it does |
+|---|---|
+| `cover` | Scaled up until it covers the surface, aspect ratio kept, overflow cropped. The usual wallpaper. |
+| `contain` | Scaled until it fits entirely inside, aspect ratio kept, the rest left to the theme color |
+| `stretch` | Scaled to the surface exactly, aspect ratio ignored |
+| `tile` | Repeated across the surface at its own size. `anchor` does not apply. |
+| `none` | Drawn at its own pixel size, not scaled at all. This is the one that docks artwork into a corner. |
+
+There is no `fill`. **`cover`** is the crop-to-fill mode most people mean
+by it; **`stretch`** is the one that ignores the aspect ratio.
+
+`anchor` decides where the slack between image and surface goes. With
+`none` and `contain` it positions the image; with `cover` it picks which
+part survives the crop.
+
+- **Where the files go.** Put them in a directory named after the theme,
+  beside its JSON: `%APPDATA%/fman/Themes/MyTheme/wall.png`, written as
+  `"image": "MyTheme/wall.png"`. That is what `Icons/<Name>/` already does
+  for an icon set. Any format Qt can read works — PNG, JPEG, BMP, WEBP.
+  Animated GIFs are not animated; only their first frame is drawn.
+- **A pane image shows through the file names.** The pane stops painting
+  its own `pane_bg`, so the image is visible behind the rows, not only in
+  the empty space below them. The **cursor row** keeps its
+  `pane_cursor_bg` fill so it stays readable over any artwork; selected
+  rows give theirs up and are told apart by `pane_selected_fg` alone.
+  Check the contrast — a busy image under `pane_fg` is the one way a
+  theme can become genuinely hard to read.
+- **A `window` image runs behind the chrome too.** The column headers,
+  the location bars and the status bar go transparent for it, so one
+  image spans the whole window uninterrupted. A *pane* image does not do
+  this: it stays inside its pane, and the strips keep their theme colors.
+- **A pane's own image wins.** Where both a `window` and a `pane` image
+  apply, the pane paints its `pane_bg` and its own image over it — the
+  window image does not show through that pane.
+- **Order matters.** Entries are drawn in the order the file lists them,
+  so a later one covers an earlier one on the same surface.
+- **A bad entry costs the image, not fman.** A file that does not exist,
+  a `fit` that is a typo, an `opacity` outside `0.0`–`1.0`: the entry is
+  ignored, the rest of the theme applies, and fman starts normally — the
+  same rule as every other value in a theme file. Unlike the other
+  values, though, each rejection is **logged with the reason and the
+  allowed values**, because an image that silently never appears gives
+  you nothing to debug. Run fman from a terminal to see them.
+- **This is not window transparency.** The images are drawn *inside*
+  fman's window; nothing of the desktop behind it shows through. For
+  that, see [opacity](#opacity) above.
+- Bundled example: `Matrix.json`, whose artwork lives in `Themes/Matrix/`.
 
 ### Icons
 
