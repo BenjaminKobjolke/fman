@@ -19,3 +19,13 @@ PLAN.md
 PLAN_REFRACTOR.md
 /PLAN_*.md
 graphify-out
+# Records the scan root the graph was built from, for `graphify update`. Listed
+# explicitly (the line above already covers it) because it is tempting to commit
+# so the scope travels with a clone - it can't: it holds an absolute path. The
+# intended scan root is documented in CLAUDE.md instead.
+graphify-out/.graphify_root
+
+# Recorded tour chapters - intermediates, joined into media/demos/tour/feature-tour.mp4
+media/demos/tour-*/
+# Theme stills - intermediates, joined into media/demos/themes/themes.gif
+media/demos/themes/*.png
