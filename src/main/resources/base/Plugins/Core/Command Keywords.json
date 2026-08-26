@@ -1,0 +1,58 @@
+{
+	"center_window": [
+		"center window on screen", "move window to center", "middle",
+		"position", "recenter"
+	],
+	"create_and_edit_file": ["create file", "create and edit file", "new"],
+	"create_directory": [
+		"create folder", "new directory", "create directory", "mkdir"
+	],
+	"decrease_pane_font_size": [
+		"zoom out", "smaller pane font", "smaller", "shrink text"
+	],
+	"go_up": ["go to parent directory", "parent", "up one level"],
+	"help": [
+		"show keyboard shortcuts", "show key bindings", "documentation",
+		"manual"
+	],
+	"increase_pane_font_size": [
+		"zoom in", "larger pane font", "bigger", "enlarge text"
+	],
+	"move_to_trash": [
+		"move to trash", "move to recycle bin", "remove", "erase"
+	],
+	"open_or_view": ["open (internal viewer for files)"],
+	"open_terminal": ["shell", "open terminal", "open shell", "console"],
+	"open_with_editor": ["editor", "modify"],
+	"pack": [
+		"compress...", "zip", "7z", "tar", "compress", "pack", "archive"
+	],
+	"quick_look": ["preview"],
+	"quit": ["exit", "close fman"],
+	"reload": ["refresh", "rescan"],
+	"remove_plugin": ["uninstall plugin"],
+	"reset_pane_font_size": ["default font size", "reset zoom"],
+	"select_theme": [
+		"change theme", "color scheme", "appearance", "colors", "colours",
+		"dark mode", "light mode", "skin"
+	],
+	"set_window_opacity": [
+		"transparency", "window transparency", "opacity", "alpha",
+		"translucent", "see-through", "fade"
+	],
+	"show_release_notes": ["show release notes", "changelog", "what's new"],
+	"show_volumes": ["show drives", "disks", "partitions"],
+	"symlink": ["create symbolic link", "shortcut", "junction"],
+	"toggle_hidden_files": [
+		"show / hide hidden files", "dotfiles", "invisible", "system files"
+	],
+	"toggle_modified_column": ["show / hide modified column", "date column"],
+	"toggle_network_icons": ["show real icons on network drives"],
+	"toggle_size_column": ["show / hide size column"],
+	"video_mute": ["sound", "volume", "audio", "silence"],
+	"video_reset_volume": ["volume", "audio", "loudness"],
+	"view_file": ["view", "internal viewer", "preview"],
+	"view_file_in_other_pane": ["view in other pane"],
+	"viewer_next_file": ["forward", "advance", "following file"],
+	"viewer_previous_file": ["back", "prior file", "preceding file"]
+}

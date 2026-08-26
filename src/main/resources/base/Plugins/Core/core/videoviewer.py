@@ -232,8 +232,11 @@ class PaneVideoView(QWidget):
 		return [
 			('Play / Pause', self._toggle_pause, ''),
 			('Restart', self._restart, ''),
-			('Mute / Unmute', self._toggle_mute, ''),
-			('Reset volume', self._reset_volume, ''),
+			('Mute / Unmute', self._toggle_mute, '', 'video_mute'),
+			(
+				'Reset volume', self._reset_volume, '',
+				'video_reset_volume'
+			),
 		] + self._nav.actions() + [
 			('Exit viewer', self._on_close, ''),
 		]
@@ -254,7 +257,11 @@ def show_video_viewer(pane, url, focus_view=True):
 			return
 	try:
 		import mpv as mpv_module
-	except OSError as e:
+	except (ImportError, OSError) as e:
+		# ImportError: python-mpv itself is missing - the Core plugin ships as
+		# resource data, so PyInstaller never scans this file for imports and
+		# mpv only reaches the freeze via hidden_imports (build/settings/
+		# base.json). OSError: mpv.py found, but libmpv is not loadable.
 		show_alert('Cannot play video - %s' % e)
 		return
 	_open_video_view(pane, url, mpv_module, focus_view=focus_view)

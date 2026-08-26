@@ -15,7 +15,10 @@ Also home to the small viewer-scoped command-palette plumbing
 (open_viewer_palette) that all three viewers share, so the quicksearch handling
 lives in one place rather than being copied into each viewer widget.
 """
-from core.quicksearch_matchers import contains_chars
+from collections import namedtuple
+from core.command_keywords import get_keywords
+from core.quicksearch_matchers import bucket_count, contains_chars, \
+	match_titles_or_keywords
 from core.settings import get_setting, save_setting
 from fman import show_quicksearch, show_status_message, QuicksearchItem
 from fman.url import as_human_readable, splitscheme
@@ -94,11 +97,14 @@ class ViewerNavigator:
 		return 'Advance only for same type'
 
 	def actions(self):
-		# The (title, callable, hint) palette tuples shared by all three
-		# viewers' _get_actions(). Hints are blank: these ship no default key.
+		# The ViewerAction tuples shared by all three viewers'
+		# _get_actions(). Hints are blank: these ship no default key.
 		return [
-			('Next file', self.next_file, ''),
-			('Previous file', self.previous_file, ''),
+			('Next file', self.next_file, '', 'viewer_next_file'),
+			(
+				'Previous file', self.previous_file, '',
+				'viewer_previous_file'
+			),
 			(self.same_type_label(), self.toggle_same_type, ''),
 		]
 
@@ -112,18 +118,42 @@ class ViewerNavigator:
 			'viewer_toggle_same_type_advance': self.toggle_same_type,
 		}
 
+# A viewer palette entry. command_name is the viewer pseudo-command this entry
+# runs (video_mute, viewer_next_file, ... - see docs/KEYBINDINGS.md), and the
+# key its hidden search keywords are stored under. Optional, because most
+# entries ship none.
+ViewerAction = namedtuple('ViewerAction', 'title action hint command_name')
+ViewerAction.__new__.__defaults__ = ('',)
+
+# The viewer palettes search a single, short title each, so the global
+# palette's word-boundary and any-order matchers would only ever repeat
+# what this one already found.
+_MATCHERS = (contains_chars,)
+
 def open_viewer_palette(get_actions):
 	"""
 	The viewer-scoped Ctrl+Shift+P palette handler shared by all three viewers:
-	fuzzy-searches over get_actions() - a callable returning (title, action,
-	hint) tuples - and runs the chosen action. Replaces the identical
+	fuzzy-searches over get_actions() - a callable returning ViewerAction-shaped
+	tuples - and runs the chosen action. Replaces the identical
 	_open_palette/_suggest_actions pair that used to live in each viewer widget.
 	"""
 	def suggest(query):
-		for title, action, hint in get_actions():
-			highlight = contains_chars(title.lower(), query.lower())
-			if highlight is not None:
-				yield QuicksearchItem(action, title, highlight, hint)
+		# One list per rank the matcher helper can return, concatenated -
+		# same ranking as the global palette.
+		buckets = [[] for _ in range(bucket_count(_MATCHERS))]
+		for entry in get_actions():
+			entry = ViewerAction(*entry)
+			match = match_titles_or_keywords(
+				_MATCHERS, [entry.title.lower()],
+				get_keywords(entry.command_name), query.lower()
+			)
+			if match is None:
+				continue
+			bucket, _index, highlight = match
+			buckets[bucket].append(QuicksearchItem(
+				entry.action, entry.title, highlight, entry.hint
+			))
+		return sum(buckets, [])
 	result = show_quicksearch(suggest)
 	if result:
 		_query, action = result

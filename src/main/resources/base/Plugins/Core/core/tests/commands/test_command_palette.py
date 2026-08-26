@@ -1,0 +1,66 @@
+from core.commands import CommandPalette
+from unittest import TestCase
+from unittest.mock import patch
+
+class CommandPaletteSuggestionsTest(TestCase):
+
+	"""
+	The palette's per-keystroke callback: what it offers, and under which
+	title. A keyword hit must keep the command's own name on the row - showing
+	the matched synonym instead is exactly what made 'transparency' confusing.
+	"""
+
+	class _StubPane:
+		def __init__(self, aliases_by_command):
+			self._aliases = aliases_by_command
+		def get_commands(self):
+			return list(self._aliases)
+		def is_command_visible(self, _command_name):
+			return True
+		def get_command_aliases(self, command_name):
+			return self._aliases[command_name]
+		def run_command(self, _command_name):
+			pass
+
+	def test_command_is_found_by_its_name(self):
+		items = self._suggest('opacity')
+		self.assertEqual(['Set window opacity'], [i.title for i in items])
+		self.assertTrue(items[0].highlight)
+	def test_command_is_found_by_a_hidden_keyword(self):
+		items = self._suggest('transparency')
+		self.assertEqual(['Set window opacity'], [i.title for i in items])
+		self.assertEqual([], items[0].highlight)
+	def test_equally_exact_matches_sort_by_title(self):
+		# 'reload' is both Reload's name and a keyword of set_window_opacity
+		# in this fixture, so both match exactly and share the top rank. The
+		# shorter title then goes first.
+		titles = [item.title for item in self._suggest('reload')]
+		self.assertEqual(['Reload', 'Set window opacity'], titles)
+	def test_exact_keyword_ranks_above_a_loose_name_match(self):
+		# The bug this ordering fixes: 'exit' is a mid-word subsequence of
+		# 'Extract to opposite', but the whole of Quit's hidden keyword.
+		titles = [item.title for item in self._suggest('exit')]
+		self.assertEqual(['Quit', 'Extract to opposite'], titles)
+	def test_unknown_query_matches_nothing(self):
+		self.assertEqual([], self._suggest('zzz'))
+
+	def _suggest(self, query):
+		keywords = {
+			'set_window_opacity': ('transparency', 'reload'),
+			'reload': (),
+			'quit': ('exit',),
+			'extract_to_opposite': (),
+		}
+		pane = self._StubPane({
+			'set_window_opacity': ('Set window opacity',),
+			'reload': ('Reload',),
+			'quit': ('Quit',),
+			'extract_to_opposite': ('Extract to opposite',),
+		})
+		with patch('core.commands.load_json', return_value=[]), \
+			patch('core.commands.get_application_commands', return_value=[]), \
+			patch(
+				'core.commands.get_keywords',
+				side_effect=lambda name: keywords.get(name, ())
+			):
+			return list(CommandPalette(pane)._suggest_commands(query))

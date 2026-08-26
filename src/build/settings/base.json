@@ -54,7 +54,7 @@
 			]
 		}
 	},
-	"hidden_imports": ["requests"],
+	"hidden_imports": ["requests", "mpv"],
 	"extra_pyinstaller_args": [
 		"--exclude-module", "boto3",
 		"--exclude-module", "botocore",

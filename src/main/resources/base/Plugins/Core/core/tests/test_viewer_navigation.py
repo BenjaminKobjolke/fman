@@ -204,3 +204,38 @@ class OpenViewerPaletteTest(TestCase):
 			'core.viewer_navigation.show_quicksearch', return_value=None
 		):
 			open_viewer_palette(actions)  # must not raise
+
+class ViewerPaletteSuggestionsTest(TestCase):
+
+	def test_three_field_entry_still_matches_by_title(self):
+		items = self._suggest([('Mute / Unmute', lambda: None, '')], 'mute')
+		self.assertEqual(['Mute / Unmute'], [item.title for item in items])
+	def test_entry_is_found_by_a_hidden_keyword(self):
+		items = self._suggest(
+			[('Mute / Unmute', lambda: None, '', 'video_mute')], 'volume',
+			keywords={'video_mute': ('volume', 'sound')}
+		)
+		self.assertEqual(['Mute / Unmute'], [item.title for item in items])
+		# Nothing to underline: 'volume' isn't in the title.
+		self.assertEqual([], items[0].highlight)
+	def test_keyword_of_another_command_does_not_match(self):
+		items = self._suggest(
+			[('Mute / Unmute', lambda: None, '', 'video_mute')], 'volume',
+			keywords={'video_restart': ('volume',)}
+		)
+		self.assertEqual([], items)
+
+	def _suggest(self, actions, query, keywords=None):
+		# open_viewer_palette hands its per-keystroke callback to
+		# show_quicksearch; grab it and call it directly.
+		captured = []
+		with patch(
+			'core.viewer_navigation.show_quicksearch',
+			side_effect=lambda get_items, *_, **__: captured.append(get_items)
+		), patch(
+			'core.viewer_navigation.get_keywords',
+			side_effect=lambda name: (keywords or {}).get(name, ())
+		):
+			open_viewer_palette(lambda: actions)
+			# Inside the with-block: suggest() looks keywords up when called.
+			return list(captured[0](query))

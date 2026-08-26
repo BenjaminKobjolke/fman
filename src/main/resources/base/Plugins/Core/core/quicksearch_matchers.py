@@ -68,3 +68,45 @@ def contains_chars_after_separator(separator):
 			return None
 		return result_
 	return result
+def match_titles_or_keywords(matchers, titles, keywords, query):
+	"""
+	How the command palettes rank one entry against `query`: (bucket, index,
+	highlight) - `index` being the position in `titles` of the name that titles
+	the row, and `bucket` its rank, lower being better. None if nothing matches.
+
+	Bucket 0 is exactness: a title or a hidden keyword that *equals* the query.
+	Then come the `matchers`, one bucket each, applied to the titles. Last is a
+	single bucket for loose keyword hits. Exactness ranks first because an exact
+	synonym is a better answer than the loosest possible name match: `exit` finds
+	Quit (its keyword) before Extract to opposite (a mid-word subsequence of its
+	name). Among non-exact matches, names still beat keywords.
+
+	A keyword hit - exact or loose - keeps the command's first name and gets no
+	highlight, since the typed characters are not in that name. `titles`,
+	`keywords` and `query` are lowercase.
+	"""
+	if query:
+		for index, title in enumerate(titles):
+			if title == query:
+				return 0, index, list(range(len(query)))
+		if query in keywords:
+			return 0, 0, []
+	for index, title in enumerate(titles):
+		for bucket, matcher in enumerate(matchers):
+			highlight = matcher(title, query)
+			if highlight is not None:
+				return bucket + 1, index, highlight
+	for keyword in keywords:
+		for matcher in matchers:
+			if matcher(keyword, query) is not None:
+				return bucket_count(matchers) - 1, 0, []
+	return None
+
+def bucket_count(matchers):
+	"""
+	How many buckets match_titles_or_keywords can return for `matchers`, so its
+	callers can size their result lists without hard-coding the offsets.
+	"""
+	# One per matcher, plus the exact bucket in front and the loose-keyword one
+	# at the back.
+	return len(matchers) + 2

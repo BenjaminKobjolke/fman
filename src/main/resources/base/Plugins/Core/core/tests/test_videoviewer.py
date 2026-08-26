@@ -1,9 +1,11 @@
 from core.videoviewer import (
 	VIDEO_EXTENSIONS, format_time, get_saved_mute, get_saved_volume, is_video,
-	save_mute, save_volume,
+	save_mute, save_volume, show_video_viewer,
 )
 from unittest import TestCase
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
+
+import sys
 
 class IsVideoTest(TestCase):
 	def test_matches_every_known_video_extension(self):
@@ -75,3 +77,14 @@ class VolumeAndMutePersistenceTest(TestCase):
 	def test_mute_round_trips_true(self):
 		save_mute(True)
 		self.assertIs(True, get_saved_mute())
+
+class ShowVideoViewerTest(TestCase):
+	def test_missing_mpv_module_shows_alert(self):
+		# sys.modules[name] = None makes `import name` raise ImportError. That
+		# reproduces the frozen build, where the Core plugin ships as resource
+		# data so PyInstaller never sees `import mpv` (see the mpv entry in
+		# src/build/settings/base.json's hidden_imports).
+		with patch.dict(sys.modules, {'mpv': None}), 				patch('core.videoviewer.ensure_libmpv_on_path'), 				patch('core.videoviewer.show_alert') as alert, 				patch('core.videoviewer._open_video_view') as open_view:
+			show_video_viewer(MagicMock(), 'file:///a/b/c.mp4')
+		self.assertEqual(1, alert.call_count)
+		open_view.assert_not_called()

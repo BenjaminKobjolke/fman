@@ -1,8 +1,9 @@
-from core.commands import History, Move, OpenOrView, ShowAllPanes, \
-	ShowOnlyActivePane, ViewFile, ViewFileInOtherPane, _from_human_readable, \
-	get_dest_suggestion, _find_extension_start, _get_shortcuts_for_command, \
-	_clamp_font_size, _MIN_PANE_FONT_SIZE, _MAX_PANE_FONT_SIZE, \
-	_format_window_title, _find_column_index, _hidden_file_filter
+from core.commands import History, Move, OpenOrView, \
+	ShowAllPanes, ShowOnlyActivePane, ViewFile, ViewFileInOtherPane, \
+	_from_human_readable, get_dest_suggestion, _find_extension_start, \
+	_get_shortcuts_for_command, _clamp_font_size, _MIN_PANE_FONT_SIZE, \
+	_MAX_PANE_FONT_SIZE, _format_window_title, _find_column_index, \
+	_hidden_file_filter
 from core.tests import StubUI
 from core.util import filenotfounderror
 from fman import OK, YES, NO, PLATFORM

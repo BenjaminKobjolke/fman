@@ -1,3 +1,4 @@
+from core.command_keywords import get_keywords
 from core.commands.util import get_program_files, get_program_files_x86, \
 	is_hidden
 from core.fileoperations import CopyFiles, MoveFiles
@@ -11,8 +12,9 @@ from core.os_ import open_terminal_in_directory, open_native_file_manager, \
 	get_popen_kwargs_for_opening
 from core.settings import get_setting, save_setting
 from core.util import strformat_dict_values, listdir_absolute, is_parent
-from core.quicksearch_matchers import contains_chars, \
-	contains_chars_after_separator, contains_chars_any_order
+from core.quicksearch_matchers import bucket_count, contains_chars, \
+	contains_chars_after_separator, contains_chars_any_order, \
+	match_titles_or_keywords
 from core.textviewer import show_text_viewer
 from core.textviewer_io import is_text_file
 from core.videoviewer import is_video, show_video_viewer
@@ -47,6 +49,7 @@ import sys
 
 from .goto import *
 from .release_notes import *
+from .theme import *
 
 class About(ApplicationCommand):
 	def __call__(self):
@@ -54,7 +57,7 @@ class About(ApplicationCommand):
 
 class Help(ApplicationCommand):
 
-	aliases = ('Help', 'Show keyboard shortcuts', 'Show key bindings')
+	aliases = ('Help',)
 
 	def __call__(self):
 		QDesktopServices.openUrl(QUrl(links.HELP))
@@ -91,7 +94,7 @@ class ToggleSelection(DirectoryPaneCommand):
 
 class MoveToTrash(DirectoryPaneCommand):
 
-	aliases = ('Delete', 'Move to trash', 'Move to recycle bin')
+	aliases = ('Delete',)
 
 	def __call__(self, urls=None):
 		if urls is None:
@@ -195,7 +198,7 @@ def _describe(files, template='%d files'):
 
 class GoUp(DirectoryPaneCommand):
 
-	aliases = ('Go up', 'Go to parent directory')
+	aliases = ('Go up',)
 
 	def __call__(self):
 		go_up(self.pane)
@@ -450,7 +453,7 @@ class ViewFile(DirectoryPaneCommand):
 
 	# Palette-only by design, like ResetPaneFontSize — no default key
 	# binding, so it doesn't change Enter/double-click behaviour.
-	aliases = ('View file', 'View', 'Internal viewer')
+	aliases = ('View file',)
 
 	def __call__(self):
 		_view_file_in(self.pane, self.pane)
@@ -462,7 +465,7 @@ class ViewFileInOtherPane(DirectoryPaneCommand):
 	# can keep browsing files while each one previews in the other pane. With
 	# only one pane open, target is this pane, so the viewer takes focus as
 	# usual. Palette-only by default (no key binding).
-	aliases = ('View file in other pane', 'View in other pane')
+	aliases = ('View file in other pane',)
 
 	def __call__(self):
 		target = _get_opposite_pane(self.pane)
@@ -475,7 +478,7 @@ class OpenOrView(DirectoryPaneCommand):
 	# -> OS-open, same as before the viewer existed. Bind to Enter to make
 	# the viewer the default file action without losing folder navigation or
 	# garbling binaries.
-	aliases = ('Open or view', 'Open (internal viewer for files)')
+	aliases = ('Open or view',)
 
 	def __call__(self):
 		url = self.pane.get_file_under_cursor()
@@ -561,7 +564,7 @@ def _get_applications_directory():
 
 class CreateAndEditFile(OpenWithEditor):
 
-	aliases = ('New file', 'Create file', 'Create and edit file')
+	aliases = ('New file',)
 
 	def __call__(self, url=None):
 		file_under_cursor = self.pane.get_file_under_cursor()
@@ -807,7 +810,7 @@ class DragAndDropListener(DirectoryPaneListener):
 
 class Symlink(_TreeCommand):
 
-	aliases = ('Symlink', 'Create symbolic link')
+	aliases = ('Symlink',)
 
 	def is_visible(self):
 		if not super().is_visible():
@@ -936,9 +939,7 @@ class _Rename(Task):
 
 class CreateDirectory(DirectoryPaneCommand):
 
-	aliases = (
-		'New folder', 'Create folder', 'New directory', 'Create directory'
-	)
+	aliases = ('New folder',)
 
 	def __call__(self):
 		file_under_cursor = self.pane.get_file_under_cursor()
@@ -981,9 +982,7 @@ def _fs_implements(scheme, method_name):
 
 class OpenTerminal(DirectoryPaneCommand):
 
-	aliases = (
-		'Terminal', 'Shell', 'Open terminal', 'Open shell'
-	)
+	aliases = ('Terminal',)
 
 	def __call__(self):
 		scheme, path = splitscheme(self.pane.get_path())
@@ -1100,7 +1099,7 @@ class InvertSelection(DirectoryPaneCommand):
 
 class ToggleHiddenFiles(DirectoryPaneCommand):
 
-	aliases = ('Toggle hidden files', 'Show / hide hidden files')
+	aliases = ('Toggle hidden files',)
 
 	def __call__(self):
 		_toggle_hidden_files(self.pane, not _is_showing_hidden_files(self.pane))
@@ -1207,7 +1206,7 @@ class OpenInLeftPane(_OpenInPaneCommand):
 
 class ShowVolumes(DirectoryPaneCommand):
 
-	aliases = ('Show volumes', 'Show drives')
+	aliases = ('Show volumes',)
 
 	def __call__(self, pane_index=None):
 		if pane_index is None:
@@ -1272,24 +1271,24 @@ class CommandPalette(DirectoryPaneCommand):
 		else:
 			self._last_query = self._last_cmd_name = ''
 	def _suggest_commands(self, query):
-		result = [[] for _ in self._MATCHERS]
+		# One bucket per matcher, plus the exact-match and loose-keyword
+		# ones the helper adds around them - see match_titles_or_keywords.
+		result = [[] for _ in range(bucket_count(self._MATCHERS))]
 		key_bindings = load_json('Key Bindings.json')
-		for cmd_name, aliases, command in self._get_all_commands():
-			for alias in aliases:
-				this_alias_matched = False
-				for i, matcher in enumerate(self._MATCHERS):
-					highlight = matcher(alias.lower(), query.lower())
-					if highlight is not None:
-						hint = format_shortcut_hint(
-							_get_shortcuts_for_command(key_bindings, cmd_name)
-						)
-						item = QuicksearchItem(command, alias, highlight, hint)
-						result[i].append(item)
-						this_alias_matched = True
-						break
-				if this_alias_matched:
-					# Don't check the other aliases:
-					break
+		for cmd_name, aliases, keywords, command in self._get_all_commands():
+			match = match_titles_or_keywords(
+				self._MATCHERS, [alias.lower() for alias in aliases], keywords,
+				query.lower()
+			)
+			if match is None:
+				continue
+			bucket, index, highlight = match
+			hint = format_shortcut_hint(
+				_get_shortcuts_for_command(key_bindings, cmd_name)
+			)
+			result[bucket].append(
+				QuicksearchItem(command, aliases[index], highlight, hint)
+			)
 		for results in result:
 			results.sort(key=lambda item: (len(item.title), item.title))
 		return chain.from_iterable(result)
@@ -1300,11 +1299,11 @@ class CommandPalette(DirectoryPaneCommand):
 				continue
 			aliases = self.pane.get_command_aliases(cmd_name)
 			command = CommandPaletteItem(self.pane.run_command, cmd_name)
-			result.append((cmd_name, aliases, command))
+			result.append((cmd_name, aliases, get_keywords(cmd_name), command))
 		for cmd_name in get_application_commands():
 			aliases = get_application_command_aliases(cmd_name)
 			command = CommandPaletteItem(run_application_command, cmd_name)
-			result.append((cmd_name, aliases, command))
+			result.append((cmd_name, aliases, get_keywords(cmd_name), command))
 		return result
 
 # _get_shortcuts_for_command / format_shortcut_hint live in core/key_bindings
@@ -1321,7 +1320,7 @@ class CommandPaletteItem:
 
 class Quit(ApplicationCommand):
 
-	aliases = ('Quit', 'Exit')
+	aliases = ('Quit',)
 
 	def __call__(self):
 		sys.exit(0)
@@ -1517,7 +1516,7 @@ def _list_plugins(dir_path):
 
 class RemovePlugin(ApplicationCommand):
 
-	aliases = ('Remove plugin', 'Uninstall plugin')
+	aliases = ('Remove plugin',)
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
@@ -1692,7 +1691,7 @@ def _get_local_filepaths(urls):
 
 class Pack(DirectoryPaneCommand):
 
-	aliases = 'Pack to archive (.zip, .7z, .tar)', 'Compress...'
+	aliases = ('Pack to archive (.zip, .7z, .tar)',)
 
 	def __call__(self):
 		files = self.get_chosen_files()
@@ -1775,7 +1774,7 @@ class ArchiveOpenListener(DirectoryPaneListener):
 
 class Reload(DirectoryPaneCommand):
 
-	aliases = ('Reload', 'Refresh')
+	aliases = ('Reload',)
 
 	def __call__(self):
 		self.pane.reload()
@@ -1859,14 +1858,14 @@ def _reset_pane_font_size(window):
 
 class IncreasePaneFontSize(DirectoryPaneCommand):
 
-	aliases = ('Increase font size', 'Zoom in', 'Larger pane font')
+	aliases = ('Increase font size',)
 
 	def __call__(self):
 		_change_pane_font_size(self.pane.window, +1)
 
 class DecreasePaneFontSize(DirectoryPaneCommand):
 
-	aliases = ('Decrease font size', 'Zoom out', 'Smaller pane font')
+	aliases = ('Decrease font size',)
 
 	def __call__(self):
 		_change_pane_font_size(self.pane.window, -1)
@@ -1874,7 +1873,7 @@ class DecreasePaneFontSize(DirectoryPaneCommand):
 class ResetPaneFontSize(DirectoryPaneCommand):
 
 	# Palette-only by design — no default key binding requested.
-	aliases = ('Reset font size', 'Default font size')
+	aliases = ('Reset font size',)
 
 	def __call__(self):
 		_reset_pane_font_size(self.pane.window)
@@ -1946,7 +1945,7 @@ def _toggle_column(window, col_qual_name):
 class ToggleSizeColumn(DirectoryPaneCommand):
 
 	# Palette-only by design - no default key binding requested.
-	aliases = ('Toggle size column', 'Show / hide size column')
+	aliases = ('Toggle size column',)
 
 	def __call__(self):
 		_toggle_column(self.pane.window, 'core.Size')
@@ -1954,7 +1953,7 @@ class ToggleSizeColumn(DirectoryPaneCommand):
 class ToggleModifiedColumn(DirectoryPaneCommand):
 
 	# Palette-only by design - no default key binding requested.
-	aliases = ('Toggle modified column', 'Show / hide modified column')
+	aliases = ('Toggle modified column',)
 
 	def __call__(self):
 		_toggle_column(self.pane.window, 'core.Modified')
@@ -2073,12 +2072,19 @@ class Minimize(ApplicationCommand):
 	def __call__(self):
 		self.window.minimize()
 
+class CenterWindow(ApplicationCommand):
+
+	aliases = ('Center window',)
+
+	def __call__(self):
+		self.window.center_on_screen()
+
 # Read by IconProvider in fman.impl.model.icon_provider - keep in sync:
 _NETWORK_ICONS_KEY = 'network_file_icons'
 
 class ToggleNetworkIcons(ApplicationCommand):
 
-	aliases = ('Toggle network drive icons', 'Show real icons on network drives')
+	aliases = ('Toggle network drive icons',)
 
 	def __call__(self):
 		show_real_icons = not _is_showing_network_icons()
@@ -2402,7 +2408,7 @@ class none(DirectoryPaneCommand):
 if PLATFORM == 'Mac':
 	class QuickLook(DirectoryPaneCommand):
 
-		aliases = ('Quick Look', 'Preview')
+		aliases = ('Quick Look',)
 
 		def __call__(self):
 			files = self.get_chosen_files()

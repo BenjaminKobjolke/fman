@@ -18,7 +18,7 @@ __all__ = ['ShowReleaseNotes']
 
 class ShowReleaseNotes(DirectoryPaneCommand):
 
-	aliases = ('Release Notes', 'Show release notes')
+	aliases = ('Release Notes',)
 
 	def __call__(self):
 		releases = self._list_releases()
