@@ -6,6 +6,13 @@ REM           (the source of truth). Read from the ini only if the paths ever di
 REM PreSigner's default timeout of 300s is too short: the signing service has
 REM returned fman.exe at ~5min01s, i.e. right at the boundary. 1800s instead.
 setlocal
+
+REM PreSigner verifies the signer via Windows PowerShell 5.1 (Get-AuthenticodeSignature).
+REM Launched from a PowerShell 7 parent, the inherited PSModulePath points at PS7
+REM module dirs, and 5.1 then fails to load Microsoft.PowerShell.Security - the
+REM signer check silently returns None and the poll loop waits out the whole
+REM timeout. Clearing it lets 5.1 fall back to its own defaults.
+set "PSModulePath="
 if "%~1"=="" (
     echo ERROR: no exe path given. Usage: sign_exe.bat ^<path-to-exe^>
     exit /b 1
