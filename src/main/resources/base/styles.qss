@@ -66,13 +66,19 @@ QLabel, QRadioButton, QCheckBox {
 QMessageBox QLabel {
 	font-weight: normal;
 	/*
-	 * QMessageBox sizes itself from its label. Without these, short texts
+	 * QMessageBox sizes itself from its label. Without the padding, short texts
 	 * (eg. the About dialog) produce a cramped box whose text nearly touches
 	 * the border. Center the text so it lines up with the centered buttons
-	 * (see MessageBox in widgets.py) instead of hugging the left edge:
+	 * (see MessageBox in widgets.py) instead of hugging the left edge.
+	 *
+	 * Do NOT add a min-width here. It does not act as a floor: it pins the box
+	 * to that width for every message, so anything longer is silently cut off
+	 * ("Matrix screensaver is off." showed as "Matrix screensaver is o"). The
+	 * padding is what keeps short messages from looking cramped, and unlike
+	 * min-width it is part of QLabel::sizeHint(), which is what QMessageBox
+	 * measures - so the box still grows with the text.
 	 */
-	min-width: 11em;
-	margin: .5em .75em;
+	padding: .5em .75em;
 	qproperty-alignment: AlignCenter;
 }
 
@@ -133,6 +139,14 @@ Quicksearch QListView::item:selected {
 
 QLineEdit:read-only {
 	color: $readonly_fg;
+}
+
+/*
+ * Dims the main window while a modal dialog is open. The alpha byte in
+ * $scrim_bg is the strength of the dim.
+ */
+Scrim {
+	background-color: $scrim_bg;
 }
 
 QStatusBar {

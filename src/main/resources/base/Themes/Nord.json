@@ -17,5 +17,6 @@
 		"statusbar_bg_bottom": "#3b4252",
 		"statusbar_bg_top": "#434c5e",
 		"window_bg": "#2e3440"
-	}
+	},
+	"font": "IBM Plex Sans"
 }

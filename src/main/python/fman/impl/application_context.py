@@ -11,6 +11,7 @@ from fman.impl.metrics import Metrics, ServerBackend, AsynchronousMetrics, \
 	LoggingBackend
 from fman.impl.model.icon_provider import GnomeFileIconProvider, \
 	GnomeNotAvailable, IconProvider
+from fman.impl.model.icon_set import load_icon_set
 from fman.impl.nonexistent_shortcut_handler import NonexistentShortcutHandler
 from fman.impl.plugins import PluginSupport, CommandCallback, PluginFactory
 from fman.impl.plugins.builtin import BuiltinPlugin, NullFileSystem
@@ -22,13 +23,16 @@ from fman.impl.plugins.discover import find_plugin_dirs
 from fman.impl.plugins.error import PluginErrorHandler
 from fman.impl.plugins.key_bindings import KeyBindings
 from fman.impl.plugins.mother_fs import MotherFileSystem
+from fman.impl.viewers import ViewerRegistry
 from fman.impl.session import SessionManager
 from fman.impl.single_instance import SingleInstance, server_name_for, \
 	open_paths_in_running_instance
 from fman.impl.theme import Theme
+from fman.impl.theme_controller import ThemeController
+from fman.impl.window_chrome import WindowChrome
 from fman.impl.themes import DEFAULT_THEME, THEME_SETTING, \
-	ThemeController, build_main_window_palette, build_palette, \
-	build_progress_bar_palette, list_themes, load_theme
+	build_main_window_palette, build_palette, \
+	build_progress_bar_palette, build_tokens, list_themes, load_theme
 from fman.impl.onboarding import TourController
 from fman.impl.onboarding.cleanup_guide import CleanupGuide
 from fman.impl.onboarding.tutorial import Tutorial
@@ -223,6 +227,17 @@ class DevelopmentApplicationContext(ApplicationContext):
 			self._main_window.setWindowOpacity(
 				self.theme_controller.get_opacity()
 			)
+			# Likewise the saved icon size: MainWindow starts at None (Qt's
+			# own 16px) and is only told otherwise by set_icon_size(...) and
+			# set_theme(...), neither of which runs at startup. Without this
+			# the size would last the session but not survive a restart.
+			self._main_window.set_file_list_icon_size(
+				self.theme_controller.get_icon_size()
+			)
+			# Before show() for the same reason as the opacity above, and a
+			# stronger one: setWindowFlags on a visible window recreates the
+			# native one - see fman.impl.window_chrome.
+			self.window_chrome.apply(self._main_window)
 			connect_once(self._main_window.shown, self.on_main_window_shown)
 			connect_once(
 				self._main_window.shown,
@@ -267,16 +282,30 @@ class DevelopmentApplicationContext(ApplicationContext):
 	def builtin_plugin(self):
 		return BuiltinPlugin(
 			self.tour_controller, self.tutorial_factory,
-			self.cleanupguide_factory, self.plugin_error_handler,
+			self.cleanupguide_factory, self.window_chrome,
+			self.plugin_error_handler,
 			self.application_command_registry, self.pane_command_registry,
-			self.key_bindings, self.mother_fs, self.window
+			self.key_bindings, self.mother_fs, self.viewer_registry,
+			self.window
 		)
+	@cached_property
+	def viewer_registry(self):
+		return ViewerRegistry()
+	@cached_property
+	def window_chrome(self):
+		return WindowChrome(self.local_settings)
 	@cached_property
 	def mother_fs(self):
 		# Resolve the cyclic dependency MotherFileSystem <-> IconProvider:
 		result = MotherFileSystem(None)
 		result._icon_provider = self._get_icon_provider(result)
 		return result
+	@cached_property
+	def icon_provider(self):
+		# The one MotherFileSystem was wired to - see mother_fs, which
+		# resolves the cycle between the two. ThemeController swaps its icon
+		# set from here when the theme or the user's choice changes.
+		return self.mother_fs._icon_provider
 	def _get_icon_provider(self, fs):
 		try:
 			qt_icon_provider = GnomeFileIconProvider()
@@ -284,7 +313,11 @@ class DevelopmentApplicationContext(ApplicationContext):
 			qt_icon_provider = QFileIconProvider()
 		icons_dir = self._get_local_data_file('Cache', 'Icons')
 		makedirs(icons_dir, exist_ok=True)
-		return IconProvider(qt_icon_provider, fs, icons_dir)
+		return IconProvider(
+			qt_icon_provider, fs, icons_dir,
+			load_icon_set(self.theme_controller.get_icon_set(), self.icon_dirs),
+			self.theme_controller.get_icon_color()
+		)
 	@cached_property
 	def config(self):
 		return Config(PLATFORM)
@@ -316,7 +349,8 @@ class DevelopmentApplicationContext(ApplicationContext):
 			self.config, self.theme, self.font_database,
 			self.plugin_error_handler, self.application_command_registry,
 			self.pane_command_registry, self.key_bindings,
-			self.context_menu_provider, self.mother_fs, self.window
+			self.context_menu_provider, self.mother_fs, self.viewer_registry,
+			self.window
 		)
 	@cached_property
 	def application_command_registry(self):
@@ -404,10 +438,30 @@ class DevelopmentApplicationContext(ApplicationContext):
 	def theme_dirs(self):
 		return self.bundled_theme_dirs + [join(DATA_DIRECTORY, 'Themes')]
 	@cached_property
+	def icon_dirs(self):
+		# Same shape and same "later dirs win" rule as theme_dirs, so a user
+		# icon set shadows a bundled one of the same name. There is no
+		# bundled-only variant: the demos do not switch icon sets, which is
+		# the only reason bundled_theme_dirs exists separately.
+		try:
+			bundled = [self.get_resource('Icons')]
+		except FileNotFoundError:
+			bundled = []
+		return bundled + [join(DATA_DIRECTORY, 'Icons')]
+	@cached_property
 	def theme_colors(self):
 		return load_theme(
 			self.local_settings.get(THEME_SETTING, DEFAULT_THEME),
 			self.theme_dirs
+		)
+	@cached_property
+	def theme_tokens(self):
+		# The colors plus the font family, which is a stylesheet token but
+		# not a color. Read through theme_controller so the user's own
+		# font wins over the theme's at startup too, not only after a
+		# switch.
+		return build_tokens(
+			self.theme_colors, self.theme_controller.get_font()
 		)
 	@cached_property
 	def theme_controller(self):
@@ -437,7 +491,7 @@ class DevelopmentApplicationContext(ApplicationContext):
 			pass
 		else:
 			qss_files.append(os_styles)
-		return Theme(self.app, qss_files, self.theme_colors)
+		return Theme(self.app, qss_files, self.theme_tokens)
 	@cached_property
 	def style(self):
 		base_style = None

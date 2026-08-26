@@ -1,5 +1,8 @@
 from core.commands import *
 from core.fs import *
+# Re-exported so the plugin loader discovers the Viewer subclasses: it only
+# scans names reachable from this module (plugin.py:_iterate_classes).
+from core.viewers import *
 from datetime import datetime
 from fman.fs import Column
 from fman.url import basename

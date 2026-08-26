@@ -1,4 +1,4 @@
-from core.commands.util import get_user, is_hidden
+from core.commands.util import get_user, get_well_known_dirs, is_hidden
 from core.quicksearch_matchers import path_starts_with, basename_starts_with, \
 	contains_substring, contains_chars
 from fman import DirectoryPaneCommand, show_quicksearch, PLATFORM, load_json, \
@@ -23,7 +23,9 @@ __all__ = ['GoTo', 'GoToListener']
 class GoTo(DirectoryPaneCommand):
 	def __call__(self, query=''):
 		visited_paths = self._get_visited_paths()
-		get_items = SuggestLocations(visited_paths)
+		get_items = SuggestLocations(
+			_with_well_known_dirs(visited_paths), labels=get_well_known_dirs()
+		)
 		result = show_quicksearch(get_items, self._get_tab_completion, query)
 		if result:
 			url = self._get_target_location(*result)
@@ -159,6 +161,24 @@ class GoToListener(DirectoryPaneListener):
 			# called asynchronously, so no problem performing some work here.
 			_remove_nonexistent(visited_paths, timeout_secs=0.01)
 
+def _with_well_known_dirs(visited_paths):
+	# Home, Desktop, Documents and Downloads stay suggestable forever, not just
+	# while _get_default_paths() below still seeds them: that branch is dead
+	# after the first run, and _shrink_visited_paths drops whatever you stopped
+	# visiting.
+	#
+	# A *copy*, because load_json caches by name and hands back the same dict
+	# object every time (fman/impl/plugins/config.py), and GoToListener loads it
+	# with save_on_quit=True - adding to it in place would write these
+	# suggestions into the user's real Visited Paths.json.
+	result = dict(visited_paths)
+	for path in get_well_known_dirs():
+		# Skip what this machine doesn't have, rather than offer a row that
+		# fails on Enter:
+		if os.path.isdir(path):
+			result.setdefault(path, 0)
+	return result
+
 def _shrink_visited_paths(vps, size):
 	paths_per_count = {}
 	for p, count in vps.items():
@@ -279,13 +299,17 @@ class SuggestLocations:
 				except (adodbapi.Error, com_error):
 					pass
 
-	def __init__(self, visited_paths, file_system=None):
+	def __init__(self, visited_paths, file_system=None, labels=None):
 		if file_system is None:
 			# Encapsulating filesystem-related functionality in a separate field
 			# allows us to use a different implementation for testing.
 			file_system = self.LocalFileSystem()
 		self.visited_paths = visited_paths
 		self.fs = file_system
+		# {path: name} for directories that have a name of their own, such as
+		# 'Home' for ~. Both searchable and shown as a hint - see
+		# _filter_matching.
+		self.labels = labels or {}
 	def __call__(self, query):
 		possible_dirs = self._gather_dirs(query)
 		return self._filter_matching(possible_dirs, query)
@@ -339,13 +363,24 @@ class SuggestLocations:
 		result = [[] for _ in self._MATCHERS]
 		for dir_ in dirs:
 			title = self._unexpand_user(dir_) if use_tilde else dir_
+			label = self.labels.get(dir_, '')
 			for i, matcher in enumerate(self._MATCHERS):
 				match = matcher(title.lower(), query.lower())
 				if match is not None:
 					result[i].append(QuicksearchItem(
-						dir_, title, highlight=match
+						dir_, title, highlight=match, hint=label
 					))
 					break
+			else:
+				# The path did not match, but the name might: the home
+				# directory shows as '~', which contains none of the letters in
+				# 'home'. Ranked by the same matchers, so an exact name hit
+				# still beats a loose path hit. Nothing in the title to
+				# highlight, as with a command-palette keyword match.
+				for i, matcher in enumerate(self._MATCHERS):
+					if label and matcher(label.lower(), query.lower()) is not None:
+						result[i].append(QuicksearchItem(dir_, title, hint=label))
+						break
 		return list(chain.from_iterable(result))
 	def _gather_subdirs(self, dir_):
 		result = []

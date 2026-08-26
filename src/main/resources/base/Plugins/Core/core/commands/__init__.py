@@ -5,24 +5,29 @@ from core.fileoperations import CopyFiles, MoveFiles
 from core.font_size import clamp_font_size as _clamp_font_size, \
 	MIN_FONT_SIZE as _MIN_PANE_FONT_SIZE, MAX_FONT_SIZE as _MAX_PANE_FONT_SIZE
 from core.github import find_repos, GitHubRepo
-from core.imageviewer import is_image, show_image_viewer
 from core.key_bindings import get_shortcuts_for_command as \
 	_get_shortcuts_for_command, format_shortcut_hint
 from core.os_ import open_terminal_in_directory, open_native_file_manager, \
 	get_popen_kwargs_for_opening
+from core.panes import reload_panes
 from core.settings import get_setting, save_setting
 from core.util import strformat_dict_values, listdir_absolute, is_parent
 from core.quicksearch_matchers import bucket_count, contains_chars, \
 	contains_chars_after_separator, contains_chars_any_order, \
 	match_titles_or_keywords
-from core.textviewer import show_text_viewer
-from core.textviewer_io import is_text_file
-from core.videoviewer import is_video, show_video_viewer
+from core.viewers import viewer_for
 from fman import *
 from fman.fs import exists, touch, mkdir, is_dir, delete, samefile, copy, \
 	iterdir, resolve, prepare_copy, prepare_move, prepare_delete, \
 	FileSystem, prepare_trash, query, makedirs, notify_file_added
 from fman import links
+# Not in fman's __all__, so the star import above does not bring it in - the
+# same reason commands/theme.py names the icon functions explicitly.
+from fman import set_icon_scale, set_palette_font_scale
+# The engine owns these: it reads the settings the two icon toggles below
+# write, and never imports this plugin - so the names live there.
+from fman.impl.model.icon_provider import EXECUTABLE_ICONS_KEY, \
+	NETWORK_ICONS_KEY, SETTINGS_FILE as ICON_SETTINGS_FILE
 from fman.impl.util import get_user
 from fman.impl.util.qt.thread import run_in_main_thread
 from fman.url import splitscheme, as_url, join, basename, as_human_readable, \
@@ -48,6 +53,7 @@ import re
 import sys
 
 from .goto import *
+from .places import *
 from .release_notes import *
 from .theme import *
 
@@ -415,13 +421,9 @@ class OpenSelectedFiles(DirectoryPaneCommand):
 		return bool(self.get_chosen_files())
 
 def _is_viewable(url):
-	# Whether an internal viewer supports url's content: image/video by
-	# extension, everything else only if it sniffs as text (not a binary the
-	# text viewer would garble). Caller is expected to have already checked
-	# url is a local, non-directory file.
-	if is_image(url) or is_video(url):
-		return True
-	return is_text_file(as_human_readable(url))
+	# Whether any registered viewer handles url's content - the built-in
+	# image/video/text ones (core/viewers.py) plus whatever plugins added.
+	return viewer_for(url) is not None
 
 def _view_file_in(source_pane, target_pane, focus_view=True):
 	# Read the file under source_pane's cursor and mount the matching viewer
@@ -437,17 +439,14 @@ def _view_file_in(source_pane, target_pane, focus_view=True):
 	if splitscheme(url)[0] != 'file://':
 		show_alert('Can only view local files.')
 		return
-	if is_image(url):
-		show_image_viewer(target_pane, url, focus_view=focus_view)
-	elif is_video(url):
-		show_video_viewer(target_pane, url, focus_view=focus_view)
-	elif is_text_file(as_human_readable(url)):
-		show_text_viewer(target_pane, url, focus_view=focus_view)
-	else:
+	viewer = viewer_for(url)
+	if viewer is None:
 		show_alert(
 			"Can't view this file here — it looks binary. Press Enter "
 			'or use Open to launch it with the default app.'
 		)
+		return
+	viewer.show(target_pane, url, focus_view=focus_view)
 
 class ViewFile(DirectoryPaneCommand):
 
@@ -1816,6 +1815,12 @@ _FALLBACK_PANE_FONT_SIZE = 11 if PLATFORM == 'Mac' else 9
 # core/font_size (imported above) so the text viewer's own zoom can reuse
 # them without a circular import - see that module's docstring.
 
+# The pane font size before this session zoomed anything, which is what the
+# icons are scaled relative to. It can only be read off a live view that has
+# not been given an override stylesheet yet, so it is captured once, at the
+# first moment either code path has a pane in hand - see docs/ICONS.md.
+_base_pane_font_size = None
+
 def _get_saved_pane_font_size():
 	return get_setting('Core Settings.json', 'pane_font_size')
 
@@ -1842,19 +1847,44 @@ def _apply_pane_font_size(pane, size):
 	css = '' if size is None else 'FileListView { font-size: %dpt; }' % size
 	pane._widget._file_view.setStyleSheet(css)
 
+def _remember_base_pane_font_size(pane):
+	# Call before applying an override to `pane`: afterwards the view reports
+	# the override, and the theme's own size is gone for the session.
+	global _base_pane_font_size
+	if _base_pane_font_size is None:
+		_base_pane_font_size = _effective_font_size(pane)
+
+def _apply_zoom_scale(size):
+	# The icons and the command palette zoom with the pane text, from
+	# whatever size the theme or the user picked for them: the engine
+	# multiplies its own resolved icon size (and the palette's own font
+	# sizes) by this, so "Set icon size 48" zooms from 48 rather than from
+	# Qt's 16. One factor for both, computed once - they can only disagree
+	# if something derives it twice.
+	if size is None or not _base_pane_font_size:
+		factor = 1.0
+	else:
+		factor = size / _base_pane_font_size
+	set_icon_scale(factor)
+	set_palette_font_scale(factor)
+
 def _change_pane_font_size(window, delta):
 	base = _get_saved_pane_font_size()
+	first_pane = window.get_panes()[0]
+	_remember_base_pane_font_size(first_pane)
 	if base is None:
-		base = _effective_font_size(window.get_panes()[0])
+		base = _effective_font_size(first_pane)
 	new_size = _clamp_font_size(base, delta)
 	_save_pane_font_size(new_size)
 	for pane in window.get_panes():
 		_apply_pane_font_size(pane, new_size)
+	_apply_zoom_scale(new_size)
 
 def _reset_pane_font_size(window):
 	_save_pane_font_size(None)
 	for pane in window.get_panes():
 		_apply_pane_font_size(pane, None)
+	_apply_zoom_scale(None)
 
 class IncreasePaneFontSize(DirectoryPaneCommand):
 
@@ -1884,8 +1914,13 @@ class InitPaneFontSize(DirectoryPaneListener):
 		# Mirrors InitHiddenFilesFilter: fman instantiates commands lazily,
 		# so re-applying a saved setting on startup has to happen here.
 		size = _get_saved_pane_font_size()
+		# Unconditionally, and before applying: this is the only moment in a
+		# session where the pane still reports the theme's own font size, so
+		# it is the only moment the icon scale's baseline can be read.
+		_remember_base_pane_font_size(self.pane)
 		if size is not None:
 			_apply_pane_font_size(self.pane, size)
+			_apply_zoom_scale(size)
 
 # fman has no pane.set_columns(...) - the FileSystem owns the column set and
 # the model is rebuilt on every navigation. So we hide/show columns directly
@@ -2079,9 +2114,6 @@ class CenterWindow(ApplicationCommand):
 	def __call__(self):
 		self.window.center_on_screen()
 
-# Read by IconProvider in fman.impl.model.icon_provider - keep in sync:
-_NETWORK_ICONS_KEY = 'network_file_icons'
-
 class ToggleNetworkIcons(ApplicationCommand):
 
 	aliases = ('Toggle network drive icons',)
@@ -2090,15 +2122,30 @@ class ToggleNetworkIcons(ApplicationCommand):
 		show_real_icons = not _is_showing_network_icons()
 		# None clears the key so the file doesn't carry the default around:
 		save_setting(
-			'Core Settings.json', _NETWORK_ICONS_KEY, show_real_icons or None
+			ICON_SETTINGS_FILE, NETWORK_ICONS_KEY, show_real_icons or None
 		)
-		# Model#reload() clears the FS cache for the pane's location, which is
-		# where the icons computed under the old setting are held:
-		for pane in self.window.get_panes():
-			pane.reload()
+		reload_panes(self.window)
 
 def _is_showing_network_icons():
-	return get_setting('Core Settings.json', _NETWORK_ICONS_KEY, False)
+	return get_setting(ICON_SETTINGS_FILE, NETWORK_ICONS_KEY, False)
+
+class ToggleExecutableIcons(ApplicationCommand):
+
+	aliases = ('Toggle real icons for programs and shortcuts',)
+
+	def __call__(self):
+		# An icon set draws every .exe the same. The OS icon says *which*
+		# program it is, which is worth more in a folder full of them - so
+		# this opts .exe and .lnk back out of the active icon set.
+		use_os_icons = not _is_showing_executable_icons()
+		# None clears the key so the file doesn't carry the default around:
+		save_setting(
+			ICON_SETTINGS_FILE, EXECUTABLE_ICONS_KEY, use_os_icons or None
+		)
+		reload_panes(self.window)
+
+def _is_showing_executable_icons():
+	return get_setting(ICON_SETTINGS_FILE, EXECUTABLE_ICONS_KEY, False)
 
 class LocationBarListener(DirectoryPaneListener):
 	def on_location_bar_clicked(self):

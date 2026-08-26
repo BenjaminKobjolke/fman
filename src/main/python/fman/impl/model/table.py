@@ -203,12 +203,26 @@ class Rows:
 		assert len(self._rows) == len(self._keys), \
 			'Integrity error, likely caused by duplicate rows'
 
+# Bumped whenever the icons themselves change - see invalidate_icons().
+_ICON_GENERATION = 0
+
+def invalidate_icons():
+	"""
+	Marks every Row built from here on as different from the ones built
+	before. Call this when the icons a file gets actually change - a new icon
+	set or a new icon color - so that the diff a pane reload computes doesn't
+	discard the new icons. See Row#__eq__.
+	"""
+	global _ICON_GENERATION
+	_ICON_GENERATION += 1
+
 class Row:
 	def __init__(self, key, icon, drop_enabled, cells):
 		self.key = key
 		self.icon = icon
 		self.drop_enabled = drop_enabled
 		self.cells = cells
+		self._icon_generation = _ICON_GENERATION
 	def __eq__(self, other):
 		"""
 		Exclude .icon from == comparisons. The reason for this is that
@@ -223,10 +237,21 @@ class Row:
 		with this. But in reality, especially on Windows, the problem remains
 		(loading the icon of a file with QFileIconProvider twice gives two QIcon
 		instances that look the same but have different cacheKey's).
+
+		The icon generation is how a *real* icon change still gets through.
+		Nothing else about a row changes when the user switches icon set or
+		icon color, so without it ComputeDiff produces no update entry for the
+		reload that follows - dataChanged is never emitted, self._rows keeps
+		the old Rows, and the panes draw the old icons until you browse to
+		another directory.
 		"""
 		try:
-			return (self.key, self.cells, self.drop_enabled) == \
-				   (other.key, other.cells, other.drop_enabled)
+			return (
+				self.key, self.cells, self.drop_enabled, self._icon_generation
+			) == (
+				other.key, other.cells, other.drop_enabled,
+				other._icon_generation
+			)
 		except AttributeError:
 			return NotImplemented
 	def __hash__(self):

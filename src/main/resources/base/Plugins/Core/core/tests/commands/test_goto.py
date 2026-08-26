@@ -1,8 +1,10 @@
-from core.commands.goto import _shrink_visited_paths, SuggestLocations
+from core.commands.goto import _shrink_visited_paths, _with_well_known_dirs, \
+	SuggestLocations
 from core.util import filenotfounderror
 from fman import PLATFORM
 from os.path import normpath
 from unittest import TestCase, skipIf
+from unittest.mock import patch
 
 import os
 
@@ -15,6 +17,29 @@ class ShrinkVisiblePathsTest(TestCase):
 		vps = {'a': 1, 'b': 1, 'c': 3, 'd': 3, 'e': 5}
 		_shrink_visited_paths(vps, 3)
 		self.assertEqual({'c': 1, 'd': 1, 'e': 2}, vps)
+
+class WithWellKnownDirsTest(TestCase):
+
+	_HOME = os.path.join('C:\\', 'home')
+	_DESKTOP = os.path.join('C:\\', 'home', 'Desktop')
+	_DIRS = [_HOME, _DESKTOP]
+
+	def test_adds_them_without_touching_the_original(self):
+		vps = {self._HOME: 7, 'elsewhere': 3}
+		with patch('core.commands.goto.get_well_known_dirs', lambda: self._DIRS), \
+			 patch('core.commands.goto.os.path.isdir', lambda p: True):
+			result = _with_well_known_dirs(vps)
+		# A visited directory keeps its count - otherwise adding the defaults
+		# would demote the user's most-used directory to the bottom:
+		self.assertEqual({self._HOME: 7, 'elsewhere': 3, self._DESKTOP: 0}, result)
+		# The caller's dict is the one load_json caches and GoToListener saves
+		# on quit, so it must come back untouched:
+		self.assertEqual({self._HOME: 7, 'elsewhere': 3}, vps)
+	def test_skips_what_isnt_a_directory(self):
+		with patch('core.commands.goto.get_well_known_dirs', lambda: self._DIRS), \
+			 patch('core.commands.goto.os.path.isdir', lambda p: p == self._HOME):
+			result = _with_well_known_dirs({})
+		self.assertEqual({self._HOME: 0}, result)
 
 class SuggestLocationsTest(TestCase):
 
@@ -149,6 +174,25 @@ class SuggestLocationsTest(TestCase):
 		self._check_query_returns(
 			'sub', ['~/My-substr', '~/s-u-b-s-t-r'], [[5, 6, 7], [2, 4, 6]]
 		)
+	def test_label_matches_when_the_path_does_not(self):
+		# The home directory's title is '~', which contains none of h, o, m, e -
+		# without its label, typing 'home' cannot find it.
+		self.instance = SuggestLocations(
+			self.instance.visited_paths, self.fs, labels={self.home_dir: 'Home'}
+		)
+		result = list(self.instance('home'))
+		self.assertEqual(['~'], [item.title for item in result])
+		# Nothing in the title to underline, as with a command-palette keyword
+		# (QuicksearchItem turns highlight=None into []):
+		self.assertEqual([[]], [item.highlight for item in result])
+		self.assertEqual(['Home'], [item.hint for item in result])
+	def test_label_is_shown_as_a_hint_even_when_the_path_matched(self):
+		self.instance = SuggestLocations(
+			self.instance.visited_paths, self.fs, labels={self.home_dir: 'Home'}
+		)
+		hints = {item.title: item.hint for item in self.instance('')}
+		self.assertEqual('Home', hints['~'])
+		self.assertEqual('', hints[self._replace_pathsep('~/Downloads')])
 	def setUp(self):
 		root = 'C:' if PLATFORM == 'Windows' else ''
 		files = {

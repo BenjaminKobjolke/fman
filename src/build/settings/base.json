@@ -54,7 +54,7 @@
 			]
 		}
 	},
-	"hidden_imports": ["requests", "mpv"],
+	"hidden_imports": ["requests", "mpv", "PyQt5.QtSvg"],
 	"extra_pyinstaller_args": [
 		"--exclude-module", "boto3",
 		"--exclude-module", "botocore",

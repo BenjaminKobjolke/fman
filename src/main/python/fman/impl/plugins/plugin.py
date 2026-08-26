@@ -1,4 +1,5 @@
-from fman import DirectoryPaneCommand, DirectoryPaneListener, ApplicationCommand
+from fman import DirectoryPaneCommand, DirectoryPaneListener, \
+	ApplicationCommand, Viewer
 from fman.fs import FileSystem, Column
 from fman.impl.font_database import FontError
 from fman.impl.util import listdir_absolute
@@ -17,13 +18,14 @@ import sys
 class Plugin:
 	def __init__(
 		self, error_handler, appcmd_registry, panecmd_registry, key_bindings,
-		mother_fs, window
+		mother_fs, viewer_registry, window
 	):
 		self._error_handler = error_handler
 		self._appcmd_registry = appcmd_registry
 		self._panecmd_registry = panecmd_registry
 		self._key_bindings = key_bindings
 		self._mother_fs = mother_fs
+		self._viewer_registry = viewer_registry
 		self._window = window
 		self._directory_pane_listeners = []
 	@property
@@ -66,6 +68,12 @@ class Plugin:
 			self._mother_fs.register_column(cls.get_qualified_name(), instance)
 	def _unregister_column(self, cls):
 		self._mother_fs.unregister_column(cls.get_qualified_name())
+	def _register_viewer(self, cls):
+		instance = self._instantiate_viewer(cls)
+		if instance:
+			self._viewer_registry.register(instance)
+	def _unregister_viewer(self, cls):
+		self._viewer_registry.unregister(cls.name)
 	def _instantiate_listener(self, listener_class, *args, **kwargs):
 		try:
 			listener = listener_class(*args, **kwargs)
@@ -86,6 +94,22 @@ class Plugin:
 			return FileSystemWrapper(
 				instance, self._mother_fs, self._error_handler
 			)
+	def _instantiate_viewer(self, viewer_cls):
+		if not viewer_cls.name:
+			# Without a name it cannot be unregistered on unload, and its
+			# per-viewer settings would collide with every other unnamed one.
+			self._error_handler.report(
+				'Viewer %r does not set a name.' % viewer_cls.__name__, exc=False
+			)
+			return
+		try:
+			instance = viewer_cls()
+		except Exception:
+			self._error_handler.report(
+				'Could not instantiate viewer %r.' % viewer_cls.__name__
+			)
+		else:
+			return ViewerWrapper(instance, self._error_handler)
 	def _instantiate_column(self, col_cls):
 		try:
 			instance = col_cls()
@@ -130,7 +154,10 @@ class ExternalPlugin(Plugin):
 	def _load(self):
 		self._register_plugin_dir()
 		self._load_config()
-		for font in glob(join(self._path, '*.ttf')):
+		# Recursive so a plugin can group its fonts (and their licences)
+		# in a directory instead of scattering .ttf files beside its code
+		# - which is what the Core plugin's Fonts/<Family>/ does.
+		for font in glob(join(self._path, '**', '*.ttf'), recursive=True):
 			self._load_font(font)
 		for css_file in self._config.locate('Theme.css', self._path):
 			try:
@@ -179,6 +206,9 @@ class ExternalPlugin(Plugin):
 				elif Column in superclasses:
 					register = self._register_column
 					unregister = self._unregister_column
+				elif Viewer in superclasses:
+					register = self._register_viewer
+					unregister = self._unregister_viewer
 				else:
 					continue
 				register(cls)
@@ -225,10 +255,31 @@ class ExternalPlugin(Plugin):
 			init = join(dir_, '__init__.py')
 			if isfile(init):
 				package_name = basename(dir_)
+				self._report_if_package_name_taken(package_name, init)
 				loader = SourceFileLoader(package_name, init)
 				yield loader.load_module()
+	def _report_if_package_name_taken(self, package_name, init_file):
+		# Package names are global (sys.modules), so the same plugin installed
+		# twice - eg. under Third-party/ and User/ - silently shadows itself:
+		# whichever loads last wins, and the user only sees that their edits
+		# to one copy have no effect. Say so instead.
+		try:
+			other = sys.modules[package_name]
+		except KeyError:
+			return
+		other_file = getattr(other, '__file__', None) or '(built-in)'
+		self._error_handler.report(
+			'Two plugins contain a package named %r:\n\n%s\n%s\n\n'
+			'Only the second one is used. Please remove one of them.'
+			% (package_name, other_file, init_file), exc=False
+		)
 	def _unregister_package(self, package):
-		del sys.modules[package.__name__]
+		# pop(), not del: two plugins can ship a package of the same name
+		# (eg. the same plugin installed both under Third-party/ and User/).
+		# The second load overwrites the first one's sys.modules entry, so
+		# only the first unload finds it - and a KeyError here would abort
+		# the whole 'Reload plugins'.
+		sys.modules.pop(package.__name__, None)
 	def _iterate_classes(self, module):
 		for cls in [getattr(module, name) for name in dir(module)]:
 			if inspect.isclass(cls):
@@ -378,6 +429,21 @@ class FileSystemWrapper(Wrapper):
 									(self._class_name, item), exc=False
 								)
 								showed_error = True
+	def __getattr__(self, item):
+		return getattr(self._wrapped, item)
+
+class ViewerWrapper(Wrapper):
+	def __init__(self, wrapped, error_handler):
+		super().__init__(wrapped, 'Viewer', error_handler)
+	def matches(self, url):
+		# A viewer that throws is skipped, not fatal: one broken plugin must
+		# not take "View file" down for every other viewer.
+		with self._report_exceptions(exclude={FileNotFoundError}):
+			return bool(self._wrapped.matches(url))
+		return False
+	def show(self, pane, url, focus_view=True):
+		with self._report_exceptions():
+			self._wrapped.show(pane, url, focus_view=focus_view)
 	def __getattr__(self, item):
 		return getattr(self._wrapped, item)
 

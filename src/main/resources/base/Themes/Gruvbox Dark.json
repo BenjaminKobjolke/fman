@@ -17,5 +17,6 @@
 		"statusbar_bg_bottom": "#3c3836",
 		"statusbar_bg_top": "#504945",
 		"window_bg": "#1d2021"
-	}
+	},
+	"font": "Fira Code"
 }

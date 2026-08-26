@@ -135,6 +135,16 @@ class SameTypePersistenceTest(TestCase):
 		patcher_save.start()
 		self.addCleanup(patcher_get.stop)
 		self.addCleanup(patcher_save.stop)
+		# The settings key is derived from the viewer's name, and validated
+		# against the registry so a typo still raises. The registry lives on
+		# the running app, which these tests do not have - stand in for it
+		# with the three built-in viewers.
+		patcher_registry = patch(
+			'core.viewers.viewer_for_category',
+			lambda name: name if name in ('image', 'video', 'text') else None
+		)
+		patcher_registry.start()
+		self.addCleanup(patcher_registry.stop)
 
 	def test_defaults_to_true_when_nothing_saved(self):
 		self.assertIs(True, get_same_type_only('image'))

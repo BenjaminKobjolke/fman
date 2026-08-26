@@ -1,15 +1,15 @@
 """
-Next/previous-file navigation shared by the three in-pane viewers
-(core/imageviewer.py, core/videoviewer.py, core/textviewer.py). Rather than
-listing and sorting the directory itself, it walks the pane's own cursor
-(move_cursor_down/up + get_file_under_cursor), so it inherits the pane's live
-sort order and filters for free, then re-runs the "view_file" command to swap in
-whichever viewer matches the file it landed on.
+Next/previous-file navigation shared by every in-pane viewer - the built-in
+three (core/imageviewer.py, core/videoviewer.py, core/textviewer.py) and any a
+plugin registers. Rather than listing and sorting the directory itself, it
+walks the pane's own cursor (move_cursor_down/up + get_file_under_cursor), so
+it inherits the pane's live sort order and filters for free, then re-runs the
+"view_file" command to swap in whichever viewer matches the file it landed on.
 
 "Advance only for same type" is a per-viewer toggle persisted in
 Core Settings.json via core/settings.py - keeping the image viewer from jumping
-into a video and vice-versa. Each viewer owns its own key (see _SAME_TYPE_KEYS),
-defaulting to on.
+into a video and vice-versa. Each viewer owns its own key, derived from its
+name (see _same_type_key), defaulting to on.
 
 Also home to the small viewer-scoped command-palette plumbing
 (open_viewer_palette) that all three viewers share, so the quicksearch handling
@@ -21,53 +21,46 @@ from core.quicksearch_matchers import bucket_count, contains_chars, \
 	match_titles_or_keywords
 from core.settings import get_setting, save_setting
 from fman import show_quicksearch, show_status_message, QuicksearchItem
-from fman.url import as_human_readable, splitscheme
 
 _SETTINGS_FILE = 'Core Settings.json'
 
-_SAME_TYPE_KEYS = {
-	'image': 'image_viewer_advance_same_type',
-	'video': 'video_viewer_advance_same_type',
-	'text': 'text_viewer_advance_same_type',
-}
+def _same_type_key(category):
+	# Derived rather than tabulated, so a plugin's viewer gets its own setting
+	# without touching this file. Reproduces the three keys the built-in
+	# viewers have always used ('image_viewer_advance_same_type', ...), so
+	# nothing needs migrating.
+	#
+	# KeyError on an unknown category stays deliberate: callers pass a fixed
+	# literal per viewer, so a typo should fail loudly rather than silently
+	# reading - and later writing - a bogus key. Deriving alone would not do
+	# that, hence the registry check.
+	from core.viewers import viewer_for_category
+	if viewer_for_category(category) is None:
+		raise KeyError(category)
+	return '%s_viewer_advance_same_type' % category
 
 def get_same_type_only(category):
-	# KeyError on an unknown category is deliberate: callers pass a fixed
-	# literal per viewer, so a typo should fail loudly rather than silently
-	# reading a bogus key.
-	return bool(get_setting(_SETTINGS_FILE, _SAME_TYPE_KEYS[category], True))
+	return bool(get_setting(_SETTINGS_FILE, _same_type_key(category), True))
 
 def toggle_same_type_only(category):
 	new_value = not get_same_type_only(category)
-	save_setting(_SETTINGS_FILE, _SAME_TYPE_KEYS[category], new_value)
+	save_setting(_SETTINGS_FILE, _same_type_key(category), new_value)
 	show_status_message(
 		'Advance only for same type: %s' % ('on' if new_value else 'off')
 	)
 	return new_value
 
 def _category(url):
-	# 'image' | 'video' | 'text' | None (None = not viewable in-pane: a
-	# directory, a binary, or a non-local url). Lazy imports because the three
-	# viewer modules import THIS module, so importing them at load time would be
+	# A viewer's name ('image' | 'video' | 'text' | a plugin's own) or None,
+	# meaning nothing views this in-pane: a directory, a binary, or a non-local
+	# url. Lazy import because core/viewers.py imports the three viewer modules
+	# and those import THIS module, so importing it at load time would be
 	# circular (same lazy-import reason videoviewer.py defers `import mpv`).
-	from core.imageviewer import is_image
-	from core.videoviewer import is_video
-	from core.textviewer_io import is_text_file
-	from fman.fs import is_dir
-	if splitscheme(url)[0] != 'file://':
-		return None
-	if is_image(url):
-		return 'image'
-	if is_video(url):
-		return 'video'
-	if is_dir(url):
-		# Guard before is_text_file, which would try to read the directory.
-		return None
-	# ponytail: is_text_file sniffs up to 8 KB per candidate during a scan -
+	from core.viewers import viewer_for
+	# ponytail: viewer_for sniffs up to 8 KB per text candidate during a scan -
 	# fine for normal directories; add a cache only if it ever measurably drags.
-	if is_text_file(as_human_readable(url)):
-		return 'text'
-	return None
+	viewer = viewer_for(url)
+	return viewer.name if viewer else None
 
 class ViewerNavigator:
 	"""

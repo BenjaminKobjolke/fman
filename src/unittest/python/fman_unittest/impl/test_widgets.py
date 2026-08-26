@@ -1,5 +1,6 @@
 from fman.impl.widgets import LOADING_MESSAGE, LOADING_MESSAGE_NETWORK, \
-	format_loading_message
+	format_loading_message, _overlay_pos
+from PyQt5.QtCore import QRect, QSize
 from unittest import TestCase
 
 class FormatLoadingMessageTest(TestCase):
@@ -20,3 +21,48 @@ class FormatLoadingMessageTest(TestCase):
 		self.assertEqual(LOADING_MESSAGE.title, title)
 		self.assertEqual('', blank)
 		self.assertTrue(first_detail_line)
+
+class OverlayPosTest(TestCase):
+
+	"""
+	The tutorial overlay used to sit in the center of the window - on top of the
+	file list it was asking the user to navigate. It now parks in the bottom
+	right corner, clear of the rows and above the status bar.
+	"""
+
+	def test_leaves_a_margin_to_the_bottom_right(self):
+		pos = _overlay_pos(QSize(1000, 800), QSize(300, 200), 0, margin=20)
+		self.assertEqual((680, 580), (pos.x(), pos.y()))
+	def test_sits_above_the_status_bar(self):
+		pos = _overlay_pos(QSize(1000, 800), QSize(300, 200), 25, margin=20)
+		self.assertEqual(555, pos.y())
+	def test_stays_on_screen_when_the_overlay_is_larger_than_the_window(self):
+		# Clamping to 0 keeps the overlay's top left - and thus the start of its
+		# text and its title - visible. Without it, both scroll off screen.
+		pos = _overlay_pos(QSize(400, 300), QSize(600, 500), 25, margin=20)
+		self.assertEqual((0, 0), (pos.x(), pos.y()))
+	def test_a_dialog_that_does_not_overlap_leaves_the_overlay_alone(self):
+		# Opening the command palette must not make the overlay jump around.
+		pos = _overlay_pos(
+			QSize(1000, 800), QSize(300, 200), 0,
+			QRect(200, 100, 400, 300), margin=20
+		)
+		self.assertEqual((680, 580), (pos.x(), pos.y()))
+	def test_moves_above_a_dialog_that_would_cover_the_overlay(self):
+		# Dialogs are windows of their own, so a covered overlay cannot be
+		# raised back into view - it has to move. Above the dialog, not merely
+		# to the top margin: the command palette is centered and tall, so it
+		# reaches into the top right corner as well.
+		pos = _overlay_pos(
+			QSize(1000, 800), QSize(300, 200), 0,
+			QRect(200, 300, 600, 400), margin=20
+		)
+		self.assertEqual((680, 80), (pos.x(), pos.y()))
+	def test_stays_on_screen_when_a_dialog_leaves_no_room_above(self):
+		# Nothing fits anywhere; the top of the window is the least bad place,
+		# because it keeps the overlay's title and first lines readable.
+		pos = _overlay_pos(
+			QSize(1000, 800), QSize(300, 200), 0,
+			QRect(200, 100, 700, 650), margin=20
+		)
+		self.assertEqual((680, 0), (pos.x(), pos.y()))

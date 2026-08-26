@@ -2,7 +2,6 @@ from build_impl import copy_python_library
 from fbs import path
 from fbs.cmdline import command
 from fbs.freeze.windows import freeze_windows
-from os import remove
 from os.path import isdir
 from shutil import copytree, rmtree
 from subprocess import run
@@ -17,10 +16,12 @@ def freeze():
 	# Windows systems (see fman issue #480). Remove it to avoid problems,
 	# improve startup performance and decrease fman's download size.
 	# (Also note that a more elegant solution would be to only place
-	# Open Sans.ttf in src/main/resources/*linux*/Plugins/Core. But the current
+	# Open Sans in src/main/resources/*linux*/Plugins/Core. But the current
 	# implementation cannot handle multiple dirs .../resources/main,
 	# .../resources/linux for one plugin.)
-	remove(path('${core_plugin_in_freeze_dir}/Open Sans.ttf'))
+	# The whole directory, so its LICENSE goes with the font it covers - a
+	# licence left behind for a font that is not shipped is just confusing.
+	rmtree(path('${core_plugin_in_freeze_dir}/Fonts/Open Sans'))
 	copy_python_library('send2trash', path('${core_plugin_in_freeze_dir}'))
 	# core.release_notes (Core plugin) imports this to detect the system
 	# language for locale fallback - not scanned by PyInstaller since plugin

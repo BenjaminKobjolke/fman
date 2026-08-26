@@ -1,15 +1,17 @@
 """
 Pane-mounting glue for the text viewer (core/textviewer.py): the caret-fix
-stylesheet, the unsaved-edit confirmation prompt, and swapping a
-PaneTextView into/out of the pane's layout in place of the (hidden) file
-list. Split out of core/textviewer.py to stay under the project's 300-line
-file cap — genuinely separate from PaneTextView itself (the widget/editor
-behaviour) even though both are Qt-touching.
+stylesheet and the unsaved-edit confirmation prompt. Split out of
+core/textviewer.py to stay under the project's 300-line file cap — genuinely
+separate from PaneTextView itself (the widget/editor behaviour) even though
+both are Qt-touching.
+
+The swapping itself now lives in the engine (fman/impl/view/pane_mount.py,
+exposed as DirectoryPane.mount_widget/unmount_widget) so plugins can mount
+their own widgets too. mount_view/close_view below are shims kept for the
+callers — and any plugin — that already use them.
 """
 from fman import show_alert, YES, NO, CANCEL
-from fman.impl.util.qt.thread import run_in_main_thread
-from PyQt5.QtCore import QTimer
-from PyQt5.QtGui import QPalette
+from fman.impl.view.pane_mount import unmount_widget
 
 # Once the app-wide Theme.css ("* { font-size: ...pt; }", applied via
 # QApplication.setStyleSheet) touches a widget, Qt switches that widget from
@@ -59,64 +61,28 @@ def begin_new_view(pane):
 	already open in this pane, in which case the caller must not replace it.
 	Shared by show_text_viewer and show_text_in_viewer (core/textviewer.py).
 	"""
-	widget = pane._widget
-	existing_view = getattr(widget, '_text_view', None)
+	existing_view = pane.get_mounted_widget()
 	if existing_view is not None and not confirm_close(existing_view):
 		# User cancelled out of the save/discard prompt for the view
 		# currently open in this pane — leave it open, don't replace it.
 		return None
-	close_view(widget)
-	palette = widget._file_view.palette()
-	bg = palette.color(QPalette.Base).name()
-	fg = palette.color(QPalette.Text).name()
-	return widget, bg, fg
+	pane.unmount_widget()
+	bg, fg = pane.get_colors()
+	return pane._widget, bg, fg
 
 def mount_view(pane, widget, view, focus_view=True):
 	"""
-	Swaps `view` into the pane's layout in place of the (hidden) file list.
-	Shared tail of show_text_viewer/show_text_in_viewer once the PaneTextView
-	itself has been constructed and its text set.
-
-	focus_view=False mounts the viewer without grabbing keyboard focus — used
-	when viewing into the *other* pane (ViewFileInOtherPane), so the pane the
-	command ran from stays focused for continued browsing.
+	Shim over DirectoryPane.mount_widget, kept because the three viewers (and
+	any plugin that reached in here before the pane API existed) call it with
+	the (pane, widget) pair begin_new_view hands back. `widget` is redundant
+	now - the pane knows its own - and is ignored.
 	"""
-	widget.layout().addWidget(view)
-	widget._file_view.setVisible(False)
-	widget._text_view = view
-	# Re-point the pane's focus proxy at the viewer. switch_panes() ends by
-	# calling the *other* pane's focus(), which is setFocus() on this pane's
-	# widget — following the proxy. Without this it would land back on the
-	# hidden file view instead of the viewer when tabbing back. Set even when
-	# not grabbing focus now, so tabbing into this pane later lands on the
-	# viewer rather than the hidden file list.
-	widget.setFocusProxy(view)
-	if focus_view:
-		# The command palette's modal dialog restores focus to the (now hidden)
-		# file view as it closes, right before this function runs. Grabbing
-		# focus here immediately gets clobbered by that restore, so the caret
-		# never shows. Defer one event-loop tick so we focus after it settles:
-		QTimer.singleShot(0, view.setFocus)
-	else:
-		# Viewing into the *other* pane: keep focus on the pane the command ran
-		# from (the opposite of this target pane) so browsing continues there.
-		# Just skipping the setFocus above isn't enough — mounting the viewer
-		# still blurs the source pane's file list — so actively re-focus it,
-		# on the same deferred tick, to win over that blur.
-		panes = pane.window.get_panes()
-		source = panes[(panes.index(pane) + 1) % len(panes)]
-		QTimer.singleShot(0, source.focus)
+	pane.mount_widget(view, focus=focus_view)
 
-@run_in_main_thread
 def close_view(pane_widget):
-	view = getattr(pane_widget, '_text_view', None)
-	if view is None:
-		return
-	pane_widget.layout().removeWidget(view)
-	view.deleteLater()
-	pane_widget._text_view = None
-	# Restore the pane's original focus proxy (set in DirectoryPaneWidget
-	# .__init__) before the file view reclaims focus.
-	pane_widget.setFocusProxy(pane_widget._file_view)
-	pane_widget._file_view.setVisible(True)
-	pane_widget._file_view.setFocus()
+	"""
+	Shim over DirectoryPane.unmount_widget for callers that hold the pane
+	*widget* rather than the pane - which is what every viewer's on_close
+	callback captures (see core/imageviewer.py:194).
+	"""
+	unmount_widget(pane_widget)

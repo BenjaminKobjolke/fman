@@ -59,7 +59,7 @@ class Tutorial(Tour):
 					"features? It takes less than five minutes and lets you "
 					"hit the ground running."
 				],
-				buttons=[('No', self.reject), ('Yes', self._next_step)]
+				buttons=[('&No', self.reject), ('&Yes', self._next_step)]
 			),
 			TourStep(
 				'Awesome!',
@@ -69,7 +69,7 @@ class Tutorial(Tour):
 					'Also, it should be a little \"nested\" so you have to '
 					'click through a few directories to get to it.'
 				],
-				buttons=[('Select a folder', self._pick_folder)]
+				buttons=[('&Select a folder', self._pick_folder)]
 			),
 			TourStep('', []),
 			TourStep(
@@ -80,7 +80,7 @@ class Tutorial(Tour):
 					"Please click *Reset* to take you back to the directory you "
 					"started from."
 				],
-				buttons=[('Reset', self._reset)]
+				buttons=[('&Reset', self._reset)]
 			),
 			TourStep(
 				"",
@@ -107,7 +107,7 @@ class Tutorial(Tour):
 					}
 				}
 			),
-			TourStep('', [], buttons=[('Continue', self._next_step)]),
+			TourStep('', [], buttons=[('&Continue', self._next_step)]),
 			TourStep(
 				'',
 				[
@@ -116,7 +116,7 @@ class Tutorial(Tour):
 					"happens, simply navigate to the folder manually once."
 				],
 				buttons=[
-					('Okay!', self._next_step)
+					('&Okay!', self._next_step)
 				]
 			),
 			TourStep(
@@ -142,7 +142,7 @@ class Tutorial(Tour):
 					"before?"
 				],
 				buttons=[
-					('No', self._next_step), ('Yes', self._skip_steps(3))
+					('&No', self._next_step), ('&Yes', self._skip_steps(3))
 				]
 			),
 			TourStep(
@@ -152,7 +152,7 @@ class Tutorial(Tour):
 					"and move files. Would you like to see a brief example?"
 				],
 				buttons=[
-					('No', self._skip_steps(1)), ('Yes', self._next_step)
+					('&No', self._skip_steps(1)), ('&Yes', self._next_step)
 				]
 			),
 			TourStep(
@@ -164,7 +164,11 @@ class Tutorial(Tour):
 					"afterwards, press *%s*. Once you are done, click the "
 					"button below." % self._delete_key
 				],
-				buttons=[('Continue', self._skip_steps(1))]
+				buttons=[('&Continue', self._skip_steps(1))],
+				# The user copies and deletes a file during this step and
+				# confirms fman's dialogs with Enter. That Enter must not reach
+				# the overlay, so focus stays in the directory pane:
+				takes_focus=False
 			),
 			TourStep(
 				'',
@@ -173,7 +177,7 @@ class Tutorial(Tour):
 					"that *Tab* lets you switch between the left and the right "
 					"side."
 				],
-				buttons=[('Continue', self._next_step)]
+				buttons=[('&Continue', self._next_step)]
 			),
 			TourStep(
 				'',
@@ -229,7 +233,7 @@ class Tutorial(Tour):
 					"* *%s* opens the Command _P_alette." % self._cmd_shift_p,
 					"Have fun with fman! :-)"
 				],
-				buttons=[('Close', self.complete)]
+				buttons=[('&Close', self.complete)]
 			)
 		]
 	@run_in_main_thread
@@ -426,8 +430,8 @@ class Tutorial(Tour):
 	def _before_goto(self):
 		self._start_time = time()
 		if self._dst_url == as_url(expanduser('~')):
-			text = "To open your home directory with GoTo, type&nbsp;*~*. " \
-				   "Then, press *Enter*."
+			text = "To open your home directory with GoTo, type&nbsp;*~* - " \
+				   "or simply type *home*. Then, press *Enter*."
 		else:
 			goto_dir = fman.url.basename(self._dst_url)
 			text = "Start typing *%s* into the dialog. fman will suggest " \

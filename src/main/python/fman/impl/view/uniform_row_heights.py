@@ -10,6 +10,13 @@ class UniformRowHeights(QTableView):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 		self._row_height = None
+		# setIconSize(...) changes how tall a row has to be, but it raises
+		# no changeEvent, so the cache below would keep the old height and
+		# the bigger icons would be drawn clipped into it.
+		self.iconSizeChanged.connect(self._on_icon_size_changed)
+	def _on_icon_size_changed(self, _):
+		self._row_height = None
+		self.scheduleDelayedItemsLayout()
 	def sizeHintForRow(self, row):
 		model = self.model()
 		if row < 0 or row >= model.rowCount():

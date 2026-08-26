@@ -97,15 +97,25 @@ class AfterDialogShown:
 		connect_once(dialog.shown, self._callback)
 
 class TourStep:
-	def __init__(self, title, paragraphs, command_actions=None, buttons=None):
+	def __init__(
+		self, title, paragraphs, command_actions=None, buttons=None,
+		takes_focus=None
+	):
 		self._title = title
 		self._paragraphs = paragraphs
 		self._buttons = buttons or []
 		self._command_actions = command_actions or {}
+		# A step with buttons and nothing else to do is finished by pressing
+		# Enter, so its overlay takes focus. Steps that ask the user to act in
+		# the directory pane must leave focus there and pass takes_focus=False.
+		self._takes_focus = \
+			bool(self._buttons) if takes_focus is None else takes_focus
 		self._screen = None
 	@run_in_main_thread
 	def show(self, parent):
-		self._screen = Overlay(parent, self._get_html(), self._buttons)
+		self._screen = Overlay(
+			parent, self._get_html(), self._buttons, self._takes_focus
+		)
 		parent.show_overlay(self._screen)
 	@run_in_main_thread
 	def close(self):

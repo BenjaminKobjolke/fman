@@ -18,5 +18,6 @@
 		"statusbar_bg_bottom": "#1c1640",
 		"statusbar_bg_top": "#241c4a",
 		"window_bg": "#120c2e"
-	}
+	},
+	"font": "JetBrains Mono"
 }

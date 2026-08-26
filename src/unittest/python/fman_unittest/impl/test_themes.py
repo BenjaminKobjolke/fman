@@ -1,7 +1,15 @@
-from fman.impl.themes import DEFAULT_COLORS, DEFAULT_THEME, FALLBACKS, \
-	MIN_OPACITY, build_main_window_palette, build_palette, \
-	build_progress_bar_palette, is_valid_color, list_themes, load_opacity, \
-	load_theme, resolve_colors, substitute
+from fman.impl.model.icon_set import list_icon_sets
+# The bundled families and the guard that keeps them loadable live in
+# test_fonts, next to each other; this module only holds the *themes* to
+# them.
+from fman_unittest.impl.test_fonts import bundled_font_families
+from fman.impl.themes import DEFAULT_COLORS, DEFAULT_FONT, \
+	DEFAULT_ICON_SIZE_PX, DEFAULT_THEME, DEFAULT_TOKENS, FALLBACKS, \
+	MAX_ICON_SIZE, MIN_ICON_SIZE, MIN_OPACITY, build_main_window_palette, \
+	build_palette, build_progress_bar_palette, build_tokens, \
+	is_valid_color, list_themes, load_font, load_icon_color, \
+	load_icon_set_name, load_icon_size, load_opacity, load_theme, \
+	resolve_colors, scale_icon_size, substitute
 from os.path import dirname, exists, join
 from PyQt5.QtGui import QColor, QPalette
 from tempfile import TemporaryDirectory
@@ -15,6 +23,7 @@ _PROJECT_DIR = dirname(dirname(dirname(dirname(dirname(dirname(
 ))))))
 _RESOURCES = join(_PROJECT_DIR, 'src', 'main', 'resources')
 _THEMES_DIR = join(_RESOURCES, 'base', 'Themes')
+_ICONS_DIR = join(_RESOURCES, 'base', 'Icons')
 # The two files whose colors the themes own. Any other .qss stays literal on
 # purpose - see docs/THEMES.md ("Not themed").
 _TEMPLATES = (
@@ -95,9 +104,11 @@ class TemplatesTest(TestCase):
 		for path in _TEMPLATES:
 			self.assertEqual([], _COLOR_LITERAL.findall(_read(path)), path)
 	def test_every_placeholder_is_a_known_token(self):
+		# DEFAULT_TOKENS, not DEFAULT_COLORS: $font_family is a token that
+		# is not a color, and it has to clear this guard like any other.
 		for path in _TEMPLATES:
 			for name in _PLACEHOLDER.findall(_read(path)):
-				self.assertIn(name, DEFAULT_COLORS, '%s in %s' % (name, path))
+				self.assertIn(name, DEFAULT_TOKENS, '%s in %s' % (name, path))
 	def test_every_token_is_used(self):
 		used = set()
 		for path in _TEMPLATES:
@@ -106,7 +117,20 @@ class TemplatesTest(TestCase):
 		self.assertEqual(set(), set(DEFAULT_COLORS) - used)
 	def test_substitution_leaves_no_placeholder(self):
 		for path in _TEMPLATES:
-			self.assertNotIn('$', substitute(_read(path), DEFAULT_COLORS), path)
+			self.assertNotIn('$', substitute(_read(path), DEFAULT_TOKENS), path)
+	def test_font_family_token_is_quoted(self):
+		# A family with a space in it (every bundled one has) would fall
+		# apart in the QSS declaration unless build_tokens quotes it.
+		self.assertEqual(
+			'"Share Tech Mono"',
+			build_tokens(DEFAULT_COLORS, 'Share Tech Mono')['font_family']
+		)
+	def test_tokens_are_the_colors_plus_the_font(self):
+		self.assertEqual(
+			set(DEFAULT_COLORS) | {'font_family'}, set(DEFAULT_TOKENS)
+		)
+		for token, value in DEFAULT_COLORS.items():
+			self.assertEqual(value, DEFAULT_TOKENS[token], token)
 
 class BundledThemesTest(TestCase):
 	def test_default_theme_file_is_empty(self):
@@ -128,13 +152,40 @@ class BundledThemesTest(TestCase):
 				self.assertTrue(
 					is_valid_color(value), '%s: %s=%r' % (name, token, value)
 				)
-			if 'opacity' in data:
-				# Out of range would be silently ignored at runtime, which
-				# in a *bundled* theme is a typo nobody would notice.
-				self.assertEqual(
-					data['opacity'], load_opacity(name, [_THEMES_DIR]),
-					'%s: opacity=%r' % (name, data['opacity'])
+			# A value the validators reject is silently ignored at runtime,
+			# which in a *bundled* theme is a typo nobody would notice.
+			for key, load in (
+				('opacity', load_opacity),
+				('icon_size', load_icon_size),
+				('icons', load_icon_set_name),
+				('icon_color', load_icon_color),
+				('font', load_font)
+			):
+				if key in data:
+					self.assertEqual(
+						data[key], load(name, [_THEMES_DIR]),
+						'%s: %s=%r' % (name, key, data[key])
+					)
+			if 'icons' in data:
+				# A bundled theme may only name a set fman actually ships.
+				self.assertIn(
+					data['icons'], list_icon_sets([_ICONS_DIR]),
+					'%s: icons=%r' % (name, data['icons'])
 				)
+			if 'font' in data:
+				# Likewise a family fman actually bundles. A theme *may* name
+				# any family the machine has, but a bundled one that did would
+				# look different on every machine.
+				self.assertIn(
+					data['font'], bundled_font_families(),
+					'%s: font=%r' % (name, data['font'])
+				)
+	def test_monokai_keeps_the_platform_font(self):
+		# The pinned pre-fonts look: the default theme names no family, so
+		# DEFAULT_FONT - the literal its platform's Theme.css used to
+		# hardcode - is what applies.
+		self.assertIsNone(load_font(DEFAULT_THEME, [_THEMES_DIR]))
+		self.assertTrue(DEFAULT_FONT)
 	def test_load_theme_falls_back_when_missing(self):
 		self.assertEqual(DEFAULT_COLORS, load_theme('Nonexistent', [_THEMES_DIR]))
 	def test_default_is_listed_without_any_dir(self):
@@ -181,6 +232,115 @@ class OpacityTest(TestCase):
 	def _write(self, dir_, theme_json):
 		with open(join(dir_, 'T.json'), 'w') as f:
 			json.dump(theme_json, f)
+
+class NonColorKeysTest(TestCase):
+
+	"""
+	The five things a theme may say that are not colors all go through one
+	reader, so they are checked with one table: what the key is called, what
+	it accepts, and what it refuses. `opacity`'s own edge cases stay in
+	OpacityTest above - this is about the shared read-and-validate path.
+	"""
+
+	_CASES = (
+		('opacity', load_opacity, 0.8, ('0.8', True, None, 1.5)),
+		(
+			'icon_size', load_icon_size, 20,
+			('20', True, 20.5, MIN_ICON_SIZE - 1, MAX_ICON_SIZE + 1, None)
+		),
+		(
+			'icons', load_icon_set_name, 'Material',
+			('', 5, True, None, '..', '../elsewhere')
+		),
+		(
+			'icon_color', load_icon_color, '#00ff41',
+			('', 5, True, None, 'not-a-color', 'red; } * { color: red')
+		),
+		(
+			'font', load_font, 'JetBrains Mono',
+			# No 'not-a-font' here: unlike a color, a family fman has never
+			# heard of is legal - Qt falls back on its own. Only the shapes
+			# that could break out of the QSS declaration are refused.
+			(
+				'', '   ', 5, True, None, 'a; } * { color: red',
+				'a { b', 'a } b', 'Say "Hi"'
+			)
+		)
+	)
+
+	def test_reads_the_key(self):
+		for key, load, good, _ in self._CASES:
+			with self.subTest(key):
+				self.assertEqual(good, self._load(load, {key: good}))
+	def test_rejects_unusable_values(self):
+		for key, load, _, bad_values in self._CASES:
+			for bad in bad_values:
+				with self.subTest('%s=%r' % (key, bad)):
+					self.assertIsNone(self._load(load, {key: bad}))
+	def test_theme_without_the_key(self):
+		for key, load, _, _bad in self._CASES:
+			with self.subTest(key):
+				self.assertIsNone(self._load(load, {'colors': {}}))
+	def test_missing_theme(self):
+		for key, load, _, _bad in self._CASES:
+			with self.subTest(key):
+				self.assertIsNone(load('Nonexistent', [_THEMES_DIR]))
+	def test_non_dict_file_does_not_raise(self):
+		for key, load, _, _bad in self._CASES:
+			with self.subTest(key):
+				self.assertIsNone(self._load(load, []))
+	def test_icon_color_accepts_the_forms_qt_understands(self):
+		for value in ('#0f4', '#00ff41', 'white'):
+			with self.subTest(value):
+				self.assertEqual(
+					value, self._load(load_icon_color, {'icon_color': value})
+				)
+	def test_icon_size_accepts_the_whole_range(self):
+		for value in (MIN_ICON_SIZE, MAX_ICON_SIZE):
+			with self.subTest(value):
+				self.assertEqual(
+					value, self._load(load_icon_size, {'icon_size': value})
+				)
+	def test_font_accepts_a_family_nobody_has(self):
+		# The point of the rule above, stated as its own case: an unknown
+		# family is the theme author's problem to see, not fman's to reject.
+		self.assertEqual(
+			'Nonexistent Sans',
+			self._load(load_font, {'font': 'Nonexistent Sans'})
+		)
+	def _load(self, load, theme_json):
+		with TemporaryDirectory() as dir_:
+			with open(join(dir_, 'T.json'), 'w') as f:
+				json.dump(theme_json, f)
+			return load('T', [dir_])
+
+class ScaleIconSizeTest(TestCase):
+
+	"""
+	Growing the icons with the pane font zoom. The size that comes out is
+	what the file list draws; the one that goes in is what the user or the
+	theme asked for, which is why factor 1.0 has to be exactly transparent.
+	"""
+
+	def test_no_zoom_changes_nothing(self):
+		for size in (None, MIN_ICON_SIZE, 16, MAX_ICON_SIZE):
+			with self.subTest(size):
+				self.assertEqual(size, scale_icon_size(size, 1.0))
+	def test_unset_size_scales_from_qts_default(self):
+		# None means "don't ask Qt for a size", which cannot be multiplied -
+		# so the zoom has to know the number Qt would have used.
+		self.assertEqual(
+			DEFAULT_ICON_SIZE_PX * 2, scale_icon_size(None, 2.0)
+		)
+	def test_scales_from_the_chosen_size(self):
+		# "Set icon size 24" then zoom in: the icons grow from 24, not from
+		# Qt's 16.
+		self.assertEqual(48, scale_icon_size(24, 2.0))
+	def test_rounds_to_whole_pixels(self):
+		self.assertEqual(18, scale_icon_size(16, 9 / 8))
+	def test_clamps_to_the_supported_range(self):
+		self.assertEqual(MAX_ICON_SIZE, scale_icon_size(48, 10.0))
+		self.assertEqual(MIN_ICON_SIZE, scale_icon_size(16, 0.1))
 
 # Every token the palette builders read. Kept next to the assertions below
 # so the "every token is used" test above sees the palette-only ones too.
@@ -266,6 +426,10 @@ class LegibilityTest(TestCase):
 	"""
 
 	_LEGACY = frozenset(['Monokai'])
+	# Themes that draw *no* entry separators on purpose: their divider
+	# tokens are set to popup_bg deliberately, not by the old fallback bug
+	# (test_no_separator_inherits_its_own_surface still guards that).
+	_NO_DIVIDERS = frozenset(['Matrix'])
 	# WCAG AA for body text. The palette's smallest text (the description
 	# line) is what this protects.
 	_MIN_TEXT = 4.5
@@ -297,6 +461,8 @@ class LegibilityTest(TestCase):
 				)
 	def test_palette_separators_are_visible(self):
 		for name, colors in self._themes():
+			if name in self._NO_DIVIDERS:
+				continue
 			for token in ('popup_divider_top', 'popup_divider_bottom'):
 				ratio = contrast_ratio(colors[token], colors['popup_bg'])
 				self.assertGreaterEqual(

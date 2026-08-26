@@ -1,10 +1,12 @@
 from fman import load_json, PLATFORM
+from fman.impl.model.icon_tint import tint_image, TINT_RENDER_SIZE
+from fman.impl.model.table import invalidate_icons
 from fman.impl.util import filenotfounderror
 from fman.url import splitscheme
 from functools import lru_cache
 from pathlib import Path, PurePosixPath
 from PyQt5.QtCore import QFileInfo
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QFileIconProvider
 
 import logging
@@ -12,13 +14,26 @@ import sys
 
 _LOG = logging.getLogger(__name__)
 
-# Opting back in to real per-file icons on network drives. Written by the Core
-# plugin's ToggleNetworkIcons command - keep both names in sync.
-_SETTINGS_FILE = 'Core Settings.json'
-_NETWORK_ICONS_KEY = 'network_file_icons'
+# The settings this module reads and the Core plugin writes. Public because
+# the plugin imports them from here - the engine never imports the plugin, so
+# this module owns the contract and ToggleNetworkIcons /
+# ToggleExecutableIcons read the names off it.
+SETTINGS_FILE = 'Core Settings.json'
+# Opting back in to real per-file icons on network drives.
+NETWORK_ICONS_KEY = 'network_file_icons'
+# Opting back out of the icon set for programs and shortcuts, where the OS
+# icon says which program it is and a set's generic one does not.
+EXECUTABLE_ICONS_KEY = 'os_icons_for_executables'
+_EXECUTABLE_SUFFIXES = ('.exe', '.lnk')
+
+# An .ico *is* a picture of itself, and the shell draws that picture. No icon
+# set can say more about it, so these never go through one.
+_SELF_DEPICTING_SUFFIXES = ('.ico',)
 
 class IconProvider:
-	def __init__(self, qt_icon_provider, fs, cache_dir):
+	def __init__(
+		self, qt_icon_provider, fs, cache_dir, icon_set=None, icon_color=None
+	):
 		self._qt_icon_provider = qt_icon_provider
 		self._fs = fs
 		self._folder_icon = self._get_qt_icon(cache_dir)
@@ -27,17 +42,65 @@ class IconProvider:
 			f.suffix: self._get_qt_icon(f)
 			for f in Path(cache_dir).glob('file*')
 		}
+		self._icon_set = icon_set
+		self._icon_color = icon_color
+		self._icon_set_cache = {}
+	def set_icon_set(self, icon_set):
+		# Switching theme can switch the set (fman.impl.themes), so this
+		# happens while fman is running. The cache is keyed by file path,
+		# and two sets give the same path different icons - drop it.
+		self._icon_set = icon_set
+		self._icon_set_cache = {}
+		invalidate_icons()
+	def set_icon_color(self, icon_color):
+		# Same story as set_icon_set, and the same cache: one path tinted two
+		# colors is two icons, so the color cannot be left out of the key by
+		# keeping stale entries around.
+		self._icon_color = icon_color
+		self._icon_set_cache = {}
+		invalidate_icons()
 	def get_icon(self, url):
 		scheme, path = splitscheme(url)
-		if scheme == 'file://':
-			return self._get_file_icon(url, path)
-		url = self._fs.resolve(url)
-		scheme, path = splitscheme(url)
+		if scheme != 'file://':
+			url = self._fs.resolve(url)
+			scheme, path = splitscheme(url)
+		from_set = self._get_icon_set_icon(url, path)
+		if from_set is not None:
+			return from_set
 		if scheme == 'file://':
 			return self._get_file_icon(url, path)
 		return self._get_generic_icon(url, path)
+	def _get_icon_set_icon(self, url, path):
+		"""
+		The active icon set's icon for `url`, or None to let the OS answer -
+		which is also what happens when no set is active at all.
+		"""
+		if self._icon_set is None:
+			return None
+		name = PurePosixPath(path)
+		suffix = name.suffix.lower()
+		if suffix in _SELF_DEPICTING_SUFFIXES:
+			return None
+		if suffix in _EXECUTABLE_SUFFIXES and _core_setting(
+			EXECUTABLE_ICONS_KEY
+		):
+			return None
+		try:
+			is_dir = self._fs.is_dir(url)
+		except OSError:
+			# Mirrors Model#_load_file, which treats a file it cannot stat as
+			# "not a directory" rather than failing the listing. Before icon
+			# sets, this path never asked - so it must not start raising now.
+			return None
+		icon_file = self._icon_set.icon_file(name.name, is_dir)
+		if icon_file is None:
+			return None
+		if icon_file not in self._icon_set_cache:
+			self._icon_set_cache[icon_file] = \
+				_load_icon(icon_file, self._icon_color)
+		return self._icon_set_cache[icon_file]
 	def _get_file_icon(self, url, path):
-		if _is_network_path(path) and not _network_icons_enabled():
+		if _is_network_path(path) and not _core_setting(NETWORK_ICONS_KEY):
 			# Asking the Windows shell for the icon of a file on a network share
 			# means reading that file over the wire - .exe and .dll icons are
 			# embedded in the file itself. One generic icon per extension keeps
@@ -141,5 +204,21 @@ def _is_network_path(path):
 	# arrives as //server/share.
 	return PLATFORM == 'Windows' and path.startswith('//')
 
-def _network_icons_enabled():
-	return load_json(_SETTINGS_FILE, default={}).get(_NETWORK_ICONS_KEY, False)
+def _core_setting(key):
+	"""
+	One of the Core plugin's boolean icon settings. Absent means False - the
+	settings file only carries the ones the user has turned on.
+	"""
+	return load_json(SETTINGS_FILE, default={}).get(key, False)
+
+def _load_icon(path, color=None):
+	# A seam for the tests, which have no QApplication to build a QIcon in -
+	# the same reason IconProvider takes its Qt provider as an argument.
+	if color is None:
+		return QIcon(path)
+	# Tinting trades Qt's SVG engine - which redraws crisply at whatever size
+	# the view asks for - for one bitmap at TINT_RENDER_SIZE. That is why it
+	# only happens when a theme actually asks for a color, and why the size
+	# has headroom over MAX_ICON_SIZE rather than matching it.
+	image = QIcon(path).pixmap(TINT_RENDER_SIZE, TINT_RENDER_SIZE).toImage()
+	return QIcon(QPixmap.fromImage(tint_image(image, color)))

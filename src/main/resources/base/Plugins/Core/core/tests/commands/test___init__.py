@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import QApplication
 from stat import FILE_ATTRIBUTE_HIDDEN, FILE_ATTRIBUTE_NORMAL
 from tempfile import NamedTemporaryFile
 from unittest import TestCase, skipIf
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import os
 import os.path
@@ -363,25 +363,28 @@ def _write_temp_file(test_case, data):
 	test_case.addCleanup(os.remove, f.name)
 	return f.name
 
+# Which viewer claims which file now lives in the registry, and is covered by
+# core/tests/test_viewers.py. These tests are about the commands' own job:
+# validate, pick the target pane, decide focus, alert when nothing handles it.
 class ViewFileTest(TestCase):
-	def test_text_file_opens_text_viewer(self):
+	def test_viewable_file_opens_its_viewer(self):
 		path = _write_temp_file(self, b'hello world')
 		pane = _FakeViewFilePane(as_url(path))
+		viewer = MagicMock()
 		with patch('core.commands.is_dir', return_value=False), \
-				patch('core.commands.show_text_viewer') as show_text_viewer, \
+				patch('core.commands.viewer_for', return_value=viewer), \
 				patch('core.commands.show_alert') as show_alert:
 			ViewFile(pane)()
-		show_text_viewer.assert_called_once()
+		viewer.show.assert_called_once()
 		show_alert.assert_not_called()
 
-	def test_binary_file_shows_alert_instead_of_text_viewer(self):
+	def test_file_no_viewer_handles_shows_an_alert(self):
 		path = _write_temp_file(self, b'MZ\x00\x00binary stuff')
 		pane = _FakeViewFilePane(as_url(path))
 		with patch('core.commands.is_dir', return_value=False), \
-				patch('core.commands.show_text_viewer') as show_text_viewer, \
+				patch('core.commands.viewer_for', return_value=None), \
 				patch('core.commands.show_alert') as show_alert:
 			ViewFile(pane)()
-		show_text_viewer.assert_not_called()
 		show_alert.assert_called_once()
 
 class _FakeViewInOtherPane:
@@ -401,14 +404,15 @@ class ViewFileInOtherPaneTest(TestCase):
 		source = _FakeViewInOtherPane(as_url(path), window)
 		target = _FakeViewInOtherPane(None, window)
 		window._panes = [source, target]
+		viewer = MagicMock()
 		with patch('core.commands.is_dir', return_value=False), \
-				patch('core.commands.show_text_viewer') as show_text_viewer, \
+				patch('core.commands.viewer_for', return_value=viewer), \
 				patch('core.commands.show_alert') as show_alert:
 			ViewFileInOtherPane(source)()
 		# Mounted into the OTHER pane, and told not to grab keyboard focus so
 		# browsing stays in the source pane.
-		self.assertIs(target, show_text_viewer.call_args[0][0])
-		self.assertFalse(show_text_viewer.call_args.kwargs['focus_view'])
+		self.assertIs(target, viewer.show.call_args[0][0])
+		self.assertFalse(viewer.show.call_args.kwargs['focus_view'])
 		show_alert.assert_not_called()
 
 	def test_single_pane_views_in_place_and_takes_focus(self):
@@ -416,12 +420,13 @@ class ViewFileInOtherPaneTest(TestCase):
 		window = _FakeWindow()
 		only = _FakeViewInOtherPane(as_url(path), window)
 		window._panes = [only]
+		viewer = MagicMock()
 		with patch('core.commands.is_dir', return_value=False), \
-				patch('core.commands.show_text_viewer') as show_text_viewer, \
+				patch('core.commands.viewer_for', return_value=viewer), \
 				patch('core.commands.show_alert') as show_alert:
 			ViewFileInOtherPane(only)()
-		self.assertIs(only, show_text_viewer.call_args[0][0])
-		self.assertTrue(show_text_viewer.call_args.kwargs['focus_view'])
+		self.assertIs(only, viewer.show.call_args[0][0])
+		self.assertTrue(viewer.show.call_args.kwargs['focus_view'])
 		show_alert.assert_not_called()
 
 	def test_validation_failure_mounts_nothing(self):
@@ -429,11 +434,12 @@ class ViewFileInOtherPaneTest(TestCase):
 		source = _FakeViewInOtherPane(None, window)  # no file selected
 		target = _FakeViewInOtherPane(None, window)
 		window._panes = [source, target]
-		with patch('core.commands.show_text_viewer') as show_text_viewer, \
+		viewer = MagicMock()
+		with patch('core.commands.viewer_for', return_value=viewer), \
 				patch('core.commands.show_alert') as show_alert:
 			ViewFileInOtherPane(source)()
 		show_alert.assert_called_once()
-		show_text_viewer.assert_not_called()
+		viewer.show.assert_not_called()
 
 class ClampFontSizeTest(TestCase):
 	def test_steps_up(self):

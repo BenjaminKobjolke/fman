@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from fman.impl.themes import DEFAULT_COLORS, substitute
+from fman.impl.themes import DEFAULT_TOKENS, substitute
 from fman.impl.util.css import parse_css, CSSEngine
 from tinycss.parsing import ParseError
 
@@ -14,11 +14,11 @@ class Theme:
 		'.locationbar': 'LocationBar:read-only'
 	}
 
-	def __init__(self, app, qss_file_paths, colors=None):
+	def __init__(self, app, qss_file_paths, tokens=None):
 		self._app = app
-		self._colors = DEFAULT_COLORS if colors is None else colors
+		self._tokens = DEFAULT_TOKENS if tokens is None else tokens
 		# Kept (rather than only their concatenated text) because switching
-		# theme has to re-substitute the color tokens in them:
+		# theme has to re-substitute the tokens in them:
 		self._qss_file_paths = list(qss_file_paths)
 		self._qss_base = self._build_qss_base()
 		self._css_rules = OrderedDict()
@@ -27,15 +27,19 @@ class Theme:
 		# path in load order - same reason as _qss_file_paths above.
 		self._css_sources = OrderedDict()
 		self._quicksearch_item_css = ''
+		# The pane font zoom, so the command palette grows and shrinks with
+		# the panes. Pushed by ThemeController, never saved here - see
+		# set_font_scale.
+		self._font_scale = 1.0
 		self._updates_enabled = False
-	def set_colors(self, colors):
+	def set_tokens(self, tokens):
 		"""
-		Applies a theme's colors (see fman.impl.themes) to the base style
-		sheet and to every CSS file loaded so far, then restyles the app
-		once. Load order is preserved, so a user's own Theme.css keeps
-		winning over the theme.
+		Applies a theme's tokens - its colors plus its font family, see
+		fman.impl.themes.build_tokens - to the base style sheet and to every
+		CSS file loaded so far, then restyles the app once. Load order is
+		preserved, so a user's own Theme.css keeps winning over the theme.
 		"""
-		self._colors = colors
+		self._tokens = tokens
 		self._qss_base = self._build_qss_base()
 		updates_enabled = self._updates_enabled
 		self._updates_enabled = False
@@ -59,6 +63,17 @@ class Theme:
 		self._update_app()
 	def get_quicksearch_item_css(self):
 		return self._quicksearch_item_css
+	def set_font_scale(self, factor):
+		"""
+		Scales every font size the command palette draws by `factor`, so it
+		follows the pane font zoom. Deliberately not remembered here, for the
+		same reason ThemeController.set_icon_scale isn't: the zoom that
+		decides `factor` is the Core plugin's pane_font_size, which persists
+		and is re-applied on startup already.
+		"""
+		self._font_scale = factor
+		self._quicksearch_item_css = self._get_quicksearch_item_css()
+		self._update_app()
 	def enable_updates(self):
 		"""
 		Performance optimization: Updating our app's style sheet to reflect
@@ -73,13 +88,13 @@ class Theme:
 		result = ''
 		for qss_file_path in self._qss_file_paths:
 			with open(qss_file_path, 'r') as f:
-				result += substitute(f.read(), self._colors) + '\n'
+				result += substitute(f.read(), self._tokens) + '\n'
 		return result
 	def _parse(self, css_file_path, f_contents):
 		# Raises ThemeError. Kept separate from load(...) so switching theme
 		# can re-parse an already-loaded file with the new colors, without
 		# reading it from disk again.
-		css = substitute(f_contents.decode('utf-8'), self._colors)
+		css = substitute(f_contents.decode('utf-8'), self._tokens)
 		try:
 			new_rules = parse_css(css.encode('utf-8'))
 		except ParseError as e:
@@ -96,7 +111,9 @@ class Theme:
 			error_message = 'CSS error in %s: %s' % (css_file_path, e)
 			raise ThemeError(error_message) from None
 	def _get_quicksearch_item_css(self):
-		engine = CSSEngine([r for rs in self._css_rules.values() for r in rs])
+		engine = self._css_engine()
+		def scaled_pts(selector):
+			return self._scale_pts(engine.parse_pts(selector, 'font-size'))
 		return {
 			'padding-top_px':
 				engine.parse_px('.quicksearch-item', 'padding-top'),
@@ -109,8 +126,7 @@ class Theme:
 			'border-bottom-width_px':
 				engine.parse_border_width('.quicksearch-item', 'border-bottom'),
 			'title': {
-				'font-size_pts':
-					engine.parse_pts('.quicksearch-item-title', 'font-size'),
+				'font-size_pts': scaled_pts('.quicksearch-item-title'),
 				'color': engine.parse_color('.quicksearch-item-title', 'color'),
 				'highlight': {
 					'color': engine.parse_color(
@@ -119,18 +135,35 @@ class Theme:
 				}
 			},
 			'hint': {
-				'font-size_pts':
-					engine.parse_pts('.quicksearch-item-hint', 'font-size'),
+				'font-size_pts': scaled_pts('.quicksearch-item-hint'),
 				'color': engine.parse_color('.quicksearch-item-hint', 'color')
 			},
 			'description': {
-				'font-size_pts': engine.parse_pts(
-					'.quicksearch-item-description', 'font-size'
-				),
+				'font-size_pts': scaled_pts('.quicksearch-item-description'),
 				'color':
 					engine.parse_color('.quicksearch-item-description', 'color')
 			}
 		}
+	def _css_engine(self):
+		return CSSEngine([r for rs in self._css_rules.values() for r in rs])
+	def _scale_pts(self, pts):
+		return max(1, round(pts * self._font_scale))
+	def _get_font_scale_qss(self):
+		# The palette's items are painted by hand from
+		# get_quicksearch_item_css, but its query line is a real widget, so
+		# its share of the zoom has to land as QSS - last, which is what
+		# makes it win over the theme's own rule for the same selector.
+		if self._font_scale == 1.0 or not self._css_rules:
+			return ''
+		try:
+			pts = self._scale_pts(
+				self._css_engine().parse_pts('.quicksearch-query', 'font-size')
+			)
+		except ValueError:
+			# No theme loaded so far says how big the query line is; there is
+			# then nothing to scale, and Qt's own default applies.
+			return ''
+		return '\nQuicksearch QLineEdit {\n\tfont-size: %dpt;\n}' % pts
 	def _css_rule_to_qss(self, rule):
 		qss_selectors = self._get_qss_selectors(rule.selectors)
 		if not qss_selectors:
@@ -151,7 +184,8 @@ class Theme:
 	def _update_app(self):
 		if not self._updates_enabled:
 			return
-		qss = self._qss_base + ''.join(self._extra_qss_from_css.values())
+		qss = self._qss_base + ''.join(self._extra_qss_from_css.values()) + \
+			  self._get_font_scale_qss()
 		self._app.set_style_sheet(qss)
 
 class ThemeError(Exception):

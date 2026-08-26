@@ -10,6 +10,34 @@
 	"decrease_pane_font_size": [
 		"zoom out", "smaller pane font", "smaller", "shrink text"
 	],
+	"go_home": [
+		"home", "~", "home directory", "user folder", "user profile",
+		"go to home"
+	],
+	"go_to_app_data": [
+		"appdata", "roaming", "%appdata%", "application data",
+		"plugins folder", "settings folder"
+	],
+	"go_to_desktop": ["desktop", "go to desktop"],
+	"go_to_documents": ["documents", "my documents", "personal folder"],
+	"go_to_downloads": ["downloads", "downloaded files"],
+	"go_to_local_app_data": [
+		"localappdata", "%localappdata%", "local app data", "local settings"
+	],
+	"go_to_program_data": [
+		"programdata", "%programdata%", "all users", "common app data"
+	],
+	"go_to_program_files": [
+		"program files", "%programfiles%", "installed programs",
+		"applications"
+	],
+	"go_to_program_files_x86": [
+		"program files x86", "32 bit programs", "x86"
+	],
+	"go_to_root_of_current_drive": [
+		"drive root", "root", "top of drive", "c:\\"
+	],
+	"go_to_temp": ["temp", "tmp", "%temp%", "temporary files", "scratch"],
 	"go_up": ["go to parent directory", "parent", "up one level"],
 	"help": [
 		"show keyboard shortcuts", "show key bindings", "documentation",
@@ -31,10 +59,29 @@
 	"quit": ["exit", "close fman"],
 	"reload": ["refresh", "rescan"],
 	"remove_plugin": ["uninstall plugin"],
+	"reset_font": [
+		"default font", "theme font", "reset typeface", "clear font"
+	],
 	"reset_pane_font_size": ["default font size", "reset zoom"],
+	"select_font": [
+		"typeface", "font family", "change font", "monospace", "ui font",
+		"text font"
+	],
+	"select_icon_set": [
+		"file icons", "folder icons", "icon theme", "icon set",
+		"material", "vscode icons"
+	],
 	"select_theme": [
 		"change theme", "color scheme", "appearance", "colors", "colours",
 		"dark mode", "light mode", "skin"
+	],
+	"set_icon_color": [
+		"icon tint", "recolor icons", "colorize icons", "icon theme color",
+		"colour icons"
+	],
+	"set_icon_size": [
+		"bigger icons", "smaller icons", "icon scale", "large icons",
+		"row height"
 	],
 	"set_window_opacity": [
 		"transparency", "window transparency", "opacity", "alpha",
@@ -43,12 +90,26 @@
 	"show_release_notes": ["show release notes", "changelog", "what's new"],
 	"show_volumes": ["show drives", "disks", "partitions"],
 	"symlink": ["create symbolic link", "shortcut", "junction"],
+	"toggle_executable_icons": [
+		"exe icon", "program icon", "shortcut icon", "application icon"
+	],
 	"toggle_hidden_files": [
 		"show / hide hidden files", "dotfiles", "invisible", "system files"
+	],
+	"toggle_menu_bar": [
+		"menu bar", "help menu", "hide menu", "show menu", "chrome"
 	],
 	"toggle_modified_column": ["show / hide modified column", "date column"],
 	"toggle_network_icons": ["show real icons on network drives"],
 	"toggle_size_column": ["show / hide size column"],
+	"toggle_status_bar": [
+		"status bar", "statusbar", "hide status bar", "message bar",
+		"bottom bar", "chrome"
+	],
+	"toggle_title_bar": [
+		"title bar", "titlebar", "window frame", "borderless", "frameless",
+		"caption", "chrome", "hide title bar"
+	],
 	"video_mute": ["sound", "volume", "audio", "silence"],
 	"video_reset_volume": ["volume", "audio", "loudness"],
 	"view_file": ["view", "internal viewer", "preview"],

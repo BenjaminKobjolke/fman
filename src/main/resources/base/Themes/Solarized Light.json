@@ -18,5 +18,6 @@
 		"statusbar_bg_bottom": "#e4ddc8",
 		"statusbar_bg_top": "#eee8d5",
 		"window_bg": "#eee8d5"
-	}
+	},
+	"font": "Public Sans"
 }

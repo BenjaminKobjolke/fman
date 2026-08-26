@@ -11,13 +11,20 @@
 		"pane_fg_dir": "#00ff41",
 		"pane_selected_fg": "#b6ff7a",
 		"popup_bg": "#000f04",
+		"popup_divider_bottom": "#000f04",
+		"popup_divider_top": "#000f04",
 		"popup_input_bg": "#000000",
+		"popup_input_border": "#000000",
 		"popup_input_fg": "#00ff41",
 		"popup_item_fg": "#00e03a",
+		"popup_query_inner_border": "#000f04",
 		"popup_selected_bg": "#00381a",
 		"statusbar_bg_bottom": "#00120a",
 		"statusbar_bg_top": "#001a06",
 		"window_bg": "#000a03"
 	},
-	"opacity": 0.92
+	"opacity": 0.92,
+	"icons": "Material",
+	"icon_color": "#00ff41",
+	"font": "Share Tech Mono"
 }

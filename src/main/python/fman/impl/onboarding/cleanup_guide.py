@@ -25,7 +25,7 @@ class CleanupGuide(Tour):
 					"Quickly clean up your files with this guide. It takes "
 					"less than five minutes. Do you want to continue?"
 				],
-				buttons=[('No', self.reject), ('Yes', self._next_step)]
+				buttons=[('&No', self.reject), ('&Yes', self._next_step)]
 			),
 			TourStep(
 				'Cool!',
@@ -36,7 +36,10 @@ class CleanupGuide(Tour):
 					"Once you're in the directory you want to clean up, click "
 					"Next."
 				],
-				buttons=[('Next', self._arrived_in_folder)]
+				buttons=[('&Next', self._arrived_in_folder)],
+				# The user navigates in the directory pane during this step, so
+				# focus must stay there:
+				takes_focus=False
 			),
 			TourStep(
 				'',
@@ -44,7 +47,7 @@ class CleanupGuide(Tour):
 					"Great! Is there a file in *%s* that you no longer need "
 					"and want to delete?"
 				],
-				buttons=[('No', self._skip_steps(6)), ('Yes', self._next_step)]
+				buttons=[('&No', self._skip_steps(6)), ('&Yes', self._next_step)]
 			),
 			TourStep(
 				'',
@@ -78,7 +81,7 @@ class CleanupGuide(Tour):
 				[
 					"Perfect! Do you have other files you want to delete?"
 				],
-				buttons=[('No', self._skip_steps(3)), ('Yes', self._next_step)]
+				buttons=[('&No', self._skip_steps(3)), ('&Yes', self._next_step)]
 			),
 			TourStep(
 				'',
@@ -127,7 +130,7 @@ class CleanupGuide(Tour):
 					"Alright! Do you have a file in this directory that you "
 					"want to move to another folder?"
 				],
-				buttons=[('No', self._skip_steps(5)), ('Yes', self._next_step)]
+				buttons=[('&No', self._skip_steps(5)), ('&Yes', self._next_step)]
 			),
 			TourStep(
 				'',
@@ -156,7 +159,9 @@ class CleanupGuide(Tour):
 					"than using the mouse.",
 					"When you're in the folder you want, click *Next*."
 				],
-				buttons=[('Next', self._next_step)]
+				buttons=[('&Next', self._next_step)],
+				# Same as above: the user is navigating, not just acknowledging.
+				takes_focus=False
 			),
 			TourStep(
 				'',
@@ -207,7 +212,7 @@ class CleanupGuide(Tour):
 					"guide again at any time. Simply use the Command Palette "
 					"*(%s)*." % cmd_shift_p
 				],
-				buttons=[('Close', self.complete)]
+				buttons=[('&Close', self.complete)]
 			)
 		]
 	def _arrived_in_folder(self):

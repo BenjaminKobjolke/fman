@@ -1,6 +1,7 @@
 from . import clipboard
 from .url import dirname
 from .impl.task import StubProgressDialog, ChildProgressDialog
+from .impl.view.pane_mount import get_colors, mount_widget, unmount_widget
 from contextlib import contextmanager
 from fbs_runtime import platform
 from os import getenv
@@ -11,6 +12,7 @@ import re
 
 __all__ = [
 	'ApplicationCommand', 'DirectoryPaneCommand', 'DirectoryPaneListener',
+	'Viewer', 'find_viewer', 'viewer_for_category',
 	'load_json', 'save_json',
 	'show_alert', 'show_prompt', 'show_status_message', 'clear_status_message',
 	'show_file_open_dialog',
@@ -153,6 +155,27 @@ class DirectoryPane:
 		self._widget.deselect(file_urls, ignore_errors=True)
 	def focus(self):
 		self._widget.focus()
+	def mount_widget(self, view, focus=True):
+		"""
+		Shows `view` in this pane in place of its file list. The pane's key
+		handling is the widget's own from then on - fman only puts it there.
+		Call unmount_widget() to bring the file list back.
+
+		focus=False mounts without grabbing keyboard focus, so the pane the
+		command ran from stays focused (see "View file in other pane").
+		"""
+		mount_widget(self, self._widget, view, focus)
+	def unmount_widget(self):
+		unmount_widget(self._widget)
+	def get_mounted_widget(self):
+		return self._widget._mounted_widget
+	def get_colors(self):
+		"""
+		This pane's live (background, foreground) as hex strings. Mounted
+		widgets should paint with these rather than hardcoding colors, so
+		they follow the active theme.
+		"""
+		return get_colors(self._widget)
 	def get_columns(self):
 		return self._widget.get_columns()
 	def set_sort_column(self, column, ascending=True):
@@ -200,6 +223,35 @@ class DirectoryPaneCommand:
 		if file_under_cursor:
 			return [file_under_cursor]
 		return []
+
+class Viewer:
+
+	"""
+	Shows a file inside a DirectoryPane, in place of its file list. Subclass
+	this in a plugin and fman's "View file" will use it for the files your
+	matches() claims - see docs/viewers/PLUGIN_VIEWERS.md.
+	"""
+
+	# Unique and stable. It is also the category next/previous-file navigation
+	# uses and the key this viewer's own settings are stored under, so
+	# renaming it silently resets those settings.
+	name = ''
+
+	# Decides between two viewers that both match a url. Registration order is
+	# plugin load order, which is not a useful priority - Core's text viewer
+	# matches anything text-like and sits at -100 so plugins get first refusal.
+	priority = 0
+
+	def matches(self, url):
+		return False
+
+	def show(self, pane, url, focus_view=True):
+		"""
+		Build your widget and hand it to pane.mount_widget(). focus_view=False
+		means mount it without taking keyboard focus - the user is viewing
+		into the other pane and wants to keep browsing in this one.
+		"""
+		raise NotImplementedError()
 
 class DirectoryPaneListener:
 	def __init__(self, pane):
@@ -273,6 +325,20 @@ def run_application_command(name, args=None):
 def get_application_command_aliases(command_name):
 	return _get_plugin_support().get_application_command_aliases(command_name)
 
+def find_viewer(url):
+	"""
+	The Viewer that handles `url`, or None if none does. Highest priority
+	wins; see fman.Viewer and docs/viewers/PLUGIN_VIEWERS.md.
+	"""
+	return _get_app_ctxt().viewer_registry.find(url)
+
+def viewer_for_category(name):
+	"""
+	The Viewer registered under `name`, or None. For code that has a stored
+	category rather than a url.
+	"""
+	return _get_app_ctxt().viewer_registry.for_category(name)
+
 def get_themes():
 	"""
 	The names of the available color themes, sorted. See docs/THEMES.md.
@@ -307,6 +373,102 @@ def set_window_opacity(value):
 	Raises ValueError for a number outside the supported range.
 	"""
 	return _get_app_ctxt().theme_controller.set_opacity(value)
+
+def get_icon_sets():
+	"""
+	The names of the available icon sets, sorted. "System" means the icons
+	the operating system supplies. See docs/THEMES.md.
+	"""
+	return _get_app_ctxt().theme_controller.get_icon_sets()
+
+def get_icon_set():
+	"""
+	The name of the icon set the file list currently draws. This is the
+	user's own setting if they have one, else what the active theme asks
+	for, else "System".
+	"""
+	return _get_app_ctxt().theme_controller.get_icon_set()
+
+def set_icon_set(name):
+	"""
+	Applies the icon set `name` and remembers it across restarts. Pass None
+	to forget it and follow the active theme again. Panes still show the
+	icons they loaded under the old set until they are reloaded.
+	"""
+	return _get_app_ctxt().theme_controller.set_icon_set(name)
+
+def get_fonts():
+	"""
+	The font families fman can draw in, sorted. This is everything Qt
+	knows: the families fman bundles and the ones the operating system
+	supplies. See docs/THEMES.md.
+	"""
+	return _get_app_ctxt().theme_controller.get_fonts()
+
+def get_font():
+	"""
+	The font family the UI is currently drawn in. This is the user's own
+	setting if they have one, else what the active theme asks for, else
+	fman's default for this platform.
+	"""
+	return _get_app_ctxt().theme_controller.get_font()
+
+def set_font(name):
+	"""
+	Draws the UI in font family `name` and remembers it across restarts.
+	Pass None to forget it and follow the active theme again. A family
+	this machine does not have falls back to Qt's own font.
+	"""
+	return _get_app_ctxt().theme_controller.set_font(name)
+
+def get_icon_size():
+	"""
+	How big the file list draws its icons, in pixels, or None when neither
+	the user nor the theme asks for a size and Qt's own default applies.
+	"""
+	return _get_app_ctxt().theme_controller.get_icon_size()
+
+def set_icon_size(value):
+	"""
+	Applies icon size `value` (12 - 64 pixels) immediately and remembers it
+	across restarts. Pass None to forget it and follow the active theme
+	again. Raises ValueError for a size outside the supported range.
+	"""
+	return _get_app_ctxt().theme_controller.set_icon_size(value)
+
+def set_icon_scale(factor):
+	"""
+	Scales the drawn icon size by `factor`, so the icons follow a font zoom.
+	Unlike set_icon_size this is not remembered: whatever decides `factor`
+	is expected to be saved and re-applied itself. 1.0 means no scaling.
+	"""
+	return _get_app_ctxt().theme_controller.set_icon_scale(factor)
+
+def set_palette_font_scale(factor):
+	"""
+	Scales the command palette's font sizes by `factor`, so it follows a font
+	zoom. Like set_icon_scale this is not remembered: whatever decides
+	`factor` is expected to be saved and re-applied itself. 1.0 means no
+	scaling.
+	"""
+	return _get_app_ctxt().theme_controller.set_palette_font_scale(factor)
+
+def get_icon_color():
+	"""
+	The color the file list's icon set is recolored to, or None when neither
+	the user nor the theme asks for one and the icons keep their own colors.
+	"""
+	return _get_app_ctxt().theme_controller.get_icon_color()
+
+def set_icon_color(value):
+	"""
+	Recolors the icon set's icons to `value` - any color Qt understands -
+	and remembers it across restarts. Pass None to forget it and follow the
+	active theme again. Raises ValueError for a color fman cannot use. Only
+	an icon set answers to this; the OS icons cannot be recolored. Panes
+	still show the icons they loaded until they are reloaded.
+	"""
+	return _get_app_ctxt().theme_controller.set_icon_color(value)
 
 def load_plugin(plugin_path):
 	return _get_plugin_support().load_plugin(plugin_path)

@@ -19,9 +19,18 @@ falls back to DEFAULT_COLORS, which holds exactly the values fman shipped
 before themes existed. That is what makes the default theme provably
 identical to the old look: its file is empty.
 
+Beside its colors a theme may carry five things that are not colors:
+opacity, icon set, icon size, icon color and font family. They share one
+read-and-validate path (_load_theme_value) and one precedence chain
+(ThemeController._get), so a sixth is a key and a validator.
+
 See docs/THEMES.md for the token reference and how to add a theme.
 """
 from fman.impl.util.qt.thread import run_in_main_thread
+from collections import namedtuple
+from fbs_runtime import platform
+from fman.impl.model.icon_set import DEFAULT_ICON_SET, ICON_SET_SETTING, \
+	is_valid_icon_set_name, list_icon_sets, load_icon_set
 from glob import glob
 from os.path import basename, join, splitext
 from PyQt5.QtGui import QColor, QPalette
@@ -44,6 +53,59 @@ THEME_SETTING = 'theme'
 OPACITY_SETTING = 'window_opacity'
 DEFAULT_OPACITY = 1.0
 MIN_OPACITY = 0.3
+
+# How big the file list draws its icons, in pixels. Also the user's own
+# setting first, then the theme's. DEFAULT_ICON_SIZE is None rather than a
+# number on purpose: it means "don't touch it", so Qt's own decorationSize
+# (16px) stands and fman looks exactly as it did before this was themeable.
+ICON_SIZE_SETTING = 'icon_size'
+DEFAULT_ICON_SIZE = None
+MIN_ICON_SIZE = 12
+MAX_ICON_SIZE = 64
+# The number DEFAULT_ICON_SIZE stands for. Only scale_icon_size needs it:
+# "don't touch it" cannot be multiplied, so the zoom has to know what Qt
+# would have drawn. Everywhere else None keeps meaning "don't ask Qt".
+DEFAULT_ICON_SIZE_PX = 16
+
+# What an icon set's icons are recolored to, or None to leave them alone.
+# Same user-then-theme resolution as the three above. Only an icon set can
+# answer to this: the OS icons DEFAULT_ICON_SET stands for are the shell's
+# bitmaps, not files fman owns.
+ICON_COLOR_SETTING = 'icon_color'
+DEFAULT_ICON_COLOR = None
+
+# The font family the whole UI is drawn in. Same user-then-theme
+# resolution as the four above. Unlike them it has no "don't touch it"
+# value: fman always sets a family, so the default is what each platform's
+# Theme (<Platform>).css used to hardcode.
+#
+# Windows is 'Roboto', not the 'Roboto Bold' that CSS said. The bundled
+# file is Roboto's Bold face, but a face is not a family: its name table
+# says 'Roboto', so that is what QFontDatabase registers and 'Roboto Bold'
+# matched nothing - Qt had been silently falling back for years. The family
+# has only that one face, so asking for it still draws the bold weight fman
+# always wanted, this time actually in Roboto.
+FONT_SETTING = 'font'
+_DEFAULT_FONTS = {
+	'Windows': 'Roboto',
+	# Open Sans.ttf is likewise a Semibold face registered under this name.
+	'Linux': 'Open Sans',
+	# Mac set no font-family at all, so this one is new. It is the family
+	# fman already picks for its Mac context menus (resources/mac/
+	# os_styles.qss), not a sixth opinion about how Mac should look.
+	'Mac': 'Helvetica Neue'
+}
+DEFAULT_FONT = _DEFAULT_FONTS[platform.name()]
+
+# The keys a theme file uses for the five things in it that are not colors.
+# They sit beside "colors" rather than in it because resolve_colors drops
+# every value that is not a valid QColor - and icon_color is a color that
+# deliberately is not a token: it paints image files, not a stylesheet.
+_OPACITY_KEY = 'opacity'
+_ICONS_KEY = 'icons'
+_ICON_SIZE_KEY = 'icon_size'
+_ICON_COLOR_KEY = 'icon_color'
+_FONT_KEY = 'font'
 
 # Every color fman draws, with the values it used before themes existed.
 # A token appears here iff it is referenced from styles.qss, Theme.css or
@@ -82,6 +144,10 @@ DEFAULT_COLORS = {
 	'popup_item_fg': '#c8c8c8',
 	'popup_divider_top': '#4d4d4d',
 	'popup_divider_bottom': '#363636',
+	# Dims the main window while a modal dialog is open. The alpha byte is
+	# how strong the dim is, so a theme needs no second key for it:
+	# '#00000000' switches the scrim off entirely.
+	'scrim_bg': '#80000000',
 	# QPalette-only: roles Qt draws itself, which no stylesheet reaches.
 	'window_bg': '#2b2b2b',
 	'main_window_bg': '#444444',
@@ -103,9 +169,9 @@ def substitute(text, colors):
 	"""
 	return Template(text).safe_substitute(colors)
 
-# A theme only has to name the ~15 tokens that have no entry here; every
+# A theme only has to name the ~16 tokens that have no entry here; every
 # other token inherits from its parent unless the theme overrides it. That
-# is what keeps "write a theme" at fifteen colors instead of thirty-seven,
+# is what keeps "write a theme" at sixteen colors instead of thirty-nine,
 # and it is why `base_bg` follows `pane_bg`: a new theme cannot accidentally
 # leave the text viewer (which samples QPalette.Base) on the old background.
 FALLBACKS = {
@@ -138,13 +204,15 @@ FALLBACKS = {
 	'palette_shadow': 'button_bg'
 }
 
-# A color value ends up inside a QSS declaration, so anything that could
-# close it turns a theme file into a stylesheet injection:
-_ILLEGAL_IN_COLOR = set(';{}\n\r')
+# A theme's value ends up inside a QSS declaration, so anything that could
+# close it turns a theme file into a stylesheet injection. The quotes are
+# in here for the font family: build_tokens wraps it in double quotes, so
+# that is the character which would end the string early.
+_ILLEGAL_IN_VALUE = set(';{}"\n\r')
 
 def is_valid_color(value):
 	return isinstance(value, str) \
-		and not _ILLEGAL_IN_COLOR & set(value) \
+		and not _ILLEGAL_IN_VALUE & set(value) \
 		and QColor(value).isValid()
 
 def resolve_colors(theme_json):
@@ -159,6 +227,20 @@ def resolve_colors(theme_json):
 		if key in DEFAULT_COLORS and is_valid_color(value)
 	}
 	return {token: _resolve(token, given) for token in DEFAULT_COLORS}
+
+def build_tokens(colors, font):
+	"""
+	The map Theme substitutes into styles.qss and every Theme.css: a theme's
+	colors plus the one token that is not one. The family is quoted here
+	rather than in the CSS so that a name with spaces cannot fall apart, and
+	so there is a single place that knows the token's name.
+	"""
+	return dict(colors, font_family='"%s"' % font)
+
+# What Theme substitutes when nobody has said otherwise. Every $token in
+# styles.qss and the bundled Theme.css must appear here - test_themes.py
+# enforces that in both directions.
+DEFAULT_TOKENS = build_tokens(DEFAULT_COLORS, DEFAULT_FONT)
 
 def _resolve(token, given):
 	# Inherit from the nearest ancestor the theme actually named. If it
@@ -216,13 +298,97 @@ def load_theme(name, dirs):
 	"""
 	return resolve_colors(_read_theme_json(name, dirs))
 
+def _load_theme_value(name, dirs, key, normalize):
+	"""
+	Theme `name`'s value for the non-color `key`, or None if it asks for
+	none or asks for something unusable. One read-and-validate path for all
+	five of them, so a new non-color key is a key and a validator.
+	"""
+	return normalize(_read_theme_json(name, dirs).get(key))
+
 def load_opacity(name, dirs):
 	"""
 	The window opacity theme `name` asks for, or None if it asks for none.
-	It lives beside "colors" rather than in it because it is not a color:
-	resolve_colors drops every value that is not a valid QColor.
 	"""
-	return _normalize_opacity(_read_theme_json(name, dirs).get('opacity'))
+	return _load_theme_value(name, dirs, _OPACITY_KEY, _normalize_opacity)
+
+def load_icon_set_name(name, dirs):
+	"""
+	The icon set theme `name` asks for, or None if it asks for none. Whether
+	that set exists is not decided here: load_icon_set answers that, and
+	answers None for a set that is missing - the same as asking for none.
+	"""
+	return _load_theme_value(name, dirs, _ICONS_KEY, _normalize_icon_set_name)
+
+def load_icon_size(name, dirs):
+	"""
+	The icon size theme `name` asks for, or None if it asks for none.
+	"""
+	return _load_theme_value(name, dirs, _ICON_SIZE_KEY, _normalize_icon_size)
+
+def load_icon_color(name, dirs):
+	"""
+	The color theme `name` wants its icons recolored to, or None if it asks
+	for none.
+	"""
+	return _load_theme_value(name, dirs, _ICON_COLOR_KEY, _normalize_icon_color)
+
+def load_font(name, dirs):
+	"""
+	The font family theme `name` asks for, or None if it asks for none.
+	"""
+	return _load_theme_value(name, dirs, _FONT_KEY, _normalize_font)
+
+def scale_icon_size(icon_size, factor):
+	"""
+	`icon_size` grown or shrunk by `factor`, so the icons track the pane font
+	zoom (see the Core plugin's pane font size commands). factor=1.0 returns
+	`icon_size` untouched - None included, which is what keeps an unzoomed
+	fman asking Qt for nothing at all rather than for 16 pixels.
+	"""
+	if factor == 1.0:
+		return icon_size
+	base = DEFAULT_ICON_SIZE_PX if icon_size is None else icon_size
+	return max(MIN_ICON_SIZE, min(MAX_ICON_SIZE, round(base * factor)))
+
+def _normalize_icon_set_name(value):
+	"""
+	`value` as an icon set name, or None if it cannot be one. Delegates to
+	fman.impl.model.icon_set so the rule that keeps a name from climbing out
+	of the icon directories lives with the code that reads those directories.
+	"""
+	return value if is_valid_icon_set_name(value) else None
+
+def _normalize_icon_size(value):
+	"""
+	`value` as an int in [MIN_ICON_SIZE, MAX_ICON_SIZE], or None if it is not
+	a usable icon size. Booleans are rejected explicitly for the same reason
+	as in _normalize_opacity: True is an int in Python.
+	"""
+	if isinstance(value, bool) or not isinstance(value, int):
+		return None
+	return value if MIN_ICON_SIZE <= value <= MAX_ICON_SIZE else None
+
+def _normalize_icon_color(value):
+	"""
+	`value` as a color to recolor icons with, or None if it cannot be one.
+	Answers to is_valid_color like every color in a theme file: this one is
+	painted onto a QImage rather than into a QSS rule, but a theme file that
+	can reach one can reach the other, so it clears the same bar.
+	"""
+	return value if is_valid_color(value) else None
+
+def _normalize_font(value):
+	"""
+	`value` as a font family, or None if it cannot be one. Whether the family
+	is installed is deliberately not checked - the same rule as
+	is_valid_icon_set_name, which validates shape only. Qt falls back to its
+	own font for a family it does not know, so a typo costs you the typeface
+	rather than the ability to start fman.
+	"""
+	if not isinstance(value, str) or _ILLEGAL_IN_VALUE & set(value):
+		return None
+	return value if value.strip() else None
 
 def _normalize_opacity(value):
 	"""
@@ -279,94 +445,3 @@ def build_progress_bar_palette(colors):
 		result.color(QPalette.Active, QPalette.Highlight)
 	)
 	return result
-
-class ThemeController:
-
-	"""
-	Reads and switches the active theme. Takes the ApplicationContext rather
-	than its five collaborators separately: everything a theme switch has to
-	touch (the QApplication, the Theme, the main window, the settings file
-	and the theme directories) already hangs off it, and the alternative is
-	a five-argument constructor that has to be kept in sync with it anyway.
-	"""
-
-	def __init__(self, app_context):
-		self._ctxt = app_context
-
-	def get_themes(self):
-		return list_themes(self._ctxt.theme_dirs)
-
-	def get_theme(self):
-		return self._ctxt.local_settings.get(THEME_SETTING, DEFAULT_THEME)
-
-	def set_theme(self, name):
-		colors = load_theme(name, self._ctxt.theme_dirs)
-		# Resolve the opacity for the *incoming* theme and pass it in: the
-		# new name is only saved below, so _apply cannot look it up itself.
-		self._apply(colors, self._get_opacity(name))
-		settings = self._ctxt.local_settings
-		settings[THEME_SETTING] = name
-		settings.flush()
-
-	def get_opacity(self):
-		return self._get_opacity(self.get_theme())
-
-	def set_opacity(self, value):
-		"""
-		Applies `value` and remembers it across restarts. value=None drops
-		the override, so the active theme's opacity applies again - the same
-		"None clears the key" rule the plugin settings use. Raises ValueError
-		for a number fman cannot use.
-		"""
-		if value is not None and _normalize_opacity(value) is None:
-			raise ValueError(
-				'Opacity must be a number between %s and %s, not %r'
-				% (MIN_OPACITY, DEFAULT_OPACITY, value)
-			)
-		settings = self._ctxt.local_settings
-		if value is None:
-			settings.pop(OPACITY_SETTING)
-		else:
-			settings[OPACITY_SETTING] = float(value)
-		settings.flush()
-		self._apply_opacity(self.get_opacity())
-
-	def _get_opacity(self, theme_name):
-		# One precedence chain, parameterized by theme name so set_theme can
-		# ask it about a theme that is not the saved one yet: the user's own
-		# setting wins, then what the theme asks for, then fully opaque.
-		# Never reads main_window.windowOpacity(): the window does not exist
-		# yet when this first runs, and Qt quantizes opacity to 1/255, so a
-		# value read back never equals the one that was set.
-		saved = _normalize_opacity(
-			self._ctxt.local_settings.get(OPACITY_SETTING, None)
-		)
-		if saved is not None:
-			return saved
-		from_theme = load_opacity(theme_name, self._ctxt.theme_dirs)
-		return DEFAULT_OPACITY if from_theme is None else from_theme
-
-	@run_in_main_thread
-	def _apply_opacity(self, opacity):
-		self._ctxt.main_window.setWindowOpacity(opacity)
-
-	@run_in_main_thread
-	def _apply(self, colors, opacity):
-		# Commands run off the main thread (see PaneCommandRegistry), and
-		# touching QPalettes from there is not allowed.
-		#
-		# Palette first, style sheet second: QApplication.setStyleSheet
-		# re-polishes every widget, which is what makes the new palette
-		# actually repaint. The other order leaves stale colors behind.
-		self._ctxt.app.setPalette(build_palette(colors))
-		main_window = self._ctxt.main_window
-		main_window.setPalette(build_main_window_palette(colors))
-		# Re-read for each new ProgressDialog (widgets.py), so the next one
-		# picks the new colors up without restarting fman:
-		main_window.set_progress_bar_palette(
-			build_progress_bar_palette(colors)
-		)
-		# A theme may ask for an opacity too, so switching theme has to move
-		# it - back to opaque included, when the new theme asks for nothing.
-		main_window.setWindowOpacity(opacity)
-		self._ctxt.theme.set_colors(colors)

@@ -1,5 +1,6 @@
 from collections import namedtuple
-from fman.impl.model.table import _get_move_destination, TableModel
+from fman.impl.model.table import _get_move_destination, invalidate_icons, \
+	Row as ModelRow, TableModel
 from unittest import TestCase
 
 class GetMoveDestinationTest(TestCase):
@@ -21,6 +22,26 @@ class GetMoveDestinationTest(TestCase):
 		self.assertEqual(0, _get_move_destination(2, 101, 0))
 	def test_move_multiple_rows_far_up(self):
 		self.assertEqual(2, _get_move_destination(5, 7, 2))
+
+class RowEqualityTest(TestCase):
+
+	"""
+	Row#__eq__ ignores .icon by value - its docstring says why. The icon
+	generation is how a *real* icon change gets through anyway: without it,
+	reloading a directory after switching icon set or color produces no diff
+	entry, so the panes keep drawing the old icons until you browse elsewhere.
+	"""
+
+	def test_same_generation_is_equal(self):
+		# Two reloads of an unchanged file. The icons are different objects
+		# (QFileIconProvider gives new ones every time) and must not count.
+		self.assertEqual(self._row('an icon'), self._row('another icon'))
+	def test_new_generation_is_not_equal(self):
+		before = self._row('an icon')
+		invalidate_icons()
+		self.assertNotEqual(before, self._row('another icon'))
+	def _row(self, icon):
+		return ModelRow('file://C:/dir/notes.txt', icon, False, ('notes.txt',))
 
 class TableModelTest(TestCase):
 	def test_empty(self):

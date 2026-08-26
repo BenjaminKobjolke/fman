@@ -18,12 +18,14 @@ def freeze():
 	# Windows systems (see fman issue #480). Remove it to avoid problems,
 	# improve startup performance and decrease fman's download size.
 	# (Also note that a more elegant solution would be to only place
-	# Open Sans.ttf in src/main/resources/*linux*/Plugins/Core. But the current
+	# Open Sans in src/main/resources/*linux*/Plugins/Core. But the current
 	# implementation cannot handle multiple dirs .../resources/main,
 	# .../resources/linux for one plugin.)
-	remove(path('${core_plugin_in_freeze_dir}/Open Sans.ttf'))
-	# Similarly for Roboto Bold.ttf. It is only used on Windows:
-	remove(path('${core_plugin_in_freeze_dir}/Roboto Bold.ttf'))
+	# Whole directories, so each LICENSE goes with the font it covers - a
+	# licence left behind for a font that is not shipped is just confusing.
+	rmtree(path('${core_plugin_in_freeze_dir}/Fonts/Open Sans'))
+	# Similarly for Roboto. It is only used on Windows:
+	rmtree(path('${core_plugin_in_freeze_dir}/Fonts/Roboto'))
 	_strip_unused_from_bundle()
 	copy_python_library('osxtrash', path('${core_plugin_in_freeze_dir}'))
 	import osxtrash

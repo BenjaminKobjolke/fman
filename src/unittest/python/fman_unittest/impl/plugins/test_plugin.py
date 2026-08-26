@@ -1,8 +1,11 @@
 from fman.fs import FileSystem
 from fman.impl.plugins.plugin import _get_command_name, \
-	get_command_class_name, FileSystemWrapper
+	get_command_class_name, ExternalPlugin, FileSystemWrapper
 from fman_unittest.impl.plugins import StubErrorHandler
+from types import ModuleType
 from unittest import TestCase
+
+import sys
 
 class GetCommandNameTest(TestCase):
 	def test_single_letter(self):
@@ -25,6 +28,45 @@ class GetCommandClassNameTest(TestCase):
 		for test_string in ('C', 'Copy', 'OpenTerminal', 'MoveCursorUp'):
 			result = get_command_class_name(_get_command_name(test_string))
 			self.assertEqual(test_string, result)
+
+class UnregisterPackageTest(TestCase):
+	def test_package_already_gone(self):
+		# Two plugins may ship packages of the same name (eg. a plugin that
+		# is installed both under Third-party/ and User/). The second load
+		# overwrites the first one's sys.modules entry, so on unload only the
+		# first del succeeds. The second must not abort the whole reload.
+		package = ModuleType('fman_unittest_package_that_is_not_loaded')
+		ExternalPlugin._unregister_package(None, package)
+
+class ReportIfPackageNameTakenTest(TestCase):
+	def test_reports_clash(self):
+		other = ModuleType('fman_unittest_clashing_package')
+		other.__file__ = r'C:\Plugins\Other\pkg\__init__.py'
+		sys.modules[other.__name__] = other
+		try:
+			self._plugin._report_if_package_name_taken(
+				other.__name__, r'C:\Plugins\Mine\pkg\__init__.py'
+			)
+		finally:
+			del sys.modules[other.__name__]
+		message, = self._error_handler.error_messages
+		self.assertIn('fman_unittest_clashing_package', message)
+		self.assertIn(r'C:\Plugins\Other\pkg\__init__.py', message)
+		self.assertIn(r'C:\Plugins\Mine\pkg\__init__.py', message)
+	def test_name_is_free(self):
+		self._plugin._report_if_package_name_taken(
+			'fman_unittest_package_that_is_not_loaded', 'irrelevant'
+		)
+		self.assertEqual([], self._error_handler.error_messages)
+	def setUp(self):
+		super().setUp()
+		self._error_handler = StubErrorHandler()
+		# ExternalPlugin's constructor only stores its arguments, so the
+		# collaborators this test does not exercise can be None.
+		self._plugin = ExternalPlugin(
+			r'C:\Plugins\Mine', None, None, None, None,
+			self._error_handler, None, None, None, None, None, None
+		)
 
 class FileSystemWrapperTest(TestCase):
 	def test_iterdir_not_implemented(self):

@@ -20,5 +20,6 @@
 		"statusbar_bg_bottom": "#000000",
 		"statusbar_bg_top": "#000000",
 		"window_bg": "#000000"
-	}
+	},
+	"font": "Atkinson Hyperlegible"
 }
