@@ -1,0 +1,13 @@
+{
+  "version": "1.7.8",
+  "build": 1,
+  "date": "2026-08-26",
+  "title": "Témák, nincs többé licenc-nyaggatás, és gyorsabb archívumok",
+  "notes": [
+    "Mostantól megváltoztathatod, hogyan néz ki az fman: futtasd a „Téma kiválasztása” parancsot a parancspalettáról, és válassz a tizenegy beépített téma közül, köztük a Dark, Light, Solarized, Nord, Dracula és Gruvbox témákat. Az új téma azonnal érvénybe lép, újraindítás nélkül.",
+    "Minden telepítés teljesen aktivált. A regisztráció, a licencellenőrzések és az emlékeztető képernyő megszűntek.",
+    "A .zip, .7z és .tar archívumokkal való munka Windows alatt nagyjából hatszor gyorsabb, és a folyamatjelző most már ténylegesen mozog, miközben egy nagy archívumot csomagolsz vagy kicsomagolsz.",
+    "A parancspaletta most már a parancsok alternatív megnevezéseire is találatot ad, így akkor is megtalálod, ha nem emlékszel a pontos nevére.",
+    "Ha egy videót a szükséges összetevők nélkül nyitsz meg, most megmondja, mi hiányzik, ahelyett hogy üres nézőt jelenítene meg."
+  ]
+}

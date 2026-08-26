@@ -1,0 +1,13 @@
+{
+  "version": "1.7.8",
+  "build": 1,
+  "date": "2026-08-26",
+  "title": "Temi, niente più avvisi sulla licenza e archivi più veloci",
+  "notes": [
+    "Ora puoi cambiare l’aspetto di fman: esegui \"Seleziona tema\" dal riquadro comandi e scegli tra undici temi inclusi, tra cui Dark, Light, Solarized, Nord, Dracula e Gruvbox. Il nuovo tema si applica immediatamente, senza bisogno di riavviare.",
+    "Ogni installazione è completamente attivata. La registrazione, i controlli della licenza e la schermata di promemoria sono stati rimossi.",
+    "Lavorare con archivi .zip, .7z e .tar su Windows è circa sei volte più veloce e la barra di avanzamento ora si muove davvero mentre un archivio di grandi dimensioni viene compresso o estratto.",
+    "Il riquadro comandi ora riconosce anche parole alternative per un comando, così lo trovi anche quando non ricordi il suo nome esatto.",
+    "Aprire un video senza i componenti necessari ora ti indica cosa manca invece di mostrare un visualizzatore vuoto."
+  ]
+}

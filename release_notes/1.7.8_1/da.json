@@ -1,0 +1,13 @@
+{
+  "version": "1.7.8",
+  "build": 1,
+  "date": "2026-08-26",
+  "title": "Temaer, ikke flere licenspåmindelser og hurtigere arkiver",
+  "notes": [
+    "Du kan nu ændre, hvordan fman ser ud: kør \"Vælg tema\" fra kommandopaletten og vælg mellem elleve medfølgende temaer, herunder Dark, Light, Solarized, Nord, Dracula og Gruvbox. Det nye tema anvendes med det samme, ingen genstart nødvendig.",
+    "Hver installation er fuldt aktiveret. Registrering, licenskontrol og påmindelsesskærmen er væk.",
+    "Arbejde med .zip-, .7z- og .tar-arkiver på Windows er cirka seks gange hurtigere, og statuslinjen bevæger sig nu faktisk, mens et stort arkiv pakkes eller udpakkes.",
+    "Kommandopaletten matcher også alternative ord for en kommando, så du kan finde den, selv når du ikke kan huske dens præcise navn.",
+    "Når du åbner en video uden de nødvendige komponenter, får du nu at vide, hvad der mangler, i stedet for at vise en tom visning."
+  ]
+}

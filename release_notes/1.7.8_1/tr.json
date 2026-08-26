@@ -1,0 +1,13 @@
+{
+  "version": "1.7.8",
+  "build": 1,
+  "date": "2026-08-26",
+  "title": "Temalar, artık lisans uyarısı yok ve daha hızlı arşivler",
+  "notes": [
+    "Artık fman'in nasıl göründüğünü değiştirebilirsiniz: komut paletinden \"Tema seç\"i çalıştırın ve Dark, Light, Solarized, Nord, Dracula ve Gruvbox dahil olmak üzere paketle gelen on bir temadan birini seçin. Yeni tema anında uygulanır, yeniden başlatma gerekmez.",
+    "Her kurulum tamamen etkinleştirilmiştir. Kayıt, lisans kontrolleri ve hatırlatma ekranı kaldırıldı.",
+    "Windows'ta .zip, .7z ve .tar arşivleriyle çalışmak yaklaşık altı kat daha hızlı ve artık büyük bir arşiv paketlenirken veya çıkarılırken ilerleme çubuğu gerçekten hareket ediyor.",
+    "Komut paleti ayrıca bir komut için alternatif kelimeleri de eşleştirir; böylece tam adını hatırlamasanız bile onu bulabilirsiniz.",
+    "Gerekli bileşenler olmadan bir videoyu açmak artık boş bir görüntüleyici göstermek yerine nelerin eksik olduğunu söyler."
+  ]
+}

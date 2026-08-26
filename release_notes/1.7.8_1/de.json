@@ -1,0 +1,13 @@
+{
+  "version": "1.7.8",
+  "build": 1,
+  "date": "2026-08-26",
+  "title": "Themes, keine Lizenz-Nervmeldungen mehr und schnellere Archive",
+  "notes": [
+    "Du kannst jetzt ändern, wie fman aussieht: Führe „Theme auswählen“ in der Befehlspalette aus und wähle aus elf mitgelieferten Themes, darunter Dark, Light, Solarized, Nord, Dracula und Gruvbox. Das neue Theme wird sofort angewendet, ein Neustart ist nicht nötig.",
+    "Jede Installation ist vollständig aktiviert. Registrierung, Lizenzprüfungen und der Erinnerungsbildschirm sind verschwunden.",
+    "Die Arbeit mit .zip-, .7z- und .tar-Archiven unter Windows ist ungefähr sechsmal schneller, und der Fortschrittsbalken bewegt sich jetzt tatsächlich, während ein großes Archiv gepackt oder entpackt wird.",
+    "Die Befehlspalette findet außerdem auch alternative Wörter für einen Befehl, sodass du ihn auch dann findest, wenn du dich nicht an den genauen Namen erinnerst.",
+    "Wenn du ein Video ohne die erforderlichen Komponenten öffnest, wird dir jetzt angezeigt, was fehlt, statt dass ein leerer Viewer angezeigt wird."
+  ]
+}

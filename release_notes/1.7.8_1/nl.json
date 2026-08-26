@@ -1,0 +1,13 @@
+{
+  "version": "1.7.8",
+  "build": 1,
+  "date": "2026-08-26",
+  "title": "Thema's, geen licentienag meer en snellere archieven",
+  "notes": [
+    "Je kunt nu aanpassen hoe fman eruitziet: voer \"Select theme\" uit via het commando-palet en kies uit elf meegeleverde thema's, waaronder Dark, Light, Solarized, Nord, Dracula en Gruvbox. Het nieuwe thema wordt meteen toegepast; opnieuw opstarten is niet nodig.",
+    "Elke installatie is volledig geactiveerd. Registratie, licentiecontroles en het herinneringsscherm zijn verdwenen.",
+    "Werken met .zip-, .7z- en .tar-archieven op Windows is ongeveer zes keer sneller, en de voortgangsbalk beweegt nu daadwerkelijk terwijl een groot archief wordt ingepakt of uitgepakt.",
+    "Het commando-palet herkent nu ook alternatieve woorden voor een commando, zodat je het kunt vinden, zelfs als je de exacte naam niet meer weet.",
+    "Als je een video opent zonder de vereiste onderdelen, krijg je nu te zien wat er ontbreekt in plaats van een lege viewer."
+  ]
+}

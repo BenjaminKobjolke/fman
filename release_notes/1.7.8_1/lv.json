@@ -1,0 +1,13 @@
+{
+  "version": "1.7.8",
+  "build": 1,
+  "date": "2026-08-26",
+  "title": "Tēmas, vairs nav licenču uzbāšanās, un ātrāki arhīvi",
+  "notes": [
+    "Tagad varat mainīt fman izskatu: komandu paletē palaidiet \"Select theme\" un izvēlieties kādu no vienpadsmit iebūvētajām tēmām, tostarp Dark, Light, Solarized, Nord, Dracula un Gruvbox. Jaunā tēma tiek piemērota uzreiz, pārstartēšana nav nepieciešama.",
+    "Katra instalācija ir pilnībā aktivizēta. Reģistrācija, licenču pārbaudes un atgādinājuma ekrāns ir noņemti.",
+    "Darbs ar .zip, .7z un .tar arhīviem Windows vidē ir aptuveni sešas reizes ātrāks, un progresa josla tagad patiešām kustas, kamēr tiek sapakots vai izpakots liels arhīvs.",
+    "Komandu palete tagad atpazīst arī komandas alternatīvus apzīmējumus, lai jūs to atrastu pat tad, ja neatceraties tās precīzo nosaukumu.",
+    "Atverot video bez nepieciešamajiem komponentiem, tagad tiek parādīts, kas tieši trūkst, nevis rādīts tukšs skatītājs."
+  ]
+}
