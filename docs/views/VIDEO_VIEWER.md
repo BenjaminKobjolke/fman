@@ -159,12 +159,20 @@ without depending on whatever codecs happen to be installed on the OS.
   opened (`show_video_viewer`); if either fails, an alert explains the
   problem instead of the viewer (or fman) crashing. Browsing files and
   `is_video()` extension routing work regardless.
-- **Not yet wired into the frozen (fbs/PyInstaller) build.** The packaged
-  release needs the `mpv` module declared as a PyInstaller hidden import and
-  the platform's `libmpv` binary bundled alongside the executable. Until that
-  packaging step is done, video playback only works from a dev environment
-  that has `python-mpv` and `libmpv` installed — a frozen build without them
-  falls back to the same friendly alert described above.
+- **In the frozen (fbs/PyInstaller) build, `mpv` reaches the app only via
+  `hidden_imports`.** The Core plugin ships as resource data
+  (`src/main/resources/base/Plugins/Core` → `${freeze_dir}/Plugins/Core`), so
+  PyInstaller never scans this file and never sees `import mpv` — exactly the
+  situation `core/net.py`'s `requests` is in. Both are therefore listed in
+  `src/build/settings/base.json`'s `hidden_imports`; drop `mpv` from that list
+  and the packaged app raises `ModuleNotFoundError` on the first video.
+  `copy_python_library('mpv', ...)` (the send2trash / python_localization
+  route in `build_impl/windows.py`) is *not* usable here: it calls
+  `import_module`, and `mpv.py` raises `OSError` at import time on a build
+  machine without libmpv on `%PATH%`.
+- **The native `libmpv` is not bundled.** On Windows `core/libmpv.py`
+  downloads and caches `libmpv-2.dll` on first use (see its module docstring);
+  macOS/Linux expect `mpv` from the system package manager.
 
 ## Why it works while the file list is hidden
 

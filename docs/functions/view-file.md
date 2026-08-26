@@ -28,10 +28,14 @@ viewer behaves.
 
 ## Commands
 
-| Command name | Palette label / aliases          | Default key binding |
-|--------------|-----------------------------------|----------------------|
-| `view_file`  | View file, View, Internal viewer  | none (palette only)  |
-| `view_file_in_other_pane` | View file in other pane, View in other pane | none (palette only) |
+| Command name | Palette label | Keywords | Default key binding |
+|--------------|---------------|-----------|----------------------|
+| `view_file`  | View file     | view, internal viewer, preview | none (palette only)  |
+| `view_file_in_other_pane` | View file in other pane | view in other pane | none (palette only) |
+
+The other words listed under *Keywords* are hidden search terms: they find
+the command in the palette without ever being shown. See
+[the command palette](../COMMAND_PALLETTE.md#hidden-search-keywords).
 
 Both can be bound to a key in `Key Bindings.json` like any other command, e.g.:
 

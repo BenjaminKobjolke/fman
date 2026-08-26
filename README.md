@@ -4,19 +4,32 @@ A cross-platform dual-pane file manager.
 
 ## Demo
 
-![fman demo](media/demos/tour/demo.gif)
+**[Watch the 2:30 feature tour (MP4)](media/demos/tour/feature-tour.mp4)** - the
+whole thing driven from the keyboard, no mouse at any point:
 
-Select all, copy across panes, and play a video in the internal viewer — all
-from the keyboard. Also available as [MP4](media/demos/tour/demo.mp4).
+| | |
+|---|---|
+| Two panes, one keyboard | select with `Ins`/`Ctrl+A`, copy across with `F5`, type to filter, `Ctrl+F1`/`Ctrl+F2` to sort |
+| Organize in place | `F7` new folder, `F6` move into it, `Shift+F6` rename |
+| Preview inside the pane | images with zoom, text you can edit and save, each viewer with its own command palette |
+| Video that actually plays | pause, seek and volume in-pane - and previewing into the *other* pane while you keep browsing |
+| Archives are just folders | pack with `Alt+F5`, `Enter` to step inside the zip, `F5` to copy back out |
 
-More of the UI — the two-pane layout, internal image viewer, inline name
+More of the UI - the two-pane layout, internal image viewer, inline name
 filter, and command palette (`Ctrl+Shift+P`):
 
 | Panes | Internal viewer | Filter | Select all |
 |---|---|---|---|
 | ![panes](media/demos/overview/panes.png) | ![internal viewer](media/demos/overview/view-image.png) | ![filter](media/demos/overview/filter.png) | ![select all](media/demos/overview/select-all.png) |
 
-<sub>Regenerate with `tools\demos_record.bat` — see [docs/DEMOS.md](docs/DEMOS.md).</sub>
+Every bundled [theme](docs/THEMES.md), two seconds each - switch with
+`Select theme` in the command palette, no restart:
+
+![themes](media/demos/themes/themes.gif)
+
+<sub>Regenerate with `tools\demos_record.bat`, then join the tour chapters with
+`tools\build_tour.bat`; the themes GIF is `tools\themes_record.bat` - see
+[docs/DEMOS.md](docs/DEMOS.md).</sub>
 
 ## Single instance
 
@@ -34,6 +47,14 @@ stops retrying files it cannot load, and files on a share get one generic icon
 per extension rather than a per-file Windows shell lookup. See
 [docs/WINDOWS_NETWORK_SUPPORT.md](docs/WINDOWS_NETWORK_SUPPORT.md) for the
 `Toggle network drive icons` command that restores real icons.
+
+## Archives
+
+`.zip`, `.7z` and `.tar` archives open like folders, backed by a bundled `7za`.
+On Windows, operations that show a progress bar no longer run 7-Zip through a
+pseudo-terminal: they pass `-bsp1` and read progress straight off the pipe,
+which is roughly 6x faster, actually moves the bar, and drops the `pywinpty`
+dependency. See [docs/ARCHIVES.md](docs/ARCHIVES.md).
 
 ## Web help system
 

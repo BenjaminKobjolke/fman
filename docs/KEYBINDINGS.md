@@ -37,6 +37,11 @@ To add your own binding, edit (or create) your user
 doesn't need to repeat anything from the Core files, only what you're adding
 or overriding.
 
+The command names used here are also the keys of `Command Keywords.json`, the
+file that gives a command extra, never-displayed words to find it by in the
+command palette — see
+[`docs/COMMAND_PALLETTE.md`](COMMAND_PALLETTE.md#hidden-search-keywords).
+
 ## Default bindings — base (all platforms)
 
 | Keys | Command |

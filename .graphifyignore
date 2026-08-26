@@ -1,0 +1,9 @@
+# Binary assets - not architecture, and every image here costs a vision
+# subagent on every rebuild whose extraction cache has been invalidated.
+#
+# src/main/icons/  the app icon in ten sizes
+# media/           recorded demos: GIFs, MP4s and stills
+# examples/        the demo fixtures (dummy_1..10.jpg and a few text files)
+src/main/icons/
+media/
+examples/

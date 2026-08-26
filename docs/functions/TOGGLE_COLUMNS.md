@@ -13,10 +13,14 @@ in the file panes, for people who mostly care about file names.
 
 ## Commands
 
-| Command name              | Palette label / aliases                          | Default key binding |
-|----------------------------|----------------------------------------------------|----------------------|
-| `toggle_size_column`       | Toggle size column, Show / hide size column          | none (palette only)  |
-| `toggle_modified_column`   | Toggle modified column, Show / hide modified column   | none (palette only)  |
+| Command name              | Palette label          | Keywords                          | Default key binding |
+|----------------------------|-------------------------|------------------------------------|----------------------|
+| `toggle_size_column`       | Toggle size column      | show / hide size column            | none (palette only)  |
+| `toggle_modified_column`   | Toggle modified column  | show / hide modified column, date  | none (palette only)  |
+
+The other words listed under *Keywords* are hidden search terms: they find
+the command in the palette without ever being shown. See
+[the command palette](../COMMAND_PALLETTE.md#hidden-search-keywords).
 
 These can be bound to a key in `Key Bindings.json` like any other command,
 e.g.:

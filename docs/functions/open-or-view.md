@@ -25,9 +25,13 @@ the full opt-in section.
 
 ## Commands
 
-| Command name  | Palette label / aliases                        | Default key binding |
-|----------------|------------------------------------------------|----------------------|
-| `open_or_view` | Open or view, Open (internal viewer for files)  | none (opt-in)        |
+| Command name  | Palette label | Keywords                        | Default key binding |
+|----------------|---------------|----------------------------------|----------------------|
+| `open_or_view` | Open or view  | open (internal viewer for files) | none (opt-in)        |
+
+The other words listed under *Keywords* are hidden search terms: they find
+the command in the palette without ever being shown. See
+[the command palette](../COMMAND_PALLETTE.md#hidden-search-keywords).
 
 ## Notes
 

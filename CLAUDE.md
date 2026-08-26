@@ -39,8 +39,11 @@ powershell -Command "cd 'D:\GIT\BenjaminKobjolke\fman'; cmd /c '.\tools\run_zip_
 ```
 
 These are excluded from `run_core_tests.bat` (filename doesn't match `test*.py`)
-because they spawn `7za.exe` via a real console (winpty) and can hang under
+because they spawn `7za.exe` as a real subprocess and can hang under
 AV/EDR interference.
+
+How fman drives 7-Zip (the `-bsp1` progress protocol, canceling, why there is
+no pseudo-terminal on Windows) is documented in `docs/ARCHIVES.md`.
 
 ## Code Analysis
 
@@ -72,3 +75,36 @@ Results are written to `code_analysis_results/` as **per-rule CSV files** (e.g.
 `flutter_analyze.csv`, `line_count_report.csv`, `duplicate_code.csv`) — there is
 no `.md` report, and a missing CSV means that rule found nothing. Fix any
 reported issues before committing.
+
+## Knowledge Graph (graphify)
+
+This project's graph is built from the **repository root**, never from `src/`:
+
+```bash
+/graphify . --directed
+```
+
+The graph deliberately covers `docs/`, `tools/`, `build.py` and the root
+`*.md` files as well as `src/` — roughly 480 of its ~4000 nodes, and the half
+that answers "how does X work" rather than "where is X defined". Rebuilding
+with a narrower path deletes them. graphify's shrink guard catches that and
+refuses the write; **do not force past it** — re-run with `.` instead.
+
+This overrides the generic `/graphify <code-dir> --directed` line in
+`CODING_RULES.md`, whose `# e.g. src/ app/ lib/` comment is what makes `src/`
+look right here. It isn't.
+
+Two things that make the wrong scope easy to hit:
+
+- `graphify-out/` is gitignored, so the scan-root sidecar
+  (`graphify-out/.graphify_root`) never travels with a clone — and it holds an
+  absolute path, so it *cannot* be committed either. A fresh checkout has no
+  memory of the scope; the first rebuild must pass `.` explicitly.
+- Any `/graphify <path>` run overwrites that sidecar, so a single
+  wrong-path invocation leaves it pointing at the wrong root and a later bare
+  `graphify update` rescans only that subtree — reading every file outside it
+  as deleted.
+
+Before rebuilding, confirm the scope: group `graphify-out/graph.json` nodes by
+the first path segment of their `source_file`. If you see `docs`, `tools` and
+`build.py` alongside `src`, the graph is root-scoped — keep it that way.

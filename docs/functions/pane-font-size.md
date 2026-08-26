@@ -19,11 +19,15 @@ viewer.
 
 ## Commands
 
-| Command name               | Palette label / aliases                              | Default key binding |
-|-----------------------------|--------------------------------------------------------|----------------------|
-| `increase_pane_font_size`   | Increase font size, Zoom in, Larger pane font           | `Alt+Up`             |
-| `decrease_pane_font_size`   | Decrease font size, Zoom out, Smaller pane font         | `Alt+Down`           |
-| `reset_pane_font_size`      | Reset font size, Default font size                      | none (palette only)  |
+| Command name               | Palette label      | Keywords                            | Default key binding |
+|-----------------------------|---------------------|--------------------------------------|----------------------|
+| `increase_pane_font_size`   | Increase font size  | zoom in, larger pane font, bigger    | `Alt+Up`             |
+| `decrease_pane_font_size`   | Decrease font size  | zoom out, smaller pane font, smaller | `Alt+Down`           |
+| `reset_pane_font_size`      | Reset font size     | default font size, reset zoom        | none (palette only)  |
+
+The other words listed under *Keywords* are hidden search terms: they find
+the command in the palette without ever being shown. See
+[the command palette](../COMMAND_PALLETTE.md#hidden-search-keywords).
 
 These can be rebound in `Key Bindings.json` like any other command, e.g.:
 

@@ -218,9 +218,8 @@ everything under `src/main/resources/base/` into the frozen output
 (`target/fman/`), but `release_notes/` lives at the project root (authored per
 release, not under `src/main/resources`), so it needs an explicit copy.
 `freeze()` in `src/build/python/build_impl/windows.py` copies it to
-`target/fman/release_notes/` via `_copy_release_notes()`, next to the existing
-`_copy_winpty_files()` step — skipped entirely if no release has been authored
-yet. `core.release_notes.release_notes_dir()` (Core plugin) finds it there at
+`target/fman/release_notes/` via `_copy_release_notes()` — skipped entirely if
+no release has been authored yet. `core.release_notes.release_notes_dir()` (Core plugin) finds it there at
 runtime, or falls back to the project-root `release_notes/` when running from
 source before any freeze.
 

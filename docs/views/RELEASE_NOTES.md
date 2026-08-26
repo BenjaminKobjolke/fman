@@ -18,9 +18,13 @@ in-pane widget used by [View file](../functions/view-file.md).
 
 ## Commands
 
-| Command name        | Palette label / aliases            | Default key binding |
-|----------------------|-------------------------------------|----------------------|
-| `show_release_notes` | Release Notes, Show release notes   | none (palette only)  |
+| Command name        | Palette label | Keywords                              | Default key binding |
+|----------------------|---------------|----------------------------------------|----------------------|
+| `show_release_notes` | Release Notes | show release notes, changelog, what's new | none (palette only)  |
+
+The other words listed under *Keywords* are hidden search terms: they find
+the command in the palette without ever being shown. See
+[the command palette](../COMMAND_PALLETTE.md#hidden-search-keywords).
 
 Can be bound to a key in `Key Bindings.json` like any other command, e.g.:
 
@@ -85,7 +89,7 @@ Can be bound to a key in `Key Bindings.json` like any other command, e.g.:
   [`docs/CREATE_NEW_RELEASE.md`](../CREATE_NEW_RELEASE.md)), outside
   `src/main/resources/base/` where fbs auto-bundles from — so `freeze()` in
   `src/build/python/build_impl/windows.py` copies it into the frozen output
-  explicitly, next to the existing `_copy_winpty_files()` step. The
+  explicitly via `_copy_release_notes()`. The
   `python-localization` dependency is bundled the same way third-party
   plugin dependencies already are (`copy_python_library`, mirroring
   `send2trash`), since PyInstaller doesn't scan plugin code for imports.
