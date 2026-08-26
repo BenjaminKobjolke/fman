@@ -90,6 +90,10 @@ that answers "how does X work" rather than "where is X defined". Rebuilding
 with a narrower path deletes them. graphify's shrink guard catches that and
 refuses the write; **do not force past it** — re-run with `.` instead.
 
+Excluding `docs/` from `.graphifyignore` is the same mistake in another form,
+and it has been tried: a code-only graph answers symbol lookups that grep
+already answered, and loses every "how does X work" question. Keep docs in.
+
 This overrides the generic `/graphify <code-dir> --directed` line in
 `CODING_RULES.md`, whose `# e.g. src/ app/ lib/` comment is what makes `src/`
 look right here. It isn't.

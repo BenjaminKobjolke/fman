@@ -4,6 +4,16 @@
 # src/main/icons/  the app icon in ten sizes
 # media/           recorded demos: GIFs, MP4s and stills
 # examples/        the demo fixtures (dummy_1..10.jpg and a few text files)
+# .../base/Icons/ the vendored Material icon set: 829 third-party SVGs, plus a
+#                  manifest.json whose 8000 extension keys the AST extractor
+#                  reads as 496 symbols - one giant community of file
+#                  extensions. It is data, not architecture. What fman does
+#                  *with* it is impl/model/icon_set.py, which is not ignored.
+# .../Core/Fonts/  the vendored Google Fonts: .ttf binaries and their
+#                  licences. Same reason - the code that picks one is
+#                  impl/themes.py and impl/plugins/plugin.py.
 src/main/icons/
 media/
 examples/
+src/main/resources/base/Icons/
+src/main/resources/base/Plugins/Core/Fonts/
