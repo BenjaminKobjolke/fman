@@ -8,7 +8,16 @@ import sys
 def find_repos(topics):
 	query = '+'.join('topic:' + topic for topic in topics)
 	url = "https://api.github.com/search/repositories?q=" + query
-	return list(map(GitHubRepo, _fetch_all_pages(url)))
+	repos = map(GitHubRepo, _fetch_all_pages(url))
+	# Newest first, most-starred among equally recent ones. GitHub's default is
+	# relevance, which for a pure topic query is near-uniform and thus
+	# arbitrary. Sorting here and not via the API's sort=updated because that is
+	# the repo's metadata date - a description edit makes an abandoned plugin
+	# look fresh. pushed_at is the last commit.
+	return sorted(
+		repos, key=lambda repo: (repo.last_modified, repo.num_stars),
+		reverse=True
+	)
 
 def _fetch_all_pages(json_url, page_size=100):
 	for page in range(1, sys.maxsize):
@@ -41,6 +50,11 @@ class GitHubRepo:
 	@property
 	def url(self):
 		return self._data['url']
+	@property
+	def last_modified(self):
+		# ISO-8601 UTC, so lexicographic order is chronological order. '' for
+		# a repo that was never pushed to, which sorts before any date.
+		return self._data.get('pushed_at') or ''
 	def get_latest_release(self):
 		try:
 			data = _get_json(self._url('releases', id='latest'))

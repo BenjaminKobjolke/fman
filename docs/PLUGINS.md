@@ -6,7 +6,9 @@ through the same mechanism your own plugins use.
 
 This page is about *running* plugins: installing them, reloading them without
 restarting, and what fman tells you when two of them collide. For writing one,
-see [`docs/PLUGINS_API.md`](PLUGINS_API.md).
+see [`docs/PLUGINS_API.md`](PLUGINS_API.md). For what *Install plugin*
+does and which GitHub endpoints it uses, see
+[`docs/INSTALL_PLUGINS.md`](INSTALL_PLUGINS.md).
 
 ## Where they live
 
@@ -30,7 +32,7 @@ none has a default key binding:
 
 | Command | Does |
 |---------|------|
-| **Install plugin** | Lists GitHub repos tagged `fman` + `plugin`, downloads the latest release (or the latest commit if there is none) into `Plugins\Third-party\`, and loads it immediately. |
+| **Install plugin** | Lists GitHub repos tagged `fman` + `plugin`, downloads the latest release (or the latest commit if there is none) into `Plugins\Third-party\`, and loads it immediately. See [`docs/INSTALL_PLUGINS.md`](INSTALL_PLUGINS.md). |
 | **List plugins** | Fuzzy-search every installed plugin; picking one opens its directory in the pane. Third-party entries show the installed release tag or commit. |
 | **Remove plugin** | Unloads a third-party plugin and deletes its directory. Only third-party ones are offered — plugins under `User\` are yours to delete by hand. |
 | **Reload plugins** | Unloads and reloads every third-party and user plugin, in place. |
