@@ -6,7 +6,7 @@ A cross-platform dual-pane file manager.
 
 https://github.com/user-attachments/assets/a2d9524b-1c91-4a82-ad79-29786b0243b4
 
-The 2:30 tour above, driven from the keyboard, no mouse at any point:
+The tour above, driven from the keyboard, no mouse at any point:
 
 | | |
 |---|---|
@@ -15,6 +15,8 @@ The 2:30 tour above, driven from the keyboard, no mouse at any point:
 | Preview inside the pane | images with zoom, text you can edit and save, each viewer with its own command palette |
 | Video that actually plays | pause, seek and volume in-pane - and previewing into the *other* pane while you keep browsing |
 | Archives are just folders | pack with `Alt+F5`, `Enter` to step inside the zip, `F5` to copy back out |
+
+Full shortcut reference: **[workflow-tools.com/fast-file-manager/help/keybindings](https://workflow-tools.com/fast-file-manager/help/keybindings)**.
 
 More of the UI - the two-pane layout, internal image viewer, inline name
 filter, and command palette (`Ctrl+Shift+P`):
@@ -27,30 +29,22 @@ filter, and command palette (`Ctrl+Shift+P`):
 
 ![themes](media/demos/themes/themes.gif)
 
-## Single instance
+## Documentation
 
-fman runs as a single instance by default: launching it with a path while it is
-already running opens that folder in the active pane of the existing window
-instead of spawning a new one. See [docs/single_instance.md](docs/single_instance.md)
-for details and the `single_instance` setting to disable it.
+More on individual features in [docs/](docs/):
 
-## Windows network drives
-
-UNC paths (`\\server\share`, RDP-redirected drives like `\\tsclient\C\...`)
-no longer freeze the window: the hidden-file filter reads fman's cached `stat`
-instead of doing its own blocking call on the GUI thread, the background loader
-stops retrying files it cannot load, and files on a share get one generic icon
-per extension rather than a per-file Windows shell lookup. See
-[docs/WINDOWS_NETWORK_SUPPORT.md](docs/WINDOWS_NETWORK_SUPPORT.md) for the
-`Toggle network drive icons` command that restores real icons.
-
-## Archives
-
-`.zip`, `.7z` and `.tar` archives open like folders, backed by a bundled `7za`.
-On Windows, operations that show a progress bar no longer run 7-Zip through a
-pseudo-terminal: they pass `-bsp1` and read progress straight off the pipe,
-which is roughly 6x faster, actually moves the bar, and drops the `pywinpty`
-dependency. See [docs/ARCHIVES.md](docs/ARCHIVES.md).
+| Doc | Topic |
+|---|---|
+| [ARCHIVES.md](docs/ARCHIVES.md) | `.zip`, `.7z`, `.tar` browsed like folders, backed by a bundled `7za` |
+| [COMMAND_PALLETTE.md](docs/COMMAND_PALLETTE.md) | The `Ctrl+Shift+P` palette |
+| [DEMOS.md](docs/DEMOS.md) | How the demo recordings are made |
+| [KEYBINDINGS.md](docs/KEYBINDINGS.md) | Default key bindings |
+| [SINGLE_INSTANCE.md](docs/SINGLE_INSTANCE.md) | Reusing a running window, and the `single_instance` setting |
+| [THEMES.md](docs/THEMES.md) | Theme files and switching |
+| [WINDOWS_NETWORK_SUPPORT.md](docs/WINDOWS_NETWORK_SUPPORT.md) | UNC paths, network drive icons |
+| [WINDOW_TITLE.md](docs/WINDOW_TITLE.md) | Window title format |
+| [PURCHASING.md](docs/PURCHASING.md) | License / purchasing |
+| [CREATE_NEW_RELEASE.md](docs/CREATE_NEW_RELEASE.md) | Release process |
 
 ## Web help system
 

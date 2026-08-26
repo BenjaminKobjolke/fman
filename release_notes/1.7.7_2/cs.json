@@ -1,0 +1,13 @@
+{
+  "version": "1.7.7",
+  "build": 2,
+  "date": "2026-08-26",
+  "title": "Motivy, už žádné otravné hlášky o licenci a rychlejší archivy",
+  "notes": [
+    "Teď můžete změnit vzhled fmanu: v paletě příkazů spusťte „Select theme“ a vyberte si z jedenácti přibalených motivů, včetně Dark, Light, Solarized, Nord, Dracula a Gruvbox. Nový motiv se použije okamžitě, bez nutnosti restartu.",
+    "Každá instalace je plně aktivovaná. Registrace, kontroly licence a připomínací obrazovka jsou pryč.",
+    "Práce s archivy .zip, .7z a .tar ve Windows je zhruba šestkrát rychlejší a ukazatel průběhu se teď při balení nebo rozbalování velkého archivu skutečně pohybuje.",
+    "Paleta příkazů nyní vyhledává i alternativní slova k příkazu, takže ho najdete i tehdy, když si nepamatujete jeho přesný název.",
+    "Při otevření videa bez potřebných komponent se nyní zobrazí informace o tom, co chybí, místo aby se ukázal prázdný prohlížeč."
+  ]
+}

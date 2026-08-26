@@ -1,0 +1,13 @@
+{
+  "version": "1.7.7",
+  "build": 2,
+  "date": "2026-08-26",
+  "title": "Temas, fim dos lembretes de licença e arquivos mais rápidos",
+  "notes": [
+    "Agora você pode mudar a aparência do fman: execute \"Selecionar tema\" na paleta de comandos e escolha entre onze temas incluídos, como Dark, Light, Solarized, Nord, Dracula e Gruvbox. O novo tema é aplicado imediatamente, sem necessidade de reiniciar.",
+    "Todas as instalações vêm totalmente ativadas. O registro, as verificações de licença e a tela de lembrete foram removidos.",
+    "Trabalhar com arquivos .zip, .7z e .tar no Windows está cerca de seis vezes mais rápido, e a barra de progresso agora realmente se movimenta enquanto um arquivo grande é compactado ou extraído.",
+    "A paleta de comandos também reconhece palavras alternativas para um comando, assim você o encontra mesmo quando não lembra o nome exato.",
+    "Ao abrir um vídeo sem os componentes necessários, agora é informado o que está faltando em vez de mostrar um visualizador vazio."
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "version": "1.7.7",
+  "build": 2,
+  "date": "2026-08-26",
+  "title": "Témy, žiadne ďalšie otravné pripomínanie licencie a rýchlejšie archívy",
+  "notes": [
+    "Teraz môžete zmeniť, ako fman vyzerá: v palete príkazov spustite „Select theme“ a vyberte si z jedenástich pribalených tém vrátane Dark, Light, Solarized, Nord, Dracula a Gruvbox. Nová téma sa použije okamžite, bez potreby reštartu.",
+    "Každá inštalácia je plne aktivovaná. Registrácia, kontroly licencie aj obrazovka s pripomienkou sú preč.",
+    "Práca s archívmi .zip, .7z a .tar vo Windows je približne šesťkrát rýchlejšia a ukazovateľ priebehu sa teraz pri balení alebo rozbaľovaní veľkého archívu naozaj hýbe.",
+    "Paleta príkazov teraz rozpozná aj alternatívne slová pre príkaz, takže ho nájdete aj vtedy, keď si nepamätáte jeho presný názov.",
+    "Pri otvorení videa bez požadovaných komponentov vám teraz aplikácia povie, čo chýba, namiesto toho, aby zobrazila prázdny prehrávač."
+  ]
+}

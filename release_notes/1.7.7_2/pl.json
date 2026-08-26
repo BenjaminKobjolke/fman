@@ -1,0 +1,13 @@
+{
+  "version": "1.7.7",
+  "build": 2,
+  "date": "2026-08-26",
+  "title": "Motywy, koniec z przypomnieniami o licencji i szybsza obsługa archiwów",
+  "notes": [
+    "Możesz teraz zmienić wygląd fman: uruchom „Select theme” z palety poleceń i wybierz jeden z jedenastu dołączonych motywów, w tym Dark, Light, Solarized, Nord, Dracula oraz Gruvbox. Nowy motyw stosuje się natychmiast — nie trzeba restartu.",
+    "Każda instalacja jest w pełni aktywowana. Rejestracja, sprawdzanie licencji i ekran przypomnienia zostały usunięte.",
+    "Praca z archiwami .zip, .7z i .tar w systemie Windows jest mniej więcej sześć razy szybsza, a pasek postępu faktycznie porusza się teraz podczas pakowania lub rozpakowywania dużego archiwum.",
+    "Paleta poleceń dopasowuje też alternatywne słowa dla polecenia, więc znajdziesz je nawet wtedy, gdy nie pamiętasz jego dokładnej nazwy.",
+    "Otwarcie wideo bez wymaganych komponentów informuje teraz, czego brakuje, zamiast wyświetlać pusty podgląd."
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "version": "1.7.7",
+  "build": 2,
+  "date": "2026-08-26",
+  "title": "Teme, fără insistențe privind licența și arhive mai rapide",
+  "notes": [
+    "Acum poți schimba felul în care arată fman: rulează „Selectare temă” din paleta de comenzi și alege dintre unsprezece teme incluse, precum Dark, Light, Solarized, Nord, Dracula și Gruvbox. Noua temă se aplică imediat, fără a fi nevoie de repornire.",
+    "Fiecare instalare este complet activată. Înregistrarea, verificările de licență și ecranul de reamintire au fost eliminate.",
+    "Lucrul cu arhive .zip, .7z și .tar pe Windows este de aproximativ șase ori mai rapid, iar bara de progres se mișcă acum cu adevărat în timp ce o arhivă mare este împachetată sau extrasă.",
+    "Paleta de comenzi potrivește acum și cuvinte alternative pentru o comandă, astfel încât o găsești chiar și atunci când nu îți amintești numele ei exact.",
+    "Deschiderea unui videoclip fără componentele necesare îți spune acum ce lipsește, în loc să afișeze un vizualizator gol."
+  ]
+}

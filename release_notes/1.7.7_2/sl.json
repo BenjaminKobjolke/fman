@@ -1,0 +1,13 @@
+{
+  "version": "1.7.7",
+  "build": 2,
+  "date": "2026-08-26",
+  "title": "Teme, nič več nadlegovanja z licenco in hitrejši arhivi",
+  "notes": [
+    "Zdaj lahko spremenite videz fmana: v paleti ukazov zaženite »Select theme« in izberite eno od enajstih priloženih tem, vključno z Dark, Light, Solarized, Nord, Dracula in Gruvbox. Nova tema se uveljavi takoj, ponovni zagon ni potreben.",
+    "Vsaka namestitev je v celoti aktivirana. Registracija, preverjanja licence in opomnik zaslon so odstranjeni.",
+    "Delo z arhivi .zip, .7z in .tar v sistemu Windows je približno šestkrat hitrejše, vrstica napredka pa se zdaj dejansko premika, medtem ko se velik arhiv pakira ali razpakira.",
+    "Paleta ukazov zdaj ujema tudi alternativne besede za ukaz, zato ga najdete tudi, ko se ne spomnite njegovega točnega imena.",
+    "Pri odpiranju videa brez zahtevanih komponent vam program zdaj pove, kaj manjka, namesto da prikaže prazen pregledovalnik."
+  ]
+}
