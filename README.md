@@ -66,9 +66,10 @@ was**, with a progress bar that actually moves: a 62 MB, 992-file zip went from
 9.8 s to 1.7 s. → [ARCHIVES.md](docs/ARCHIVES.md)
 
 **Make it yours.** 11 bundled themes, switched live from the palette, no
-restart. Your own theme is one small JSON file of colors. Plus window
-transparency, pane font zoom (`Alt+↑`/`Alt+↓`), toggleable columns,
-single-pane mode, and every key rebindable.
+restart. Your own theme is one small JSON file of colors; fonts and padding
+live in a `Theme.css` override file. Plus window transparency, pane font zoom
+(`Alt+↑`/`Alt+↓`), toggleable columns, single-pane mode, and every key
+rebindable.
 → [THEMES.md](docs/THEMES.md) · [COMMAND_PALLETTE.md](docs/COMMAND_PALLETTE.md)
 
 **Extend it in Python.** Plugins add commands, columns, listeners — even whole
@@ -93,8 +94,9 @@ the command palette; it applies immediately, no restart.
 
 ![themes](media/demos/themes/themes.gif)
 
-Writing your own is one JSON file listing only the colors you want to change —
-see [THEMES.md](docs/THEMES.md).
+Writing your own is one JSON file listing only the colors you want to change.
+Fonts, padding and one-off color pins go in a user `Theme.css` that loads last
+and wins over every theme — see [THEMES.md](docs/THEMES.md).
 
 ## Plugins
 
@@ -133,11 +135,18 @@ These are the ones maintained on this account:
 | [ARCHIVES.md](docs/ARCHIVES.md) | `.zip`, `.7z`, `.tar` browsed like folders, backed by a bundled `7za` |
 | [COMMAND_PALLETTE.md](docs/COMMAND_PALLETTE.md) | The `Ctrl+Shift+P` palette |
 | [DEMOS.md](docs/DEMOS.md) | How the demo recordings are made |
+| [FONTS.md](docs/FONTS.md) | The bundled font families, picking one, adding your own |
+| [ICONS.md](docs/ICONS.md) | File icon sets, icon size, writing your own |
 | [KEYBINDINGS.md](docs/KEYBINDINGS.md) | Default key bindings |
+| [PLUGINS.md](docs/PLUGINS.md) | Installing, reloading and removing plugins; duplicate package names |
+| [PLUGINS_API.md](docs/PLUGINS_API.md) | Writing a plugin: layout, registration, panes, viewers |
+| [STATUSBAR.md](docs/STATUSBAR.md) | The bar at the bottom: what it says, hiding it, theming it |
 | [SINGLE_INSTANCE.md](docs/SINGLE_INSTANCE.md) | Reusing a running window, and the `single_instance` setting |
-| [THEMES.md](docs/THEMES.md) | Theme files and switching |
+| [THEMES.md](docs/THEMES.md) | Theme files, color tokens and switching |
+| [TUTORIAL.md](docs/TUTORIAL.md) | The onboarding tour: where its bubble sits, who owns the keyboard, writing a step |
 | [WINDOWS_NETWORK_SUPPORT.md](docs/WINDOWS_NETWORK_SUPPORT.md) | UNC paths, network drive icons |
-| [WINDOW_TITLE.md](docs/WINDOW_TITLE.md) | Window title format |
+| [WINDOW_FUNCTIONS.md](docs/WINDOW_FUNCTIONS.md) | Window-level functions: chrome toggles, opacity, the dim behind dialogs, centering |
+| [WINDOW_TITLE_AND_BARS.md](docs/WINDOW_TITLE_AND_BARS.md) | Window title format, hiding the title bar (and, on macOS, the Help menu) |
 | [PURCHASING.md](docs/PURCHASING.md) | Why there is nothing to buy |
 | [CREATE_NEW_RELEASE.md](docs/CREATE_NEW_RELEASE.md) | Release process |
 

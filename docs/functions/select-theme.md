@@ -45,11 +45,22 @@ Bundled: **Monokai** (default), **Dark**, **Light**, **Solarized Dark**,
 [Set window opacity](window-opacity.md) to override that, or to fade any
 other theme.
 
+A theme may also name an icon set and an icon size (`"icons"` and
+`"icon_size"`), so switching theme can change every icon in the panes — see
+[Select icon set](select-icon-set.md) to override that, or to pick a set
+without changing your colors.
+
+It may name a **font** too (`"font"`), so switching theme can change the
+typeface as well — eight of the eleven bundled themes do. See
+[Select font](select-font.md) to override that, or to pick a family
+without changing your colors.
+
 Writing your own is one small JSON file of colors dropped into
 `%APPDATA%/fman/Themes/` — see [`docs/THEMES.md`](../THEMES.md).
 
 ## Where it lives
 
 - Command: `Plugins/Core/core/commands/theme.py` (`SelectTheme`)
-- Colors, theme discovery, live switching: `fman/impl/themes.py`
+- Colors, the font and the icon keys, theme discovery, live switching:
+  `fman/impl/themes.py` and `fman/impl/theme_controller.py`
 - Saved as `theme` in `%APPDATA%/fman/Local/Settings.json`

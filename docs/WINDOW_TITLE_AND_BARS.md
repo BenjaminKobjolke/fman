@@ -1,9 +1,15 @@
-# Window title
+# Window title and bars
+
+What fman puts at the top of its window: the title, the OS title bar that
+draws it, and — on macOS only — fman's own **Help** menu in the system menu
+bar.
+
+## Window title
 
 The fman window title shows both panes' current paths, kept in sync as either
 pane navigates.
 
-## Format
+### Format
 
 ```
 fman - file manager - <left pane path> | <right pane path>
@@ -24,13 +30,13 @@ fman - file manager - C:\test | D:\GIT\BenjaminKobjolke\fman\debug
 - Updates live: navigating either pane (open a folder, go up, jump via the
   location bar, etc.) refreshes the whole title, not just that pane's segment.
 
-## Notes
+### Notes
 
 - This replaces the static title set by the core app (`fman`) once the main
   window is shown. There is no registration marker to fold in: this fork has
   no licensing (see `docs/PURCHASING.md`).
 
-## Implementation
+### Implementation
 
 - `src/main/resources/base/Plugins/Core/core/commands/__init__.py` —
   `UpdateWindowTitle` (`DirectoryPaneListener`). Sets the title once on
@@ -50,3 +56,32 @@ fman - file manager - C:\test | D:\GIT\BenjaminKobjolke\fman\debug
 - `src/main/resources/base/Plugins/Core/core/tests/commands/test___init__.py`
   — `FormatWindowTitleTest` covers the pure title-building logic (no paths,
   blank paths skipped, one path, two paths).
+
+## The bars above the panes
+
+Both can be turned off, one at a time, from the command palette — and both
+stay off across restarts:
+
+| Command             | What it hides                                       |
+|----------------------|------------------------------------------------------|
+| `toggle_title_bar`   | The OS title bar: the title above, and the window frame with it |
+| `toggle_menu_bar`    | fman's **Help** menu — **macOS only**, and in the system menu bar, not in fman's window |
+
+There is no menu on Windows or Linux, so `toggle_menu_bar` is not registered
+there and never shows up in the palette.
+
+The bar *below* the panes goes the same way: `toggle_status_bar`, everywhere,
+also remembered — see [`docs/STATUSBAR.md`](STATUSBAR.md).
+
+Hiding the title bar hides the title described above with it — the string is
+still set, there is just nothing drawing it, and it comes back untouched when
+the bar does. A window with no title bar cannot be dragged or closed with the
+mouse, so read the caveats before turning it off.
+
+Either way the window keeps the screen space it had: hiding the title bar
+grows the panes into the row the bar occupied rather than shrinking the window
+by it, and showing the bar again puts the window back at exactly the size it
+was before the toggle.
+
+Full write-up, including the settings keys and the frameless-window caveats:
+[`docs/functions/window-bars.md`](functions/window-bars.md).

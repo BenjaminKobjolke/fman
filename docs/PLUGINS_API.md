@@ -1,0 +1,245 @@
+# Plugin API
+
+How fman finds a plugin, what a plugin can extend, and the contracts each
+extension point has to keep.
+
+For installing, reloading and removing plugins - and what happens when two
+of them ship a package of the same name - see
+[`docs/PLUGINS.md`](PLUGINS.md).
+
+Everything here is importable from `fman` (plus its sibling modules
+`fman.fs`, `fman.url`, `fman.clipboard`). Anything under `fman.impl` is
+internal: it changes without notice.
+
+## Where plugins live
+
+| Directory | What goes there |
+|-----------|-----------------|
+| `<resources>/Plugins` | The shipped **Core** plugin. Loads first. |
+| `%APPDATA%\fman\Plugins\Third-party` | Installed plugins. |
+| `%APPDATA%\fman\Plugins\User` | Your own. `User\Settings` always loads **last**, so its JSON wins. |
+
+On macOS and Linux, `%APPDATA%\fman` is
+`~/Library/Application Support/fman` and `~/.config/fman`. The path is
+`fman.DATA_DIRECTORY` (`FMAN_DATA_DIRECTORY` overrides it).
+
+Load order is shipped → third-party → user (`impl/plugins/discover.py`). Each
+plugin directory is appended to `sys.path`, so a plugin can `import` any other
+loaded plugin's packages — including Core's.
+
+## Plugin layout
+
+```
+%APPDATA%\fman\Plugins\User\My Plugin\
+    my_plugin\__init__.py                  <- required: a package
+    *.ttf                                  <- fonts, loaded automatically
+    Theme.css        / Theme (Windows).css
+    Key Bindings.json / Key Bindings (Windows).json
+    File Context Menu.json / Folder Context Menu.json
+    <anything>.json                        <- read with load_json('<anything>.json')
+```
+
+Only **directories containing `__init__.py`** are imported
+(`impl/plugins/plugin.py`, `_load_packages`). Loose `.py` files at the plugin
+root are ignored, and so is a nested package that nothing re-exports — see
+[Registration](#registration).
+
+A `(Windows)` / `(Mac)` / `(Linux)` suffix on any JSON or CSS filename makes it
+platform-specific; `fman.PLATFORM` is the same token.
+
+## Registration
+
+fman does not have a `register_*()` call. It **scans the classes** reachable
+from each package's `__init__.py` namespace and registers anything whose
+ancestry includes one of these:
+
+| Base class | Gives you |
+|------------|-----------|
+| `ApplicationCommand` | A command in the palette, bound to the window |
+| `DirectoryPaneCommand` | A command bound to the pane it ran from |
+| `DirectoryPaneListener` | Callbacks for pane events |
+| `fman.fs.FileSystem` | A new url scheme |
+| `fman.fs.Column` | A new file-list column |
+| `Viewer` | A file viewer shown inside a pane — see [Viewers](#viewers) |
+
+Two consequences worth knowing:
+
+- **Split your plugin across modules and you must re-export.** Only names
+  reachable from `my_plugin/__init__.py` are scanned. Core does exactly this:
+  `core/__init__.py` carries `from core.viewers import *` so the viewer classes
+  in `core/viewers.py` are discovered.
+- **Unloading is automatic.** Every registration pushes its own inverse action,
+  which `fman.unload_plugin()` replays in reverse. Nothing you register leaks.
+
+A command's name is its class name in snake_case: `CenterWindow` →
+`center_window`. That is the name `Key Bindings.json` and `run_command()` use.
+
+## Commands run off the main thread
+
+Commands and listeners run on a worker thread
+(`impl/plugins/command_registry.py`). **Any Qt call must be wrapped**:
+
+```python
+from fman.impl.util.qt.thread import run_in_main_thread
+
+class ShowSomething(DirectoryPaneCommand):
+	@run_in_main_thread
+	def __call__(self):
+		...   # safe to touch widgets here
+```
+
+`fman.impl.util.qt.thread` is technically internal, but it is imported by a
+dozen Core modules and is the sanctioned way to do this.
+
+Exceptions inside a command are caught and reported rather than crashing fman.
+
+## Panes
+
+You receive a `DirectoryPane`; you never construct one. `self.pane` in a
+`DirectoryPaneCommand`, `pane.window.get_panes()` for all of them. Panes are
+addressed **by index** into that list — key bindings pass `pane_index`. The
+"other pane" idiom is:
+
+```python
+panes = pane.window.get_panes()
+other = panes[(panes.index(pane) + 1) % len(panes)]
+```
+
+There are two panes by default, but the count comes from the saved session, so
+never assume exactly two.
+
+Location and selection: `get_path()`, `set_path(url, callback, onerror)`,
+`reload()`, `get_selected_files()`, `get_file_under_cursor()`,
+`place_cursor_at(url)`, `select()` / `deselect()`, `focus()`,
+`get_columns()`, `get_sort_column()` / `set_sort_column()`.
+
+## Putting your own widget in a pane
+
+A pane can show **any `QWidget`** in place of its file list. This is what the
+built-in file viewers are built on, and it is available to plugins directly —
+your widget does not have to have a file behind it.
+
+| Method | Does |
+|--------|------|
+| `pane.mount_widget(view, focus=True)` | Hides the file list, shows `view`, re-points the pane's focus proxy at it |
+| `pane.unmount_widget()` | Removes and deletes it, restores the file list and its focus |
+| `pane.get_mounted_widget()` | The mounted widget, or `None` |
+| `pane.get_colors()` | `(background, foreground)` as hex, from the pane's live palette |
+
+```python
+from fman import DirectoryPaneCommand
+from fman.impl.util.qt.thread import run_in_main_thread
+from PyQt5.QtWidgets import QLabel
+
+class ShowHello(DirectoryPaneCommand):
+	@run_in_main_thread
+	def __call__(self):
+		bg, fg = self.pane.get_colors()
+		label = QLabel('hello')
+		label.setStyleSheet(
+			'QLabel { background-color: %s; color: %s; }' % (bg, fg)
+		)
+		self.pane.mount_widget(label)
+```
+
+Four things your widget owns once it is mounted:
+
+- **Closing.** Nothing closes it for you. Handle `Escape` / `Enter` /
+  `Backspace` in `keyPressEvent` and call `pane.unmount_widget()` — that is the
+  contract users expect from the built-in viewers.
+- **Pane switching.** `Tab` / `Shift+Tab` should run
+  `pane.run_command('switch_panes')`. The focus proxy is already re-pointed, so
+  tabbing back returns to your widget rather than the hidden file list.
+- **Colors.** Use `get_colors()`. Hardcoding a palette means your widget is the
+  one thing that ignores the user's theme.
+- **Stylesheets.** Set colors with a **type-selector** rule
+  (`QLabel { ... }`), never `*`. Core's `Theme.css` applies an app-wide
+  `* { font-size: ...pt; }`, and once that touches a widget Qt switches it to
+  the QSS style engine and stops honouring its palette. A local type rule beats
+  the wildcard; a palette alone loses to it.
+
+`focus=False` mounts without taking keyboard focus — for mounting into the
+*other* pane while the user keeps browsing in this one.
+
+## Viewers
+
+A `Viewer` is a widget-in-a-pane that fman picks **for you**, by file, when the
+user runs "View file". Subclass it and your viewer joins the built-in text,
+image and video ones on equal footing — the viewer palette, next/previous-file
+navigation and the per-viewer "advance only for same type" toggle all work
+without further wiring.
+
+```python
+from fman import Viewer
+
+class MarkdownViewer(Viewer):
+
+	name = 'markdown'
+
+	def matches(self, url):
+		return url.lower().endswith('.md')
+
+	def show(self, pane, url, focus_view=True):
+		pane.mount_widget(build_my_widget(url), focus=focus_view)
+```
+
+| Member | Contract |
+|--------|----------|
+| `name` | **Required**, unique, stable. Also the navigation category and the key its settings are stored under (`<name>_viewer_advance_same_type` in `Core Settings.json`), so renaming it silently resets those. A viewer without a name is refused, with an error. |
+| `priority` | Higher wins when two viewers match. Default `0`. |
+| `matches(url)` | `True` if you handle this file. Called during directory scans too, so keep it cheap. |
+| `show(pane, url, focus_view=True)` | Build the widget and mount it. Forward `focus_view` to `mount_widget`. |
+
+### Priority, and why it exists
+
+Registration order is plugin load order, and Core loads first. Core's text
+viewer *sniffs* rather than matching an extension, so it says yes to any file
+that is not an image, a video or a binary — including your `.md`. It therefore
+sits at **`priority = -100`**, below the default, so plugin viewers get first
+refusal. Leave `priority` alone unless you are deliberately overriding another
+plugin.
+
+### What fman guards for you
+
+- A viewer whose `matches()` raises is **skipped**, not fatal: the error is
+  reported and the next viewer is tried. One broken plugin cannot take "View
+  file" down.
+- Directories and non-local urls never reach a viewer — "View file" alerts on
+  those instead (`core/viewers.py`, `viewer_for`).
+- Unloading the plugin unregisters the viewer.
+
+`fman.find_viewer(url)` returns the viewer that would handle a url, or `None`;
+`fman.viewer_for_category(name)` looks one up by `name`. You rarely need
+either — they exist for code that has to ask the question without opening
+anything.
+
+See [File viewers](viewers/FILE_VIEWERS.md) for the user-facing behaviour your
+viewer inherits, and [Key bindings](KEYBINDINGS.md#viewer-specific-bindings)
+for the viewer-scoped binding file.
+
+## Settings and other JSON
+
+`load_json('My Settings.json', default={})` merges that filename across
+**every** plugin directory in load order — dicts update, lists prepend — so a
+user file overrides yours. `save_json` writes only the difference, into
+`User\Settings`.
+
+Core exposes the one-key convenience both it and its viewers use:
+
+```python
+from core.settings import get_setting, save_setting
+save_setting('My Settings.json', 'key', value)   # value=None clears the key
+```
+
+## Fonts
+
+Any `*.ttf` in a plugin's root directory is loaded into Qt's font database when
+the plugin loads, and unloaded with it. Reference it by the family name in the
+font's own name table — not the filename. It also becomes selectable as the UI
+font; see [Fonts](FONTS.md).
+
+## Dialogs and progress
+
+`show_alert`, `show_prompt`, `show_status_message`, `clear_status_message`,
+`show_file_open_dialog`, `show_quicksearch` (with `QuicksearchItem`), and
+`submit_task(Task(...))` for anything long enough to need a progress dialog.

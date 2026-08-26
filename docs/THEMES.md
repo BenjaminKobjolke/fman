@@ -47,7 +47,8 @@ has to exist when the `QApplication` is created.
 ## Writing a theme
 
 A theme is **one JSON file** listing only the colors it changes (plus,
-optionally, an [opacity](#opacity)):
+optionally, an [opacity](#opacity), an [icon set, an icon size and an icon
+color](#icons), and a [font](#fonts)):
 
 ```json
 {
@@ -72,7 +73,7 @@ optionally, an [opacity](#opacity)):
   containing `;`, `{` or `}` is rejected — it would break out of the
   stylesheet rule it lands in.
 
-### You only need the 15 core tokens
+### You only need the 16 core tokens
 
 Tokens that are not listed **inherit from a parent token** before falling
 back to the default. So setting `pane_bg` alone also moves `base_bg` (what
@@ -98,10 +99,21 @@ and bevel in the quicksearch popup.
 | `popup_bg` | Quicksearch / command-palette background |
 | `popup_item_fg` | Command-palette entry titles |
 | `popup_selected_bg` | Selected entry in the palette |
+| `scrim_bg` | The dim over the main window while a dialog is open |
+
+`scrim_bg` is the one token whose **alpha** matters, which is why it takes an
+`#AARRGGBB` value: the alpha byte *is* how strong the dim is. `#80000000` (the
+default) is 50% black, `#40000000` a quarter, and `#00000000` switches the
+scrim off entirely — see [Dimming behind dialogs](#dimming-behind-dialogs).
 
 Separators inherit `border`, never the surface they sit on: a divider that
 defaults to `popup_bg` is invisible by construction, which is what made the
 command palette read as one solid block in early versions of the light theme.
+
+A theme that wants *no* separators at all sets `popup_divider_top` and
+`popup_divider_bottom` to its own `popup_bg` explicitly — the inherited
+fallback is never the surface, so this has to be said out loud. `Matrix.json`
+does it; its rows are held apart by the green text alone.
 
 **Derived tokens** — override only if the inherited value looks wrong:
 
@@ -120,10 +132,36 @@ command palette read as one solid block in early versions of the light theme.
 | `button_fg` | `muted_fg` |
 | `palette_mid`, `palette_dark`, `palette_shadow` | `button_bg` |
 
+### Dimming behind dialogs
+
+While a modal dialog is open, fman lays a **scrim** over the main window so the
+dialog reads against the file list instead of competing with it. That is not a
+separate theme key — it is the `scrim_bg` color token, with its alpha byte
+carrying the strength:
+
+```json
+{
+	"colors": { "scrim_bg": "#40000000" }
+}
+```
+
+- The scrim covers the **main window only**. Dialogs are top-level windows of
+  their own, so the dim never touches the dialog itself — that is exactly what
+  buys the contrast.
+- It is drawn behind the command palette, prompts, alerts and the file-open
+  dialog. **Not** behind the progress dialog: a copy can run for minutes, and a
+  window dimmed that long costs more than the contrast is worth.
+- `#00000000` is a fully transparent scrim, i.e. the pre-scrim look. A theme
+  that wants no dim at all says that.
+- Unlike [opacity](#opacity) below, this is a plain color token, so it lives
+  *in* `colors` and follows every rule the other tokens do.
+- What the scrim is for, beside every other window-level function:
+  [WINDOW_FUNCTIONS.md](WINDOW_FUNCTIONS.md#dimming-behind-dialogs).
+
 ### Opacity
 
-A theme may also make fman's window see-through. This is the one thing in a
-theme file that is *not* a color, so it sits beside `colors`, not in it:
+A theme may also make fman's window see-through. This is one of three things
+in a theme file that are *not* colors, so it sits beside `colors`, not in it:
 
 ```json
 {
@@ -145,6 +183,79 @@ theme file that is *not* a color, so it sits beside `colors`, not in it:
   theme switch until they pick **Theme default** again.
 - Bundled example: `Matrix.json`.
 
+### Icons
+
+A theme may also name an **icon set** for the file list, how big to draw it,
+and what color to recolor it. All three sit beside `colors` — the first two
+because they are not colors, and `icon_color` because it is a color that is
+*not a token*: it is painted onto image files rather than substituted into a
+stylesheet, so `resolve_colors` would have nothing to do with it.
+
+```json
+{
+	"colors": { "pane_bg": "#2e3440" },
+	"icons": "Material",
+	"icon_size": 20,
+	"icon_color": "#88c0d0"
+}
+```
+
+- **`icons`** is `System` (the OS icons, the default) or the name of an
+  installed set. `Material` ships with fman.
+- **`icon_size`** is a whole number of pixels from 12 to 64. It applies to
+  the `System` set too, and the rows grow with it. It also follows the
+  [pane font size](functions/pane-font-size.md) zoom.
+- **`icon_color`** is any color Qt understands. Each icon keeps its own
+  shading and takes the color's hue. Only an icon set answers to it — the
+  `System` icons are the shell's bitmaps and cannot be recolored, so a theme
+  that wants colored icons has to name `icons` too.
+- Leaving a key out means "don't touch it", so switching theme always sets
+  all three — back to the defaults included. An unusable value is ignored
+  like any other typo.
+- The user's own choice wins over the theme's and survives a theme switch,
+  until they pick **System** or **Theme default** again.
+- Bundled example: `Matrix.json`, which asks for `Material` in its own green.
+
+Icons are a topic of their own: what the sets are, which files keep their OS
+icon, how to write your own, and how the bundled set is vendored — see
+[**docs/ICONS.md**](ICONS.md) and
+[Select icon set](functions/select-icon-set.md).
+
+### Fonts
+
+A theme may also name the **font family** the whole UI is drawn in. Like the
+icon set, it sits beside `colors`:
+
+```json
+{
+	"colors": { "pane_bg": "#000000" },
+	"font": "Share Tech Mono"
+}
+```
+
+- The value is a family **name**, not a file: any family Qt can see, which
+  means the ones fman bundles *and* whatever is installed on the machine.
+- A family this machine does not have is **not** an error — Qt falls back to
+  its own font, so a typo costs you the typeface rather than the ability to
+  start fman.
+- Leaving the key out means "don't touch it", which resolves to fman's default
+  for the platform (`Roboto` on Windows, `Open Sans` on Linux,
+  `Helvetica Neue` on macOS) — so switching theme always sets the family,
+  back to the default included.
+- The user's own choice wins over the theme's and survives a theme switch,
+  until they pick **Theme default** again.
+- Only the *family* is a theme property. The **size** is not: that is
+  [Theme.css](#themecss-fonts-padding-and-user-overrides) plus the user's
+  [pane font size](functions/pane-font-size.md) zoom, and the two are
+  independent.
+- Bundled example: `Matrix.json`, which asks for Share Tech Mono beside its
+  green Material icons.
+
+Fonts are a topic of their own: which families ship, how to add one, how the
+bundled ones are vendored, and why the directory name is read out of the font
+file — see [**docs/FONTS.md**](FONTS.md) and
+[Select font](functions/select-font.md).
+
 ### Not themed
 
 - **`QMenu` in `os_styles.qss`** (Windows/macOS context menus) — these copy
@@ -152,8 +263,17 @@ theme file that is *not* a color, so it sits beside `colors`, not in it:
   dark. Theming them is a separate decision; the values stay literal.
 - **`QPalette.Highlight`** — never set, so Qt's Fusion style supplies it.
   This is what the progress bar uses.
-- **Sizes, padding and fonts** — themes are colors (and
-  [opacity](#opacity)) only. For those, see `Theme.css` below.
+- **The icon *set*.** A theme picks which set is drawn, how big, and what
+  color ([Icons](#icons)) — but the drawings are image files, so everything
+  else about them is the set's, not the theme's. `icon_color` is a tint over
+  the whole set, not a per-icon palette.
+- **The `System` icons.** Those come from the Windows shell, GTK or the
+  Finder, so `icon_color` does not reach them. A theme wanting colored icons
+  names an `icons` set as well.
+- **Font *size*, padding and every other metric.** A theme owns the font
+  *family* ([Fonts](#fonts)) and `icon_size` — not how big the text is.
+  For the rest, see `Theme.css` below and
+  [Pane font size](functions/pane-font-size.md).
 
 ## Theme.css: fonts, padding, and user overrides
 
@@ -165,6 +285,12 @@ these files, each optional, in order:
 - `%APPDATA%/fman/Plugins/User/Settings/Theme.css` — **the user override
   file.** It loads last, so it wins over every theme. Edit this to change
   font sizes or padding, or to pin a color a theme keeps changing.
+
+The base `Theme.css` takes the family from the active theme
+(`* { font-family: $font_family; }`), so setting `font-family` in the
+override file pins it against every theme the way pinning a color does.
+[Select font](functions/select-font.md) is the supported way to do that,
+though, and unlike an edit here it is undoable from the palette.
 
 Put *only what you change* in that file. Copying the whole base `Theme.css`
 into it copies its color literals too, and those then override every theme —
@@ -187,6 +313,14 @@ fixed set of selectors, mapped to real Qt ones (`_CSS_TO_QSS`):
 (`.quicksearch-item-title`, `-highlight`, `-hint` and `-description` are
 parsed separately by a small CSS engine and read back by the popup's own
 paint code via `Theme.get_quicksearch_item_css()`, rather than becoming QSS.)
+
+Every font size in that group — the four above plus `.quicksearch-query` —
+is multiplied by the [pane font zoom](functions/pane-font-size.md), which the
+Core plugin pushes in through `Theme.set_font_scale()`. The four painted ones
+are scaled in the dict; the query line gets a `Quicksearch QLineEdit`
+font-size rule appended *after* everything else in the app stylesheet, which
+is what makes the zoom beat your own `.quicksearch-query` rule. The sizes you
+author stay the palette's 1.0 baseline.
 
 Your `Theme.css` may contain `$` freely — substitution leaves unknown names
 alone. To use a theme's color in it, write the token: `color: $pane_fg;`.
@@ -234,8 +368,8 @@ rule, and over the theme.
 
 ## Tests
 
-`tools/run_theme_tests.bat` runs the engine's theme tests. Two of them are
-guards worth knowing about:
+`tools/run_theme_tests.bat` runs the engine's theme tests. (The icon set has
+its own — see [ICONS.md](ICONS.md#tests).) The guards worth knowing about:
 
 - Neither `styles.qss` nor `Theme.css` may contain a color literal, and
   every `$token` in them must exist — a mistyped placeholder would survive
@@ -243,12 +377,24 @@ guards worth knowing about:
   Core plugin down.
 - `build_palette(DEFAULT_COLORS)` is asserted against the exact `QPalette`
   fman used before themes existed, so the default look cannot drift.
+- A bundled theme's optional `icons` must name an icon set fman actually
+  ships, and its `icon_size` and `icon_color` must survive their loaders —
+  an out-of-range size or an unparseable color would be silently ignored at
+  runtime, which in a *bundled* theme is a typo nobody would notice. Its
+  `font` clears the same bar, and must additionally be a family fman
+  *bundles*: any installed family is legal in a theme you write, but a
+  bundled theme naming one would look different on every machine.
+- The bundled fonts have guards of their own — see
+  [FONTS.md](FONTS.md#tests).
 - Every bundled theme is checked for **legibility**, not just validity: text
   pairs (entry title, matched characters, shortcut hint, description, file
   and directory rows, column headers) must clear a 4.5:1 WCAG contrast
   ratio, separators must be visible against the popup, and the selected row
   must stand out from it. Monokai is exempt — it *is* the pre-themes look,
   pinned by the tests above, so it cannot be recolored to satisfy a ratio.
+  Matrix is exempt from the *separator* check only: it drops the dividers on
+  purpose (`_NO_DIVIDERS` in `test_themes.py`). The guard that a separator
+  may never *inherit* its own surface still covers every theme.
   A bundled theme's optional `opacity` is validated the same way, and the
   count of bundled themes is asserted, so adding a file is a deliberate act.
   A new theme has to pass; add it to `src/main/resources/base/Themes/` and

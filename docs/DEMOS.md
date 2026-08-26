@@ -227,12 +227,22 @@ is the one chapter that can put private directory names on camera.
 |--------|------|--------------------|
 | `_get_default_paths()` | `Visited Paths.json` holds **2 or fewer** entries | every non-hidden subdir of your home directory, plus the non-empty dirs in `C:\` |
 | `find_folders_starting_with()` | the typed query is **longer than 2 chars** | up to 5 folders from the Windows Search index, from anywhere on the disk |
+| `_with_well_known_dirs()` | **always** | home, Desktop, Documents, Downloads |
 
-`run_fman_demo.bat` closes both for id 8: it seeds a 5-entry
+`run_fman_demo.bat` closes the first two for id 8: it seeds a 5-entry
 `Visited Paths.json` pointing only at that run scratch tree (so the fallback
 never fires), and the script never types more than two characters (so the
 index is never queried). Keep both properties if you edit the chapter - and
 watch the take before publishing it.
+
+The third source **cannot be closed** - the everyday four are offered
+unconditionally. They are safe to record only because `SuggestLocations`
+`_filter_matching` sets `use_tilde` whenever the query does not already start
+inside your home directory, so they render as `~`, `~\Desktop`, `~\Documents`,
+`~\Downloads` - never `C:\Users\<name>\...`. That tilde-shortening is now the
+only thing keeping the account name off camera in chapter 8: if a change ever
+makes GoTo show these rows unshortened, the chapter has to be re-checked
+before publishing.
 
 The chapters exist because of hard limits in the recorder, not taste:
 

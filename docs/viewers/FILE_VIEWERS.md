@@ -60,3 +60,12 @@ All three viewers work the same way where it counts:
 
 For per-viewer detail (usage, zoom, controls, limits, implementation) see each
 viewer's own doc linked above.
+
+## Adding your own
+
+The three above are not special-cased: each is an `fman.Viewer` subclass in the
+Core plugin (`Plugins/Core/core/viewers.py`), registered through the same
+lookup a plugin's viewer uses. A plugin that subclasses `Viewer` inherits
+everything on this page — the close keys, pane switching, the viewer palette,
+next/previous-file and the same-type toggle. See
+[Plugin API](../PLUGINS_API.md#viewers).

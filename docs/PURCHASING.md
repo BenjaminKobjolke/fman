@@ -23,7 +23,7 @@ machinery outright rather than leaving it dormant:
   rendered bright green to be harder to ignore.
 - **The window-title marker** — the title read `fman – NOT REGISTERED` when
   unlicensed. It now always reads `fman` before the Core plugin takes over (see
-  [WINDOW_TITLE.md](WINDOW_TITLE.md)).
+  [WINDOW_TITLE_AND_BARS.md](WINDOW_TITLE_AND_BARS.md)).
 - **The `install_license_key` command** and the listener that offered to install
   any file named `User.json` you tried to open, both in
   `src/main/resources/base/Plugins/Core/core/commands/__init__.py`.

@@ -22,15 +22,54 @@ one of its hidden keywords, below), pick from the filtered list, press Enter.
   you last ran, so repeating an action is Open → Enter.
 - **Scope:** lists every command visible for the active pane plus global
   application commands. Only commands the pane marks visible show up.
+- **It zooms with the panes:** [Increase / Decrease font
+  size](functions/pane-font-size.md) scales the palette's own text by the same
+  factor it scales the panes and their icons by, and **Reset font size** puts
+  it back. The palette's base size is the theme's, in `Theme.css` — see
+  [`docs/THEMES.md`](THEMES.md#themecss-fonts-padding-and-user-overrides).
+- **The window dims behind it:** the palette is a window of its own, so it
+  keeps full contrast while the file list behind it is covered by a scrim.
+  How dark that scrim is, is the theme's `scrim_bg` — see
+  [`docs/THEMES.md`](THEMES.md#dimming-behind-dialogs).
 
 Commands worth knowing about that have no default key binding, so the
 palette is the only way to reach them:
 
 - **Select theme** — switch fman's colors, applied immediately. See
   [`docs/functions/select-theme.md`](functions/select-theme.md).
+- **Select icon set** — swap the OS file icons for a set such as Material,
+  with **Set icon size** to change how big they are drawn and **Set icon
+  color** to recolor them (also found by *icon tint*, *recolor icons*,
+  *colorize icons*). See
+  [`docs/functions/select-icon-set.md`](functions/select-icon-set.md) and
+  [`docs/ICONS.md`](ICONS.md).
+- **Select font** — pick the font family the whole UI is drawn in, with
+  **Reset font** to hand the choice back to the theme (also found by
+  *typeface*, *default font*, *clear font*). See
+  [`docs/functions/select-font.md`](functions/select-font.md) and
+  [`docs/FONTS.md`](FONTS.md).
 - **Set window opacity** — make the window see-through, or hand the choice
   back to the theme. See
   [`docs/functions/window-opacity.md`](functions/window-opacity.md).
+- **Toggle title bar** — hide the OS window frame, remembered across
+  restarts. A frameless window cannot be dragged or closed with the mouse, so
+  read the caveats first. Its sibling **Toggle menu bar** hides fman's *Help*
+  menu, and only appears on macOS — that menu does not exist on Windows or
+  Linux. See [`docs/functions/window-bars.md`](functions/window-bars.md).
+- **Toggle status bar** — hide the message strip along the bottom of
+  the window, remembered across restarts. The panes grow into the row
+  it leaves behind; messages keep being set, nothing draws them (also
+  found by *statusbar*, *message bar*, *bottom bar*). See
+  [`docs/STATUSBAR.md`](STATUSBAR.md).
+- **Go home** — opens your home directory, plus a sibling command per
+  destination that is otherwise awkward to reach: **Go to desktop**,
+  **Go to documents**, **Go to downloads**, **Go to AppData**, **Go to temp**,
+  and on Windows **Go to local AppData**, **Go to ProgramData**, **Go to
+  Program Files** and **Go to Program Files (x86)**. GoTo itself
+  (`Ctrl+P`) reaches all of them by path — these give the hidden and
+  OneDrive-relocated ones a name you can type instead. A destination this
+  machine doesn't have is left out of the list. See
+  [`docs/functions/go-to.md`](functions/go-to.md).
 - **Center window** — puts fman back in the middle of the screen it is
   already on (also found by *center window on screen*, *move window to
   center*, *middle*). Centered within the *available* area, so the taskbar

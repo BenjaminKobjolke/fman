@@ -158,6 +158,22 @@ command palette — see
 | `Ctrl+F1`/`F2`/`F3` | `sort_by_column` (name/size/date) |
 | `Ctrl+Up` | `go_up` |
 
+## Navigation commands without a binding
+
+`go_to` (`Ctrl+P`) is only half of fman's navigation. `go_home` and its
+siblings — `go_to_desktop`, `go_to_documents`, `go_to_downloads`,
+`go_to_app_data`, `go_to_temp`, plus `go_to_local_app_data`,
+`go_to_program_data`, `go_to_program_files` and `go_to_program_files_x86` on
+Windows — jump straight to one well-known directory each and ship with **no
+default binding**, so they are palette-only until you bind them:
+
+```json
+{ "keys": ["Alt+Home"], "command": "go_home" }
+```
+
+See [`docs/functions/go-to.md`](functions/go-to.md) for what each one resolves
+to and why they exist alongside `go_to`.
+
 ## Viewer-specific bindings
 
 The [text viewer](views/TEXT_VIEWER.md), [image viewer](views/IMAGE_VIEWER.md),

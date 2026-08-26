@@ -12,7 +12,12 @@ original size.
    plus **Reset font size** (palette-only, no default key binding).
 3. The chosen size is remembered — it survives restarting fman.
 
-This only zooms the two file-list panes. The [text viewer](../views/TEXT_VIEWER.md#zoom)
+This changes the **size** of the text, not the typeface. Which font
+family the UI is drawn in is a separate, independent setting — see
+[Select font](select-font.md) and [`docs/FONTS.md`](../FONTS.md).
+
+This zooms the two file-list panes and the command palette. The
+[text viewer](../views/TEXT_VIEWER.md#zoom)
 has its own, independent zoom that reuses these same shortcuts (whatever
 they're currently bound to) and adds matching palette entries scoped to the
 viewer.
@@ -40,8 +45,10 @@ These can be rebound in `Key Bindings.json` like any other command, e.g.:
 - The font size is stored in `Core Settings.json` under the `pane_font_size`
   key. Running **Reset font size** removes that key entirely rather than
   writing back a hard-coded default.
-- Only the two file-list panes are affected — the status bar, location bar,
-  column headers, and command palette keep their own font size.
+- The two file-list panes and the command palette are affected — the status
+  bar, location bar and column headers keep their own font size. The palette
+  zooms by the same factor the icons do, so a pane zoomed one step larger
+  opens a palette one step larger too; **Reset font size** puts it back.
 - **Respects a custom theme.** If you have your own
   `Theme.css` (e.g. `%APPDATA%/fman/Plugins/User/Settings/Theme.css` on
   Windows) that sets a different base `font-size`, the first zoom press steps
@@ -50,6 +57,19 @@ These can be rebound in `Key Bindings.json` like any other command, e.g.:
   as authored.
 - Font size is clamped between 6pt and 40pt; repeatedly zooming past either
   end has no further effect.
+- **The icons zoom too.** Both panes' icons scale by the same proportion as
+  the text, so `Alt+Up` zooms the whole file list rather than leaving small
+  icons beside big text. They scale from whatever size *Set icon size* or the
+  theme asks for — at `48`, zooming in grows them from 48 — and stop at
+  fman's 12–64 range, so a long zoom stops the icons before it stops the
+  text. **Reset font size** puts both back. See
+  [Icons](../ICONS.md#it-follows-the-font-zoom).
+- The zoom is **not** stored as an icon size of its own: it is derived from
+  `pane_font_size`, so *Set icon size* keeps showing the size you picked.
+- **The icon size also moves the row height**, so if the rows are taller than
+  the font explains, that is where it comes from — see
+  [Select icon set](select-icon-set.md). Unlike the font size, it is a theme
+  property, not a `Core Settings.json` one.
 - **`go_up` moved to Ctrl+Up on Windows and Linux.** Alt+Up was previously
   `go_up` (go to parent directory) on those two platforms. To free it for
   this feature, `go_up` is now bound to **Ctrl+Up** there instead. On Mac,
@@ -63,6 +83,22 @@ These can be rebound in `Key Bindings.json` like any other command, e.g.:
   (`DirectoryPaneCommand` subclasses), plus `InitPaneFontSize`
   (`DirectoryPaneListener`) which re-applies a saved size when fman starts
   (mirrors the existing `InitHiddenFilesFilter` pattern).
+- **How the icons and the palette follow it:** the same three code paths call
+  `_apply_zoom_scale`, which computes one plain factor — the current size over
+  the theme's own — and hands it to both `fman.set_icon_scale` and
+  `fman.set_palette_font_scale`. The engine multiplies its resolved icon size
+  by it (`themes.scale_icon_size`), and `Theme.set_font_scale` multiplies every
+  font size the palette draws: the item title, hint and description it paints
+  by hand (`get_quicksearch_item_css`) plus a `Quicksearch QLineEdit`
+  font-size rule appended last to the app stylesheet, which is what makes it
+  beat the theme's own `.quicksearch-query` rule. Neither is saved, because
+  `pane_font_size` already persists and is already re-applied on startup;
+  saving it twice would give one zoom two homes that could disagree.
+- The factor's baseline is captured by `_remember_base_pane_font_size`, once
+  per session, **before** any override stylesheet is set. After that the view
+  reports the override, so the theme's own size is no longer readable — which
+  is why `InitPaneFontSize` records it unconditionally, even when there is no
+  saved size to apply.
 - The font is changed by setting a **widget-local QSS stylesheet** directly on
   each pane's file view: `FileListView { font-size: Npt; }`. This is applied
   via `pane._widget._file_view.setStyleSheet(...)`. A type-selector rule set
