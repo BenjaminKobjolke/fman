@@ -123,6 +123,9 @@ live in that interpreter's user site-packages, so another `python` on `PATH`
 5. **Join them:** `tools\demo_build_tour.bat` → `media/demos/tour/feature-tour.mp4`.
 6. **Watch the result** before committing. The build prints the size; the last
    run was 2:32 and 2.3 MB.
+7. **Re-upload it to GitHub and update the README** (see
+   [Publishing the tour](#publishing-the-tour)). Committing the new MP4 is not
+   enough — the README plays a *copy* hosted by GitHub.
 
 `tools\demos_record.bat` with no arguments records every demo; any other
 arguments pass straight through to the tool.
@@ -170,6 +173,25 @@ to 1280 wide with `setsar=1`: the capture is the window *including* its frame
 pixel, which plain `concat` rejects. Only the joined MP4 is committed — the
 per-chapter `media/demos/tour-*/` folders are regenerable intermediates and
 gitignored.
+
+### Publishing the tour
+
+The README plays the tour inline. GitHub only renders a player for a bare
+`https://github.com/user-attachments/assets/<uuid>` URL on its own line — not
+for a repo-relative path, not for a `<video>` tag. That URL points at a copy
+GitHub stores when the file is uploaded through its editor, so **the committed
+`media/demos/tour/feature-tour.mp4` and the video the README plays are two
+separate files**. Rebuilding the MP4 changes nothing on the README page until
+it is re-uploaded.
+
+Upload from the CLI with the third-party `gh` extension (GitHub has no official
+API for this endpoint):
+
+    gh extension install drogers0/gh-image   # once
+    gh image media/demos/tour/feature-tour.mp4 --repo BenjaminKobjolke/fman
+
+It prints the new attachment URL; replace the old one under `## Demo` in the
+README with it.
 
 ### The themes demo
 

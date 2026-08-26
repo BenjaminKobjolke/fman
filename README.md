@@ -4,7 +4,7 @@ A cross-platform dual-pane file manager.
 
 ## Demo
 
-[![Watch the 2:30 feature tour](media/demos/tour/feature-tour-poster.png)](media/demos/tour/feature-tour.mp4)
+https://github.com/user-attachments/assets/a2d9524b-1c91-4a82-ad79-29786b0243b4
 
 The 2:30 tour above, driven from the keyboard, no mouse at any point:
 
