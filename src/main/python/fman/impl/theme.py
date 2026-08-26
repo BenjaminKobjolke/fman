@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from fman.impl.themes import DEFAULT_COLORS, substitute
 from fman.impl.util.css import parse_css, CSSEngine
 from tinycss.parsing import ParseError
 
@@ -13,38 +14,47 @@ class Theme:
 		'.locationbar': 'LocationBar:read-only'
 	}
 
-	def __init__(self, app, qss_file_paths):
+	def __init__(self, app, qss_file_paths, colors=None):
 		self._app = app
-		self._qss_base = ''
-		for qss_file_path in qss_file_paths:
-			with open(qss_file_path, 'r') as f:
-				self._qss_base += f.read() + '\n'
+		self._colors = DEFAULT_COLORS if colors is None else colors
+		# Kept (rather than only their concatenated text) because switching
+		# theme has to re-substitute the color tokens in them:
+		self._qss_file_paths = list(qss_file_paths)
+		self._qss_base = self._build_qss_base()
 		self._css_rules = OrderedDict()
 		self._extra_qss_from_css = OrderedDict()
+		# The raw, un-substituted bytes of every loaded CSS file, keyed by
+		# path in load order - same reason as _qss_file_paths above.
+		self._css_sources = OrderedDict()
 		self._quicksearch_item_css = ''
 		self._updates_enabled = False
+	def set_colors(self, colors):
+		"""
+		Applies a theme's colors (see fman.impl.themes) to the base style
+		sheet and to every CSS file loaded so far, then restyles the app
+		once. Load order is preserved, so a user's own Theme.css keeps
+		winning over the theme.
+		"""
+		self._colors = colors
+		self._qss_base = self._build_qss_base()
+		updates_enabled = self._updates_enabled
+		self._updates_enabled = False
+		try:
+			for css_file_path, f_contents in list(self._css_sources.items()):
+				self._parse(css_file_path, f_contents)
+		finally:
+			self._updates_enabled = updates_enabled
+		self._update_app()
 	def load(self, css_file_path):
 		with open(css_file_path, 'rb') as f:
 			f_contents = f.read()
-		try:
-			new_rules = parse_css(f_contents)
-		except ParseError as e:
-			raise ThemeError(
-				'CSS Parse error in file %s at line %d, column %d: %s'
-				% (css_file_path, e.line, e.column, e.reason)
-			)
-		self._css_rules[css_file_path] = new_rules
-		self._extra_qss_from_css[css_file_path] = \
-			'\n'.join(map(self._css_rule_to_qss, new_rules))
-		try:
-			self._quicksearch_item_css = self._get_quicksearch_item_css()
-		except ValueError as e:
-			error_message = 'CSS error in %s: %s' % (css_file_path, e)
-			raise ThemeError(error_message) from None
+		self._parse(css_file_path, f_contents)
+		self._css_sources[css_file_path] = f_contents
 		self._update_app()
 	def unload(self, css_file_path):
 		del self._css_rules[css_file_path]
 		del self._extra_qss_from_css[css_file_path]
+		del self._css_sources[css_file_path]
 		self._quicksearch_item_css = self._get_quicksearch_item_css()
 		self._update_app()
 	def get_quicksearch_item_css(self):
@@ -59,6 +69,32 @@ class Theme:
 		"""
 		self._updates_enabled = True
 		self._update_app()
+	def _build_qss_base(self):
+		result = ''
+		for qss_file_path in self._qss_file_paths:
+			with open(qss_file_path, 'r') as f:
+				result += substitute(f.read(), self._colors) + '\n'
+		return result
+	def _parse(self, css_file_path, f_contents):
+		# Raises ThemeError. Kept separate from load(...) so switching theme
+		# can re-parse an already-loaded file with the new colors, without
+		# reading it from disk again.
+		css = substitute(f_contents.decode('utf-8'), self._colors)
+		try:
+			new_rules = parse_css(css.encode('utf-8'))
+		except ParseError as e:
+			raise ThemeError(
+				'CSS Parse error in file %s at line %d, column %d: %s'
+				% (css_file_path, e.line, e.column, e.reason)
+			)
+		self._css_rules[css_file_path] = new_rules
+		self._extra_qss_from_css[css_file_path] = \
+			'\n'.join(map(self._css_rule_to_qss, new_rules))
+		try:
+			self._quicksearch_item_css = self._get_quicksearch_item_css()
+		except ValueError as e:
+			error_message = 'CSS error in %s: %s' % (css_file_path, e)
+			raise ThemeError(error_message) from None
 	def _get_quicksearch_item_css(self):
 		engine = CSSEngine([r for rs in self._css_rules.values() for r in rs])
 		return {

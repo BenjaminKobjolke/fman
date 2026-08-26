@@ -8,7 +8,7 @@ th {
 
 .locationbar {
 	padding: 0.25ex;
-	border-bottom: 1px solid #262626;
+	border-bottom: 1px solid $locationbar_border;
 }
 
 .statusbar {
@@ -23,23 +23,23 @@ th {
 	padding-top: 1px;
 	padding-left: 4px;
 	padding-right: 4px;
-	border-top: 1px solid #4d4d4d;
-	border-bottom: 1px solid #363636;
+	border-top: 1px solid $popup_divider_top;
+	border-bottom: 1px solid $popup_divider_bottom;
 }
 
 .quicksearch-item-title {
-	color: #c8c8c8;
+	color: $popup_item_fg;
 }
 
 .quicksearch-item-title-highlight {
-	color: white;
+	color: $bright_fg;
 }
 
 .quicksearch-item-hint {
 	font-size: 8pt;
-	color: white;
+	color: $bright_fg;
 }
 
 .quicksearch-item-description {
-	color: #8f908a;
+	color: $muted_fg;
 }

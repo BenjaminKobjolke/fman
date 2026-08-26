@@ -1,25 +1,25 @@
 QTableView, QMessageBox, QDialog, QListView {
-	background-color: #272822;
+	background-color: $pane_bg;
 	border: none;
 }
 
 QHeaderView, QHeaderView::section {
-	background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #363731, stop: 1 #272822);
+	background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 $header_bg, stop: 1 $pane_bg);
 }
 
 QHeaderView::section {
-	color: #8f908a;
+	color: $muted_fg;
 	border: none;
 	padding: 1ex;
 	border-style: solid;
 	border-left-width: 1px;
-	border-left-color: #272822;
-	border-right-color: #363731;
+	border-left-color: $pane_bg;
+	border-right-color: $header_bg;
 	border-right-width: 1px;
 }
 
 QTableView::item {
-	color: #75715e;
+	color: $pane_fg;
 	padding-top: 1px;
 	padding-bottom: 1px;
 }
@@ -30,7 +30,7 @@ QTableView::item {
  * State_Open, which we can catch here as :has-children and :open, respectively.
  */
 QTableView::item:has-children {
-	color: white;
+	color: $pane_fg_dir;
 	padding-left: 0.25em;
 	/* The padding directive has no effect unless we specify a background: */
 	background: transparent;
@@ -40,13 +40,13 @@ QTableView::item:open {
 }
 
 QTableView::item:selected {
-	color: #f92672;
+	color: $pane_selected_fg;
 	/* Avoid the ugly default blue background color for selected cells: */
-	background-color: #272822;
+	background-color: $pane_bg;
 }
 
 QTableView::item:focus {
-	background-color: #49483e;
+	background-color: $pane_cursor_bg;
 }
 
 QTableView #editor {
@@ -60,19 +60,28 @@ QTableView #editor {
 }
 
 QLabel, QRadioButton, QCheckBox {
-	color: #8f908a;
+	color: $muted_fg;
 }
 
 QMessageBox QLabel {
 	font-weight: normal;
+	/*
+	 * QMessageBox sizes itself from its label. Without these, short texts
+	 * (eg. the About dialog) produce a cramped box whose text nearly touches
+	 * the border. Center the text so it lines up with the centered buttons
+	 * (see MessageBox in widgets.py) instead of hugging the left edge:
+	 */
+	min-width: 11em;
+	margin: .5em .75em;
+	qproperty-alignment: AlignCenter;
 }
 
 QLineEdit {
-	color: white;
-	background-color: #303030;
-	border: 1px solid #363731;
-	border-left-color: #272822;
-	border-top-color: #272822;
+	color: $bright_fg;
+	background-color: $input_bg;
+	border: 1px solid $input_border;
+	border-left-color: $pane_bg;
+	border-top-color: $pane_bg;
 }
 
 Prompt QLineEdit {
@@ -80,7 +89,7 @@ Prompt QLineEdit {
 }
 
 Quicksearch {
-	background-color: #404040;
+	background-color: $popup_bg;
 }
 
 Quicksearch #query-container {
@@ -89,22 +98,22 @@ Quicksearch #query-container {
 	 */
 	padding: 0;
 	margin: 3px;
-	border: 1px solid #404040;
-	border-bottom-color: #8e8e8e;
+	border: 1px solid $popup_bg;
+	border-bottom-color: $popup_query_border;
 }
 
 Quicksearch #query-container > Div {
 	padding: 0;
-	border: 1px solid #2c2c2c;
+	border: 1px solid $popup_query_inner_border;
 }
 
 Quicksearch QLineEdit {
-	color: #1d1d1d;
-	background-color: #e6e6e6;
-	border: 1px solid #dddddd;
-	border-top-color: #aeaeae;
-	border-left-color: #c9c9c9;
-	border-right-color: #d0d0d0;
+	color: $popup_input_fg;
+	background-color: $popup_input_bg;
+	border: 1px solid $popup_input_border;
+	border-top-color: $popup_input_border_top;
+	border-left-color: $popup_input_border_left;
+	border-right-color: $popup_input_border_right;
 }
 
 Quicksearch #items-container {
@@ -113,26 +122,26 @@ Quicksearch #items-container {
 
 Quicksearch QListView {
 	min-width: 40em;
-	background-color: #404040;
+	background-color: $popup_bg;
 	margin-left: 4px;
 	margin-right: 4px;
 }
 
 Quicksearch QListView::item:selected {
-	background-color: #575757;
+	background-color: $popup_selected_bg;
 }
 
 QLineEdit:read-only {
-	color: #9a9a9a;
+	color: $readonly_fg;
 }
 
 QStatusBar {
-	background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #5b5b5b, stop: 1 #545454);
-	border-top: 1px solid #7d7d7d;
+	background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 $statusbar_bg_top, stop: 1 $statusbar_bg_bottom);
+	border-top: 1px solid $border;
 }
 
 QStatusBar, QStatusBar QLabel {
-	color: white;
+	color: $bright_fg;
 }
 
 QStatusBar QLabel {
@@ -146,8 +155,8 @@ SplashScreen QPushButton {
 Overlay {
 	min-width: 20em;
 	max-width: 22em;
-	background-color: #272822;
-	border: 1px solid #7d7d7d;
+	background-color: $pane_bg;
+	border: 1px solid $border;
 }
 
 Overlay QPushButton {
@@ -155,8 +164,8 @@ Overlay QPushButton {
 }
 
 FilterBar {
-	background-color: #272822;
-	border: 1px solid #7d7d7d;
+	background-color: $pane_bg;
+	border: 1px solid $border;
 	min-width: 8em;
 }
 
@@ -180,7 +189,7 @@ NonexistentShortcutDialog QLineEdit {
 }
 
 QRadioButton::checked {
-	color: white;
+	color: $bright_fg;
 }
 
 ProgressDialog {

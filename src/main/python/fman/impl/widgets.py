@@ -13,7 +13,8 @@ from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import QWidget, QMainWindow, QSplitter, QStatusBar, \
 	QMessageBox, QInputDialog, QLineEdit, QFileDialog, QLabel, QDialog, \
 	QHBoxLayout, QPushButton, QVBoxLayout, QSplitterHandle, QApplication, \
-	QFrame, QAction, QSizePolicy, QProgressDialog, QProgressBar
+	QFrame, QAction, QSizePolicy, QProgressDialog, QProgressBar, \
+	QDialogButtonBox
 from collections import namedtuple
 from time import time
 
@@ -334,6 +335,10 @@ class MainWindow(QMainWindow):
 		self._init_help_menu(help_menu_actions)
 	def set_controller(self, controller):
 		self._controller = controller
+	def set_progress_bar_palette(self, palette):
+		# Each ProgressDialog reads this when it is created, so switching
+		# theme (fman.impl.themes) recolors the next one without a restart.
+		self._progress_bar_palette = palette
 	def _init_help_menu(self, help_menu_actions):
 		if not help_menu_actions:
 			return
@@ -416,6 +421,11 @@ class MainWindow(QMainWindow):
 		self.before_dialog.emit(dialog)
 		dialog.moveToThread(self._app.thread())
 		dialog.setParent(self)
+		# No setWindowOpacity here on purpose: dialogs are top-level windows
+		# of their own (Quicksearch is a QDialog; FramelessWindowHint is only
+		# a hint), so the main window's opacity does not reach them and they
+		# stay fully opaque - which is what keeps the command palette, prompts
+		# and progress dialogs readable over a faded window.
 		if is_mac():
 			disable_window_animations_mac(dialog)
 		result = dialog.exec()
@@ -444,6 +454,18 @@ class MainWindow(QMainWindow):
 	@run_in_main_thread
 	def minimize(self):
 		self.setWindowState(Qt.WindowMinimized)
+	@run_in_main_thread
+	def center_on_screen(self):
+		# The screen the window is on, not the primary one: on two monitors,
+		# "center" that teleports the window to the other screen is not what
+		# anyone means. frameGeometry, not geometry, because the title bar and
+		# border are part of what the user sees as the window;
+		# availableGeometry, not geometry, because the taskbar is not.
+		handle = self.windowHandle()
+		screen = handle.screen() if handle else self._app.primaryScreen()
+		frame = self.frameGeometry()
+		frame.moveCenter(screen.availableGeometry().center())
+		self.move(frame.topLeft())
 	def showEvent(self, *args):
 		super().showEvent(*args)
 		# singleShot after 50 ms (not 0) ensures that the window is already
@@ -492,6 +514,9 @@ class MessageBox(QMessageBox):
 	def __init__(self, parent, allow_escape=True):
 		super().__init__(parent)
 		self._allow_escape = allow_escape
+		# Qt right-aligns the buttons on Windows/Linux, which looks lopsided
+		# in our narrow, icon-less message boxes:
+		self.findChild(QDialogButtonBox).setCenterButtons(True)
 	def setStandardButtons(self, buttons):
 		super().setStandardButtons(buttons)
 		if is_mac():

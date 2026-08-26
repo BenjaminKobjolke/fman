@@ -1,0 +1,23 @@
+{
+	"colors": {
+		"border": "#00a83a",
+		"bright_fg": "#00ff41",
+		"header_bg": "#001a06",
+		"input_bg": "#001206",
+		"muted_fg": "#00a828",
+		"pane_bg": "#000000",
+		"pane_cursor_bg": "#003b13",
+		"pane_fg": "#00b62e",
+		"pane_fg_dir": "#00ff41",
+		"pane_selected_fg": "#b6ff7a",
+		"popup_bg": "#000f04",
+		"popup_input_bg": "#000000",
+		"popup_input_fg": "#00ff41",
+		"popup_item_fg": "#00e03a",
+		"popup_selected_bg": "#00381a",
+		"statusbar_bg_bottom": "#00120a",
+		"statusbar_bg_top": "#001a06",
+		"window_bg": "#000a03"
+	},
+	"opacity": 0.92
+}

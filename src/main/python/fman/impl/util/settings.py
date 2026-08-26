@@ -18,6 +18,10 @@ class Settings:
 		self._json_dict[key] = value
 	def setdefault(self, key, value):
 		return self._json_dict.setdefault(key, value)
+	def pop(self, key):
+		# Removing the key beats storing a null: absent then means "never
+		# set" everywhere, with no second spelling of the same thing.
+		self._json_dict.pop(key, None)
 	def flush(self):
 		makedirs(dirname(self._json_path), exist_ok=True)
 		with open(self._json_path, 'w') as f:

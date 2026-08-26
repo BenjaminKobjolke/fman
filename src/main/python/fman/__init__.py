@@ -17,6 +17,8 @@ __all__ = [
 	'show_quicksearch', 'QuicksearchItem',
 	'get_application_commands', 'run_application_command',
 	'get_application_command_aliases', 'load_plugin', 'unload_plugin',
+	'get_themes', 'get_theme', 'set_theme',
+	'get_window_opacity', 'set_window_opacity',
 	'clipboard',
 	'submit_task', 'Task',
 	'PLATFORM', 'FMAN_VERSION', 'DATA_DIRECTORY',
@@ -36,11 +38,18 @@ FMAN_VERSION = ''
 PLATFORM = platform.name()
 
 if PLATFORM == 'Windows':
-	DATA_DIRECTORY = join(getenv('APPDATA'), 'fman')
+	_DEFAULT_DATA_DIRECTORY = join(getenv('APPDATA'), 'fman')
 elif PLATFORM == 'Mac':
-	DATA_DIRECTORY = expanduser('~/Library/Application Support/fman')
+	_DEFAULT_DATA_DIRECTORY = expanduser('~/Library/Application Support/fman')
 elif PLATFORM == 'Linux':
-	DATA_DIRECTORY = expanduser('~/.config/fman')
+	_DEFAULT_DATA_DIRECTORY = expanduser('~/.config/fman')
+
+# FMAN_DATA_DIRECTORY points settings, plugins and caches at a different
+# profile. Demo recordings use it for a throwaway one, so a run neither loads
+# the developer's third-party plugins (their key bindings would win over
+# Core's, and their commands would change what the palette resolves a query to)
+# nor writes viewer zoom/volume back into the real profile.
+DATA_DIRECTORY = getenv('FMAN_DATA_DIRECTORY') or _DEFAULT_DATA_DIRECTORY
 
 class ApplicationCommand:
 	def __init__(self, window):
@@ -167,6 +176,8 @@ class Window:
 		return self._panes
 	def minimize(self):
 		self._widget.minimize()
+	def center_on_screen(self):
+		self._widget.center_on_screen()
 	def add_pane(self):
 		pane_widget = self._widget.add_pane()
 		pane = DirectoryPane(self, pane_widget, self._panecmd_registry)
@@ -261,6 +272,41 @@ def run_application_command(name, args=None):
 
 def get_application_command_aliases(command_name):
 	return _get_plugin_support().get_application_command_aliases(command_name)
+
+def get_themes():
+	"""
+	The names of the available color themes, sorted. See docs/THEMES.md.
+	"""
+	return _get_app_ctxt().theme_controller.get_themes()
+
+def get_theme():
+	"""
+	The name of the currently active color theme.
+	"""
+	return _get_app_ctxt().theme_controller.get_theme()
+
+def set_theme(name):
+	"""
+	Applies the color theme `name` immediately and remembers it across
+	restarts. An unknown name falls back to fman's default colors.
+	"""
+	return _get_app_ctxt().theme_controller.set_theme(name)
+
+def get_window_opacity():
+	"""
+	How opaque fman's window currently is, from 0.3 to 1.0. This is the
+	user's own setting if they have one, else what the active theme asks
+	for, else 1.0.
+	"""
+	return _get_app_ctxt().theme_controller.get_opacity()
+
+def set_window_opacity(value):
+	"""
+	Applies opacity `value` (0.3 - 1.0) immediately and remembers it across
+	restarts. Pass None to forget it and follow the active theme again.
+	Raises ValueError for a number outside the supported range.
+	"""
+	return _get_app_ctxt().theme_controller.set_opacity(value)
 
 def load_plugin(plugin_path):
 	return _get_plugin_support().load_plugin(plugin_path)

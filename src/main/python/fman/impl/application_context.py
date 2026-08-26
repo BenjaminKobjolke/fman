@@ -26,6 +26,9 @@ from fman.impl.session import SessionManager
 from fman.impl.single_instance import SingleInstance, server_name_for, \
 	open_paths_in_running_instance
 from fman.impl.theme import Theme
+from fman.impl.themes import DEFAULT_THEME, THEME_SETTING, \
+	ThemeController, build_main_window_palette, build_palette, \
+	build_progress_bar_palette, list_themes, load_theme
 from fman.impl.onboarding import TourController
 from fman.impl.onboarding.cleanup_guide import CleanupGuide
 from fman.impl.onboarding.tutorial import Tutorial
@@ -38,8 +41,6 @@ from fman.impl.view import ProxyStyle
 from fman.impl.widgets import MainWindow, Application
 from os import makedirs, getcwd
 from os.path import dirname, join
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QColor, QPalette
 from PyQt5.QtWidgets import QStyleFactory, QFileIconProvider
 
 import fman
@@ -81,7 +82,9 @@ class DevelopmentApplicationContext(ApplicationContext):
 		try:
 			from automated_screenshot_connector import DemoClient, \
 				localize_script, parse_demo_args
-			from fman.impl.demo import DEMOS, DemoPlayer
+			from fman.impl.demo import DemoPlayer
+			from fman.impl.demo_scripts import DEMO_OPACITY, demo_ids, \
+				get_script
 		except ImportError:
 			log.error(
 				'Demo mode needs the automated-screenshot-connector. Install '
@@ -89,10 +92,13 @@ class DevelopmentApplicationContext(ApplicationContext):
 			)
 			return 1
 		options, leftover = parse_demo_args(sys.argv[1:])
-		if options.demo not in DEMOS:
+		# Built here rather than looked up, because the themes demo's steps
+		# depend on which themes are installed. Before _load_plugins, so an
+		# unknown id still fails in a second.
+		script = get_script(options.demo, list_themes(self.bundled_theme_dirs))
+		if script is None:
 			log.error(
-				'Unknown demo id %s (available: %s)',
-				options.demo, sorted(DEMOS)
+				'Unknown demo id %s (available: %s)', options.demo, demo_ids()
 			)
 			return 2
 		# session.py reads sys.argv[1:] raw to open pane paths, so strip the
@@ -101,12 +107,20 @@ class DevelopmentApplicationContext(ApplicationContext):
 		self._demo_mode = True
 		self._load_plugins()
 		self.session_manager.show_main_window(self.window)
+		# A recording must not inherit the recordist's window opacity, nor
+		# whatever a previous take left in the demo profile: every chapter
+		# starts at the same known value, and the overview's opacity chapter
+		# is written against it.
+		self.main_window.setWindowOpacity(DEMO_OPACITY)
 		if options.demo_width is not None and options.demo_height is not None:
 			# show_main_window may maximize (settings-less run) or restore old
 			# geometry; the recording needs the size the tool asked for.
 			self.main_window.showNormal()
 			self.main_window.resize(options.demo_width, options.demo_height)
-		script = localize_script(DEMOS[options.demo], dict(options.demo_texts))
+			# So a take does not depend on where the recordist last left the
+			# window. Same method the Center window command runs.
+			self.main_window.center_on_screen()
+		script = localize_script(script, dict(options.demo_texts))
 		client = DemoClient(options.demo_port)
 		player = DemoPlayer(
 			self.main_window, client, script, int(self.main_window.winId())
@@ -115,8 +129,7 @@ class DevelopmentApplicationContext(ApplicationContext):
 		return self.app.exec_()
 	@cached_property
 	def single_instance_enabled(self):
-		settings = Settings(self._get_local_data_file('Settings.json'))
-		return settings.get('single_instance', True)
+		return self.local_settings.get('single_instance', True)
 	@cached_property
 	def single_instance(self):
 		return SingleInstance(
@@ -204,6 +217,12 @@ class DevelopmentApplicationContext(ApplicationContext):
 			self._main_window.set_controller(self.controller)
 			self._main_window.setWindowTitle(self._get_main_window_title())
 			self._main_window.setPalette(self.main_window_palette)
+			# Before show(): Qt keeps the value until the native window is
+			# created and applies it there, so the window never flashes
+			# opaque the way a post-show hook would make it.
+			self._main_window.setWindowOpacity(
+				self.theme_controller.get_opacity()
+			)
 			connect_once(self._main_window.shown, self.on_main_window_shown)
 			connect_once(
 				self._main_window.shown,
@@ -365,49 +384,43 @@ class DevelopmentApplicationContext(ApplicationContext):
 			backend = LoggingBackend(backend)
 		return backend
 	@cached_property
+	def local_settings(self):
+		# Not Core Settings.json: the palette below is built when the
+		# QApplication is created, long before any plugin (and thus
+		# fman.load_json) exists. One shared instance, so that flushing the
+		# theme cannot drop another setting read from the same file.
+		return Settings(self._get_local_data_file('Settings.json'))
+	@cached_property
+	def bundled_theme_dirs(self):
+		# Separate from theme_dirs because the themes demo records *these*
+		# only: run_fman_demo.bat mirrors the recordist's own Themes folder
+		# into the demo profile (so their custom theme resolves), and a
+		# private theme must not end up in the README's themes GIF.
+		try:
+			return [self.get_resource('Themes')]
+		except FileNotFoundError:
+			return []
+	@cached_property
+	def theme_dirs(self):
+		return self.bundled_theme_dirs + [join(DATA_DIRECTORY, 'Themes')]
+	@cached_property
+	def theme_colors(self):
+		return load_theme(
+			self.local_settings.get(THEME_SETTING, DEFAULT_THEME),
+			self.theme_dirs
+		)
+	@cached_property
+	def theme_controller(self):
+		return ThemeController(self)
+	@cached_property
 	def palette(self):
-		result = QPalette()
-		result.setColor(QPalette.Window, QColor(43, 43, 43))
-		result.setColor(QPalette.WindowText, Qt.white)
-		result.setColor(QPalette.Base, QColor(19, 19, 19))
-		result.setColor(QPalette.AlternateBase, QColor(66, 64, 59))
-		result.setColor(QPalette.ToolTipBase, QColor(19, 19, 19))
-		result.setColor(QPalette.ToolTipText, Qt.white)
-		result.setColor(QPalette.Light, QColor(0x49, 0x48, 0x3E))
-		result.setColor(QPalette.Midlight, QColor(0x33, 0x33, 0x33))
-		result.setColor(QPalette.Button, QColor(0x29, 0x29, 0x29))
-		result.setColor(QPalette.Mid, QColor(0x25, 0x25, 0x25))
-		result.setColor(QPalette.Dark, QColor(0x20, 0x20, 0x20))
-		result.setColor(QPalette.Shadow, QColor(0x1d, 0x1d, 0x1d))
-		result.setColor(QPalette.Text, Qt.white)
-		result.setColor(
-			QPalette.ButtonText, QColor(0xb6, 0xb3, 0xab)
-		)
-		result.setColor(QPalette.Link, Qt.white)
-		result.setColor(QPalette.LinkVisited, Qt.white)
-		# Prevent blue highlight around buttons when the window (/dialog) is in
-		# the background and thus inactive:
-		result.setColor(
-			QPalette.Inactive, QPalette.Highlight,
-			result.color(QPalette.Midlight)
-		)
-		return result
+		return build_palette(self.theme_colors)
 	@cached_property
 	def main_window_palette(self):
-		result = QPalette(self.palette)
-		result.setColor(QPalette.Window, QColor(0x44, 0x44, 0x44))
-		return result
+		return build_main_window_palette(self.theme_colors)
 	@cached_property
 	def progress_bar_palette(self):
-		result = QPalette(self.main_window_palette)
-		# On Windows, when the progress bar (/the progress dialog) is in the
-		# background, ie. not the active window, its color changes from blue to
-		# white. Avoid this:
-		result.setColor(
-			QPalette.Inactive, QPalette.Highlight,
-			result.color(QPalette.Active, QPalette.Highlight)
-		)
-		return result
+		return build_progress_bar_palette(self.theme_colors)
 	@cached_property
 	def session_manager(self):
 		settings = Settings(self._get_local_data_file('Session.json'))
@@ -424,7 +437,7 @@ class DevelopmentApplicationContext(ApplicationContext):
 			pass
 		else:
 			qss_files.append(os_styles)
-		return Theme(self.app, qss_files)
+		return Theme(self.app, qss_files, self.theme_colors)
 	@cached_property
 	def style(self):
 		base_style = None
