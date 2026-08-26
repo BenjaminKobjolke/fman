@@ -11,7 +11,17 @@
   "demos": [
     {"id": 1, "name": "overview", "fps": 10, "formats": ["gif", "mp4"],
      "width": 1280, "height": 800},
-    {"id": 2, "name": "tour", "fps": 10, "formats": ["gif", "mp4"],
+    {"id": 2, "name": "themes", "fps": 2, "formats": [],
+     "width": 1280, "height": 800},
+    {"id": 3, "name": "tour-a-panes", "fps": 10, "formats": ["mp4"],
+     "width": 1280, "height": 800},
+    {"id": 4, "name": "tour-b-organize", "fps": 10, "formats": ["mp4"],
+     "width": 1280, "height": 800},
+    {"id": 5, "name": "tour-c-viewers", "fps": 10, "formats": ["mp4"],
+     "width": 1280, "height": 800},
+    {"id": 6, "name": "tour-d-video", "fps": 10, "formats": ["mp4"],
+     "width": 1280, "height": 800},
+    {"id": 7, "name": "tour-e-archives", "fps": 10, "formats": ["mp4"],
      "width": 1280, "height": 800}
   ]
 }

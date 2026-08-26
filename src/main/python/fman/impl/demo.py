@@ -12,15 +12,14 @@ hard-imports PySide6 while fman is a PyQt5 app, so ``DemoPlayer`` below is a
 PyQt5 port of the library's ``KeyEventDemoPlayer``: it posts real key events to
 the focused widget, which also reaches fman's modal Quicksearch dialog (command
 palette / inline filter) since QTimers keep firing inside nested modal loops.
+
+The scripts it plays live in ``demo_scripts.py``.
 """
 
 from PyQt5.QtCore import QEvent, QObject, Qt, QTimer
 from PyQt5.QtGui import QKeyEvent, QKeySequence
 from PyQt5.QtWidgets import QApplication
 
-from automated_screenshot_connector import (
-	Command, DemoScript, Pause, PressKey, Screenshot, TypeText,
-)
 from automated_screenshot_connector.steps import (
 	CustomStep, InsertChar, PressReturn, SendKey, SendScreenshot, flatten,
 )
@@ -55,6 +54,13 @@ class DemoPlayer(QObject):
 		self._hwnd = hwnd
 		self._actions = flatten(script.steps)
 		self._index = 0
+		self._check_chords()
+
+	def _check_chords(self):
+		"""Reject an unparsable chord now, not minutes into a recording."""
+		for _, action in self._actions:
+			if isinstance(action, SendKey):
+				self._parse_chord(action.chord)
 
 	def start(self):
 		QTimer.singleShot(START_DELAY_MS, self._begin)
@@ -96,13 +102,15 @@ class DemoPlayer(QObject):
 		self._post(target, QEvent.KeyPress, key, Qt.NoModifier, ch)
 		self._post(target, QEvent.KeyRelease, key, Qt.NoModifier, ch)
 
-	def _send_chord(self, chord):
+	def _parse_chord(self, chord):
 		seq = QKeySequence(chord)
 		if seq.count() != 1:
 			raise ValueError('Not a single key chord: %r' % chord)
 		combo = seq[0]
-		key = combo & ~_MODIFIER_MASK
-		mods = Qt.KeyboardModifiers(combo & _MODIFIER_MASK)
+		return combo & ~_MODIFIER_MASK, Qt.KeyboardModifiers(combo & _MODIFIER_MASK)
+
+	def _send_chord(self, chord):
+		key, mods = self._parse_chord(chord)
 		target = self._target()
 		self._post(target, QEvent.KeyPress, key, mods)
 		self._post(target, QEvent.KeyRelease, key, mods)
@@ -119,63 +127,3 @@ class DemoPlayer(QObject):
 		instance = QApplication.instance()
 		if instance is not None:
 			QTimer.singleShot(END_HOLD_MS, instance.quit)
-
-
-# Recordable demos, keyed by the id passed as ``--automation-demo <id>``. The
-# two panes are already positioned at examples/left_pane and examples/right_pane
-# via the trailing command-line paths, so the script only drives the UI.
-DEMOS = {
-	1: DemoScript(
-		id=1,
-		name='overview',
-		steps=(
-			Pause(0.8),
-			Screenshot('panes'),
-			# Preview a file in the OTHER pane with fman's internal viewer,
-			# while the left pane's list stays visible. Row 0 sorts to the
-			# video; one Down lands on the first image.
-			PressKey('Down'), Pause(0.4),
-			# Open the palette, then type the command + Return to run it.
-			PressKey('Ctrl+Shift+P'), Pause(0.5),
-			Command('view in other'),  # palette alias 'View in other pane'
-			Pause(1.0),
-			Screenshot('view-image'),
-			# Inline name filter: typing activates fman's FilterBar.
-			TypeText('dummy_1'), Pause(0.6),
-			Screenshot('filter'),
-			PressKey('Escape'), Pause(0.3),
-			# A real command run from the palette: select every file.
-			PressKey('Ctrl+Shift+P'), Pause(0.5),
-			Command('select all'),
-			Pause(0.8),
-			Screenshot('select-all'),
-			Pause(1.0),
-		),
-	),
-	# The longer "tour" for the README's main GIF/MP4. Its right pane is a
-	# fresh empty temp dir (run_fman_demo.bat sets it up for demo id 2), so the
-	# copy step is visible, repeatable, and never touches the example folders.
-	2: DemoScript(
-		id=2,
-		name='tour',
-		steps=(
-			Pause(1.2),
-			# Select every file with the direct shortcut (no palette).
-			PressKey('Ctrl+A'), Pause(1.2),
-			# Copy the selection into the empty right pane via the palette.
-			# The palette is a modal dialog, so give it time to open before
-			# typing, and time to close before the next beat.
-			PressKey('Ctrl+Shift+P'), Pause(1.0),
-			Command('copy'),         # runs Copy -> opens the destination prompt
-			Pause(1.3),
-			PressKey('Return'),      # confirm the destination (right pane dir)
-			Pause(3.0),              # let the files copy into the right pane
-			# Play the video in the right pane via the internal viewer.
-			PressKey('Home'), Pause(0.7),   # cursor onto the video (row 0)
-			PressKey('Ctrl+Shift+P'), Pause(1.0),
-			Command('view in other'),
-			Pause(4.0),              # let it play a moment
-			Pause(1.0),
-		),
-	),
-}
