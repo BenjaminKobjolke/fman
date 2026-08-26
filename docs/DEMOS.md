@@ -27,6 +27,8 @@ over a socket so the tool can capture the window. The wiring:
 - `tools/create_media/fman.json` — the tool-side config (window size, formats,
   output folder).
 - `tools/create_media/run_fman_demo.bat` — launcher the tool starts per run.
+- `tools/create_media/demo_Theme.css` — font sizes for the `feature-*` clips,
+  seeded into the demo profile by that launcher for ids 8 and 9 only.
 - `tools/demos_record.bat` — one command that drives the whole recording.
 - `tools/create_media/build_tour.py` + `tools/demo_build_tour.bat` — join the
   recorded tour chapters into the README's feature-tour MP4.
@@ -80,6 +82,23 @@ change how a recording looks rather than how it behaves:
   known value, whatever your profile or a previous take says.
 - `%APPDATA%\fman\Themes` — mirrored so a *custom* theme resolves instead of
   silently falling back to the default.
+
+Ids 8 and 9 get one thing seeded that no profile of yours supplies: a
+`Plugins\User\DemoFont\Theme.css` copied from
+`tools/create_media/demo_Theme.css`. Their GIFs are encoded at 800 px from a
+1280 px capture (`demo_build_feature_gifs.bat`), so Core's 9pt lands at ~5.6pt
+in the README; the file bumps the app-wide `*` font to 14pt, which reads as
+~8.75pt after the downscale. It is a user plugin, and `Theme` keeps CSS load
+order, so it wins over `Plugins/Core/Theme.css` — but only by being **last**:
+both consumers (`CSSEngine` for the hand-painted quicksearch item text, and
+the generated Qt style sheet) resolve `*` against more specific selectors by
+load order, not by specificity. Hence every selector that must not inherit the
+14pt is restated *after* the `*` rule inside that file. The tour chapters are
+deliberately excluded: their MP4 is published at full 1280 width.
+
+One thing it cannot reach: the inline filter's input (`FilterBar QLineEdit`,
+`styles.qss`) stays 9pt — that selector is not in `Theme._CSS_TO_QSS`, so no
+user Theme.css can express it. Neither clip uses the inline filter.
 
 The launcher also minimizes every window (`Shell.Application.MinimizeAll`) right
 before starting fman. The recorder grabs screen pixels of fman's window rect, so
@@ -184,6 +203,9 @@ The themes GIF is its own one-liner, `tools\demo_themes_record.bat` — see
   |----|------|-------|----------|
   | 8 | `feature-goto` | `Ctrl+P` Go to: fuzzy jump, tab-complete, Enter | 101 frames, 20.2 s |
   | 9 | `feature-tail` | tail mode following a log while it grows | 105 frames, 21.0 s |
+
+  They also record with a bigger font than everything else — see the demo
+  profile section above.
 
   They record at **`fps: 5`**, not 10. Capture could not keep up with an
   animated theme behind the window (~4.8 fps measured), and the exporter writes
@@ -457,7 +479,9 @@ start, and end with a `Pause(1.0)` so the recording doesn't cut off abruptly.
    `feature-*` — **not** `tour-*`, or `build_tour.py::chapters()` will join it
    into the hero video. Add a `call :gif <demo-name> <gif-name>` line to
    `tools/demo_build_feature_gifs.bat` (it names its clips explicitly) and a
-   `call ... --demo <id>` line to `tools/demo_features_record.bat`.
+   `call ... --demo <id>` line to `tools/demo_features_record.bat`. Add its id
+   to the `FONT_CSS` lines in `run_fman_demo.bat` too, or it records at 9pt
+   and the 800 px GIF is unreadable.
 5. Preview it, check its side effects, then record:
    `tools\demos_record.bat --demo <id>`.
 
@@ -470,6 +494,7 @@ start, and end with a `Pause(1.0)` so the recording doesn't cut off abruptly.
 | a filter finds nothing right after the demo created a file | the pane hasn't re-listed | `PressKey('Ctrl+R')` before filtering |
 | a photo viewer or media player opens mid-recording | `Return` was pressed on a file the cursor happened to be on | fix the cursor position; never press Return on a non-directory, non-`.zip` |
 | the palette runs the wrong command | a shorter command title matched the query first | lengthen the query; see the table above |
+| the text in a `feature-*` GIF is too small to read | the demo-only `Theme.css` was not seeded - its id is missing from the `FONT_CSS` lines | add it in `run_fman_demo.bat` and re-record |
 | a clock/monitor overlay is visible in every frame | an always-on-top desktop widget | close it and re-record; the capture is a screen region |
 | a video demo records a download dialog | libmpv isn't cached in the demo profile | copy `libmpv-2.dll` into `%TEMP%\fman-demo-profile\Local\libmpv\` |
 | `Demo exceeded 300s cap` | one script is too long | split it into chapters |

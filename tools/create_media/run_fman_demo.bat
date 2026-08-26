@@ -50,6 +50,19 @@ if exist "%APPDATA%\fman\Themes" (
 	xcopy /e /i /q /y "%APPDATA%\fman\Themes" "%FMAN_DATA_DIRECTORY%\Themes\" >nul
 )
 
+REM The feature-* clips (ids 8 and 9) are encoded into 800px-wide GIFs from
+REM this 1280px capture, so the whole UI lands at 0.625x in the README - 9pt
+REM reads as ~5.6pt there. Drop in a demo-only Theme.css that bumps the font
+REM sizes; user plugins load after Core and Theme keeps load order, so it
+REM wins. Ids 8 and 9 only: the tour chapters are published at full 1280
+REM width and stay legible without it. See tools/create_media/demo_Theme.css.
+if "%1"=="8" set "FONT_CSS=1"
+if "%1"=="9" set "FONT_CSS=1"
+if defined FONT_CSS (
+	mkdir "%FMAN_DATA_DIRECTORY%\Plugins\User\DemoFont" 2>nul
+	copy /y "%CD%\tools\create_media\demo_Theme.css" "%FMAN_DATA_DIRECTORY%\Plugins\User\DemoFont\Theme.css" >nul
+)
+
 REM Demo 1 reads the committed examples. The tour chapters (id 3+) create,
 REM rename, move and pack files, so they get a fresh scratch copy of both
 REM example folders on the left and an empty folder on the right.
