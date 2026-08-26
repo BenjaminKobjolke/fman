@@ -4,8 +4,9 @@ A cross-platform dual-pane file manager.
 
 ## Demo
 
-**[Watch the 2:30 feature tour (MP4)](media/demos/tour/feature-tour.mp4)** - the
-whole thing driven from the keyboard, no mouse at any point:
+[![Watch the 2:30 feature tour](media/demos/tour/feature-tour-poster.png)](media/demos/tour/feature-tour.mp4)
+
+The 2:30 tour above, driven from the keyboard, no mouse at any point:
 
 | | |
 |---|---|
@@ -22,14 +23,9 @@ filter, and command palette (`Ctrl+Shift+P`):
 |---|---|---|---|
 | ![panes](media/demos/overview/panes.png) | ![internal viewer](media/demos/overview/view-image.png) | ![filter](media/demos/overview/filter.png) | ![select all](media/demos/overview/select-all.png) |
 
-Every bundled [theme](docs/THEMES.md), two seconds each - switch with
-`Select theme` in the command palette, no restart:
+## Themes
 
 ![themes](media/demos/themes/themes.gif)
-
-<sub>Regenerate with `tools\demos_record.bat`, then join the tour chapters with
-`tools\build_tour.bat`; the themes GIF is `tools\themes_record.bat` - see
-[docs/DEMOS.md](docs/DEMOS.md).</sub>
 
 ## Single instance
 
