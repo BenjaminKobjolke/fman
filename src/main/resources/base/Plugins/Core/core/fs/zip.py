@@ -281,7 +281,7 @@ class _7zipTaskWithProgress(Task):
 					process.kill()
 					raise
 				# The \r appears on Windows only:
-				match = re.match('\r? *(\\d\\d?)% ', line)
+				match = re.match('\r? *(\\d{1,3})% ', line)
 				if match:
 					percent = int(match.group(1))
 					# At least on Linux, 7za shows progress going from 0 to
@@ -436,7 +436,7 @@ class _7zip:
 		self._stdout_lines = deque(maxlen=100)
 	def __enter__(self):
 		if PLATFORM == 'Windows':
-			cls = Run7ZipViaWinpty if self._pty else Popen7ZipWindows
+			cls = Popen7ZipWindowsWithProgress if self._pty else Popen7ZipWindows
 		else:
 			cls = Run7ZipViaPty if self._pty else Popen7ZipUnix
 		self._process = cls(self._args, self._cwd)
@@ -458,13 +458,35 @@ class _7zip:
 				self._process.wait()
 			else:
 				exit_code = self._process.wait()
-				if exit_code and not self._killed and \
-					exit_code != self._7ZIP_WARNING:
+				if self._killed:
+					remove_7zip_temp_archive(self._args, self._cwd)
+				elif exit_code and exit_code != self._7ZIP_WARNING:
 					raise _7zipError(
 						exit_code, self._args, ''.join(self._stdout_lines)
 					)
 		finally:
 			self._process.stdout.close()
+
+# 7-Zip commands that rewrite an existing archive in place:
+_7ZIP_UPDATE_COMMANDS = ('a', 'd', 'rn', 'u')
+
+def remove_7zip_temp_archive(args, cwd=None):
+	"""
+	While updating an archive, 7-Zip writes a sibling '<archive>.tmp' and
+	renames it when done. Interrupting it with Ctrl+C used to let it clean
+	that up itself, but we cancel by killing the process - so remove the
+	leftover here.
+	"""
+	operands = [arg for arg in args if not arg.startswith('-')]
+	if len(operands) < 2 or operands[0] not in _7ZIP_UPDATE_COMMANDS:
+		return
+	temp_archive = Path(cwd or '.', operands[1] + '.tmp')
+	try:
+		temp_archive.unlink()
+	except OSError:
+		# Never existed, or 7-Zip removed it / still holds it open. Leaving a
+		# stray .tmp behind must not break canceling.
+		pass
 
 class _7zipError(CalledProcessError):
 	def __str__(self):
@@ -594,35 +616,19 @@ class Run7ZipViaPty:
 			os.execlp(argv[0], *argv)
 		return pid, master_fd
 
-class Run7ZipViaWinpty:
+class Popen7ZipWindowsWithProgress(Popen7ZipWindows):
+	r"""
+	7-Zip only prints progress when it thinks it is attached to a terminal -
+	unless -bsp1 is given, which redirects the progress stream to stdout. That
+	makes a pseudo-terminal unnecessary on Windows: winpty's ConPTY backend was
+	roughly 6x slower than a plain pipe and needed extra files (conpty.dll,
+	OpenConsole.exe) bundled next to the frozen app.
 
-	class Stdout:
-		def __init__(self, process):
-			self._process = process
-			self._escape_ansi = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -/]*[@-~]')
-		def __iter__(self):
-			while True:
-				try:
-					line = self._process.read()
-				except EOFError:
-					break
-				line = self._escape_ansi.sub('', line)
-				if line:
-					yield line
-		def close(self):
-			self._process.close()
-
+	Progress lines look like ' 12% 142 - some\file.txt' and are terminated by a
+	lone '\r', which the TextIOWrapper around stdout turns into a line break.
+	"""
 	def __init__(self, args, cwd):
-		args = _get_7zip_args_windows(args)
-		self._process = self._spawn([_7ZIP_BINARY] + args, cwd)
-		self.stdout = self.Stdout(self._process)
-	def kill(self):
-		self._process.sendcontrol('c')
-	def wait(self):
-		return self._process.wait()
-	def _spawn(self, argv, cwd=None, env=None):
-		from winpty import PtyProcess
-		return PtyProcess.spawn(argv, cwd, env)
+		super().__init__(['-bsp1'] + args, cwd)
 
 class ZipFileSystem(_7ZipFileSystem):
 	scheme = 'zip://'
