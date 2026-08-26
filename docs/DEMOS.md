@@ -24,9 +24,9 @@ over a socket so the tool can capture the window. The wiring:
   output folder).
 - `tools/create_media/run_fman_demo.bat` — launcher the tool starts per run.
 - `tools/demos_record.bat` — one command that drives the whole recording.
-- `tools/create_media/build_tour.py` + `tools/build_tour.bat` — join the
+- `tools/create_media/build_tour.py` + `tools/demo_build_tour.bat` — join the
   recorded tour chapters into the README's feature-tour MP4.
-- `tools/create_media/build_themes.py` + `tools/themes_record.bat` — record
+- `tools/create_media/build_themes.py` + `tools/demo_themes_record.bat` — record
   one still per theme and join them into the README's themes GIF.
 
 fman itself never captures or encodes anything. It only posts key events and
@@ -120,14 +120,14 @@ live in that interpreter's user site-packages, so another `python` on `PATH`
        tools\demos_record.bat --demo 6
        tools\demos_record.bat --demo 7
 
-5. **Join them:** `tools\build_tour.bat` → `media/demos/tour/feature-tour.mp4`.
+5. **Join them:** `tools\demo_build_tour.bat` → `media/demos/tour/feature-tour.mp4`.
 6. **Watch the result** before committing. The build prints the size; the last
    run was 2:32 and 2.3 MB.
 
 `tools\demos_record.bat` with no arguments records every demo; any other
 arguments pass straight through to the tool.
 
-The themes GIF is its own one-liner, `tools\themes_record.bat` — see
+The themes GIF is its own one-liner, `tools\demo_themes_record.bat` — see
 [The themes demo](#the-themes-demo).
 
 ## What ships
@@ -161,7 +161,7 @@ Output lands in `media/demos/<name>/` (see `output_dir` in
 `Screenshot` step if the demo asks for them. The tour chapters are `mp4` only —
 a 2.5-minute GIF would be tens of megabytes for a worse picture.
 
-`build_tour.bat` burns each chapter's caption over its first 5 s and
+`demo_build_tour.bat` burns each chapter's caption over its first 5 s and
 concatenates all of them. Chapter order comes from `fman.json` (every demo whose
 `name` starts with `tour-`, sorted by id), the caption text from `CAPTIONS` in
 `build_tour.py` — add both when you add a chapter. It also rescales every input
@@ -189,7 +189,7 @@ Three things make it look nothing like the other demos:
 
 `build_themes.py` then joins `media/demos/themes/*.png` in name order (the
 order `list_themes` returns) at `THEME_HOLD_S` per frame. It reads no theme
-list of its own: the stills *are* the list. `themes_record.bat` deletes them
+list of its own: the stills *are* the list. `demo_themes_record.bat` deletes them
 first, so a theme you removed cannot linger in the GIF.
 
 The one thing to check by eye: `Command(name)` types the theme's full name
@@ -371,7 +371,7 @@ start, and end with a `Pause(1.0)` so the recording doesn't cut off abruptly.
 | `Demo exceeded 300s cap` | one script is too long | split it into chapters |
 | `No demo event for 60s` | a long stretch with no `Screenshot` step | add `Screenshot` heartbeats or shorten the chapter |
 | the recording is huge or the machine swaps | frames are all held in RAM | shorter chapters, or a lower `fps` in `fman.json` |
-| `build_tour.bat` says a clip is missing | that chapter wasn't recorded | record it; the message names the exact command |
+| `demo_build_tour.bat` says a clip is missing | that chapter wasn't recorded | record it; the message names the exact command |
 | a theme is missing from the themes GIF | its still was never written — the typed name matched another theme first | lengthen or rename; see [The themes demo](#the-themes-demo) |
 | a still shows the wrong theme | same cause, but the file name says otherwise | as above; the file count alone won't catch it |
 

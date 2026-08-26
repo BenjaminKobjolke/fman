@@ -34,7 +34,7 @@ def stills():
     if not result:
         raise SystemExit(
             'No stills in %s - record them first with: '
-            'tools\\themes_record.bat' % STILLS_DIR
+            'tools\\demo_themes_record.bat' % STILLS_DIR
         )
     return result
 

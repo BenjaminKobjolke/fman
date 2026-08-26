@@ -12,6 +12,6 @@ set "CONFIG=%~dp0create_media\fman.json"
 if "%~1"=="" (set "DEMO_ARGS=--demo all") else (set "DEMO_ARGS=%*")
 cd /d "%TOOL_DIR%" || (echo Tool repo not found: %TOOL_DIR% & exit /b 1)
 uv run screenshot-tool --config "%CONFIG%" %DEMO_ARGS%
-REM The pause is for double-clicking this file; themes_record.bat calls it as
+REM The pause is for double-clicking this file; demo_themes_record.bat calls it as
 REM one step of a longer chain and sets FMAN_NO_PAUSE so it doesn't block.
 if not defined FMAN_NO_PAUSE pause
