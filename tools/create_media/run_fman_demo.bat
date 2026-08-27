@@ -50,17 +50,36 @@ if exist "%APPDATA%\fman\Themes" (
 	xcopy /e /i /q /y "%APPDATA%\fman\Themes" "%FMAN_DATA_DIRECTORY%\Themes\" >nul
 )
 
-REM The feature-* clips (ids 8 and 9) are encoded into 800px-wide GIFs from
-REM this 1280px capture, so the whole UI lands at 0.625x in the README - 9pt
-REM reads as ~5.6pt there. Drop in a demo-only Theme.css that bumps the font
-REM sizes; user plugins load after Core and Theme keeps load order, so it
-REM wins. Ids 8 and 9 only: the tour chapters are published at full 1280
-REM width and stay legible without it. See tools/create_media/demo_Theme.css.
+REM The standalone clips are encoded into GIFs narrower than this 1280px
+REM capture - 800px for the feature-* ones, less for the plugin-* ones - so
+REM the whole UI lands at 0.625x or less in the README, and Core 9pt reads as
+REM ~5.6pt there. Drop in a demo-only Theme.css that bumps the font sizes;
+REM user plugins load after Core and Theme keeps load order, so it wins.
+REM Ids 8-10 only: the tour chapters are published at full 1280 width and stay
+REM legible without it. See tools/create_media/demo_Theme.css.
 if "%1"=="8" set "FONT_CSS=1"
 if "%1"=="9" set "FONT_CSS=1"
+if "%1"=="10" set "FONT_CSS=1"
 if defined FONT_CSS (
 	mkdir "%FMAN_DATA_DIRECTORY%\Plugins\User\DemoFont" 2>nul
 	copy /y "%CD%\tools\create_media\demo_Theme.css" "%FMAN_DATA_DIRECTORY%\Plugins\User\DemoFont\Theme.css" >nul
+)
+
+REM Demo 10 films a THIRD-PARTY plugin, so the one plugin under test has to go
+REM back into the tree the rmdir above just emptied. Only that one: seeding all
+REM of %APPDATA%\fman\Plugins would put the recordist key bindings (which are
+REM prepended, so they beat Core) and their palette commands into the take -
+REM exactly what the wipe exists to prevent. MatrixRain itself is safe to seed:
+REM its Key Bindings.json is [] by design, so it steals no chord.
+REM A missing plugin is fatal, not a warning: the take would look perfectly
+REM fine and show fman WITHOUT the plugin, every palette query matching nothing.
+if "%1"=="10" (
+	if exist "%APPDATA%\fman\Plugins\User\MatrixRain" (
+		xcopy /e /i /q /y "%APPDATA%\fman\Plugins\User\MatrixRain" "%FMAN_DATA_DIRECTORY%\Plugins\User\MatrixRain\" >nul
+	) else (
+		echo ERROR: MatrixRain is not installed in %APPDATA%\fman\Plugins\User - cannot record demo 10.
+		exit /b 1
+	)
 )
 
 REM Demo 1 reads the committed examples. The tour chapters (id 3+) create,
@@ -78,6 +97,10 @@ if %1 GEQ 3 (
 	xcopy /q /y "%CD%\examples\left_pane\*" "!LEFT!\" >nul
 	xcopy /q /y "%CD%\examples\right_pane\*" "!LEFT!\" >nul
 )
+
+REM Demo 10 turns the rain translucent, and what shows through is the file
+REM list underneath - so the right pane cannot be the empty one it gets above.
+if "%1"=="10" xcopy /q /y "%CD%\examples\right_pane\*" "%RIGHT%\" >nul
 
 REM Chapter 8 (Go to) jumps around a small folder tree, and seeds this run
 REM with its OWN Visited Paths.json. Both matter: SuggestLocations falls back
@@ -97,11 +120,11 @@ if "%1"=="9" set "LOGFILE=%LEFT%\service.log"
 if "%1"=="9" powershell -NoProfile -Command "1..12 | ForEach-Object { Add-Content -LiteralPath $env:LOGFILE -Value ('{0:HH:mm:ss}  service started, worker {1} ready' -f (Get-Date), $_) }"
 if "%1"=="9" start "" /b powershell -NoProfile -Command "1..40 | ForEach-Object { Add-Content -LiteralPath $env:LOGFILE -Value ('{0:HH:mm:ss}  request {1} handled in {2} ms' -f (Get-Date), $_, (Get-Random -Minimum 4 -Maximum 90)); Start-Sleep -Milliseconds 1500 }"
 
-REM Clear the desktop before fman exists. The recorder grabs screen pixels of
-REM fman's window rect, so anything drawn over it lands in the recording - and
-REM the tool spawns one console per demo. This runs inside that console, so it
-REM minimizes it too; fman starts afterwards and stays visible.
-powershell -NoProfile -Command "(New-Object -ComObject Shell.Application).MinimizeAll()"
+REM Clear the desktop before fman exists - see the script for why a leftover
+REM window ruins a take even when it never covers fman. The tool spawns one
+REM console per demo; this runs inside that console, so it minimizes that too,
+REM and fman starts afterwards and stays visible.
+powershell -NoProfile -ExecutionPolicy Bypass -File "%CD%\tools\create_media\minimize_all_windows.ps1"
 
 "%FMAN_PYTHON%" src\main\python\fman\main.py ^
   --automation-demo %1 ^

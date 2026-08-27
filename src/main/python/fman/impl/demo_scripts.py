@@ -155,6 +155,54 @@ FEATURE_CLIPS = {
 
 DEMOS.update(FEATURE_CLIPS)
 
+# Demos of a THIRD-PARTY plugin, for the README's plugin list and the plugin's
+# own README. Their own prefix, not feature-*: they film software this repo does
+# not ship, so they carry a prerequisite no other demo has - the plugin has to be
+# installed, and run_fman_demo.bat seeds it back into the wiped demo profile.
+# tools/demo_build_plugin_gifs.bat encodes them; see docs/DEMOS_PLUGINS.md.
+PLUGIN_CLIPS = {
+	10: DemoScript(
+		id=10,
+		name='plugin-matrix-rain',
+		steps=(
+			Pause(1.5),
+			# MatrixRain has no "both panes" command - only "Matrix rain" (this
+			# pane, takes focus) and "Matrix rain in other pane" (focus stays
+			# put). Running the other-pane one FIRST is what gives one pane then
+			# both, and it also leaves the keyboard in the left file list for
+			# every palette step below: MatrixRainView.keyPressEvent swallows
+			# Escape/Return/Backspace/Tab, and whether Ctrl+Shift+P reaches
+			# Core's palette from inside the mounted rain is untested.
+			#
+			# Every query here EQUALS one command's alias, so it lands in the
+			# palette's exact-match bucket (match_titles_or_keywords, bucket 0)
+			# ahead of every fuzzy tier - no shortest-title tie-break involved.
+			PressKey('Ctrl+Shift+P'), Pause(1.0),
+			Command('matrix rain in other pane'), Pause(2.5),
+			Pause(4.0),                        # ... the right pane alone
+			# Transparency is 0 in a fresh demo profile (the plugin's settings
+			# live under Plugins\User\Settings, which the launcher wipes), so
+			# the prompt always opens on the same value.
+			PressKey('Ctrl+Shift+P'), Pause(1.0),
+			Command('matrix rain transparency'), Pause(1.8),
+			PressKey('Ctrl+A'), Pause(0.4),
+			TypeText('70'), Pause(0.8),
+			# remount_rain_where_showing() re-mounts every raining pane, so the
+			# file list underneath shows through without touching that pane.
+			PressKey('Return'), Pause(3.0),
+			PressKey('Ctrl+Shift+P'), Pause(1.0),
+			Command('matrix rain'), Pause(2.5),
+			Pause(5.0),                        # ... and now both panes
+			PressKey('Escape'), Pause(1.5),    # closes this pane's rain only
+			PressKey('Tab'), Pause(1.2),
+			PressKey('Escape'), Pause(1.5),
+			Pause(1.0),
+		),
+	),
+}
+
+DEMOS.update(PLUGIN_CLIPS)
+
 def build_themes_script(names):
 	"""The themes demo for the installed themes `names`, one still each.
 

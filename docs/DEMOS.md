@@ -27,8 +27,10 @@ over a socket so the tool can capture the window. The wiring:
 - `tools/create_media/fman.json` — the tool-side config (window size, formats,
   output folder).
 - `tools/create_media/run_fman_demo.bat` — launcher the tool starts per run.
-- `tools/create_media/demo_Theme.css` — font sizes for the `feature-*` clips,
-  seeded into the demo profile by that launcher for ids 8 and 9 only.
+- `tools/create_media/demo_Theme.css` — font sizes for the standalone clips,
+  seeded into the demo profile by that launcher for ids 8, 9 and 10 only.
+- `tools/create_media/minimize_all_windows.ps1` — clears the desktop before
+  fman starts; run by that launcher for every demo.
 - `tools/demos_record.bat` — one command that drives the whole recording.
 - `tools/create_media/build_tour.py` + `tools/demo_build_tour.bat` — join the
   recorded tour chapters into the README's feature-tour MP4.
@@ -37,6 +39,9 @@ over a socket so the tool can capture the window. The wiring:
 - `tools/demo_build_feature_gifs.bat` + `tools/demo_features_record.bat` —
   record the standalone `feature-*` clips and encode them into the GIFs the
   README's feature index shows.
+- `tools/demo_build_plugin_gifs.bat` + `tools/demo_plugins_record.bat` — the
+  same pair for the `plugin-*` clips, which film a third-party plugin rather
+  than fman itself. See [DEMOS_PLUGINS.md](DEMOS_PLUGINS.md).
 
 fman itself never captures or encodes anything. It only posts key events and
 sends `demo_started` / `screenshot` / `demo_ended` over a socket; the tool grabs
@@ -62,6 +67,7 @@ cannot be shown without it:
 |----|-------|
 | 8 | `projects\alpha`, `projects\beta` and `reports` in the left folder, plus a 5-entry `Visited Paths.json` in the demo profile — see [Chapter 8 records a suggestion list](#chapter-8-records-a-suggestion-list---check-it) |
 | 9 | `service.log` in the left folder, plus a background PowerShell appender that adds a line every 1.5 s for 60 s, so tail mode has something to follow |
+| 10 | the MatrixRain plugin copied in from `%APPDATA%`, and the example text files in the *right* folder too — see [DEMOS_PLUGINS.md](DEMOS_PLUGINS.md) |
 
 Every run sets `FMAN_DATA_DIRECTORY` to that profile and wipes its `Plugins`
 folder. Recording against your own profile would load your third-party plugins,
@@ -83,12 +89,15 @@ change how a recording looks rather than how it behaves:
 - `%APPDATA%\fman\Themes` — mirrored so a *custom* theme resolves instead of
   silently falling back to the default.
 
-Ids 8 and 9 get one thing seeded that no profile of yours supplies: a
+Ids 8, 9 and 10 get one thing seeded that no profile of yours supplies: a
 `Plugins\User\DemoFont\Theme.css` copied from
-`tools/create_media/demo_Theme.css`. Their GIFs are encoded at 800 px from a
-1280 px capture (`demo_build_feature_gifs.bat`), so Core's 9pt lands at ~5.6pt
-in the README; the file bumps the app-wide `*` font to 14pt, which reads as
-~8.75pt after the downscale. It is a user plugin, and `Theme` keeps CSS load
+`tools/create_media/demo_Theme.css`. Their GIFs are encoded narrower than the
+1280 px capture - 800 px for the `feature-*` ones - so Core's 9pt lands at
+~5.6pt in the README; the file bumps the app-wide `*` font to 14pt, which reads
+as ~8.75pt after the downscale. Id 10 is seeded the same way as insurance
+rather than necessity: its GIF ships at 360 px, where no font size is readable,
+but a plugin clip that *does* hinge on text needs both the bump and a wider
+encode - see [DEMOS_PLUGINS.md](DEMOS_PLUGINS.md). It is a user plugin, and `Theme` keeps CSS load
 order, so it wins over `Plugins/Core/Theme.css` — but only by being **last**:
 both consumers (`CSSEngine` for the hand-painted quicksearch item text, and
 the generated Qt style sheet) resolve `*` against more specific selectors by
@@ -100,10 +109,20 @@ One thing it cannot reach: the inline filter's input (`FilterBar QLineEdit`,
 `styles.qss`) stays 9pt — that selector is not in `Theme._CSS_TO_QSS`, so no
 user Theme.css can express it. Neither clip uses the inline filter.
 
-The launcher also minimizes every window (`Shell.Application.MinimizeAll`) right
-before starting fman. The recorder grabs screen pixels of fman's window rect, so
-any window drawn over it — including the console the tool spawns per demo —
-would land in the recording.
+The launcher also clears the desktop right before starting fman, by running
+`tools/create_media/minimize_all_windows.ps1`. Two separate things make a
+leftover window fatal to a take: the recorder grabs screen *pixels* of fman's
+window rect, so anything drawn over it — including the console the tool spawns
+per demo — is burned into every frame; and demo mode pins `DEMO_OPACITY` at
+0.8, so whatever sits *behind* fman shows through it, putting that window's
+contents on camera without ever covering fman.
+
+That script enumerates the top-level windows and minimizes each one. It
+replaced `(New-Object -ComObject Shell.Application).MinimizeAll()`, which is the
+Win+D shortcut: it toggles rather than minimizes, and the shell ignores it
+outright in some states. It returned success while leaving windows on screen,
+and the first plugin recording came back with the desktop's file names legible
+through fman's translucent frame.
 
 ## Install (once)
 
@@ -136,9 +155,12 @@ live in that interpreter's user site-packages, so another `python` on `PATH`
 ## Recording checklist
 
 1. **Close every always-on-top desktop widget** (clock/system-monitor gadgets,
-   notification toasts, anything pinned above other windows). The capture is a
-   screen region, so whatever is drawn over fman is burned into every frame and
-   no setting in the tool can exclude it.
+   notification toasts, anything pinned above other windows). Ordinary windows
+   are handled for you — the launcher minimizes them (see above) — but a window
+   pinned above others survives that, and the capture is a screen region, so
+   whatever is drawn over fman is burned into every frame and no setting in the
+   tool can exclude it. The same goes for anything left *behind* fman: at
+   `DEMO_OPACITY` 0.8 it shows through.
 2. **Check libmpv is cached** at
    `%TEMP%\fman-demo-profile\Local\libmpv\libmpv-2.dll` — the launcher copies it
    from your real profile. Without it the first video view downloads ~100 MB
@@ -175,7 +197,8 @@ arguments pass straight through to the tool.
 
 The themes GIF is its own one-liner, `tools\demo_themes_record.bat` — see
 [The themes demo](#the-themes-demo). The feature GIFs are
-`tools\demo_features_record.bat`.
+`tools\demo_features_record.bat`, and the plugin GIFs
+`tools\demo_plugins_record.bat` — see [DEMOS_PLUGINS.md](DEMOS_PLUGINS.md).
 
 ## What ships
 
@@ -217,6 +240,16 @@ The themes GIF is its own one-liner, `tools\demo_themes_record.bat` — see
   joins **every** `tour-*` demo, so naming one of these `tour-f-*` silently
   lengthens the README hero video the next time the tour is rebuilt.
 
+- **10, the `plugin-*` clip** - films a *third-party plugin* rather than fman,
+  for the README's plugin list and the plugin's own README. It has its own
+  prerequisite (the plugin must be installed), its own seeding rule and its own
+  encoder settings, all documented in
+  [DEMOS_PLUGINS.md](DEMOS_PLUGINS.md) rather than repeated here:
+
+  | id | name | shows |
+  |----|------|-------|
+  | 10 | `plugin-matrix-rain` | MatrixRain in one pane, then translucent, then both panes |
+
 ### Chapter 8 records a suggestion list - check it
 
 Go to (`Ctrl+P`) suggests **real folders from the recording machine**, so this
@@ -256,10 +289,11 @@ The chapters exist because of hard limits in the recorder, not taste:
 Output lands in `media/demos/<name>/` (see `output_dir` in
 `tools/create_media/fman.json`): `demo.mp4`, plus `demo.gif` and one PNG per
 `Screenshot` step if the demo asks for them. The tour chapters and the
-`feature-*` clips are `mp4` only — a 2.5-minute GIF would be tens of
-megabytes for a worse picture, and the feature GIFs are encoded from the mp4
-afterwards (a 64-colour palette at 800 px keeps each one under half a
-megabyte).
+standalone clips are `mp4` only — a 2.5-minute GIF would be tens of
+megabytes for a worse picture, and the GIFs are encoded from the mp4
+afterwards (a 64-colour palette at 800 px keeps each `feature-*` one under half
+a megabyte; the `plugin-*` clips need tighter settings, see
+[DEMOS_PLUGINS.md](DEMOS_PLUGINS.md)).
 
 `demo_build_tour.bat` burns each chapter's caption over its first 5 s and
 concatenates all of them. Chapter order comes from `fman.json` (every demo whose
@@ -346,6 +380,7 @@ every risky step landed:
 | 7 `tour-e-archives` | `images.zip` in the left folder holds three JPEGs, and the right folder holds the one copied back out |
 | 8 `feature-goto` | the left pane ends on `projects\alpha` — and `Visited Paths.json` in the demo profile lists only `fman-demo-8-*` paths |
 | 9 `feature-tail` | `service.log` is longer than the 12 seeded lines (the appender adds ~40 more over a minute) |
+| 10 `plugin-matrix-rain` | `Matrix Rain (Windows).json` in the demo profile's `Plugins\User\Settings` holds `"transparency": 70` - which proves the palette query resolved, the prompt took the typed value, and the rain re-mounted |
 
 **Estimate a script's length** without running it:
 
@@ -492,7 +527,10 @@ start, and end with a `Pause(1.0)` so the recording doesn't cut off abruptly.
    `call ... --demo <id>` line to `tools/demo_features_record.bat`. Add its id
    to the `FONT_CSS` lines in `run_fman_demo.bat` too, or it records at 9pt
    and the 800 px GIF is unreadable.
-5. Preview it, check its side effects, then record:
+5. If it films a **third-party plugin**, name it `plugin-*` and follow
+   [DEMOS_PLUGINS.md](DEMOS_PLUGINS.md) instead of step 4 — the plugin has to be
+   seeded back into the wiped demo profile, and the GIF is encoded differently.
+6. Preview it, check its side effects, then record:
    `tools\demos_record.bat --demo <id>`.
 
 ## Troubleshooting
@@ -504,8 +542,9 @@ start, and end with a `Pause(1.0)` so the recording doesn't cut off abruptly.
 | a filter finds nothing right after the demo created a file | the pane hasn't re-listed | `PressKey('Ctrl+R')` before filtering |
 | a photo viewer or media player opens mid-recording | `Return` was pressed on a file the cursor happened to be on | fix the cursor position; never press Return on a non-directory, non-`.zip` |
 | the palette runs the wrong command | a shorter command title matched the query first | lengthen the query; see the table above |
-| the text in a `feature-*` GIF is too small to read | the demo-only `Theme.css` was not seeded - its id is missing from the `FONT_CSS` lines | add it in `run_fman_demo.bat` and re-record |
+| the text in a `feature-*` or `plugin-*` GIF is too small to read | the demo-only `Theme.css` was not seeded - its id is missing from the `FONT_CSS` lines | add it in `run_fman_demo.bat` and re-record |
 | a clock/monitor overlay is visible in every frame | an always-on-top desktop widget | close it and re-record; the capture is a screen region |
+| file names or window contents show faintly *through* fman | a window was left behind fman, and `DEMO_OPACITY` is 0.8 | make sure `minimize_all_windows.ps1` ran (it prints how many it minimized); a window pinned always-on-top has to be closed by hand |
 | a video demo records a download dialog | libmpv isn't cached in the demo profile | copy `libmpv-2.dll` into `%TEMP%\fman-demo-profile\Local\libmpv\` |
 | `Demo exceeded 300s cap` | one script is too long | split it into chapters |
 | `No demo event for 60s` | a long stretch with no `Screenshot` step | add `Screenshot` heartbeats or shorten the chapter |
