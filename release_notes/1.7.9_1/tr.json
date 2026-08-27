@@ -1,0 +1,15 @@
+{
+  "version": "1.7.9",
+  "build": 1,
+  "date": "2026-08-27",
+  "title": "fman’i istediğiniz gibi görünecek şekilde ayarlayın",
+  "notes": [
+    "fman artık arayüzünü seçtiğiniz bir yazı tipinde çizebiliyor. Komut paletinden \"Yazı tipini seç\" komutunu çalıştırın ve JetBrains Mono, Fira Code ve IBM Plex Sans dahil olmak üzere paketle gelen sekiz aileden birini seçin; böylece kullandığınız her makinede aynı görünüm kullanılabilir.",
+    "Dosya simgeleri artık işletim sisteminizin sağladıklarıyla sınırlı değil. \"Simge setini seç\" komutunu çalıştırın ve her programlama dili, iyi bilinen yapılandırma dosyası ve iyi bilinen klasör adı için ayrı bir simge sunan paketli Material setine geçin; ardından \"Simge boyutunu ayarla\" ile ne kadar büyük çizileceklerini seçin.",
+    "Temalar artık pencerenin ve dosya panellerinin arkasında bir arka plan resmi gösterebiliyor; resmin nasıl sığdırıldığı, nereye sabitlendiği ve ne kadar belirgin göründüğü üzerinde kontrol sağlanıyor. Yeni paketli Matrix teması bunu kullanıyor.",
+    "Pencerenin altındaki durum çubuğu komut paletinden kapatılabiliyor ve yeniden başlatmalar arasında kapalı kalıyor.",
+    "Metin görüntüleyici artık baktığınız dosyanın içinde arama yapabiliyor. Bir terimi bulun, bir sonraki veya önceki eşleşmeye atlayın ve görüntüleyici kısayollarından ya da komut paletinden aramadan çıkın.",
+    "Komut paleti girdilerine kendi kelimelerinizi öğretebilirsiniz. Bulunmasını sağlayan anahtar kelimeleri düzenlemek için herhangi bir girdide Shift+Enter’a basın; böylece farklı bir adla aradığınız bir komut, bir sonraki sefer orada olur.",
+    "\"Eklenti yükle\" artık eklentileri en son ne kadar yakın zamanda üzerinde çalışıldığına göre listeliyor; böylece aktif olarak bakımı yapılanlar önce geliyor."
+  ]
+}

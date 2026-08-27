@@ -1,0 +1,15 @@
+{
+  "version": "1.7.9",
+  "build": 1,
+  "date": "2026-08-27",
+  "title": "Få fman att se ut som du vill",
+  "notes": [
+    "fman kan nu rita sitt gränssnitt med ett typsnitt du väljer. Kör ”Select font” från kommandopaletten och välj en av åtta medföljande familjer, inklusive JetBrains Mono, Fira Code och IBM Plex Sans, så att samma utseende finns på varje dator du använder.",
+    "Filikoner är inte längre begränsade till dem som ditt operativsystem tillhandahåller. Kör ”Select icon set” och växla till den medföljande Material-uppsättningen för en tydlig ikon per programmeringsspråk, per välkänd konfigurationsfil och per välkänt mappnamn, och använd ”Set icon size” för att välja hur stora de ritas.",
+    "Teman kan nu visa en bakgrundsbild bakom fönstret och bakom filpanelerna, med kontroll över hur den anpassas, var den förankras och hur starkt den syns igenom. Det nya medföljande Matrix-temat använder detta.",
+    "Statusraden längst ned i fönstret kan stängas av från kommandopaletten, och förblir avstängd även efter omstarter.",
+    "Textvisaren kan nu söka i filen du tittar på. Hitta en term, hoppa till nästa eller föregående träff och avsluta sökningen igen, via visningsgenvägarna eller kommandopaletten.",
+    "Poster i kommandopaletten kan läras dina egna ord. Tryck Shift+Enter på valfri post för att redigera de nyckelord den hittas med, så att ett kommando du ofta letar efter under ett annat namn finns där nästa gång.",
+    "”Install plugin” listar nu pluginer efter hur nyligen de arbetats på, så att de som underhålls aktivt kommer först."
+  ]
+}

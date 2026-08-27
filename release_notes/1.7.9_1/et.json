@@ -1,0 +1,15 @@
+{
+  "version": "1.7.9",
+  "build": 1,
+  "date": "2026-08-27",
+  "title": "Muuda fmani välimus endale meelepäraseks",
+  "notes": [
+    "fman saab nüüd joonistada oma kasutajaliidest sinu valitud kirjastiilis. Käivita käsupaletist „Select font” ja vali üks kaheksast kaasa pandud kirjaperest, sh JetBrains Mono, Fira Code ja IBM Plex Sans, et sama välimus oleks olemas igas masinas, mida kasutad.",
+    "Failiikoonid ei ole enam piiratud nendega, mida sinu operatsioonisüsteem pakub. Käivita „Select icon set” ja lülitu kaasa pandud Materiali komplektile, et saada eraldi ikoon iga programmeerimiskeele, iga tuntud konfiguratsioonifaili ja iga tuntud kaustanime jaoks, ning kasuta „Set icon size”, et valida, kui suurelt neid joonistatakse.",
+    "Teemad saavad nüüd näidata taustapilti akna taga ja failipaanide taga, koos kontrolliga selle üle, kuidas see sobitatakse, kuhu see ankurdatakse ja kui tugevasti see läbi kumab. Uus kaasa pandud Matrixi teema kasutab seda.",
+    "Akna allosas oleva olekuriba saab käsupaletist välja lülitada ning see jääb ka pärast taaskäivitusi välja.",
+    "Tekstivaatur saab nüüd otsida sinu vaadatava faili seest. Leia otsitav termin, hüppa järgmise või eelmise vaste juurde ja lõpeta otsing taas — nii vaaturi klahvidega kui ka käsupaletist.",
+    "Käsupaleti kirjeid saab õpetada sinu enda sõnu. Vajuta mis tahes kirjel Shift+Enter, et muuta märksõnu, mille järgi seda leitakse, nii et käsk, mida sa kipud otsima teise nime all, oleks järgmisel korral olemas.",
+    "„Install plugin” loetleb nüüd pluginaid selle järgi, kui hiljuti nendega tegeleti, nii et aktiivselt hooldatud on esikohal."
+  ]
+}

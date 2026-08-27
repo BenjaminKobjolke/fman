@@ -1,0 +1,15 @@
+{
+  "version": "1.7.9",
+  "build": 1,
+  "date": "2026-08-27",
+  "title": "Fai apparire fman come vuoi",
+  "notes": [
+    "fman ora può disegnare la sua interfaccia con un carattere tipografico a tua scelta. Esegui \"Seleziona font\" dalla palette dei comandi e scegline uno tra otto famiglie incluse, tra cui JetBrains Mono, Fira Code e IBM Plex Sans, così lo stesso aspetto è disponibile su ogni macchina che usi.",
+    "Le icone dei file non sono più limitate a quelle fornite dal tuo sistema operativo. Esegui \"Seleziona set di icone\" e passa al set Material incluso per avere un’icona distinta per linguaggio di programmazione, per file di configurazione noti e per nomi di cartelle noti, e usa \"Imposta dimensione icone\" per scegliere quanto grandi vengono disegnate.",
+    "I temi ora possono mostrare un’immagine di sfondo dietro la finestra e dietro i pannelli dei file, con controllo su come viene adattata, dove viene ancorata e quanto si vede in trasparenza. Il nuovo tema Matrix incluso la utilizza.",
+    "La barra di stato in fondo alla finestra può essere disattivata dalla palette dei comandi e resta disattivata anche dopo i riavvii.",
+    "Il visualizzatore di testo ora può cercare all’interno del file che stai guardando. Trova un termine, passa alla corrispondenza successiva o precedente ed esci dalla ricerca, dai tasti del visualizzatore o dalla palette dei comandi.",
+    "Alle voci della palette dei comandi si possono insegnare le tue parole. Premi Maiusc+Invio su qualsiasi voce per modificare le parole chiave con cui viene trovata, così un comando che continui a cercare con un nome diverso sarà lì la prossima volta.",
+    "\"Installa plugin\" ora elenca i plugin in base a quanto recentemente ci si è lavorato, così quelli mantenuti attivamente compaiono per primi."
+  ]
+}

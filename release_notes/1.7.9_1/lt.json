@@ -1,0 +1,15 @@
+{
+  "version": "1.7.9",
+  "build": 1,
+  "date": "2026-08-27",
+  "title": "Sukurkite „fman“ išvaizdą tokią, kokios norite",
+  "notes": [
+    "„fman“ dabar gali piešti savo sąsają jūsų pasirinktu šriftu. Atidarykite komandų paletę, paleiskite „Select font“ ir pasirinkite vieną iš aštuonių įtrauktų šriftų šeimų, įskaitant JetBrains Mono, Fira Code ir IBM Plex Sans, kad ta pati išvaizda būtų pasiekiama kiekviename jūsų naudojamame kompiuteryje.",
+    "Failų piktogramos nebėra ribojamos tomis, kurias pateikia jūsų operacinė sistema. Paleiskite „Select icon set“ ir perjunkite į įtrauktą Material rinkinį, kad kiekvienai programavimo kalbai, kiekvienam gerai žinomam konfigūracijos failui ir kiekvienam gerai žinomam aplanko pavadinimui būtų skiriama atskira piktograma, o naudodami „Set icon size“ pasirinkite, kokio dydžio jos piešiamos.",
+    "Temos dabar gali rodyti foninį vaizdą už lango ir už failų sričių, su valdymu, kaip jis pritaikomas, kur jis inkaruojamas ir kiek stipriai persišviečia. Tai naudoja naujoji įtraukta Matrix tema.",
+    "Būsenos juostą lango apačioje galima išjungti iš komandų paletės, ir ji liks išjungta po perkrovimų.",
+    "Teksto peržiūros priemonė dabar gali ieškoti peržiūrimame faile. Suraskite terminą, pereikite prie kito arba ankstesnio atitikmens ir vėl išeikite iš paieškos – naudodami peržiūros klavišus arba komandų paletę.",
+    "Komandų paletės įrašus galima išmokyti jūsų pačių žodžių. Paspauskite Shift+Enter ant bet kurio įrašo, kad redaguotumėte raktinius žodžius, pagal kuriuos jis randamas, kad komanda, kurios vis ieškote kitu pavadinimu, kitą kartą būtų ten.",
+    "„Install plugin“ dabar pateikia įskiepius pagal tai, kaip neseniai jie buvo atnaujinti, todėl aktyviai prižiūrimi rodomi pirmiausia."
+  ]
+}

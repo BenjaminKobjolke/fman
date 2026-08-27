@@ -1,0 +1,15 @@
+{
+  "version": "1.7.9",
+  "build": 1,
+  "date": "2026-08-27",
+  "title": "Prispôsobte si vzhľad fmanu podľa seba",
+  "notes": [
+    "fman teraz dokáže vykresľovať svoje rozhranie písmom, ktoré si vyberiete. Spustite „Select font“ z palety príkazov a vyberte si jednu z ôsmich pribalených rodín vrátane JetBrains Mono, Fira Code a IBM Plex Sans, aby bol rovnaký vzhľad dostupný na každom počítači, ktorý používate.",
+    "Ikony súborov už nie sú obmedzené len na tie, ktoré poskytuje váš operačný systém. Spustite „Select icon set“ a prepnite na pribalenú sadu Material pre odlišnú ikonu pre každý programovací jazyk, každý známy konfiguračný súbor a každý známy názov priečinka, a pomocou „Set icon size“ vyberte, aké veľké sa majú vykresľovať.",
+    "Témy teraz môžu zobrazovať obrázok na pozadí za oknom aj za panelmi so súbormi, s kontrolou nad tým, ako sa prispôsobí, kde sa ukotví a ako výrazne bude presvitať. Nová pribalená téma Matrix to využíva.",
+    "Stavový riadok v spodnej časti okna je možné vypnúť z palety príkazov a zostane vypnutý aj po reštarte.",
+    "Prehliadač textu teraz dokáže vyhľadávať v súbore, ktorý si práve prezeráte. Nájdite výraz, prejdite na ďalšiu alebo predchádzajúcu zhodu a vyhľadávanie opäť ukončite – pomocou klávesov prehliadača alebo z palety príkazov.",
+    "Položky palety príkazov je možné naučiť vaše vlastné slová. Stlačte Shift+Enter na ľubovoľnej položke a upravte kľúčové slová, podľa ktorých sa vyhľadáva, aby bol príkaz, ktorý často hľadáte pod iným názvom, nabudúce na svojom mieste.",
+    "„Install plugin“ teraz zobrazuje doplnky podľa toho, ako nedávno sa na nich pracovalo, takže aktívne udržiavané sa zobrazia ako prvé."
+  ]
+}

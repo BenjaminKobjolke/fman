@@ -1,0 +1,15 @@
+{
+  "version": "1.7.9",
+  "build": 1,
+  "date": "2026-08-27",
+  "title": "Padariet fman izskatu tieši tādu, kādu vēlaties",
+  "notes": [
+    "fman tagad var zīmēt savu saskarni ar jūsu izvēlētu burtveidolu. Palaidiet “Select font” no komandu paletes un izvēlieties vienu no astoņām komplektā iekļautajām saimēm, tostarp JetBrains Mono, Fira Code un IBM Plex Sans, lai visās jūsu izmantotajās ierīcēs būtu pieejams vienāds izskats.",
+    "Failu ikonas vairs nav ierobežotas tikai ar tām, ko nodrošina jūsu operētājsistēma. Palaidiet “Select icon set” un pārslēdzieties uz komplektā iekļauto Material kopu, lai katrai programmēšanas valodai, katram plaši pazīstamam konfigurācijas failam un katram plaši pazīstamam mapes nosaukumam būtu atsevišķa ikona, un izmantojiet “Set icon size”, lai izvēlētos, cik lielā izmērā tās tiek zīmētas.",
+    "Tēmas tagad var rādīt fona attēlu aiz loga un aiz failu rūtīm, ar kontroli pār to, kā tas tiek pielāgots, kur tas tiek noenkurots un cik izteikti tas ir redzams cauri. Jaunā komplektā iekļautā Matrix tēma to izmanto.",
+    "Statusa joslu loga apakšā var izslēgt komandu paletē, un tā paliek izslēgta arī pēc pārstartēšanas.",
+    "Teksta skatītājs tagad var meklēt pašreiz skatāmajā failā. Atrodiet terminu, pārejiet uz nākamo vai iepriekšējo atbilstību un atstājiet meklēšanu, izmantojot skatītāja taustiņus vai komandu paleti.",
+    "Komandu paletes ierakstiem var iemācīt jūsu pašus vārdus. Nospiediet Shift+Enter uz jebkura ieraksta, lai rediģētu atslēgvārdus, pēc kuriem tas tiek atrasts, lai komanda, ko mēdzat meklēt ar citu nosaukumu, nākamreiz tur būtu.",
+    "“Install plugin” tagad uzskaita spraudņus pēc tā, cik nesen ar tiem strādāts, tāpēc aktīvi uzturētie ir pirmajā vietā."
+  ]
+}

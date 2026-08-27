@@ -1,0 +1,15 @@
+{
+  "version": "1.7.9",
+  "build": 1,
+  "date": "2026-08-27",
+  "title": "Tùy biến giao diện fman theo ý bạn",
+  "notes": [
+    "fman giờ có thể vẽ giao diện bằng phông chữ bạn chọn. Chạy \"Select font\" từ bảng lệnh và chọn một trong tám bộ phông đi kèm, gồm JetBrains Mono, Fira Code và IBM Plex Sans, để cùng một kiểu hiển thị có sẵn trên mọi máy bạn dùng.",
+    "Biểu tượng tệp không còn bị giới hạn ở những biểu tượng hệ điều hành của bạn cung cấp. Chạy \"Select icon set\" và chuyển sang bộ Material đi kèm để có biểu tượng riêng cho từng ngôn ngữ lập trình, từng tệp cấu hình phổ biến và từng tên thư mục phổ biến, rồi dùng \"Set icon size\" để chọn kích thước chúng được vẽ.",
+    "Chủ đề giờ có thể hiển thị ảnh nền phía sau cửa sổ và phía sau các ngăn tệp, với khả năng điều khiển cách ảnh được căn khít, vị trí neo và mức độ hiển thị xuyên qua. Chủ đề Matrix mới đi kèm có sử dụng tính năng này.",
+    "Thanh trạng thái ở đáy cửa sổ có thể tắt từ bảng lệnh và sẽ giữ nguyên trạng thái tắt qua các lần khởi động lại.",
+    "Trình xem văn bản giờ có thể tìm kiếm ngay trong tệp bạn đang xem. Tìm một cụm từ, nhảy đến kết quả khớp tiếp theo hoặc trước đó, và thoát tìm kiếm, từ các phím của trình xem hoặc bảng lệnh.",
+    "Các mục trong bảng lệnh có thể được dạy theo từ ngữ của riêng bạn. Nhấn Shift+Enter trên bất kỳ mục nào để chỉnh sửa các từ khóa dùng để tìm thấy nó, để một lệnh bạn hay tìm dưới tên khác sẽ xuất hiện đúng như vậy lần sau.",
+    "\"Install plugin\" giờ liệt kê plugin theo mức độ được cập nhật gần đây, để những plugin được duy trì tích cực xuất hiện trước."
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "version": "1.7.9",
+  "build": 1,
+  "date": "2026-08-27",
+  "title": "Fă ca fman să arate așa cum îți dorești",
+  "notes": [
+    "fman își poate reda acum interfața cu un font ales de tine. Rulează „Select font” din paleta de comenzi și alege una dintre cele opt familii incluse, inclusiv JetBrains Mono, Fira Code și IBM Plex Sans, astfel încât același aspect să fie disponibil pe orice mașină pe care o folosești.",
+    "Pictogramele fișierelor nu mai sunt limitate la cele furnizate de sistemul tău de operare. Rulează „Select icon set” și comută la setul Material inclus pentru o pictogramă distinctă per limbaj de programare, per fișier de configurare bine-cunoscut și per nume de folder bine-cunoscut, apoi folosește „Set icon size” pentru a alege cât de mari sunt desenate.",
+    "Temele pot afișa acum o imagine de fundal în spatele ferestrei și în spatele panourilor de fișiere, cu control asupra modului în care este ajustată, unde este ancorată și cât de puternic se vede prin. Noua temă Matrix inclusă o folosește.",
+    "Bara de stare din partea de jos a ferestrei poate fi dezactivată din paleta de comenzi și rămâne dezactivată între reporniri.",
+    "Vizualizatorul de text poate căuta acum în interiorul fișierului pe care îl privești. Găsește un termen, sari la potrivirea următoare sau anterioară și ieși din căutare, din tastele vizualizatorului sau din paleta de comenzi.",
+    "Intrările din paleta de comenzi pot fi învățate cu propriile tale cuvinte. Apasă Shift+Enter pe orice intrare pentru a edita cuvintele-cheie după care este găsită, astfel încât o comandă pe care o cauți mereu sub un alt nume să fie acolo data viitoare.",
+    "„Install plugin” listează acum pluginurile după cât de recent s-a lucrat la ele, astfel încât cele întreținute activ apar primele."
+  ]
+}

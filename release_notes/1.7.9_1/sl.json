@@ -1,0 +1,15 @@
+{
+  "version": "1.7.9",
+  "build": 1,
+  "date": "2026-08-27",
+  "title": "Naj bo fman videti tako, kot želite",
+  "notes": [
+    "fman lahko zdaj nariše svoj vmesnik v pisavi, ki jo izberete. V ukazni paleti zaženite »Select font« in izberite eno od osmih priloženih družin, vključno z JetBrains Mono, Fira Code in IBM Plex Sans, tako da je enak videz na voljo na vsakem računalniku, ki ga uporabljate.",
+    "Ikone datotek niso več omejene na tiste, ki jih zagotavlja vaš operacijski sistem. Zaženite »Select icon set« in preklopite na priloženi nabor Material za razločno ikono za vsak programski jezik, vsako dobro znano konfiguracijsko datoteko in vsako dobro znano ime mape, ter uporabite »Set icon size«, da izberete, kako velike so izrisane.",
+    "Teme lahko zdaj prikažejo sliko ozadja za oknom in za podokni datotek, z nadzorom nad tem, kako je prilagojena, kje je zasidrana in kako močno proseva. Nova priložena tema Matrix to uporablja.",
+    "Vrstico stanja na dnu okna je mogoče izklopiti v ukazni paleti in ostane izklopljena tudi po ponovnih zagonih.",
+    "Pregledovalnik besedila lahko zdaj išče znotraj datoteke, ki jo gledate. Poiščite izraz, skočite na naslednje ali prejšnje ujemanje in nato znova zapustite iskanje, prek tipk pregledovalnika ali ukazne palete.",
+    "Vnose v ukazni paleti je mogoče naučiti vaših lastnih besed. Pritisnite Shift+Enter na kateremkoli vnosu, da uredite ključne besede, po katerih se najde, tako da je ukaz, ki ga vedno iščete pod drugim imenom, naslednjič tam.",
+    "»Install plugin« zdaj prikazuje vtičnike glede na to, kako nedavno so bili posodobljeni, tako da so aktivno vzdrževani na vrhu."
+  ]
+}

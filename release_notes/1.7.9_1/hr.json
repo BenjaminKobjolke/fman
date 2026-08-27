@@ -1,0 +1,15 @@
+{
+  "version": "1.7.9",
+  "build": 1,
+  "date": "2026-08-27",
+  "title": "Učinite da fman izgleda kako želite",
+  "notes": [
+    "fman sada može iscrtavati svoje sučelje u pismu koje odaberete. Pokrenite \"Odaberi font\" iz palete naredbi i odaberite jednu od osam priloženih obitelji, uključujući JetBrains Mono, Fira Code i IBM Plex Sans, tako da je isti izgled dostupan na svakom računalu koje koristite.",
+    "Ikone datoteka više nisu ograničene na one koje pruža vaš operativni sustav. Pokrenite \"Odaberi skup ikona\" i prebacite se na priloženi skup Material za zasebnu ikonu po programskom jeziku, po poznatoj konfiguracijskoj datoteci i po poznatom nazivu mape, a zatim upotrijebite \"Postavi veličinu ikona\" kako biste odabrali koliko se velike iscrtavaju.",
+    "Teme sada mogu prikazivati pozadinsku sliku iza prozora i iza ploča s datotekama, uz kontrolu nad time kako se prilagođava, gdje je usidrena i koliko snažno se vidi. Nova priložena tema Matrix to koristi.",
+    "Statusna traka na dnu prozora može se isključiti iz palete naredbi i ostaje isključena nakon ponovnog pokretanja.",
+    "Preglednik teksta sada može pretraživati unutar datoteke koju gledate. Pronađite pojam, skočite na sljedeće ili prethodno podudaranje te ponovno izađite iz pretraživanja, putem tipki preglednika ili palete naredbi.",
+    "Unosi u paleti naredbi mogu se naučiti vašim vlastitim riječima. Pritisnite Shift+Enter na bilo kojem unosu kako biste uredili ključne riječi po kojima se pronalazi, tako da je naredba koju stalno tražite pod drugim imenom tamo i sljedeći put.",
+    "\"Instaliraj dodatak\" sada navodi dodatke prema tome koliko su nedavno ažurirani, tako da aktivno održavani dolaze prvi."
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "version": "1.7.9",
+  "build": 1,
+  "date": "2026-08-27",
+  "title": "Gestalte fman so, wie du es willst",
+  "notes": [
+    "fman kann seine Oberfläche jetzt in einer Schriftart darstellen, die du auswählst. Führe „Select font“ über die Befehlspalette aus und wähle eine von acht mitgelieferten Familien, darunter JetBrains Mono, Fira Code und IBM Plex Sans, damit derselbe Look auf jedem Rechner verfügbar ist, den du verwendest.",
+    "Dateisymbole sind nicht mehr auf die beschränkt, die dein Betriebssystem liefert. Führe „Select icon set“ aus und wechsle zum mitgelieferten Material-Set für ein eigenes Symbol pro Programmiersprache, pro bekannter Konfigurationsdatei und pro bekanntem Ordnernamen, und nutze „Set icon size“, um festzulegen, wie groß sie gezeichnet werden.",
+    "Themes können nun ein Hintergrundbild hinter dem Fenster und hinter den Dateibereichen anzeigen – mit Kontrolle darüber, wie es eingepasst wird, wo es verankert ist und wie stark es durchscheint. Das neue mitgelieferte Matrix-Theme nutzt dies.",
+    "Die Statusleiste am unteren Rand des Fensters kann über die Befehlspalette deaktiviert werden und bleibt auch nach Neustarts deaktiviert.",
+    "Der Textbetrachter kann jetzt innerhalb der Datei suchen, die du dir ansiehst. Finde einen Begriff, springe zum nächsten oder vorherigen Treffer und beende die Suche wieder – über die Tasten des Betrachters oder die Befehlspalette.",
+    "Einträge in der Befehlspalette können auf deine eigenen Wörter trainiert werden. Drücke bei einem beliebigen Eintrag Shift+Enter, um die Schlüsselwörter zu bearbeiten, über die er gefunden wird – so ist ein Befehl, nach dem du unter einem anderen Namen suchst, beim nächsten Mal dort.",
+    "„Install plugin“ listet Plugins nun danach, wie kürzlich an ihnen gearbeitet wurde, sodass aktiv gepflegte zuerst erscheinen."
+  ]
+}

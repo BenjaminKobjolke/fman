@@ -1,0 +1,15 @@
+{
+  "version": "1.7.9",
+  "build": 1,
+  "date": "2026-08-27",
+  "title": "Spraw, by fman wyglądał tak, jak chcesz",
+  "notes": [
+    "fman może teraz rysować swój interfejs krojem pisma, który wybierzesz. Uruchom „Select font” z palety poleceń i wybierz jedną z ośmiu dołączonych rodzin, w tym JetBrains Mono, Fira Code i IBM Plex Sans, dzięki czemu ten sam wygląd będzie dostępny na każdej maszynie, z której korzystasz.",
+    "Ikony plików nie są już ograniczone do tych, które dostarcza Twój system operacyjny. Uruchom „Select icon set” i przełącz na dołączony zestaw Material, aby uzyskać osobną ikonę dla każdego języka programowania, każdego dobrze znanego pliku konfiguracyjnego oraz każdej dobrze znanej nazwy folderu, a „Set icon size” pozwoli wybrać, jak duże mają być rysowane.",
+    "Motywy mogą teraz wyświetlać obraz tła za oknem i za panelami plików, z kontrolą nad tym, jak jest dopasowany, gdzie jest zakotwiczony i jak mocno prześwituje. Korzysta z tego nowy dołączony motyw Matrix.",
+    "Pasek stanu na dole okna można wyłączyć z palety poleceń i pozostaje wyłączony po ponownych uruchomieniach.",
+    "Przeglądarka tekstu może teraz wyszukiwać wewnątrz pliku, który oglądasz. Znajdź frazę, przeskakuj do następnego lub poprzedniego dopasowania i zakończ wyszukiwanie — z poziomu klawiszy przeglądarki lub palety poleceń.",
+    "Pozycje w palecie poleceń mogą nauczyć się Twoich własnych słów. Naciśnij Shift+Enter na dowolnej pozycji, aby edytować słowa kluczowe, po których jest znajdowana — dzięki temu polecenie, którego stale szukasz pod inną nazwą, będzie tam następnym razem.",
+    "„Install plugin” wyświetla teraz wtyczki według tego, jak niedawno były rozwijane, więc aktywnie utrzymywane pojawiają się na początku."
+  ]
+}

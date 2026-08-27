@@ -1,0 +1,15 @@
+{
+  "version": "1.7.9",
+  "build": 1,
+  "date": "2026-08-27",
+  "title": "Make fman look the way you want",
+  "notes": [
+    "fman can now draw its interface in a typeface you choose. Run \"Select font\" from the command palette and pick one of eight bundled families, including JetBrains Mono, Fira Code and IBM Plex Sans, so the same look is available on every machine you use.",
+    "File icons are no longer limited to the ones your operating system supplies. Run \"Select icon set\" and switch to the bundled Material set for a distinct icon per programming language, per well-known config file and per well-known folder name, and use \"Set icon size\" to pick how large they are drawn.",
+    "Themes can now show a background image behind the window and behind the file panes, with control over how it is fitted, where it is anchored and how strongly it shows through. The new bundled Matrix theme uses it.",
+    "The status bar at the bottom of the window can be turned off from the command palette, and stays off across restarts.",
+    "The text viewer can now search inside the file you are looking at. Find a term, jump to the next or previous match, and leave the search again, from the viewer keys or the command palette.",
+    "Command palette entries can be taught your own words. Press Shift+Enter on any entry to edit the keywords it is found by, so a command you keep looking for under a different name is there the next time.",
+    "\"Install plugin\" now lists plugins by how recently they were worked on, so actively maintained ones come first."
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "version": "1.7.9",
+  "build": 1,
+  "date": "2026-08-27",
+  "title": "Tedd olyanná az fman-t, amilyennek szeretnéd",
+  "notes": [
+    "Az fman mostantól az általad választott betűtípussal is képes megjeleníteni a felületét. Futtasd a „Select font” parancsot a parancspalettáról, és válassz a nyolc mellékelt betűcsalád közül (például JetBrains Mono, Fira Code és IBM Plex Sans), így ugyanaz a megjelenés lesz elérhető minden gépen, amit használsz.",
+    "A fájlikonok többé nem csak az operációs rendszered által biztosítottakra korlátozódnak. Futtasd a „Select icon set” parancsot, és válts a mellékelt Material készletre, amely külön ikont ad programozási nyelvenként, ismert konfigurációs fájlonként és ismert mappanévenként; az ikonok méretét pedig a „Set icon size” paranccsal állíthatod be.",
+    "A témák mostantól háttérképet is megjeleníthetnek az ablak és a fájlpanelek mögött, szabályozható illesztéssel, rögzítési ponttal és az átlátszóság mértékével. Az új, mellékelt Matrix téma használja ezt.",
+    "Az ablak alján lévő állapotsor kikapcsolható a parancspalettáról, és újraindítások után is kikapcsolva marad.",
+    "A szövegnéző mostantól képes keresni az éppen megnyitott fájlban. Kereshetsz egy kifejezésre, ugorhatsz a következő vagy az előző találatra, és ki is léphetsz a keresésből a néző billentyűivel vagy a parancspalettáról.",
+    "A parancspaletta bejegyzéseihez mostantól megtaníthatod a saját kifejezéseidet. Nyomj Shift+Entert bármely bejegyzésen a keresési kulcsszavak szerkesztéséhez, így egy parancs, amit rendszeresen más néven keresel, legközelebb már azon a néven is megtalálható lesz.",
+    "Az „Install plugin” mostantól a bővítményeket aszerint listázza, hogy milyen nemrég dolgoztak rajtuk, így az aktívan karbantartottak kerülnek előre."
+  ]
+}

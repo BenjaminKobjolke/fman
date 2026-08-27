@@ -1,0 +1,15 @@
+{
+  "version": "1.7.9",
+  "build": 1,
+  "date": "2026-08-27",
+  "title": "Muokkaa fmanin ulkoasu haluamaksesi",
+  "notes": [
+    "fman voi nyt piirtää käyttöliittymänsä valitsemallasi kirjasintyypillä. Suorita komentopaletista \"Valitse fontti\" ja valitse yksi kahdeksasta mukana toimitetusta perheestä, mukaan lukien JetBrains Mono, Fira Code ja IBM Plex Sans, jotta sama ulkoasu on käytettävissä jokaisella käyttämälläsi koneella.",
+    "Tiedostokuvakkeet eivät enää rajoitu käyttöjärjestelmäsi tarjoamiin. Suorita \"Valitse kuvakesarja\" ja vaihda mukana toimitettuun Material-sarjaan, jolloin saat erillisen kuvakkeen kullekin ohjelmointikielelle, kullekin tunnetulle asetustiedostolle ja kullekin tunnetulle kansionimelle, ja käytä \"Aseta kuvakkeen koko\" valitaksesi, kuinka suurina ne piirretään.",
+    "Teemat voivat nyt näyttää taustakuvan ikkunan ja tiedostopaneelien takana, ja voit hallita, miten se sovitetaan, mihin se ankkuroidaan ja kuinka voimakkaasti se näkyy läpi. Uusi mukana toimitettu Matrix-teema käyttää tätä.",
+    "Ikkunan alareunassa olevan tilapalkin voi kytkeä pois päältä komentopaletista, ja se pysyy pois päältä uudelleenkäynnistystenkin välillä.",
+    "Tekstin katseluohjelma voi nyt hakea nykyisestä tiedostosta. Etsi termi, siirry seuraavaan tai edelliseen osumaan ja poistu hausta katseluohjelman pikanäppäimillä tai komentopaletista.",
+    "Komentopaletin merkinnöille voi opettaa omat sanasi. Paina Shift+Enter mitä tahansa merkintää muokataksesi avainsanoja, joilla se löytyy, jotta komento, jota haet usein toisella nimellä, löytyy sillä ensi kerralla.",
+    "\"Asenna lisäosa\" listaa nyt lisäosat sen mukaan, miten hiljattain niitä on työstetty, jotta aktiivisesti ylläpidetyt tulevat ensin."
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "version": "1.7.9",
+  "build": 1,
+  "date": "2026-08-27",
+  "title": "Donnez à fman l’apparence que vous voulez",
+  "notes": [
+    "fman peut désormais afficher son interface avec la police de caractères de votre choix. Exécutez « Select font » depuis la palette de commandes et choisissez l’une des huit familles fournies, dont JetBrains Mono, Fira Code et IBM Plex Sans, afin de retrouver la même apparence sur toutes les machines que vous utilisez.",
+    "Les icônes de fichiers ne sont désormais plus limitées à celles fournies par votre système d’exploitation. Exécutez « Select icon set » et passez au jeu Material fourni pour obtenir une icône distincte par langage de programmation, par fichier de configuration connu et par nom de dossier connu, puis utilisez « Set icon size » pour choisir leur taille d’affichage.",
+    "Les thèmes peuvent désormais afficher une image d’arrière-plan derrière la fenêtre et derrière les volets de fichiers, avec un contrôle sur la façon dont elle est ajustée, où elle est ancrée et l’intensité de sa transparence. Le nouveau thème Matrix fourni l’utilise.",
+    "La barre d’état en bas de la fenêtre peut être désactivée depuis la palette de commandes, et le reste au travers des redémarrages.",
+    "Le visionneur de texte peut désormais effectuer des recherches à l’intérieur du fichier que vous consultez. Recherchez un terme, passez à l’occurrence suivante ou précédente, puis quittez la recherche, via les touches du visionneur ou la palette de commandes.",
+    "Les entrées de la palette de commandes peuvent apprendre vos propres mots. Appuyez sur Maj+Entrée sur n’importe quelle entrée pour modifier les mots-clés par lesquels elle est trouvée, afin qu’une commande que vous cherchez toujours sous un autre nom soit là la prochaine fois.",
+    "« Install plugin » liste désormais les plugins selon leur activité récente, afin que ceux activement maintenus apparaissent en premier."
+  ]
+}

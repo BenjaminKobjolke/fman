@@ -1,0 +1,15 @@
+{
+  "version": "1.7.9",
+  "build": 1,
+  "date": "2026-08-27",
+  "title": "Laat fman eruitzien zoals jij het wilt",
+  "notes": [
+    "fman kan de interface nu tekenen in een lettertype dat jij kiest. Voer \"Select font\" uit vanuit het commando-palet en kies een van de acht meegeleverde families, waaronder JetBrains Mono, Fira Code en IBM Plex Sans, zodat dezelfde uitstraling beschikbaar is op elke machine die je gebruikt.",
+    "Bestandspictogrammen zijn niet langer beperkt tot die welke je besturingssysteem levert. Voer \"Select icon set\" uit en schakel over naar de meegeleverde Material-set voor een eigen pictogram per programmeertaal, per bekend configuratiebestand en per bekende mapnaam, en gebruik \"Set icon size\" om te kiezen hoe groot ze worden getekend.",
+    "Thema’s kunnen nu een achtergrondafbeelding achter het venster en achter de bestandsvensters tonen, met controle over hoe deze wordt ingepast, waar deze wordt verankerd en hoe sterk deze doorschijnt. Het nieuwe meegeleverde Matrix-thema maakt hier gebruik van.",
+    "De statusbalk onderaan het venster kan vanuit het commando-palet worden uitgezet en blijft uit bij herstarts.",
+    "De tekstviewer kan nu binnen het bestand dat je bekijkt zoeken. Zoek een term, spring naar de volgende of vorige match en verlaat de zoekfunctie weer, via de viewer-toetsen of het commando-palet.",
+    "Items in het commando-palet kunnen jouw eigen woorden aangeleerd krijgen. Druk op Shift+Enter op een item om de trefwoorden te bewerken waarop het gevonden wordt, zodat een commando dat je steeds onder een andere naam zoekt er de volgende keer staat.",
+    "\"Install plugin\" toont plugins nu op basis van hoe recent eraan is gewerkt, zodat actief onderhouden plugins bovenaan staan."
+  ]
+}

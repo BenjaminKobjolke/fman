@@ -1,0 +1,15 @@
+{
+  "version": "1.7.9",
+  "build": 1,
+  "date": "2026-08-27",
+  "title": "Dê ao fman o aspeto que quiser",
+  "notes": [
+    "O fman pode agora desenhar a sua interface com um tipo de letra à sua escolha. Execute \"Selecionar tipo de letra\" na paleta de comandos e escolha uma das oito famílias incluídas, incluindo JetBrains Mono, Fira Code e IBM Plex Sans, para que o mesmo aspeto esteja disponível em todas as máquinas que utiliza.",
+    "Os ícones de ficheiros já não estão limitados aos que o seu sistema operativo fornece. Execute \"Selecionar conjunto de ícones\" e mude para o conjunto Material incluído para obter um ícone distinto por linguagem de programação, por ficheiro de configuração conhecido e por nome de pasta conhecido, e use \"Definir tamanho dos ícones\" para escolher o tamanho com que são desenhados.",
+    "Os temas podem agora mostrar uma imagem de fundo por trás da janela e por trás dos painéis de ficheiros, com controlo sobre como é ajustada, onde fica ancorada e quão fortemente transparece. O novo tema Matrix incluído utiliza-a.",
+    "A barra de estado na parte inferior da janela pode ser desativada a partir da paleta de comandos e mantém-se desativada entre reinícios.",
+    "O visualizador de texto pode agora pesquisar dentro do ficheiro que está a ver. Encontre um termo, salte para a correspondência seguinte ou anterior e saia novamente da pesquisa, a partir das teclas do visualizador ou da paleta de comandos.",
+    "As entradas da paleta de comandos podem ser ensinadas com as suas próprias palavras. Prima Shift+Enter em qualquer entrada para editar as palavras-chave pelas quais é encontrada, para que um comando que costuma procurar com um nome diferente esteja lá da próxima vez.",
+    "\"Instalar plugin\" lista agora os plugins pela recência da sua atividade, para que os que são mantidos ativamente apareçam primeiro."
+  ]
+}
