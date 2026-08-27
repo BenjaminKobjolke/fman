@@ -10,20 +10,18 @@ is a read-only sibling that mounts arbitrary text with no backing file - see
 core/commands/release_notes.py and docs/views/RELEASE_NOTES.md.
 """
 from core.key_bindings import (
-	dispatch_bindable_command, format_shortcut_hint, get_shortcuts_for_command,
-	VIEWER_KEY_BINDINGS_FILE,
+	dispatch_bindable_command, VIEWER_KEY_BINDINGS_FILE,
 )
-from core.textviewer_io import (
-	MAX_VIEW_BYTES as _MAX_VIEW_BYTES, read_text_for_view, load_for_view,
-)
+from core.textviewer_io import MAX_VIEW_BYTES as _MAX_VIEW_BYTES, load_for_view
 from core.textviewer_pane import (
 	caret_fix_css, confirm_close, begin_new_view, mount_view,
 	close_view as close_text_viewer,
 )
 from core.textviewer_reload import reload_from_disk
+from core.textviewer_search import ViewerSearch
 from core.textviewer_watch import toggle_auto_reload, toggle_tail
 from core.textviewer_zoom import (
-	get_saved_view_font_size, change_view_font_size, reset_view_font_size,
+	get_saved_view_font_size, change_view_font_size, zoom_actions,
 	zoom_delta_for,
 )
 from core.viewer_navigation import open_viewer_palette, ViewerNavigator
@@ -43,6 +41,7 @@ class PaneTextView(QPlainTextEdit):
 		self._on_close = on_close
 		self._on_switch = on_switch
 		self._nav = ViewerNavigator(pane, 'text')
+		self._search = ViewerSearch(self)
 		self._bg = bg
 		self._fg = fg
 		self._path = path
@@ -78,13 +77,19 @@ class PaneTextView(QPlainTextEdit):
 		# are looked up in their own file, separate from the zoom binding
 		# above - see core.key_bindings.VIEWER_KEY_BINDINGS_FILE.
 		viewer_bindings = load_json(VIEWER_KEY_BINDINGS_FILE, default=[])
-		if dispatch_bindable_command(key_event, viewer_bindings, self._bindable_commands()):
+		if dispatch_bindable_command(
+			key_event, viewer_bindings, self._bindable_commands()
+		):
 			return
 		if self._editing:
 			# Edit mode: everything, including Tab, goes to the editor as
 			# normal typing. Exit/save/switch-panes are palette-only while
 			# editing, so an accidental keystroke can't discard/lose focus.
 			super().keyPressEvent(event)
+			return
+		if self._search.handle_key(event):
+			# "/", n/N and - only while searching - Escape. Before the close
+			# keys below, so Escape leaves search mode before it closes.
 			return
 		if event.key() in (
 			Qt.Key_Escape, Qt.Key_Return, Qt.Key_Enter, Qt.Key_Backspace
@@ -108,25 +113,29 @@ class PaneTextView(QPlainTextEdit):
 		# palette entry does. viewer_switch_panes is deliberately absent in
 		# edit mode - Tab must keep typing normally there (see keyPressEvent).
 		if self._editing:
-			return {
+			commands = {
 				'text_save': self._save,
 				'text_save_as': self._save_as,
 				'text_revert': self._revert,
 				'viewer_close': self._exit_with_dirty_check,
 				'viewer_open_palette': self._open_palette,
 			}
-		commands = {
-			'text_edit': self._enter_edit_mode,
-			'text_reload': self._revert,
-			'viewer_close': self._on_close,
-			'viewer_switch_panes': self._on_switch,
-			'viewer_open_palette': self._open_palette,
-		}
-		if self._path is not None:
-			commands['text_toggle_auto_reload'] = lambda: toggle_auto_reload(self)
-			commands['text_toggle_tail'] = lambda: toggle_tail(self)
-		if self._url is not None:
-			commands.update(self._nav.commands())
+		else:
+			commands = {
+				'text_edit': self._enter_edit_mode,
+				'text_reload': self._revert,
+				'viewer_close': self._on_close,
+				'viewer_switch_panes': self._on_switch,
+				'viewer_open_palette': self._open_palette,
+			}
+			if self._path is not None:
+				commands['text_toggle_auto_reload'] = lambda: toggle_auto_reload(self)
+				commands['text_toggle_tail'] = lambda: toggle_tail(self)
+			if self._url is not None:
+				commands.update(self._nav.commands())
+		# Both modes: a bound key is dispatched before the edit-mode
+		# passthrough, so e.g. Ctrl+F keeps searching while typing.
+		commands.update(self._search.commands())
 		return commands
 
 	def _apply_font_size(self, size):
@@ -154,44 +163,28 @@ class PaneTextView(QPlainTextEdit):
 				(auto_label, lambda: toggle_auto_reload(self), ''),
 				(tail_label, lambda: toggle_tail(self), ''),
 			]
-		zoom_actions = [
-			(
-				'Increase font size',
-				lambda: change_view_font_size(self, self._apply_font_size, +1),
-				format_shortcut_hint(
-					get_shortcuts_for_command(key_bindings, 'increase_pane_font_size')
-				),
-			),
-			(
-				'Decrease font size',
-				lambda: change_view_font_size(self, self._apply_font_size, -1),
-				format_shortcut_hint(
-					get_shortcuts_for_command(key_bindings, 'decrease_pane_font_size')
-				),
-			),
-			(
-				'Reset font size',
-				lambda: reset_view_font_size(self._apply_font_size), '',
-			),
-		]
+		zoom = zoom_actions(self, self._apply_font_size, key_bindings)
 		if self._editing:
-			return [
+			mode_actions = [
 				('Save file', self._save, ''),
 				('Save file as…', self._save_as, ''),
 				('Revert / reload from disk', self._revert, ''),
-			] + reload_actions + zoom_actions + [
+			] + reload_actions + zoom + [
 				('Exit viewer', self._exit_with_dirty_check, ''),
 			]
-		# Navigation is view-mode only (this branch), and only for a real backing
-		# file - show_text_in_viewer mounts text with url=None (release notes),
-		# where directory navigation is meaningless. Mirrors the self._path gate
-		# on reload_actions.
-		nav_actions = self._nav.actions() if self._url is not None else []
-		return [
-			('Exit viewer', self._on_close, ''),
-			('Edit file', self._enter_edit_mode, ''),
-			('Reload from disk', self._revert, ''),
-		] + reload_actions + zoom_actions + nav_actions
+		else:
+			# Navigation is view-mode only (this branch), and only for a real
+			# backing file - show_text_in_viewer mounts text with url=None
+			# (release notes), where directory navigation is meaningless.
+			# Mirrors the self._path gate on reload_actions.
+			nav_actions = self._nav.actions() if self._url is not None else []
+			mode_actions = [
+				('Exit viewer', self._on_close, ''),
+				('Edit file', self._enter_edit_mode, ''),
+				('Reload from disk', self._revert, ''),
+			] + reload_actions + zoom + nav_actions
+		# Listed in both modes (core/textviewer_search.py).
+		return mode_actions + self._search.actions()
 
 	def _enter_edit_mode(self):
 		if not self._editable:
@@ -201,6 +194,8 @@ class PaneTextView(QPlainTextEdit):
 				% (_MAX_VIEW_BYTES // (1024 * 1024))
 			)
 			return
+		# n/N type literally once editing - stop advertising them.
+		self._search.exit()
 		self._editing = True
 		self.setReadOnly(False)
 		self.setTextInteractionFlags(Qt.TextEditorInteraction)

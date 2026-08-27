@@ -188,6 +188,15 @@ or (video) the hardcoded playback defaults below:
 | `Ctrl+Shift+P` | Open the viewer's own command palette (exit/edit/save, zoom, video/mute controls) |
 | Whatever `increase_pane_font_size`/`decrease_pane_font_size` are bound to (`Alt+Up`/`Alt+Down` by default) | Zoom the text/image viewer (video has no zoom) |
 
+**Text-viewer-only defaults**, view mode (in edit mode these keys type
+themselves — bind your own if you want search while editing):
+
+| Keys | Effect |
+|------|--------|
+| `/` | Prompt for a search query, jump to the first match |
+| `n` / `N` | Next / previous match (wraps) |
+| `Escape` | Leave search mode — only while searching; otherwise it closes the viewer as usual |
+
 **Video-only defaults** (no equivalent in the other two viewers):
 
 | Keys | Effect |
@@ -231,6 +240,9 @@ do anything while the matching viewer has focus.
 | `text_edit` / `text_reload` | text (view mode) | *(none)* | Edit file / Reload from disk |
 | `text_toggle_auto_reload` / `text_toggle_tail` | text (view mode, backed file) | *(none)* | Toggle auto-reload / tail mode |
 | `text_save` / `text_save_as` / `text_revert` | text (edit mode) | *(none)* | Save / Save as… / Revert |
+| `text_find` | text (both modes) | `/` (view mode) | Prompt for a search query, jump to the first match |
+| `text_find_next` / `text_find_previous` | text (both modes) | `n` / `N` (view mode) | Next / previous match (wraps) |
+| `text_search_exit` | text (both modes) | Escape (view mode, while searching) | Leave search mode |
 
 See each viewer's own docs
 ([video](views/VIDEO_VIEWER.md#bindable-commands),

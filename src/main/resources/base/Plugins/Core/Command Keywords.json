@@ -90,6 +90,14 @@
 	"show_release_notes": ["show release notes", "changelog", "what's new"],
 	"show_volumes": ["show drives", "disks", "partitions"],
 	"symlink": ["create symbolic link", "shortcut", "junction"],
+	"text_find": [
+		"search", "find text", "find in file", "grep", "locate", "/"
+	],
+	"text_find_next": ["next match", "search forwards"],
+	"text_find_previous": ["previous match", "prior match", "search backwards"],
+	"text_search_exit": [
+		"cancel search", "leave search", "stop searching", "clear search"
+	],
 	"toggle_executable_icons": [
 		"exe icon", "program icon", "shortcut icon", "application icon"
 	],

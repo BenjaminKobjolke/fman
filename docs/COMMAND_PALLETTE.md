@@ -110,7 +110,7 @@ different commands — the ones that make sense for what you're viewing:
 
 | Viewer | Palette entries (summary) |
 |--------|----------------------------|
-| [Text viewer](views/TEXT_VIEWER.md#editing) | Exit, Edit file, Save / Save as…, Reload / Revert, auto-reload & tail toggles, font-size zoom, Next/Previous file, Advance-same-type toggle |
+| [Text viewer](views/TEXT_VIEWER.md#editing) | Exit, Edit file, Save / Save as…, Reload / Revert, auto-reload & tail toggles, font-size zoom, Next/Previous file, Advance-same-type toggle, Find… / Find next / Find previous / Exit search mode |
 | [Image viewer](views/IMAGE_VIEWER.md#zoom) | Zoom in/out, Fit to window, Actual size (100%), Reset zoom, Next/Previous file, Advance-same-type toggle, Exit |
 | [Video viewer](views/VIDEO_VIEWER.md#controls) | Play/Pause, Restart, Mute/Unmute, Reset volume, Next/Previous file, Advance-same-type toggle, Exit |
 
@@ -119,7 +119,8 @@ Notes:
 - The viewer palette is built on the same `show_quicksearch` API as the
   global one, so it fuzzy-searches and shows shortcut hints the same way.
 - The entry set changes with context — e.g. the text viewer shows different
-  entries in view mode vs. edit mode.
+  entries in view mode vs. edit mode, and *Exit search mode* only while its
+  [search](views/TEXT_VIEWER.md#search) is on.
 - These are **viewer-only pseudo-commands**, not global `DirectoryPaneCommand`s.
   Bind your own keys to them in a **separate** `Viewer Key Bindings (<OS>).json`
   file — see [`docs/KEYBINDINGS.md`](KEYBINDINGS.md#viewer-specific-bindings).

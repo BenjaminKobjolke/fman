@@ -37,12 +37,15 @@ searches the file-list widget and that's hidden while viewing).
 
 **View-mode entries:** *Exit viewer*, *Edit file*, *Reload from disk*,
 *Enable/Disable auto-reload*, *Enable/Disable tail mode (follow end)*,
-*Increase font size*, *Decrease font size*, *Reset font size*.
+*Increase font size*, *Decrease font size*, *Reset font size*, *Find…*,
+*Find next*, *Find previous* (plus *Exit search mode* while searching — see
+[Search](#search)).
 
 **Edit-mode entries:** *Save file*, *Save file as…*,
 *Revert / reload from disk*, *Enable/Disable auto-reload*,
 *Enable/Disable tail mode (follow end)*, *Increase font size*,
-*Decrease font size*, *Reset font size*, *Exit viewer*.
+*Decrease font size*, *Reset font size*, *Exit viewer*, *Find…*, *Find next*,
+*Find previous*.
 
 Notes:
 
@@ -67,6 +70,38 @@ Notes:
   need CRLF preserved.
 - **Save file as…** prompts for a full destination path and writes there;
   the viewer then continues editing/saving that new path.
+
+## Search
+
+Vim-style find-in-file, view mode's keys by default:
+
+1. Press **`/`** — a prompt opens, pre-filled with your last query. Type and
+   press Enter: the first match from the cursor down is selected and scrolled
+   into view.
+2. The status bar then shows search mode and the keys that walk it, e.g.
+   `Search: needle  (n next, N previous, Esc exit)`.
+3. **`n`** goes to the next match, **`N`** to the previous one. Both wrap
+   around the ends of the file, appending `(wrapped)` to the status line when
+   they do. A query the file doesn't contain shows `No match: …` and leaves
+   the cursor where it was.
+4. **`Esc`** leaves search mode and clears the status line. Only then does a
+   second `Esc` close the viewer — searching never costs you your place by
+   accident.
+
+Notes:
+
+- **Matching is case-insensitive**, literal (no regex), and only the current
+  match is highlighted — there is no highlight-all pass over the file.
+- **Every step is also a palette entry:** *Find…*, *Find next*,
+  *Find previous*, and — only while search mode is on — *Exit search mode*.
+  Each shows its key as a hint, following your own binding if you rebound it
+  (see [Bindable commands](#bindable-commands)).
+- **Edit mode has no default keys**, since `/`, `n` and `N` have to type
+  themselves there. Search from the palette instead, or bind a key of your own
+  (e.g. `Ctrl+F` → `text_find`), which works in both modes. Entering edit mode
+  leaves search mode, so the status bar stops advertising keys that now type.
+- The status line is invisible while the [status bar](../STATUSBAR.md) is
+  toggled off; search itself still works.
 
 ## Reload and auto-reload
 
@@ -126,6 +161,10 @@ mode (see [Editing](#editing)).
 | `text_save`                   | *(none — palette only)*  | edit | Save file                |
 | `text_save_as`                | *(none — palette only)*  | edit | Save file as…            |
 | `text_revert`                 | *(none — palette only)*  | edit | Revert / reload from disk |
+| `text_find`                   | `/` (view mode)          | both | Prompt for a search query, jump to the first match |
+| `text_find_next`              | `n` (view mode)          | both | Next match (wraps)      |
+| `text_find_previous`          | `N` (view mode)          | both | Previous match (wraps)  |
+| `text_search_exit`            | Escape (view mode, while searching) | both | Leave search mode |
 | `viewer_close`                | Escape/Enter/Backspace   | both | Close viewer (edit mode: with unsaved-changes prompt) |
 | `viewer_switch_panes`         | Tab                      | view only | Switch panes — deliberately not bindable in edit mode, where Tab always types |
 | `viewer_open_palette`         | Ctrl+Shift+P             | both | Open viewer command palette |
@@ -274,7 +313,10 @@ genuinely separate concerns (reading a file vs. the Qt widget vs. zoom):
   it against `get_shortcuts_for_command`'s result for
   `increase_pane_font_size`/`decrease_pane_font_size`, so it always follows
   the user's actual configured shortcut rather than a hardcoded
-  `Alt+Up`/`Alt+Down`.
+  `Alt+Up`/`Alt+Down`. `zoom_actions(view, apply_size, key_bindings)` builds
+  the three zoom palette entries (labels + shortcut hints) here rather than in
+  `core/textviewer.py`, which the search feature pushed up against the
+  300-line cap.
 - `src/main/resources/base/Plugins/Core/core/textviewer_pane.py` — pane-
   mounting glue shared by `show_text_viewer`/`show_text_in_viewer`, split out
   of `core/textviewer.py` to stay under the project's 300-line file cap:
@@ -319,6 +361,28 @@ genuinely separate concerns (reading a file vs. the Qt widget vs. zoom):
     by `PaneTextView._revert` and by `core/textviewer_watch.py`'s
     `on_file_changed`, so the load+editability+modified-state sequence is
     specified once.
+- `src/main/resources/base/Plugins/Core/core/textviewer_search.py` — the
+  [search](#search) feature, injected into `PaneTextView` as a `ViewerSearch`
+  collaborator the same way `ViewerNavigator` is (see
+  `core/viewer_navigation.py`), so the widget gains four palette entries and
+  four bindable commands without growing past the 300-line cap:
+  - `find_index(text, query, from_pos, backward=False)` — the pure matcher:
+    `(index, wrapped)` or `None`, case-insensitive, wrapping once at either
+    end. The second (wrapped) scan only runs when the first came up empty, so
+    a normal hit never re-scans the buffer.
+  - `key_hint(key_bindings, command, default)` / `search_status(query, hints)`
+    — the palette hint and the status-bar line, both following the user's own
+    `Viewer Key Bindings.json` and falling back to `/`, `n`, `N`, `Esc`. Built
+    on `core/key_bindings.py`'s `get_shortcuts_for_command` /
+    `format_shortcut_hint`, like the zoom entries' hints.
+  - `ViewerSearch.handle_key(event)` — the hardcoded view-mode keys, called
+    from `keyPressEvent` *before* the Escape/Enter/Backspace close block so
+    Escape leaves search mode before it closes the viewer, and returning
+    `False` when search mode is off so that fallthrough still happens.
+  - `core/tests/test_textviewer_search.py` covers the three pure functions
+    (including both wrap directions and a rebound hint); the Qt half
+    (selection, scrolling, the modal prompt) is verified interactively, like
+    the rest of the viewer's Qt behaviour.
 - `src/main/resources/base/Plugins/Core/core/textviewer_watch.py` — auto-reload
   and tail mode, also split out to stay under the 300-line cap:
   - `start_watch(path, on_changed, parent)` — wraps `QFileSystemWatcher`,

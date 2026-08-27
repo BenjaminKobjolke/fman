@@ -27,7 +27,7 @@ own if you want one. See
 |-|------|-------|-------|
 | Editable | Yes (UTF-8, untruncated) | No | No |
 | Zoom | Font size | Scale + pan | — (fills pane) |
-| Extras | auto-reload / tail mode | animated GIFs play | play/pause, seek, volume (persists) |
+| Extras | auto-reload / tail mode, [`/` search](../views/TEXT_VIEWER.md#search) | animated GIFs play | play/pause, seek, volume (persists) |
 | Backend | `QPlainTextEdit` | `QPixmap` / `QMovie` | [python-mpv / libmpv](../views/VIDEO_VIEWER.md#playback-backend) |
 
 ## Shared behaviour

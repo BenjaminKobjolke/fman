@@ -10,7 +10,7 @@ callback (new size, or None to clear the override) rather than this module
 touching stylesheets itself.
 """
 from core.font_size import clamp_font_size
-from core.key_bindings import get_shortcuts_for_command
+from core.key_bindings import format_shortcut_hint, get_shortcuts_for_command
 from core.settings import get_setting, save_setting
 from fman import PLATFORM
 from PyQt5.QtGui import QFontInfo
@@ -43,6 +43,33 @@ def change_view_font_size(view, apply_size, delta):
 def reset_view_font_size(apply_size):
 	save_view_font_size(None)
 	apply_size(None)
+
+def zoom_actions(view, apply_size, key_bindings):
+	"""
+	The three ViewerAction tuples the text viewer's palette shows for zoom
+	(see core/viewer_navigation.py). Lives here rather than in
+	core/textviewer.py both because the labels belong with the zoom they
+	drive and because that file is at the 300-line cap. key_bindings is the
+	global Key Bindings.json: the two step entries hint at the pane
+	font-size shortcut they follow, and Reset ships no key at all.
+	"""
+	return [
+		(
+			'Increase font size',
+			lambda: change_view_font_size(view, apply_size, +1),
+			format_shortcut_hint(
+				get_shortcuts_for_command(key_bindings, 'increase_pane_font_size')
+			),
+		),
+		(
+			'Decrease font size',
+			lambda: change_view_font_size(view, apply_size, -1),
+			format_shortcut_hint(
+				get_shortcuts_for_command(key_bindings, 'decrease_pane_font_size')
+			),
+		),
+		('Reset font size', lambda: reset_view_font_size(apply_size), ''),
+	]
 
 def zoom_delta_for(key_event, key_bindings):
 	"""
