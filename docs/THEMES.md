@@ -15,7 +15,7 @@ Bundled themes: **Monokai** (the default, fman's classic look), **Dark**,
 **Gruvbox Dark**, **High Contrast**, **WezTerm**, **Matrix**.
 
 What they look like, two seconds each (regenerate with
-`tools\demo_themes_record.bat` — see [DEMOS.md](DEMOS.md)):
+`tools\demos_record.bat --demo 2 --compose themes` — see [DEMOS.md](DEMOS.md)):
 
 ![themes](../media/demos/themes/themes.gif)
 

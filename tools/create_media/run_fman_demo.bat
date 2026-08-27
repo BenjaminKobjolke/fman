@@ -120,11 +120,12 @@ if "%1"=="9" set "LOGFILE=%LEFT%\service.log"
 if "%1"=="9" powershell -NoProfile -Command "1..12 | ForEach-Object { Add-Content -LiteralPath $env:LOGFILE -Value ('{0:HH:mm:ss}  service started, worker {1} ready' -f (Get-Date), $_) }"
 if "%1"=="9" start "" /b powershell -NoProfile -Command "1..40 | ForEach-Object { Add-Content -LiteralPath $env:LOGFILE -Value ('{0:HH:mm:ss}  request {1} handled in {2} ms' -f (Get-Date), $_, (Get-Random -Minimum 4 -Maximum 90)); Start-Sleep -Milliseconds 1500 }"
 
-REM Clear the desktop before fman exists - see the script for why a leftover
-REM window ruins a take even when it never covers fman. The tool spawns one
-REM console per demo; this runs inside that console, so it minimizes that too,
-REM and fman starts afterwards and stays visible.
-powershell -NoProfile -ExecutionPolicy Bypass -File "%CD%\tools\create_media\minimize_all_windows.ps1"
+REM The desktop is cleared by the recording tool itself, before it starts this
+REM launcher ("minimize_all" in its config, on by default): it enumerates the
+REM top-level windows and minimizes each one, its own console included. A
+REM leftover window would otherwise be burned into every frame - the capture is
+REM a screen region - and at DEMO_OPACITY 0.8 anything left BEHIND fman shows
+REM through it too. Running fman by hand skips that; close what is on screen.
 
 "%FMAN_PYTHON%" src\main\python\fman\main.py ^
   --automation-demo %1 ^

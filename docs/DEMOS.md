@@ -4,9 +4,19 @@ fman can record animated demos (GIF/MP4 + PNG stills) of its UI with the
 [automated-application-screenshots](https://github.com/BenjaminKobjolke/automated-application-screenshots)
 tool. The recorded demos are shown in the [README](../README.md#see-it-work).
 
-Recording the feature tour end to end is five commands (see
+Recording the feature tour end to end is six commands (see
 [Recording checklist](#recording-checklist)); the rest of this document is what
 you need when a step doesn't do what you scripted.
+
+Everything that used to live in a folder of build scripts — joining the tour,
+burning the captions, encoding the GIFs — is now the recording tool's
+`--compose` flag, driven by the `compose` section of
+`tools/create_media/fman.json`. This page covers what is specific to fman; the
+generic half is in the tool's
+[CONFIG.md](https://github.com/BenjaminKobjolke/automated-application-screenshots/blob/main/docs/CONFIG.md),
+[DEMO_COOKBOOK.md](https://github.com/BenjaminKobjolke/automated-application-screenshots/blob/main/docs/DEMO_COOKBOOK.md)
+and
+[RECORDING_ENVIRONMENT.md](https://github.com/BenjaminKobjolke/automated-application-screenshots/blob/main/docs/RECORDING_ENVIRONMENT.md).
 
 ## How it works
 
@@ -24,24 +34,28 @@ over a socket so the tool can capture the window. The wiring:
 - `src/main/python/fman/impl/application_context.py` — `run()` enters demo mode
   when `--automation-demo` is on the command line (`_run_demo()`), and skips the
   splash/tutorial and single-instance handoff so the recording is clean.
-- `tools/create_media/fman.json` — the tool-side config (window size, formats,
-  output folder).
+- `tools/create_media/fman.json` — the tool-side config. Two halves: `demos`
+  (window size, formats, which `group` a demo belongs to, the tour captions) and
+  `compose` (what gets built out of the recordings afterwards).
 - `tools/create_media/run_fman_demo.bat` — launcher the tool starts per run.
 - `tools/create_media/demo_Theme.css` — font sizes for the standalone clips,
   seeded into the demo profile by that launcher for ids 8, 9 and 10 only.
-- `tools/create_media/minimize_all_windows.ps1` — clears the desktop before
-  fman starts; run by that launcher for every demo.
-- `tools/demos_record.bat` — one command that drives the whole recording.
-- `tools/create_media/build_tour.py` + `tools/demo_build_tour.bat` — join the
-  recorded tour chapters into the README's feature-tour MP4.
-- `tools/create_media/build_themes.py` + `tools/demo_themes_record.bat` — record
-  one still per theme and join them into the README's themes GIF.
-- `tools/demo_build_feature_gifs.bat` + `tools/demo_features_record.bat` —
-  record the standalone `feature-*` clips and encode them into the GIFs the
-  README's feature index shows.
-- `tools/demo_build_plugin_gifs.bat` + `tools/demo_plugins_record.bat` — the
-  same pair for the `plugin-*` clips, which film a third-party plugin rather
-  than fman itself. See [DEMOS_PLUGINS.md](DEMOS_PLUGINS.md).
+- `tools/demos_record.bat` — one command that drives recording **and**
+  composing; every argument passes straight through to the tool.
+
+The four artifacts the README shows are the four entries in `fman.json`'s
+`compose` array, built with `--compose`:
+
+| compose step | reads | writes |
+|---|---|---|
+| `tour` | every demo with `"group": "tour"`, in id order | `media/demos/tour/feature-tour.mp4` |
+| `stills_gif` | the `themes` demo's PNGs | `media/demos/themes/themes.gif` |
+| `mp4_gif` | every demo with `"group": "feature"` | `media/demos/features/<short>.gif` |
+| `mp4_gif` | every demo with `"group": "plugin"` | `media/demos/plugins/<short>.gif` |
+
+`<short>` is the demo name without its group prefix, so `feature-goto` writes
+`goto.gif`. The plugin step carries its own tighter encoder settings — see
+[DEMOS_PLUGINS.md](DEMOS_PLUGINS.md).
 
 fman itself never captures or encodes anything. It only posts key events and
 sends `demo_started` / `screenshot` / `demo_ended` over a socket; the tool grabs
@@ -109,20 +123,38 @@ One thing it cannot reach: the inline filter's input (`FilterBar QLineEdit`,
 `styles.qss`) stays 9pt — that selector is not in `Theme._CSS_TO_QSS`, so no
 user Theme.css can express it. Neither clip uses the inline filter.
 
-The launcher also clears the desktop right before starting fman, by running
-`tools/create_media/minimize_all_windows.ps1`. Two separate things make a
-leftover window fatal to a take: the recorder grabs screen *pixels* of fman's
-window rect, so anything drawn over it — including the console the tool spawns
-per demo — is burned into every frame; and demo mode pins `DEMO_OPACITY` at
-0.8, so whatever sits *behind* fman shows through it, putting that window's
-contents on camera without ever covering fman.
+### Clearing the desktop
 
-That script enumerates the top-level windows and minimizes each one. It
-replaced `(New-Object -ComObject Shell.Application).MinimizeAll()`, which is the
-Win+D shortcut: it toggles rather than minimizes, and the shell ignores it
-outright in some states. It returned success while leaving windows on screen,
-and the first plugin recording came back with the desktop's file names legible
-through fman's translucent frame.
+The recording tool minimizes every visible top-level window before it starts
+the launcher (`"minimize_all"` in its config, on by default). Two separate
+things make a leftover window fatal to a take: the recorder grabs screen
+*pixels* of fman's window rect, so anything drawn over it is burned into every
+frame; and demo mode pins `DEMO_OPACITY` at 0.8, so whatever sits *behind* fman
+shows through it, putting that window's contents on camera without ever
+covering fman.
+
+fman used to do this itself, in `tools/create_media/minimize_all_windows.ps1`.
+That script is **gone** — the tool now runs the same enumeration, ported from
+it: visible, not iconic, has a title, class not one of the shell's own
+(`Progman`, `WorkerW`, `Shell_TrayWnd`, …, or the screen goes black instead of
+clear), then `ShowWindow(SW_MINIMIZE)` and a settle, because `ShowWindow`
+returns while the shell is still animating.
+
+Two things about that history are worth keeping:
+
+- It replaced `(New-Object -ComObject Shell.Application).MinimizeAll()`, the
+  Win+D shortcut, which *toggles* rather than minimizes and is ignored outright
+  in some states. It reported success while leaving windows on screen, and the
+  first plugin recording came back with the desktop's file names legible through
+  fman's translucent frame. Do not go back to it.
+- The tool's pass covers **its own console** too: it launches the launcher with
+  `subprocess.Popen` and no `creationflags`, so `cmd /c` inherits the existing
+  console rather than opening a new one, and a console is minimized like any
+  other window. That is why fman no longer needs a pass of its own.
+
+The tool logs how many windows it minimized. A zero on a take that came out
+wrong is the tell. Nothing clears the desktop when you run
+`run_fman_demo.bat` or fman by hand — close what is on screen yourself.
 
 ## Install (once)
 
@@ -140,7 +172,19 @@ The recording tool itself is a separate checkout and runs with
 `../automated-application-screenshots` (edit `TOOL_DIR` in
 `tools/demos_record.bat` if yours is elsewhere).
 
-Joining the tour needs **ffmpeg** on `PATH`.
+**Joining the tour needs [Node.js](https://nodejs.org) 18+.** The tour is
+rendered with Remotion, so once per checkout:
+
+    cd ..\automated-application-screenshots\composer
+    npm install
+
+Recording, the themes GIF and the feature GIFs need none of that — they are pure
+Python, and **ffmpeg no longer has to be on `PATH`**: the tool uses the binary
+that ships with its `imageio-ffmpeg` dependency.
+
+**gifsicle** stays optional, and only the plugin GIFs use it (`"lossy"` in their
+compose step). Without it on `PATH` the build prints a note and ships a larger
+file.
 
 **The interpreter matters.** fman's dependencies (PyQt5, fbs_runtime) are a
 `pip --user` install, and the connector is an editable `.pth` install — both
@@ -156,8 +200,9 @@ live in that interpreter's user site-packages, so another `python` on `PATH`
 
 1. **Close every always-on-top desktop widget** (clock/system-monitor gadgets,
    notification toasts, anything pinned above other windows). Ordinary windows
-   are handled for you — the launcher minimizes them (see above) — but a window
-   pinned above others survives that, and the capture is a screen region, so
+   are handled for you — the tool minimizes them before launching fman (see
+   above) — but a window pinned above others survives that, and the capture is a
+   screen region, so
    whatever is drawn over fman is burned into every frame and no setting in the
    tool can exclude it. The same goes for anything left *behind* fman: at
    `DEMO_OPACITY` 0.8 it shows through.
@@ -176,29 +221,28 @@ live in that interpreter's user site-packages, so another `python` on `PATH`
        tools\demos_record.bat --demo 6
        tools\demos_record.bat --demo 7
 
-   Ids 8 and 9 are NOT part of the tour - they are the standalone
-   `feature-*` clips, and have their own one-liner that records both and
-   encodes the GIFs:
-
-       tools\demo_features_record.bat
-
-   (or `tools\demos_record.bat --demo 8` and `--demo 9` separately, then
-   `tools\demo_build_feature_gifs.bat` to re-encode without re-recording).
-
-5. **Join them:** `tools\demo_build_tour.bat` → `media/demos/tour/feature-tour.mp4`.
+5. **Join them:** `tools\demos_record.bat --compose tour` →
+   `media/demos/tour/feature-tour.mp4`.
 6. **Watch the result** before committing. The build prints the size; the last
-   run was 2:32 and 2.3 MB.
+   ffmpeg-joined run was 2:32 and 2.3 MB.
 7. **Re-upload it to GitHub and update the README** (see
    [Publishing the tour](#publishing-the-tour)). Committing the new MP4 is not
    enough — the README plays a *copy* hosted by GitHub.
 
-`tools\demos_record.bat` with no arguments records every demo; any other
-arguments pass straight through to the tool.
+Everything else is one command each, and each records *and* builds:
 
-The themes GIF is its own one-liner, `tools\demo_themes_record.bat` — see
-[The themes demo](#the-themes-demo). The feature GIFs are
-`tools\demo_features_record.bat`, and the plugin GIFs
-`tools\demo_plugins_record.bat` — see [DEMOS_PLUGINS.md](DEMOS_PLUGINS.md).
+| what | command |
+|---|---|
+| the whole lot | `tools\demos_record.bat --demo all --compose` |
+| the themes GIF | `tools\demos_record.bat --demo 2 --compose themes` |
+| the feature GIFs | `tools\demos_record.bat --demo 8`, then `--demo 9`, then `--compose features` (one demo per run — a second `--demo` overrides the first) |
+| the plugin GIF | `tools\demos_record.bat --demo 10 --compose plugins` |
+| rebuild without re-recording | `tools\demos_record.bat --compose features` |
+| what can this config even do? | `tools\demos_record.bat --list` |
+
+`--compose` on its own builds all four artifacts; with an argument it matches a
+step's output path or its type. A failed recording stops the build rather than
+composing stale inputs.
 
 ## What ships
 
@@ -218,7 +262,7 @@ The themes GIF is its own one-liner, `tools\demo_themes_record.bat` — see
   | 7 | `tour-e-archives` | pack, browse inside the zip, copy out, fuzzy palette | 354 frames, 35.4 s |
 
 - **8-9, the `feature-*` clips** - standalone, NOT part of the joined tour.
-  `tools\demo_features_record.bat` records both and encodes them into the
+  They carry `"group": "feature"`, which the third `compose` step turns into the
   committed GIFs the README's feature index shows
   (`media/demos/features/goto.gif`, `tail.gif`):
 
@@ -236,9 +280,11 @@ The themes GIF is its own one-liner, `tools\demo_themes_record.bat` — see
   that played at double speed. Match the fps to what the machine can capture,
   or the demo lies about how fast it was.
 
-  Their names deliberately avoid the `tour-` prefix: `build_tour.py::chapters()`
-  joins **every** `tour-*` demo, so naming one of these `tour-f-*` silently
-  lengthens the README hero video the next time the tour is rebuilt.
+  What keeps them out of the hero video is their **`group`**, not their name:
+  the tour step joins every demo with `"group": "tour"`. The `tour-`/`feature-`/
+  `plugin-` name prefixes now only decide the output filename (`{short}` strips
+  the group prefix), so the two must agree — a `feature-*` demo put in the tour
+  group would be joined into the tour and still be written as `goto.gif`.
 
 - **10, the `plugin-*` clip** - films a *third-party plugin* rather than fman,
   for the README's plugin list and the plugin's own README. It has its own
@@ -295,16 +341,48 @@ afterwards (a 64-colour palette at 800 px keeps each `feature-*` one under half
 a megabyte; the `plugin-*` clips need tighter settings, see
 [DEMOS_PLUGINS.md](DEMOS_PLUGINS.md)).
 
-`demo_build_tour.bat` burns each chapter's caption over its first 5 s and
-concatenates all of them. Chapter order comes from `fman.json` (every demo whose
-`name` starts with `tour-`, sorted by id), the caption text from `CAPTIONS` in
-`build_tour.py` — add both when you add a chapter. It also rescales every input
-to 1280 wide with `setsar=1`: the capture is the window *including* its frame
-(1284x847 last time), and clips recorded in different sessions can differ by a
-pixel, which plain `concat` rejects. Only the joined MP4 is committed — the
-per-chapter `media/demos/tour-*/` folders are regenerable intermediates and
-gitignored. The same holds for `media/demos/feature-*/`: only the encoded
-`media/demos/features/*.gif` are committed.
+`--compose tour` renders the chapters into one MP4 with **Remotion**, holding
+each chapter's `caption` over its first 5 s between an optional intro and outro
+card. Everything it needs is in `fman.json`: the chapter order is every demo with
+`"group": "tour"` sorted by id, and the caption text is that demo's `caption`
+field — one place, next to the demo it belongs to. The tool refuses to build a
+tour whose chapters have no caption, so a new chapter cannot ship untitled.
+
+Two things the old ffmpeg join had to do by hand come free: captions no longer
+need escaping (ffmpeg's filter syntax eats commas, colons and the Windows drive
+colon, so the text had to go through a temp file), and clips recorded in
+different sessions no longer have to be rescaled to a common size before
+`concat` will accept them — the capture is the window *including* its frame
+(1284x847 last time) and can differ by a pixel between takes.
+
+Captions are also per-language ready: a `captions` object on a chapter
+(`{"de": "..."}`) is used when that language is recorded, falling back to
+`caption`. fman records no languages today, so nothing uses it yet.
+
+Only the joined MP4 is committed — the per-chapter `media/demos/tour-*/` folders
+are regenerable intermediates and gitignored. The same holds for
+`media/demos/feature-*/` and `media/demos/plugin-*/`: only the encoded GIFs under
+`media/demos/features/` and `media/demos/plugins/` are committed.
+
+### Size budgets
+
+Any compose step can state how big its artifact may be and which settings the
+tool may trade away to get there:
+
+```json
+{"type": "mp4_gif", "group": "feature", "output": "demos/features/{short}.gif",
+ "fps": 5, "width": 800, "colors": 64,
+ "max_size": "2MB", "fit": ["colors", "fps"]}
+```
+
+`fit` lists the knobs the search may move, in the order it should spend them;
+anything left out is a constraint, so `width` above stays at 800 whatever
+happens. At most three encodes run, the first with exactly the settings you
+wrote, and what is kept is the largest attempt that fits. fman's steps carry no
+budget today — the measured settings already land where they should — but this
+is the mechanism to reach for when a clip grows past what a README should carry.
+Full rules: the tool's
+[CONFIG.md](https://github.com/BenjaminKobjolke/automated-application-screenshots/blob/main/docs/CONFIG.md).
 
 ### Publishing the tour
 
@@ -331,7 +409,7 @@ Demo 2 is the only one whose steps are **built at run time**: `_run_demo`
 passes `list_themes(bundled_theme_dirs)` to `build_themes_script`
 (`demo_scripts.py`), which emits `Select theme` → `Screenshot(<name>)` per
 theme. Add `Themes/Foo.json` and Foo is in the next recording — no edit to
-`demo_scripts.py`, `fman.json` or `build_themes.py`.
+`demo_scripts.py` or `fman.json`.
 
 Three things make it look nothing like the other demos:
 
@@ -341,10 +419,12 @@ Three things make it look nothing like the other demos:
 | `"fps": 2` | `Recorder.request_still` saves the *next captured* frame, so at 2 fps a still lands within 0.5 s of the event — inside the 1.2 s the script keeps the palette closed afterwards |
 | **bundled** themes only | `theme_dirs` also holds the demo profile's `Themes`, which `run_fman_demo.bat` mirrors from `%APPDATA%` — so a repo asset would otherwise carry your private themes. Hence `bundled_theme_dirs` |
 
-`build_themes.py` then joins `media/demos/themes/*.png` in name order (the
-order `list_themes` returns) at `THEME_HOLD_S` per frame. It reads no theme
-list of its own: the stills *are* the list. `demo_themes_record.bat` deletes them
-first, so a theme you removed cannot linger in the GIF.
+The `stills_gif` compose step then joins `media/demos/themes/*.png` in name
+order (the order `list_themes` returns), holding each for its `hold` seconds —
+keep that in step with `THEME_HOLD_S` in `demo_scripts.py`, which is how long
+the recording itself dwells on a theme. It reads no theme list of its own: the
+stills *are* the list. The tool deletes a demo's stills before re-recording it,
+so a theme you removed cannot linger in the GIF.
 
 The one thing to check by eye: `Command(name)` types the theme's full name
 into the quicksearch, which matches with `contains_chars`, so a short name is
@@ -382,13 +462,14 @@ every risky step landed:
 | 9 `feature-tail` | `service.log` is longer than the 12 seeded lines (the appender adds ~40 more over a minute) |
 | 10 `plugin-matrix-rain` | `Matrix Rain (Windows).json` in the demo profile's `Plugins\User\Settings` holds `"transparency": 70` - which proves the palette query resolved, the prompt took the typed value, and the rain re-mounted |
 
-**Estimate a script's length** without running it:
+**Estimate a script's length** without running it. The connector does the
+arithmetic, start delay and end hold included:
 
     set PYTHONPATH=src\main\python
-    python -c "from PyQt5.QtWidgets import QApplication; QApplication([]); from fman.impl.demo_scripts import DEMOS; from automated_screenshot_connector.steps import flatten; [print(s.name, sum(d for d,_ in flatten(s.steps))/1000, 's') for s in DEMOS.values()]"
+    python -c "from PyQt5.QtWidgets import QApplication; QApplication([]); from fman.impl.demo_scripts import DEMOS; from automated_screenshot_connector import estimated_duration; [print(s.name, round(estimated_duration(s), 1), 's') for s in DEMOS.values()]"
 
-Add ~1.5 s per chapter for the player's own start delay (500 ms) and end hold
-(1000 ms).
+Compare the result against the recorder's 300 s cap, and eyeball the gaps
+against its 60 s no-event timeout.
 
 ## Writing a demo
 
@@ -516,22 +597,27 @@ start, and end with a `Pause(1.0)` so the recording doesn't cut off abruptly.
 2. Add a matching entry to the `demos` array in `tools/create_media/fman.json`
    (`id`, `name`, `fps`, `width`, `height`, `formats`). Ids ≥ 3 automatically
    get the scratch fixture folders. A stills-only demo like `themes` sets
-   `"formats": []` and needs no `CAPTIONS` entry.
-3. If the name starts with `tour-`, add a caption for it in `CAPTIONS` in
-   `tools/create_media/build_tour.py` — the build refuses to run otherwise.
-   Put the script in `demo_scripts_tour.py` rather than `demo_scripts.py`.
-4. If it is a standalone clip for the README's feature index, name it
-   `feature-*` — **not** `tour-*`, or `build_tour.py::chapters()` will join it
-   into the hero video. Add a `call :gif <demo-name> <gif-name>` line to
-   `tools/demo_build_feature_gifs.bat` (it names its clips explicitly) and a
-   `call ... --demo <id>` line to `tools/demo_features_record.bat`. Add its id
-   to the `FONT_CSS` lines in `run_fman_demo.bat` too, or it records at 9pt
-   and the 800 px GIF is unreadable.
-5. If it films a **third-party plugin**, name it `plugin-*` and follow
-   [DEMOS_PLUGINS.md](DEMOS_PLUGINS.md) instead of step 4 — the plugin has to be
-   seeded back into the wiped demo profile, and the GIF is encoded differently.
-6. Preview it, check its side effects, then record:
-   `tools\demos_record.bat --demo <id>`.
+   `"formats": []`.
+3. **Set its `group`**, which is what decides where it ends up — the name
+   prefix only shapes the filename:
+
+   | group | name it | ends up in |
+   |---|---|---|
+   | `"tour"` | `tour-<letter>-<topic>` | the hero video; **also needs a `caption`**, or the build refuses to run |
+   | `"feature"` | `feature-<topic>` | `media/demos/features/<topic>.gif` |
+   | `"plugin"` | `plugin-<name>` | `media/demos/plugins/<name>.gif`, see [DEMOS_PLUGINS.md](DEMOS_PLUGINS.md) |
+   | *(none)* | anything | nothing is built from it automatically |
+
+   No group means no compose step picks it up — which is right for a demo like
+   `overview`, whose stills are used directly.
+4. A tour chapter's script goes in `demo_scripts_tour.py` rather than
+   `demo_scripts.py`, to keep both under the project's 300-line limit.
+5. For a `feature-*` or `plugin-*` clip, add its id to the `FONT_CSS` lines in
+   `run_fman_demo.bat`, or it records at 9pt and the downscaled GIF is
+   unreadable. Nothing else needs editing: the compose step picks up every demo
+   in the group, and `{short}` names the output.
+6. Preview it, check its side effects, then record and build:
+   `tools\demos_record.bat --demo <id> --compose`.
 
 ## Troubleshooting
 
@@ -544,13 +630,17 @@ start, and end with a `Pause(1.0)` so the recording doesn't cut off abruptly.
 | the palette runs the wrong command | a shorter command title matched the query first | lengthen the query; see the table above |
 | the text in a `feature-*` or `plugin-*` GIF is too small to read | the demo-only `Theme.css` was not seeded - its id is missing from the `FONT_CSS` lines | add it in `run_fman_demo.bat` and re-record |
 | a clock/monitor overlay is visible in every frame | an always-on-top desktop widget | close it and re-record; the capture is a screen region |
-| file names or window contents show faintly *through* fman | a window was left behind fman, and `DEMO_OPACITY` is 0.8 | make sure `minimize_all_windows.ps1` ran (it prints how many it minimized); a window pinned always-on-top has to be closed by hand |
+| file names or window contents show faintly *through* fman | a window was left behind fman, and `DEMO_OPACITY` is 0.8 | check the minimize count the tool logs — a zero on a bad take is the tell; a window pinned always-on-top survives the minimize and has to be closed by hand |
 | a video demo records a download dialog | libmpv isn't cached in the demo profile | copy `libmpv-2.dll` into `%TEMP%\fman-demo-profile\Local\libmpv\` |
 | `Demo exceeded 300s cap` | one script is too long | split it into chapters |
 | `No demo event for 60s` | a long stretch with no `Screenshot` step | add `Screenshot` heartbeats or shorten the chapter |
 | the recording is huge or the machine swaps | frames are all held in RAM | shorter chapters, or a lower `fps` in `fman.json` |
-| the clip plays too fast (a 20 s demo lasts 10 s) | capture couldn't hit the configured `fps` — an animated theme behind the window is enough — and the exporter writes the frames it got at the configured rate | lower `fps` in `fman.json` to what the machine actually captures (frames ÷ scripted seconds), then re-record |
-| `demo_build_tour.bat` says a clip is missing | that chapter wasn't recorded | record it; the message names the exact command |
+| the clip plays too fast (a 20 s demo lasts 10 s) | capture couldn't hit the configured `fps` — an animated theme behind the window is enough — and the exporter writes the frames it got at the configured rate | lower the demo's `fps` in `fman.json` to what the machine actually captures (frames ÷ scripted seconds), then re-record. The GIF's own `fps` is a separate knob in its compose step |
+| a `verify` check fails a run that looked fine | the demo played but a step didn't land — a dialog stole focus, a viewer never got it | check the evidence table under [Preview a demo](#preview-a-demo-without-the-tool); the failing check names the file it wanted |
+| `--compose tour` says a clip is missing | that chapter wasn't recorded | record it; the message names the exact command |
+| `--compose tour` says Remotion is not installed | `npm install` was never run in the tool's `composer/` | run it once, see [Install](#install-once) |
+| `--compose` refuses to start, naming a chapter with no caption | a `"group": "tour"` demo has no `caption` in `fman.json` | add it; an untitled chapter cannot ship |
+| a compose step builds nothing and says the group matches no demo | the demo's `group` is missing or misspelled | fix it in `fman.json`; `--list` shows every demo's group |
 | a theme is missing from the themes GIF | its still was never written — the typed name matched another theme first | lengthen or rename; see [The themes demo](#the-themes-demo) |
 | a still shows the wrong theme | same cause, but the file name says otherwise | as above; the file count alone won't catch it |
 

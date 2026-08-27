@@ -1,15 +1,17 @@
 /*
- * Font sizes for the standalone feature-* recordings (demos 8 and 9).
+ * Font sizes for the standalone feature-* and plugin-* recordings
+ * (demos 8, 9 and 10).
  *
- * Why this exists: the clips are captured at 1280x800 but
- * tools/demo_build_feature_gifs.bat encodes the GIFs at 800 px wide, so
- * everything on screen lands at 0.625x in the README. At Core's default
+ * Why this exists: the clips are captured at 1280x800 but the mp4_gif
+ * compose steps in fman.json encode the GIFs narrower - 800 px for the
+ * feature clips - so everything on screen lands at 0.625x in the README
+ * or smaller. At Core's default
  * 9pt that reads as ~5.6pt - too small. Bumping the app-wide font here
  * gets the GIF back to ~8.75pt effective without changing the capture
  * size (and so without changing how much of the window is in frame).
  *
  * run_fman_demo.bat copies this into the throwaway demo profile as
- * Plugins\User\DemoFont\Theme.css, for ids 8 and 9 only. User plugins load
+ * Plugins\User\DemoFont\Theme.css, for those ids only. User plugins load
  * after Core, and Theme keeps load order, so these win over
  * Plugins/Core/Theme.css. The tour chapters are deliberately left alone:
  * their MP4 is published at full 1280 width and is already legible.

@@ -10,24 +10,33 @@ install, the step vocabulary, the recorder's RAM and timeout limits, the pane
 sort order, the palette-query traps — is in [DEMOS.md](DEMOS.md), and you need
 to have read that first.
 
-One command records everything on this page:
+One command records and builds everything on this page:
 
-    tools\demo_plugins_record.bat
+    tools\demos_record.bat --demo 10 --compose plugins
+
+Rebuild the GIF from an existing take without re-recording:
+
+    tools\demos_record.bat --compose plugins
 
 ## Why a category of its own
 
 There are three demo prefixes and they are not interchangeable:
 
-| prefix | what it films | published as |
-|--------|---------------|--------------|
-| `tour-*` | fman's own feature tour | `media/demos/tour/feature-tour.mp4` |
-| `feature-*` | one fman feature, standalone | `media/demos/features/*.gif` |
-| `plugin-*` | a third-party plugin | `media/demos/plugins/*.gif` |
+| group | name prefix | what it films | published as |
+|-------|-------------|---------------|--------------|
+| `tour` | `tour-*` | fman's own feature tour | `media/demos/tour/feature-tour.mp4` |
+| `feature` | `feature-*` | one fman feature, standalone | `media/demos/features/*.gif` |
+| `plugin` | `plugin-*` | a third-party plugin | `media/demos/plugins/*.gif` |
 
-`build_tour.py::chapters()` joins **every** `tour-*` demo, so naming a plugin
-clip `tour-f-*` silently lengthens the README's hero video. That much is true of
-`feature-*` too. What makes `plugin-*` a separate category rather than a third
-`feature-*` clip is that these film **software this repository does not ship**:
+The **`group`** field in `fman.json` is what routes a demo — each compose step
+picks up every demo in its group. The name prefix only shapes the output
+filename: `{short}` in a step's `output` strips the group prefix, so
+`plugin-matrix-rain` becomes `matrix-rain.gif`. Keep the two in agreement; a
+clip put in the `tour` group is joined into the hero video no matter what it is
+called.
+
+What makes `plugin` a separate group rather than more `feature` clips is that
+these film **software this repository does not ship**:
 
 - They carry a prerequisite no other demo has — the plugin must be installed on
   the recording machine (see [The seeding contract](#the-seeding-contract)).
@@ -117,18 +126,22 @@ opens on the same value.
 
 ## Encoding
 
-`tools/demo_build_plugin_gifs.bat` uses the same two-pass
-`palettegen`/`paletteuse` subroutine as the feature GIFs, then hands the result
-to `gifsicle`. Every setting differs, and each one was measured on the
-MatrixRain clip rather than guessed:
+The plugin GIFs use the same `mp4_gif` compose step as the feature GIFs — the
+same two-pass `palettegen`/`paletteuse`, plus a `gifsicle` pass when `lossy` is
+set. What differs is every number, and each one was measured on the MatrixRain
+clip rather than guessed:
+
+```json
+{"type": "mp4_gif", "group": "plugin", "output": "demos/plugins/{short}.gif",
+ "fps": 4, "width": 360, "colors": 32, "lossy": 60}
+```
 
 | knob | feature GIFs | plugin GIFs |
 |------|--------------|-------------|
-| width | 800 | **360** |
-| fps | 5 | **4** |
-| `max_colors` | 64 | **32** |
-| dither | `bayer` | **`none`** |
-| post-pass | — | **`gifsicle -O3 --lossy=60`** |
+| `width` | 800 | **360** |
+| `fps` | 5 | **4** |
+| `colors` | 64 | **32** |
+| `lossy` | — (absent) | **60** (`gifsicle -O3 --lossy=60`) |
 
 Matrix rain is close to the worst case for GIF: every pixel changes every frame,
 so inter-frame delta compression buys nothing and each frame is stored whole. At
@@ -158,21 +171,37 @@ and the [demo font CSS](DEMOS.md) are for. This one demonstrates an **effect**;
 nobody needs to read the file names to see rain fill one pane and then both. A
 plugin clip that does hinge on text needs a wider setting and a bigger budget.
 
-**`gifsicle --lossy`.** Worth about 40%. It lets nearly-identical pixels share a
-palette entry — exactly the redundancy a rain of glyphs has, and exactly what
-ffmpeg's palette stage cannot exploit. It is optional: without gifsicle on
-`PATH` the build prints a note and ships the larger file.
+**`lossy`.** Worth about 40%. It lets nearly-identical pixels share a palette
+entry — exactly the redundancy a rain of glyphs has, and exactly what ffmpeg's
+palette stage cannot exploit. It is the one lever ffmpeg does not have, which is
+why the compose step shells out to `gifsicle` for it. Optional: without gifsicle
+on `PATH` the step warns and ships the larger file.
 
 Together those two put the shipped GIF at **1.4 MB** for the full 34 s clip.
 
 Budget: **~1.5 MB**. If a clip overshoots, in order:
 
-1. lower `GIF_WIDTH` — by far the biggest lever
-2. raise `GIF_LOSSY` (100 is the practical ceiling before banding shows)
-3. lower `GIF_FPS`, accepting that the motion gets choppier
+1. lower `width` — by far the biggest lever
+2. raise `lossy` (100 is the practical ceiling before banding shows)
+3. lower `fps`, accepting that the motion gets choppier
 4. shorten the holds in the script and re-record
 
-All four are variables at the top of the build bat, except the last.
+The first three are keys on the compose step in `fman.json`.
+
+Or hand the whole ladder to the tool, which is what the budget mechanism is for:
+
+```json
+{"type": "mp4_gif", "group": "plugin", "output": "demos/plugins/{short}.gif",
+ "fps": 4, "width": 360, "colors": 32, "lossy": 60,
+ "max_size": "1.5MB", "fit": ["lossy", "colors", "width"]}
+```
+
+It encodes with exactly those settings first, and only if that overshoots does
+it start spending the knobs in `fit` — `lossy` before `colors` before `width`,
+because that order costs the least first. `fps` is deliberately left out, so it
+is never traded: a plugin clip that drops frames misrepresents how the plugin
+runs (see [Calibrate the capture fps](#calibrate-the-capture-fps)). At most
+three encodes run, and the largest attempt that fits is the one kept.
 
 ## Calibrate the capture fps
 
@@ -188,8 +217,10 @@ here, so treat this as a required step, not a check:
 1. Record once at the configured `fps` (5 for id 10).
 2. Divide the frame count the tool prints by the clip's wall-clock seconds
    (35.6 for id 10).
-3. If the result is meaningfully lower, put that value in `fman.json` **and** in
-   `GIF_FPS` in `demo_build_plugin_gifs.bat`, then re-record.
+3. If the result is meaningfully lower, put that value in the **demo's** `fps`
+   in `fman.json`, then re-record. The GIF's own `fps` is a separate key on the
+   compose step: it may be lower than the capture rate (4 vs 5 here, to save
+   bytes) but never higher, or the GIF invents frames the take never had.
 
 ## Publishing
 
@@ -200,10 +231,15 @@ The same GIF goes to two repositories:
   plugin table shows it with inline HTML (`<img width="360">`, its native size),
   because Markdown
   image syntax cannot constrain width inside a table cell.
-- **The plugin's own repo** — `demo_build_plugin_gifs.bat` copies the finished
-  file into the installed checkout's `media/` folder, since that checkout *is*
-  the plugin's repository. **Committing and pushing it there is yours to do** —
-  this repo has no business writing history in another one.
+- **The plugin's own repo** — the installed checkout under `%APPDATA%` *is* the
+  plugin's repository, so the finished GIF belongs there too. Copy it across
+  yourself after composing:
+
+      copy /y media\demos\plugins\matrix-rain.gif "%APPDATA%\fman\Plugins\User\MatrixRain\media\"
+
+  **Committing and pushing it there is yours to do** — this repo has no business
+  writing history in another one, which is also why the copy stayed a manual
+  step rather than becoming a feature of the recording tool.
 
 ## Add another plugin demo
 
@@ -214,14 +250,19 @@ The same GIF goes to two repositories:
    name. Prefer palette queries that **equal** an alias exactly, and verify
    chords against the plugin's `Key Bindings.json` as well as Core's.
 3. Add the matching entry to `demos` in `tools/create_media/fman.json`
-   (`fps: 5` to start, `formats: ["mp4"]`, 1280x800).
+   (`fps: 5` to start, `formats: ["mp4"]`, 1280x800) with
+   **`"group": "plugin"`** — that alone is what routes it into the plugin GIF
+   step, and `{short}` names the output after the part following `plugin-`.
 4. In `tools/create_media/run_fman_demo.bat`: add the id to the `FONT_CSS`
    lines, and add a seeding block that copies **only that plugin** and exits 1
    if it is absent.
-5. Add a `call :gif <demo-name> <gif-name>` line to
-   `tools/demo_build_plugin_gifs.bat` and a `--demo <id>` line to
-   `tools/demo_plugins_record.bat`.
-6. Record, calibrate the fps, check the GIF size.
+5. Nothing to add to any build script: the existing compose step already picks
+   up every demo in the group. If the new clip needs different encoder settings
+   than MatrixRain's (a clip whose text has to stay legible wants a wider
+   `width`), give it its own `mp4_gif` step with `"demo": "<name>"` instead of
+   `"group": "plugin"`.
+6. Record and build with `tools\demos_record.bat --demo <id> --compose plugins`,
+   calibrate the fps, check the GIF size.
 7. Publish both copies: the `Demo` cell in this repo's README plugin table, and
    the plugin's own README.
 
@@ -236,8 +277,10 @@ Start with [DEMOS.md](DEMOS.md); these rows are specific to plugin clips.
 | symptom | cause | fix |
 |---------|-------|-----|
 | `ERROR: MatrixRain is not installed...` and no recording | the plugin is not in `%APPDATA%\fman\Plugins\User` | install it there; this is a hard stop by design |
-| the take is clean but nothing ever happens on screen | the plugin was not loaded, so every palette query matched nothing | check `%TEMP%\fman-demo-profile\Plugins\User\<Plugin>\` exists after the run; record via `tools\demo_plugins_record.bat` |
+| the take is clean but nothing ever happens on screen | the plugin was not loaded, so every palette query matched nothing | check `%TEMP%\fman-demo-profile\Plugins\User\<Plugin>\` exists after the run |
 | a palette query opens the wrong thing | the plugin renamed a command, or a Core command title now matches better | re-check the alias; prefer a query that equals an alias exactly |
-| the GIF is several megabytes | full-frame animation defeats GIF delta compression | walk the ladder under [Encoding](#encoding) |
+| the GIF is several megabytes | full-frame animation defeats GIF delta compression | walk the ladder under [Encoding](#encoding), or give the step a `max_size` and let it walk the ladder for you |
+| the build warns that gifsicle is not on `PATH` | `lossy` is set but gifsicle is not installed | install it, or drop `lossy` and accept roughly double the size |
+| the compose step builds nothing | the demo has no `"group": "plugin"` | add it; `tools\demos_record.bat --list` shows every demo's group |
 | the clip plays faster than the software runs | capture could not hit the configured fps | recalibrate; see [Calibrate the capture fps](#calibrate-the-capture-fps) |
 | the plugin's README shows an old clip | the copy step only runs when the checkout exists, and never commits | re-run the build, then commit in the plugin's repo |
