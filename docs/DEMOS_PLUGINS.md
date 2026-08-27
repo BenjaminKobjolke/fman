@@ -263,8 +263,9 @@ The same GIF goes to two repositories:
    `"group": "plugin"`.
 6. Record and build with `tools\demos_record.bat --demo <id> --compose plugins`,
    calibrate the fps, check the GIF size.
-7. Publish both copies: the `Demo` cell in this repo's README plugin table, and
-   the plugin's own README.
+7. Publish both copies: this repo's README (a linked image above the plugin
+   table — the table itself is text-only so its columns stay readable on
+   GitHub), and the plugin's own README.
 
 If `demo_scripts.py` passes 300 lines, split `PLUGIN_CLIPS` into
 `demo_scripts_plugins.py` and `DEMOS.update()` it in — the same move

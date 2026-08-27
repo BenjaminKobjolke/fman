@@ -105,30 +105,32 @@ fman is extensible in Python, and installs plugins **from inside the app**: run
 hot-loads it. Plugins can add commands, columns, context-menu entries and
 entire filesystems.
 
-These are the ones maintained on this account. The **Demo** column fills in as
-clips get recorded — see [DEMOS_PLUGINS.md](docs/DEMOS_PLUGINS.md):
+These are the ones maintained on this account. Demo clips get linked from each
+plugin as they are recorded — see [DEMOS_PLUGINS.md](docs/DEMOS_PLUGINS.md).
 
-| Plugin | What it does | Demo |
-|---|---|---|
-| [FMAN-MatrixRain](https://github.com/BenjaminKobjolke/FMAN-MatrixRain) | The film's digital rain inside a pane, in your theme's colours. One pane, both panes, or as an idle screensaver. | <a href="https://github.com/BenjaminKobjolke/FMAN-MatrixRain"><img src="media/demos/plugins/matrix-rain.gif" width="360" alt="Matrix rain filling one pane, then both"></a> |
-| [fman-xd-plugins](https://github.com/BenjaminKobjolke/fman-xd-plugins) | Grab bag: copy paths to clipboard, a cross-folder file list for batch copy/move, duplicate, create symlink. |  |
-| [FMANEverythingSearch-Windows](https://github.com/BenjaminKobjolke/FMANEverythingSearch-Windows) | Search files with Everything (voidtools). Windows only. |  |
-| [FuzzySearchFilesInCurrentFolder](https://github.com/BenjaminKobjolke/FuzzySearchFilesInCurrentFolder) | Fuzzy-locate files and folders below the current directory. |  |
-| [fman-search-window-2022](https://github.com/BenjaminKobjolke/fman-search-window-2022) | File search with the results in their own window. |  |
-| [FMAN-FilterByDate](https://github.com/BenjaminKobjolke/FMAN-FilterByDate) | Filter the current directory down to files from today or the last X days. |  |
-| [FManPowerRenamerAndReplacer](https://github.com/BenjaminKobjolke/FManPowerRenamerAndReplacer) | Rename many files at once via search and replace. |  |
-| [FManDuplicateFilesAndIncrementExtension](https://github.com/BenjaminKobjolke/FManDuplicateFilesAndIncrementExtension) | `Ctrl+D` duplicates the selected file and bumps its index (`NAME_0001.ext`). |  |
-| [FManSyncSelectedFilesToOtherPaneForWindows](https://github.com/BenjaminKobjolke/FManSyncSelectedFilesToOtherPaneForWindows) | Sync the selected files to the other pane using robocopy. Windows only. |  |
-| [fman-favorites-windows](https://github.com/BenjaminKobjolke/fman-favorites-windows) | Favorite directories, shareable across machines through placeholder paths. |  |
-| [FMAN_FTPClient](https://github.com/BenjaminKobjolke/FMAN_FTPClient) | Browse FTP servers as a filesystem (ftputil). |  |
-| [FmanSevenZipTools](https://github.com/BenjaminKobjolke/FmanSevenZipTools) | 7-Zip archive commands (fork of alphaniner's, with the debug features that broke on other machines removed). |  |
-| [ProcessFS](https://github.com/BenjaminKobjolke/ProcessFS) | Browse and kill running processes via the `Show processes` command. |  |
-| [TortoiseGit4Fman](https://github.com/BenjaminKobjolke/TortoiseGit4Fman) | Run TortoiseGit commands on the current file or folder. Windows only. |  |
-| [FMANGoWezTerm](https://github.com/BenjaminKobjolke/FMANGoWezTerm) | Open WezTerm in the current directory. |  |
-| [FMANGoConemu](https://github.com/BenjaminKobjolke/FMANGoConemu) | Open ConEmu in the current directory (`Alt+Shift+C`), and map the current network path to a drive letter. |  |
-| [FMANLaunchScriptsForWindows](https://github.com/BenjaminKobjolke/FMANLaunchScriptsForWindows) | Launch scripts from a configured scripts directory. |  |
-| [FManSharexExtension](https://github.com/BenjaminKobjolke/FManSharexExtension) | Send the selected file to ShareX. Windows only. |  |
-| [FmanSaveAsDialogExtension](https://github.com/BenjaminKobjolke/FmanSaveAsDialogExtension) | Use fman's last-used directories inside the Windows Save-As dialog. Windows only. |  |
+[![Matrix rain filling one pane, then both](media/demos/plugins/matrix-rain.gif)](https://github.com/BenjaminKobjolke/FMAN-MatrixRain)
+
+| Plugin | What it does |
+|---|---|
+| [FMAN-MatrixRain](https://github.com/BenjaminKobjolke/FMAN-MatrixRain) | The film's digital rain inside a pane, in your theme's colours. One pane, both panes, or as an idle screensaver. |
+| [fman-xd-plugins](https://github.com/BenjaminKobjolke/fman-xd-plugins) | Grab bag: copy paths to clipboard, a cross-folder file list for batch copy/move, duplicate, create symlink. |
+| [FMANEverythingSearch-Windows](https://github.com/BenjaminKobjolke/FMANEverythingSearch-Windows) | Search files with Everything (voidtools). Windows only. |
+| [FuzzySearchFilesInCurrentFolder](https://github.com/BenjaminKobjolke/FuzzySearchFilesInCurrentFolder) | Fuzzy-locate files and folders below the current directory. |
+| [fman-search-window-2022](https://github.com/BenjaminKobjolke/fman-search-window-2022) | File search with the results in their own window. |
+| [FMAN-FilterByDate](https://github.com/BenjaminKobjolke/FMAN-FilterByDate) | Filter the current directory down to files from today or the last X days. |
+| [FManPowerRenamerAndReplacer](https://github.com/BenjaminKobjolke/FManPowerRenamerAndReplacer) | Rename many files at once via search and replace. |
+| [FManDuplicateFilesAndIncrementExtension](https://github.com/BenjaminKobjolke/FManDuplicateFilesAndIncrementExtension) | `Ctrl+D` duplicates the selected file and bumps its index (`NAME_0001.ext`). |
+| [FManSyncSelectedFilesToOtherPaneForWindows](https://github.com/BenjaminKobjolke/FManSyncSelectedFilesToOtherPaneForWindows) | Sync the selected files to the other pane using robocopy. Windows only. |
+| [fman-favorites-windows](https://github.com/BenjaminKobjolke/fman-favorites-windows) | Favorite directories, shareable across machines through placeholder paths. |
+| [FMAN_FTPClient](https://github.com/BenjaminKobjolke/FMAN_FTPClient) | Browse FTP servers as a filesystem (ftputil). |
+| [FmanSevenZipTools](https://github.com/BenjaminKobjolke/FmanSevenZipTools) | 7-Zip archive commands (fork of alphaniner's, with the debug features that broke on other machines removed). |
+| [ProcessFS](https://github.com/BenjaminKobjolke/ProcessFS) | Browse and kill running processes via the `Show processes` command. |
+| [TortoiseGit4Fman](https://github.com/BenjaminKobjolke/TortoiseGit4Fman) | Run TortoiseGit commands on the current file or folder. Windows only. |
+| [FMANGoWezTerm](https://github.com/BenjaminKobjolke/FMANGoWezTerm) | Open WezTerm in the current directory. |
+| [FMANGoConemu](https://github.com/BenjaminKobjolke/FMANGoConemu) | Open ConEmu in the current directory (`Alt+Shift+C`), and map the current network path to a drive letter. |
+| [FMANLaunchScriptsForWindows](https://github.com/BenjaminKobjolke/FMANLaunchScriptsForWindows) | Launch scripts from a configured scripts directory. |
+| [FManSharexExtension](https://github.com/BenjaminKobjolke/FManSharexExtension) | Send the selected file to ShareX. Windows only. |
+| [FmanSaveAsDialogExtension](https://github.com/BenjaminKobjolke/FmanSaveAsDialogExtension) | Use fman's last-used directories inside the Windows Save-As dialog. Windows only. |
 
 ## Documentation
 
