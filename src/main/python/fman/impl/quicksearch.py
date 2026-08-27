@@ -1,7 +1,8 @@
 from fbs_runtime.platform import is_mac
 from fman.impl.util.qt import Key_Tab, Key_Down, Key_Up, Key_PageDown, \
-	Key_Home, Key_End, Key_PageUp, UserRole, AlignRight, AlignVCenter, \
-	NoFocus, FramelessWindowHint, AlignTop, AccessibleTextRole
+	Key_Home, Key_End, Key_PageUp, Key_Return, Key_Enter, ShiftModifier, \
+	UserRole, AlignRight, AlignVCenter, NoFocus, FramelessWindowHint, \
+	AlignTop, AccessibleTextRole
 from PyQt5.QtCore import QAbstractListModel, QVariant, QModelIndex, QSize, \
 	QPointF, QRectF, QPoint, pyqtSignal
 from PyQt5.QtGui import QFont, QTextLayout, QTextCharFormat, QBrush, \
@@ -15,7 +16,7 @@ class Quicksearch(QDialog):
 
 	def __init__(
 		self, parent, app, css, get_items, get_tab_completion=None, query='',
-		item=0
+		item=0, alt_accept=False
 	):
 		if get_tab_completion is None:
 			get_tab_completion = lambda q, i: None
@@ -28,6 +29,7 @@ class Quicksearch(QDialog):
 		self._get_tab_completion = get_tab_completion
 		self._initial_query = query
 		self._initial_item = item
+		self._alt_accept = alt_accept
 		self._curr_items = []
 		self._result = None
 		self._init_ui()
@@ -62,11 +64,21 @@ class Quicksearch(QDialog):
 		self._accept(self._items.currentIndex())
 	def _on_item_clicked(self, index):
 		self._accept(index)
-	def _accept(self, index):
+	def _accept(self, index, alt=False):
 		value = self._curr_items[index.row()].value if index.isValid() else None
 		self._result = self._query.text(), value
+		if self._alt_accept:
+			# Only for callers that asked for the alternate accept, so the
+			# (query, value) tuple every other caller unpacks stays a pair.
+			self._result += (alt,)
 		self.accept()
 	def _on_key_pressed(self, event):
+		if self._alt_accept and event.key() in (Key_Return, Key_Enter) \
+				and event.modifiers() & ShiftModifier:
+			# Before QLineEdit turns the key press into returnPressed, which
+			# carries no modifiers - that signal is how normal Enter accepts.
+			self._accept(self._items.currentIndex(), alt=True)
+			return True
 		if event.key() == Key_Tab:
 			index = self._items.currentIndex()
 			if index.isValid():

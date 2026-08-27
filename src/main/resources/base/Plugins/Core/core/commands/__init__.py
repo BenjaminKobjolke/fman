@@ -7,11 +7,13 @@ from core.font_size import clamp_font_size as _clamp_font_size, \
 from core.github import find_repos, GitHubRepo
 from core.key_bindings import get_shortcuts_for_command as \
 	_get_shortcuts_for_command, format_shortcut_hint
+from core.keyword_editor import edit_command_keywords
 from core.os_ import open_terminal_in_directory, open_native_file_manager, \
 	get_popen_kwargs_for_opening
 from core.panes import reload_panes
 from core.settings import get_setting, save_setting
 from core.util import strformat_dict_values, listdir_absolute, is_parent
+from core.quicksearch_screen import QuicksearchScreen
 from core.quicksearch_matchers import bucket_count, contains_chars, \
 	contains_chars_after_separator, contains_chars_any_order, \
 	match_titles_or_keywords
@@ -1247,28 +1249,37 @@ class CommandPalette(DirectoryPaneCommand):
 		self._last_query = ''
 		self._last_cmd_name = ''
 	def __call__(self):
-		if self._last_cmd_name:
-			initial_suggestions = [
-				quicksearch_item.value.name
-				for quicksearch_item in self._suggest_commands(self._last_query)
-			]
-			try:
-				initial_item = initial_suggestions.index(self._last_cmd_name)
-			except ValueError:
-				initial_item = 0
-		else:
-			initial_item = 0
-		result = show_quicksearch(
-			self._suggest_commands, query=self._last_query, item=initial_item
-		)
-		if result:
-			query, command = result
-			if command:
-				self._last_query = query
-				self._last_cmd_name = command.name
+		# A loop, not a single call: editing an entry's keywords (Shift+Enter)
+		# reopens the palette where the user left it instead of dropping them
+		# back into the panes.
+		while True:
+			result = show_quicksearch(
+				self._suggest_commands, query=self._last_query,
+				item=self._get_initial_item(), alt_accept=True
+			)
+			if not result:
+				self._last_query = self._last_cmd_name = ''
+				return
+			query, command, alt = result
+			if not command:
+				return
+			self._last_query = query
+			self._last_cmd_name = command.name
+			if not alt:
 				command()
-		else:
-			self._last_query = self._last_cmd_name = ''
+				return
+			edit_command_keywords(command.name, command.title)
+	def _get_initial_item(self):
+		if not self._last_cmd_name:
+			return 0
+		initial_suggestions = [
+			quicksearch_item.value.name
+			for quicksearch_item in self._suggest_commands(self._last_query)
+		]
+		try:
+			return initial_suggestions.index(self._last_cmd_name)
+		except ValueError:
+			return 0
 	def _suggest_commands(self, query):
 		# One bucket per matcher, plus the exact-match and loose-keyword
 		# ones the helper adds around them - see match_titles_or_keywords.
@@ -1297,11 +1308,15 @@ class CommandPalette(DirectoryPaneCommand):
 			if not self.pane.is_command_visible(cmd_name):
 				continue
 			aliases = self.pane.get_command_aliases(cmd_name)
-			command = CommandPaletteItem(self.pane.run_command, cmd_name)
+			command = CommandPaletteItem(
+				self.pane.run_command, cmd_name, aliases[0]
+			)
 			result.append((cmd_name, aliases, get_keywords(cmd_name), command))
 		for cmd_name in get_application_commands():
 			aliases = get_application_command_aliases(cmd_name)
-			command = CommandPaletteItem(run_application_command, cmd_name)
+			command = CommandPaletteItem(
+				run_application_command, cmd_name, aliases[0]
+			)
 			result.append((cmd_name, aliases, get_keywords(cmd_name), command))
 		return result
 
@@ -1311,9 +1326,13 @@ class CommandPalette(DirectoryPaneCommand):
 # docstring.
 
 class CommandPaletteItem:
-	def __init__(self, run_fn, cmd_name):
+	def __init__(self, run_fn, cmd_name, title):
 		self._run_fn = run_fn
 		self.name = cmd_name
+		# The row's first alias. Kept here because the chosen QuicksearchItem's
+		# title is not part of what show_quicksearch returns, and the keyword
+		# menus name the command the user picked.
+		self.title = title
 	def __call__(self):
 		self._run_fn(self.name)
 
@@ -2265,34 +2284,6 @@ def _remove_app(app):
 		if not apps:
 			del associations[suffix]
 	_save_file_associations()
-
-class QuicksearchScreen:
-
-	_MATCHERS = (contains_chars_after_separator(' '), contains_chars)
-
-	def show(self):
-		options = list(self.get_options())
-		choice = show_quicksearch(lambda q: self._filter_options(options, q))
-		if choice:
-			option = choice[1]
-			self.on_selected(option)
-		else:
-			self.on_cancelled()
-	def get_options(self):
-		raise NotImplementedError()
-	def on_selected(self, option):
-		raise NotImplementedError()
-	def on_cancelled(self):
-		pass
-	def _filter_options(self, options, query):
-		already_yielded = set()
-		for matcher in self._MATCHERS:
-			for option in options:
-				match = matcher(option.lower(), query.lower())
-				if match or not query:
-					if option not in already_yielded:
-						yield QuicksearchItem(option, highlight=match)
-						already_yielded.add(option)
 
 class ShowAppsForOpening(QuicksearchScreen):
 

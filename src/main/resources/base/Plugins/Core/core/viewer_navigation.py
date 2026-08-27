@@ -17,6 +17,7 @@ lives in one place rather than being copied into each viewer widget.
 """
 from collections import namedtuple
 from core.command_keywords import get_keywords
+from core.keyword_editor import edit_command_keywords
 from core.quicksearch_matchers import bucket_count, contains_chars, \
 	match_titles_or_keywords
 from core.settings import get_setting, save_setting
@@ -143,15 +144,25 @@ def open_viewer_palette(get_actions):
 			if match is None:
 				continue
 			bucket, _index, highlight = match
+			# The whole entry as the value, not just its action: Shift+Enter
+			# needs the command name and title to edit the entry's keywords.
 			buckets[bucket].append(QuicksearchItem(
-				entry.action, entry.title, highlight, entry.hint
+				entry, entry.title, highlight, entry.hint
 			))
 		return sum(buckets, [])
-	result = show_quicksearch(suggest)
-	if result:
-		_query, action = result
-		if action:
-			action()
+	# A loop for the same reason as the global palette's: after editing an
+	# entry's keywords, reopen the palette instead of closing it.
+	while True:
+		result = show_quicksearch(suggest, alt_accept=True)
+		if not result:
+			return
+		_query, entry, alt = result
+		if not entry:
+			return
+		if not alt:
+			entry.action()
+			return
+		edit_command_keywords(entry.command_name, entry.title)
 
 def advance(pane, direction, category):
 	"""

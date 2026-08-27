@@ -97,23 +97,10 @@ are never displayed: typing *transparency* selects the row that still reads
 }
 ```
 
-- **Exact matches come first.** Typing a command's whole name, or a whole
-  keyword, puts that row at the very top - which is why *exit* offers
-  **Quit** before *Extract to opposite*, whose name happens to contain
-  `e`, `x`, `i`, `t` in that order.
-- **Otherwise names match first.** A row found by its real name ranks above
-  one found only by a keyword, and only the name match highlights the typed
-  characters — a keyword hit has nothing in the title to underline.
-- **The keys are command names**, the same ones
-  [`docs/KEYBINDINGS.md`](KEYBINDINGS.md) uses — viewer pseudo-commands
-  (`video_mute`, `viewer_next_file`) included, so the viewer palettes below
-  read the same file.
-- **Add your own** in `%APPDATA%/fman/Plugins/User/Settings/Command Keywords.json`
-  (equivalent per-OS `Plugins/User/Settings/` folder elsewhere), next to your
-  `Key Bindings (<OS>).json`. Unlike key bindings, a command you name there
-  **replaces** fman's list for that command, so repeat the built-in terms you
-  want to keep. Every other command is untouched.
-- Terms are lowercase, and matched the same fuzzy way names are.
+Press **Shift+Enter** on any palette row to add or delete that command's
+keywords without leaving fman. The screens, the ranking rules and where your
+edits are stored are in
+[`docs/COMMAND_PALETTE_KEYWORDS.md`](COMMAND_PALETTE_KEYWORDS.md).
 
 ## Viewers have their own palettes
 

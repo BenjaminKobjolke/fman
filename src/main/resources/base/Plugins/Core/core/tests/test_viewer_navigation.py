@@ -1,6 +1,6 @@
 from core.viewer_navigation import (
 	advance, get_same_type_only, open_viewer_palette, toggle_same_type_only,
-	ViewerNavigator,
+	ViewerAction, ViewerNavigator,
 )
 from unittest import TestCase
 from unittest.mock import patch
@@ -199,13 +199,30 @@ class OpenViewerPaletteTest(TestCase):
 		ran = []
 		def actions():
 			return [('Do it', lambda: ran.append(True), '')]
-		# show_quicksearch returns (query, action); open_viewer_palette calls it.
+		# With alt_accept, show_quicksearch returns (query, entry, alt) - the
+		# entry being the whole ViewerAction. open_viewer_palette runs its
+		# action unless alt says Shift+Enter.
+		entry = ViewerAction('Do it', lambda: ran.append(True), '')
 		with patch(
 			'core.viewer_navigation.show_quicksearch',
-			return_value=('', lambda: ran.append(True)),
+			return_value=('', entry, False),
 		):
 			open_viewer_palette(actions)
 		self.assertEqual([True], ran)
+
+	def test_shift_enter_edits_the_entrys_keywords(self):
+		ran = []
+		entry = ViewerAction(
+			'Mute', lambda: ran.append(True), '', 'video_mute'
+		)
+		# Two results: the Shift+Enter one, then a cancel that ends the loop.
+		with patch(
+			'core.viewer_navigation.show_quicksearch',
+			side_effect=[('', entry, True), None]
+		), patch('core.viewer_navigation.edit_command_keywords') as edit:
+			open_viewer_palette(lambda: [entry])
+		edit.assert_called_once_with('video_mute', 'Mute')
+		self.assertEqual([], ran)
 
 	def test_does_nothing_when_picker_cancelled(self):
 		def actions():

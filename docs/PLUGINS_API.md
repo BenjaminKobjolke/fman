@@ -243,3 +243,10 @@ font; see [Fonts](FONTS.md).
 `show_alert`, `show_prompt`, `show_status_message`, `clear_status_message`,
 `show_file_open_dialog`, `show_quicksearch` (with `QuicksearchItem`), and
 `submit_task(Task(...))` for anything long enough to need a progress dialog.
+
+`show_quicksearch` returns `(query, value)`, or `None` if the user pressed
+Escape. Pass `alt_accept=True` to also accept on **Shift+Enter**: the result is
+then always a triple, `(query, value, alt)`, with `alt` telling the two apart.
+Every other caller keeps the pair — see
+[Command palette keywords](COMMAND_PALETTE_KEYWORDS.md) for what the palettes
+do with it.
