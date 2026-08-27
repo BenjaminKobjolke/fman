@@ -119,6 +119,12 @@ These are the ones maintained on this account.
 |---|---|
 | Grab bag: copy paths to clipboard, a cross-folder file list for batch copy/move, duplicate, create symlink. |  |
 
+### [QuickLook-Win](https://github.com/BenjaminKobjolke/QuickLook-Win)
+
+| | |
+|---|---|
+| Preview the selected file with [QuickLook](https://pooi.moe/QuickLook/) via `Space`. Windows only. |  |
+
 ### [FMANEverythingSearch-Windows](https://github.com/BenjaminKobjolke/FMANEverythingSearch-Windows)
 
 | | |
