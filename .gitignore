@@ -29,5 +29,7 @@ graphify-out/.graphify_root
 media/demos/tour-*/
 # Standalone feature clips - intermediates for media/demos/features/*.gif
 media/demos/feature-*/
+# Recorded plugin clips - intermediates for media/demos/plugins/*.gif
+media/demos/plugin-*/
 # Theme stills - intermediates, joined into media/demos/themes/themes.gif
 media/demos/themes/*.png
