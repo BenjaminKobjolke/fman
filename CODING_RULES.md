@@ -422,7 +422,7 @@ the wrong side of **No God Classes**.
   fields.
 
 # Version
-16
+17
 
 Increase this version number whenever this rule file changes.
 
@@ -527,34 +527,20 @@ post-implementation DRY audit — scope is ONLY the changed-files file above
 
 Post-Feature Verification + Post-Implementation Code Analysis (project-specific, below)
 
-refresh graphify graph — only if the graphify addon is present in this project's CODING_RULES.md:
-  /graphify <code-dir> --directed   → writes root graphify-out/, verify directed: true
-  (see the graphify addon's "Refreshing after a code change" section for the
-   directed-flow caveats: never the bare `graphify update`, multi-path merge check)
-  REBUILD AT THE SCOPE THE EXISTING GRAPH ALREADY HAS, not at whatever
-  `<code-dir>` suggests. Check it first: group `graphify-out/graph.json` nodes by
-  the first path segment of their `source_file`. A graph built from the repo root
-  typically holds `docs/`, `tools/` and root `*.md` nodes — often the ones that
-  answer "how does X work" rather than "where is X defined" — and a narrower
-  rebuild deletes every one of them. graphify's shrink guard catches that and
-  refuses the write: re-run at the original scope, never force past it.
-  Excluding `docs/` via `.graphifyignore` is the same mistake wearing a different
-  hat: it is the prose that answers "how does X work", and a code-only graph
-  answers symbol lookups a grep would have found anyway. Keep docs in.
-  The scan root lives in `graphify-out/.graphify_root`, and EVERY `/graphify
-  <path>` run overwrites it. So one wrong-path invocation leaves it pointing at a
-  subtree the graph was not built from, and a later bare `graphify update`
-  rescans only that subtree and reads every file outside it as deleted. After any
-  rebuild, confirm `.graphify_root` matches the scope actually built.
-  It cannot be committed to carry the scope across clones — it stores an absolute
-  path, and `graphify-out` is gitignored. Record the intended scan root in the
-  project's CLAUDE.md instead (that file also survives `/coding-rules:apply`,
-  which rewrites CODING_RULES.md).
-  Also copy the `graphify_update.bat` template (in `ai_rules_addons/`) into the
-  project's `tools/` and set its `CODE_DIR` — a no-AI bat to manually smoke-test
-  the graph (see the addon's "Manual test bat" section). Not a substitute for the
-  directed skill rebuild above.
-
+refresh graphify graph — only if the graphify addon is present in this project's CODING_RULES.md
+  NEVER run this rebuild yourself in the main context: the graphify skill loads a
+  large instruction file and its build output into the window. Delegate it — the
+  rules it must follow live in the graphify addon's "Refreshing after a code
+  change" section, already copied into this project's CODING_RULES.md.
+  delegate enabled (codex or deepseek — run <PROMPT> via that backend's CLI, see Delegation backends above; prepend graphify preamble if applicable):
+    <PROMPT> = "Rebuild this project's graphify knowledge graph. Read the graphify section of CODING_RULES.md and follow its 'Refreshing after a code change' rules exactly, including the scope rules — rebuild at the scope the existing graph already has, never narrower. Run the graphify skill's directed rebuild from the repo root (/graphify <code-dir> --directed), writing to the root graphify-out/. Do NOT run a bare `graphify update`. If the graphify skill is not available to you, change nothing and reply exactly GRAPHIFY SKILL UNAVAILABLE. Otherwise end with a summary called SUMMARY GRAPHIFY stating the scan root built, whether graph.json has directed: true, and the node count before and after."
+  delegate disabled:
+    run the same rebuild in a subagent (see "Self-fallback in a subagent") with the
+    same instructions; it returns only the SUMMARY GRAPHIFY block.
+  then verify yourself — cheap, no skill load: root `graphify-out/graph.json` has
+  `directed: true`, and `graphify-out/.graphify_root` matches the scope that was
+  built. If the delegate replied GRAPHIFY SKILL UNAVAILABLE, or either check fails,
+  redo the rebuild via the subagent branch.
 ```
 
 ### DRY gate (precondition for implementing)
@@ -1280,7 +1266,7 @@ Prefer the Protocol approach for simple cases. Use dataclass metadata when you n
 per-field control without writing boilerplate methods.
 
 # Version
-10
+11
 
 Increase this version number whenever this rule file changes.
 
@@ -1290,8 +1276,15 @@ Increase this version number whenever this rule file changes.
 Only wire it into the project's `CODING_RULES.md` if they say yes.
 
 graphify turns a code folder into a queryable knowledge graph — god nodes, communities,
-cross-file relationships, fan-in/fan-out. The build is AST-only: no LLM, no API cost. Use it to
-orient before grep and to spot god classes.
+cross-file relationships, fan-in/fan-out. Use it to orient before grep and to spot god classes.
+
+**Keep the build AST-only (no LLM, no API cost) by scoping to the code dir.** graphify runs a
+free deterministic AST pass on *code* files, but a separate **LLM pass** on every *non-code*
+file — docs, `.md`, `.txt`, config `.yaml`, images (vision), audio/video (whisper). That pass
+needs an LLM (Gemini key or the host agent) and costs tokens. A build scoped to a pure-code dir
+(`lib/`, `src/`, `app/`) has zero non-code files, so it skips the LLM pass entirely and rebuilds
+need no AI. A repo-root build (`/graphify .`) sweeps in `docs/`, `README.md`, icons, and sound
+assets — forcing the LLM pass. **Always scope to the code dir; never build the repo root.**
 
 ---
 
@@ -1321,7 +1314,9 @@ orient before grep and to spot god classes.
    /graphify <code-dir> --directed        # e.g. src/  app/  lib/  internal/
    ```
    - `<code-dir>` = the folder(s) with the code. Scoping keeps `vendor/`, `node_modules/`,
-     build output, and tests out of the graph. A repo-root build drowns the signal in deps.
+     build output, and tests out of the graph. A repo-root build drowns the signal in deps AND
+     drags in non-code files (`docs/`, `*.md`, images, audio) that force the paid LLM pass — a
+     scoped code-dir build stays AST-only and free (see intro).
    - **If first-party code lives in MORE than one top-level dir (e.g. `application/` +
      `framework/`, `src/` + `lib/`), build ALL of them as one multi-path merged graph:**
      `/graphify application/ framework/ --directed`. Scoping to only one dir makes every class
@@ -1340,13 +1335,20 @@ orient before grep and to spot god classes.
 4. **Relocate the `CLAUDE.md` section** the installer wrote: remove it from `CLAUDE.md` and
    instead add this file's `# Version` block and document title followed by the "Using" +
    "Refreshing" rules below to the project's `CODING_RULES.md`, replacing generic `.`/`src`
-   references with the actual `<code-dir>`. Keeping the version with the copied rules allows
+   references with the actual `<code-dir>`. **Pin the real code-dir explicitly** (e.g. a
+   "This project's `<code-dir>` is `lib/`" line) so a later rebuild can't default to the repo
+   root and trip the LLM pass. Keeping the version with the copied rules allows
    `/coding-rules:apply` to detect stale copies.
 5. **gitignore the output** — build artifacts + cache, never committed:
    ```
    graphify-out/
    <code-dir>/graphify-out/
    ```
+6. **Copy the manual-test bat.** Copy `graphify_update.bat` (ships beside this file in
+   `ai_rules_addons/`) into the project's `tools/` folder and set its `CODE_DIR` to the real
+   code dir. It is a no-AI convenience for manually checking graphify works — it runs a
+   code-only AST refresh (`graphify update`, no LLM) then smoke-tests the live root graph
+   (`god-nodes` + a sample `query`). See "Manual test bat" below for what it does and does not do.
 
 ## Folder layout (know which is which)
 
@@ -1387,14 +1389,18 @@ When this project delegates the plan/DRY/convention checks to an external CLI
 preamble** to the `<PROMPT>` before sending it to that backend:
 
 ```
-Graphify: this project has a graphify knowledge graph. For any codebase
-question, run `graphify query "<question>"` first (also `graphify path "<A>"
-"<B>"`, `graphify explain "<concept>"`) instead of raw grep.
+Graphify: this project has a graphify knowledge graph, built at the repo-root
+`graphify-out/graph.json`. Run all graphify commands FROM THE REPO ROOT (the
+graph is resolved relative to the current directory). For any codebase question,
+run `graphify query "<question>"` first (also `graphify path "<A>" "<B>"`,
+`graphify explain "<concept>"`) instead of raw grep.
 ```
 
-Prepend only — do not otherwise change the `<PROMPT>`. Harmless if the graph
-is not built yet: `graphify query` simply returns nothing and the CLI falls
-back to reading files.
+Prepend only — do not otherwise change the `<PROMPT>`. The cwd line matters:
+`codex exec` / `reasonix run` inherit the caller's directory, and `graphify
+query` reads `graphify-out/` relative to cwd — run from a subdir and it finds
+nothing, silently degrading to grep. Harmless if the graph is not built yet:
+`graphify query` returns nothing and the CLI falls back to reading files.
 
 ### Refreshing after a code change
 
@@ -1403,10 +1409,43 @@ back to reading files.
 - Do NOT use the bare `graphify update <code-dir>` CLI — it has no `--directed` flag and writes a
   full UNDIRECTED graph into `<code-dir>/graphify-out/` (wrong location), desyncing the live
   graph. If that stray graph appears, delete `<code-dir>/graphify-out/graph.json` (keep `cache/`).
+- **Rebuild at the scope the existing graph already has**, not at whatever `<code-dir>` suggests.
+  Check it first: group `graphify-out/graph.json` nodes by the first path segment of their
+  `source_file`. A graph built from the repo root typically holds `docs/`, `tools/` and root
+  `*.md` nodes — often the ones that answer "how does X work" rather than "where is X defined" —
+  and a narrower rebuild deletes every one of them. graphify's shrink guard catches that and
+  refuses the write: re-run at the original scope, never force past it.
+- **Keep `docs/` in.** Excluding it via `.graphifyignore` is the same mistake wearing a different
+  hat: it is the prose that answers "how does X work", and a code-only graph answers symbol
+  lookups a grep would have found anyway.
+- **Confirm `.graphify_root` after every rebuild.** The scan root lives in
+  `graphify-out/.graphify_root`, and EVERY `/graphify <path>` run overwrites it. So one
+  wrong-path invocation leaves it pointing at a subtree the graph was not built from, and a later
+  bare `graphify update` rescans only that subtree and reads every file outside it as deleted.
+  It cannot be committed to carry the scope across clones — it stores an absolute path, and
+  `graphify-out/` is gitignored. Record the intended scan root in the project's `CLAUDE.md`
+  instead (that file also survives `/coding-rules:apply`, which rewrites `CODING_RULES.md`).
 - Verify after rebuild: `graph.json` has `directed: true` and lives in root `graphify-out/`.
   For a **multi-path merge**, also grep `graph.json` for a node-ID prefix belonging to a second
   scanned dir (e.g. `framework_`) to prove that dir actually landed — `directed: true` passes even
   if one dir silently dropped out of the merge.
+
+### Manual test bat (`tools/graphify_update.bat`)
+
+A no-AI convenience for manually checking graphify works, copied from the
+`graphify_update.bat` template beside this addon and adjusted (`CODE_DIR`).
+Run it from anywhere — it `pushd`es to the repo root itself.
+
+- **Does:** (1) code-only AST refresh (`graphify update`, no LLM/API cost);
+  (2) smoke-tests the live root graph — `god-nodes` + a sample `query`. Proves
+  the interpreter resolves, the graph is present and directed, and queries answer.
+- **Does NOT:** rebuild the live root `graphify-out/graph.json`. `graphify update`
+  writes only the AST cache under `<code-dir>/graphify-out/` (it does not touch
+  the root live graph). The authoritative **directed** rebuild is the agent skill
+  flow (`/graphify <code-dir> --directed`) — a `.bat` cannot run it.
+- **When to use:** quick "is graphify still wired up?" check after cloning, a
+  dependency change, or a graphify upgrade. For an actual refresh of the graph
+  the queries read, use the skill flow (see "Refreshing after a code change").
 
 ### In-tree vendored code — exclude it, scoping alone won't
 
