@@ -37,6 +37,8 @@ No default key binding is set — the feature is palette-only.
   panes visible.
 - With only a single pane open, "Show only active pane" does not appear
   (there is nothing to collapse).
+- While a pane is hidden, `switch_panes` (`Tab`) does nothing — it would
+  otherwise move the cursor into the pane you can't see.
 
 ## Implementation
 

@@ -1827,6 +1827,10 @@ class SwitchPanes(DirectoryPaneCommand):
 			pane = _get_opposite_pane(self.pane)
 		else:
 			pane = self.pane.window.get_panes()[pane_index]
+		# In single-pane mode (ShowOnlyActivePane) the other pane is hidden;
+		# focusing it would move the cursor into a pane the user can't see.
+		if not pane._widget.isVisible():
+			return
 		pane.focus()
 
 def _any_pane_hidden(panes):

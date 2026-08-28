@@ -1,5 +1,6 @@
 from core.commands import History, Move, OpenOrView, \
-	ShowAllPanes, ShowOnlyActivePane, ViewFile, ViewFileInOtherPane, \
+	ShowAllPanes, ShowOnlyActivePane, SwitchPanes, ViewFile, \
+	ViewFileInOtherPane, \
 	_from_human_readable, get_dest_suggestion, _find_extension_start, \
 	_get_shortcuts_for_command, _clamp_font_size, _MIN_PANE_FONT_SIZE, \
 	_MAX_PANE_FONT_SIZE, _format_window_title, _find_column_index, \
@@ -297,6 +298,17 @@ class ShowOnlyActivePaneTest(TestCase):
 		self.assertFalse(ShowOnlyActivePane(active).is_visible())
 		window._panes = [active]
 		self.assertFalse(ShowOnlyActivePane(active).is_visible())
+
+class SwitchPanesTest(TestCase):
+	def test_switches_to_visible_pane(self):
+		window, active, other = _two_pane_window()
+		SwitchPanes(active)()
+		self.assertTrue(other.focused)
+	def test_does_not_switch_to_hidden_pane(self):
+		window, active, other = _two_pane_window()
+		ShowOnlyActivePane(active)()
+		SwitchPanes(active)()
+		self.assertFalse(other.focused)
 
 class ShowAllPanesTest(TestCase):
 	def test_restores_all_panes(self):
