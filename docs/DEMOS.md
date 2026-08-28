@@ -42,6 +42,10 @@ over a socket so the tool can capture the window. The wiring:
   seeded into the demo profile by that launcher for ids 8, 9 and 10 only.
 - `tools/demos_record.bat` — one command that drives recording **and**
   composing; every argument passes straight through to the tool.
+- `tools/demos_build_tour.bat` — the join step on its own, for double-clicking:
+  a one-line wrapper for `demos_record.bat --compose tour`. Recording does not
+  compose, and with no argument `demos_record.bat` records everything and builds
+  nothing — this is the second half.
 
 The four artifacts the README shows are the four entries in `fman.json`'s
 `compose` array, built with `--compose`:
@@ -221,8 +225,8 @@ live in that interpreter's user site-packages, so another `python` on `PATH`
        tools\demos_record.bat --demo 6
        tools\demos_record.bat --demo 7
 
-5. **Join them:** `tools\demos_record.bat --compose tour` →
-   `media/demos/tour/feature-tour.mp4`.
+5. **Join them:** `tools\demos_build_tour.bat` (same thing as
+   `tools\demos_record.bat --compose tour`) → `media/demos/tour/feature-tour.mp4`.
 6. **Watch the result** before committing. The build prints the size; the last
    ffmpeg-joined run was 2:32 and 2.3 MB.
 7. **Re-upload it to GitHub and update the README** (see
