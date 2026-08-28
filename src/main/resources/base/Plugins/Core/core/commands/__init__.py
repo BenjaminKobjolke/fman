@@ -1,4 +1,5 @@
 from core.command_keywords import get_keywords
+from core.command_titles import apply_custom_title
 from core.commands.util import get_program_files, get_program_files_x86, \
 	is_hidden
 from core.fileoperations import CopyFiles, MoveFiles
@@ -1307,18 +1308,25 @@ class CommandPalette(DirectoryPaneCommand):
 		for cmd_name in self.pane.get_commands():
 			if not self.pane.is_command_visible(cmd_name):
 				continue
-			aliases = self.pane.get_command_aliases(cmd_name)
-			command = CommandPaletteItem(
-				self.pane.run_command, cmd_name, aliases[0]
-			)
-			result.append((cmd_name, aliases, get_keywords(cmd_name), command))
+			result.append(_palette_row(
+				cmd_name, self.pane.get_command_aliases(cmd_name),
+				self.pane.run_command
+			))
 		for cmd_name in get_application_commands():
-			aliases = get_application_command_aliases(cmd_name)
-			command = CommandPaletteItem(
-				run_application_command, cmd_name, aliases[0]
-			)
-			result.append((cmd_name, aliases, get_keywords(cmd_name), command))
+			result.append(_palette_row(
+				cmd_name, get_application_command_aliases(cmd_name),
+				run_application_command
+			))
 		return result
+
+def _palette_row(cmd_name, aliases, run_fn):
+	# The user's rename, if any, replaces the aliases the row is displayed and
+	# searched by; the originals live on as keywords - see core/command_titles.
+	aliases, keywords = apply_custom_title(
+		cmd_name, aliases, get_keywords(cmd_name)
+	)
+	command = CommandPaletteItem(run_fn, cmd_name, aliases[0])
+	return cmd_name, aliases, keywords, command
 
 # _get_shortcuts_for_command / format_shortcut_hint live in core/key_bindings
 # (imported above as _get_shortcuts_for_command) so the text viewer's own

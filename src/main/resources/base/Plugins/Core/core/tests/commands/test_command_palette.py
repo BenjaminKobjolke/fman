@@ -43,8 +43,17 @@ class CommandPaletteSuggestionsTest(TestCase):
 		self.assertEqual(['Quit', 'Extract to opposite'], titles)
 	def test_unknown_query_matches_nothing(self):
 		self.assertEqual([], self._suggest('zzz'))
+	def test_a_renamed_command_shows_its_new_name(self):
+		items = self._suggest('bye', titles={'quit': 'Bye'})
+		self.assertEqual(['Bye'], [i.title for i in items])
+	def test_a_renamed_command_is_still_found_by_its_old_name(self):
+		items = self._suggest('quit', titles={'quit': 'Bye'})
+		# Found as a keyword now, so the row shows the new name and
+		# underlines nothing.
+		self.assertEqual(['Bye'], [i.title for i in items])
+		self.assertEqual([], items[0].highlight)
 
-	def _suggest(self, query):
+	def _suggest(self, query, titles=None):
 		keywords = {
 			'set_window_opacity': ('transparency', 'reload'),
 			'reload': (),
@@ -57,10 +66,14 @@ class CommandPaletteSuggestionsTest(TestCase):
 			'quit': ('Quit',),
 			'extract_to_opposite': ('Extract to opposite',),
 		})
+		titles = titles or {}
 		with patch('core.commands.load_json', return_value=[]), \
 			patch('core.commands.get_application_commands', return_value=[]), \
 			patch(
 				'core.commands.get_keywords',
 				side_effect=lambda name: keywords.get(name, ())
+			), patch(
+				'core.command_titles.get_setting',
+				side_effect=lambda _json, key, default: titles.get(key, default)
 			):
 			return list(CommandPalette(pane)._suggest_commands(query))

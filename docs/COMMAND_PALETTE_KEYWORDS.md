@@ -1,7 +1,8 @@
-# Command palette keywords
+# Command palette keywords and names
 
 A command in the [command palette](COMMAND_PALLETTE.md) is findable by words
-that are **not** in its name. Typing *transparency* selects the row that still
+that are **not** in its name — and it can be renamed to a name of your own
+(below). Typing *transparency* selects the row that still
 reads **Set window opacity**; typing *zip* finds **Pack**. These hidden
 keywords are never displayed — they only widen what finds a command.
 
@@ -18,7 +19,7 @@ Three screens, each a normal fuzzy-searchable list:
 
 | Screen | What it offers | Enter | Escape |
 |--------|----------------|-------|--------|
-| **Entry menu** | *Change keywords for "…"* | opens the keyword list | back to the palette |
+| **Entry menu** | *Change keywords for "…"*, *Rename to…*, *Reset name* | opens the keyword list, asks for a new name, or drops the rename | back to the palette |
 | **Keyword list** | *Add keyword…*, then one row per keyword | *Add* asks for a word; a keyword opens the menu below | back to the palette |
 | **Keyword menu** | *Delete*, *Go back* | deletes the keyword, or returns | back to the keyword list |
 
@@ -34,6 +35,33 @@ Notes:
   pseudo-commands (`video_mute`, `viewer_next_file`, …). A viewer entry that
   ships no command name has nothing to store keywords under and says so in the
   status bar.
+
+## Renaming a command
+
+*Rename to…* changes what the row **says**. Rename **Quit** to **Exit** and the
+palette lists **Exit** — the command itself, its key binding and its shortcut
+hint are untouched.
+
+The old name is not lost: renaming folds the command's original name(s) into
+its keywords, so typing `quit` still finds the row. It is a keyword hit now, so
+the row shows **Exit** and underlines nothing (see the ranking rules below).
+
+*Reset name* appears in the entry menu only while a rename is in place, and
+hands the label back to fman's own.
+
+Renames live in `Command Titles.json` — a flat map of command name to one
+label:
+
+```json
+{
+    "quit": "Exit",
+    "video_mute": "Silence"
+}
+```
+
+Same keys, same per-OS user file and same merge rules as the keyword file
+below; fman ships no titles of its own, so an absent file simply means no
+renames.
 
 ## Where they are stored
 

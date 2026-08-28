@@ -102,6 +102,14 @@ keywords without leaving fman. The screens, the ranking rules and where your
 edits are stored are in
 [`docs/COMMAND_PALETTE_KEYWORDS.md`](COMMAND_PALETTE_KEYWORDS.md).
 
+## Renaming a command
+
+The same **Shift+Enter** menu offers *Rename to…*: call **Quit** *Exit* and the
+palette lists **Exit**, while `quit` still finds it (the original name becomes
+one of its keywords). *Reset name* puts fman's own name back. Renames are
+stored in `Command Titles.json` — see
+[`docs/COMMAND_PALETTE_KEYWORDS.md`](COMMAND_PALETTE_KEYWORDS.md#renaming-a-command).
+
 ## Viewers have their own palettes
 
 Each in-pane [file viewer](viewers/FILE_VIEWERS.md) has a **separate,

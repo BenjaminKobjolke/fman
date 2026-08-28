@@ -1,3 +1,4 @@
+from core.command_titles import COMMAND_TITLES_FILE
 from core.keyword_editor import edit_command_keywords
 from unittest import TestCase
 from unittest.mock import patch
@@ -10,9 +11,10 @@ class _Screens:
 	means Escape. Also records the option lists each screen offered.
 	"""
 
-	def __init__(self, answers, keywords, prompt=None):
+	def __init__(self, answers, keywords, prompt=None, titles=None):
 		self._answers = list(answers)
 		self.keywords = dict(keywords)
+		self.titles = dict(titles or {})
 		self._prompt = prompt
 		self.shown = []
 	def show_quicksearch(self, get_items, *_args, **_kwargs):
@@ -28,11 +30,20 @@ class _Screens:
 		return self._prompt, True
 	def get_setting(self, _json_name, key, default=None):
 		return self.keywords.get(key, default)
-	def save_setting(self, _json_name, key, value):
-		self.keywords[key] = value
+	def get_title(self, _json_name, key, default=None):
+		return self.titles.get(key, default)
+	def save_setting(self, json_name, key, value):
+		store = self.titles if json_name == COMMAND_TITLES_FILE else self.keywords
+		if value is None:
+			store.pop(key, None)
+		else:
+			store[key] = value
 
-def _run(answers, keywords, prompt=None, command='video_mute', title='Mute'):
-	screens = _Screens(answers, keywords, prompt)
+def _run(
+	answers, keywords, prompt=None, command='video_mute', title='Mute',
+	titles=None
+):
+	screens = _Screens(answers, keywords, prompt, titles)
 	with patch(
 		'core.quicksearch_screen.show_quicksearch',
 		side_effect=screens.show_quicksearch
@@ -40,6 +51,8 @@ def _run(answers, keywords, prompt=None, command='video_mute', title='Mute'):
 		'core.keyword_editor.show_prompt', side_effect=screens.show_prompt
 	), patch(
 		'core.keyword_editor.get_setting', side_effect=screens.get_setting
+	), patch(
+		'core.command_titles.get_setting', side_effect=screens.get_title
 	), patch(
 		'core.keyword_editor.save_setting', side_effect=screens.save_setting
 	):
@@ -50,7 +63,9 @@ class EditCommandKeywordsTest(TestCase):
 
 	def test_entry_menu_offers_changing_the_keywords(self):
 		screens = _run([None], {'video_mute': ['sound']})
-		self.assertEqual([['Change keywords for "Mute"']], screens.shown)
+		self.assertEqual(
+			[['Change keywords for "Mute"', 'Rename to...']], screens.shown
+		)
 	def test_keyword_list_shows_add_then_the_keywords(self):
 		screens = _run(
 			['Change keywords for "Mute"', None], {'video_mute': ['sound', 'volume']}
@@ -67,6 +82,30 @@ class EditCommandKeywordsTest(TestCase):
 	def test_no_command_name_saves_nothing(self):
 		screens = _run([None], {}, command='')
 		self.assertEqual([], screens.shown)
+
+class RenameTest(TestCase):
+
+	def test_rename_writes_the_new_title(self):
+		screens = _run(['Rename to...'], {}, prompt='Exit')
+		self.assertEqual({'video_mute': 'Exit'}, screens.titles)
+	def test_title_is_stripped(self):
+		screens = _run(['Rename to...'], {}, prompt='  Exit  ')
+		self.assertEqual({'video_mute': 'Exit'}, screens.titles)
+	def test_empty_title_is_ignored(self):
+		screens = _run(['Rename to...'], {}, prompt='   ')
+		self.assertEqual({}, screens.titles)
+	def test_cancelled_prompt_saves_nothing(self):
+		screens = _run(['Rename to...'], {})
+		self.assertEqual({}, screens.titles)
+	def test_reset_is_only_offered_once_renamed(self):
+		screens = _run([None], {}, titles={'video_mute': 'Exit'})
+		self.assertEqual(
+			['Change keywords for "Mute"', 'Rename to...', 'Reset name'],
+			screens.shown[0]
+		)
+	def test_reset_removes_the_custom_title(self):
+		screens = _run(['Reset name'], {}, titles={'video_mute': 'Exit'})
+		self.assertEqual({}, screens.titles)
 
 class AddKeywordTest(TestCase):
 

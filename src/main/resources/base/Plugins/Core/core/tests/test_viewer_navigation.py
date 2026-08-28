@@ -252,16 +252,33 @@ class ViewerPaletteSuggestionsTest(TestCase):
 		)
 		self.assertEqual([], items)
 
-	def _suggest(self, actions, query, keywords=None):
+	def test_a_renamed_entry_shows_its_new_name(self):
+		items = self._suggest(
+			[('Mute / Unmute', lambda: None, '', 'video_mute')], 'silence',
+			titles={'video_mute': 'Silence'}
+		)
+		self.assertEqual(['Silence'], [item.title for item in items])
+	def test_a_renamed_entry_is_still_found_by_its_old_name(self):
+		items = self._suggest(
+			[('Mute / Unmute', lambda: None, '', 'video_mute')], 'mute',
+			titles={'video_mute': 'Silence'}
+		)
+		self.assertEqual(['Silence'], [item.title for item in items])
+
+	def _suggest(self, actions, query, keywords=None, titles=None):
 		# open_viewer_palette hands its per-keystroke callback to
 		# show_quicksearch; grab it and call it directly.
 		captured = []
+		titles = titles or {}
 		with patch(
 			'core.viewer_navigation.show_quicksearch',
 			side_effect=lambda get_items, *_, **__: captured.append(get_items)
 		), patch(
 			'core.viewer_navigation.get_keywords',
 			side_effect=lambda name: (keywords or {}).get(name, ())
+		), patch(
+			'core.command_titles.get_setting',
+			side_effect=lambda _json, key, default: titles.get(key, default)
 		):
 			open_viewer_palette(lambda: actions)
 			# Inside the with-block: suggest() looks keywords up when called.

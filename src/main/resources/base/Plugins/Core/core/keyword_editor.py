@@ -1,13 +1,15 @@
 """
-The Shift+Enter menus behind a command palette entry: view, add and delete the
-hidden search keywords of one command (see docs/COMMAND_PALETTE_KEYWORDS.md).
+The Shift+Enter menus behind a command palette entry: rename it, and view, add
+and delete its hidden search keywords (see docs/COMMAND_PALETTE_KEYWORDS.md).
 Both the global palette and the viewer palettes hand a command name to
 edit_command_keywords; everything below is the menu chain that follows.
 
 Edits go through core.settings, so they land in the user's own
-Command Keywords.json and take effect on the next keystroke - no restart.
+Command Keywords.json / Command Titles.json and take effect on the next
+keystroke - no restart.
 """
 from core.command_keywords import COMMAND_KEYWORDS_FILE
+from core.command_titles import COMMAND_TITLES_FILE, get_custom_title
 from core.quicksearch_screen import QuicksearchScreen
 from core.settings import get_setting, save_setting
 from fman import show_prompt, show_status_message
@@ -44,9 +46,11 @@ def _save(command_name, keywords):
 class EntryMenu(QuicksearchScreen):
 
 	"""
-	What Shift+Enter opens. One option for now; the screen exists so further
-	per-entry actions have somewhere to go.
+	What Shift+Enter opens: the per-entry actions, keywords and renaming.
 	"""
+
+	_RENAME = 'Rename to...'
+	_RESET_NAME = 'Reset name'
 
 	def __init__(self, command_name, title):
 		super().__init__()
@@ -55,9 +59,26 @@ class EntryMenu(QuicksearchScreen):
 		self._change_keywords = 'Change keywords for "%s"' % title
 	def get_options(self):
 		yield self._change_keywords
+		yield self._RENAME
+		if get_custom_title(self._command_name):
+			yield self._RESET_NAME
 	def on_selected(self, option):
 		if option == self._change_keywords:
 			KeywordList(self._command_name, self._title).show()
+		elif option == self._RENAME:
+			self._rename()
+		elif option == self._RESET_NAME:
+			# None pops the key: unlike the keywords, no shipped file defines a
+			# title, so nothing lower-priority is left for the differential
+			# write to trip over.
+			save_setting(COMMAND_TITLES_FILE, self._command_name, None)
+	def _rename(self):
+		title, ok = show_prompt('New name for "%s":' % self._title)
+		if not ok:
+			return
+		title = title.strip()
+		if title:
+			save_setting(COMMAND_TITLES_FILE, self._command_name, title)
 
 class KeywordList(QuicksearchScreen):
 

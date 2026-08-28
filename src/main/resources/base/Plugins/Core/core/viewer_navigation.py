@@ -17,6 +17,7 @@ lives in one place rather than being copied into each viewer widget.
 """
 from collections import namedtuple
 from core.command_keywords import get_keywords
+from core.command_titles import apply_custom_title
 from core.keyword_editor import edit_command_keywords
 from core.quicksearch_matchers import bucket_count, contains_chars, \
 	match_titles_or_keywords
@@ -137,9 +138,15 @@ def open_viewer_palette(get_actions):
 		buckets = [[] for _ in range(bucket_count(_MATCHERS))]
 		for entry in get_actions():
 			entry = ViewerAction(*entry)
+			# A renamed entry is displayed and searched under its new title,
+			# the old one living on as a keyword - see core/command_titles.
+			titles, keywords = apply_custom_title(
+				entry.command_name, [entry.title],
+				get_keywords(entry.command_name)
+			)
+			entry = entry._replace(title=titles[0])
 			match = match_titles_or_keywords(
-				_MATCHERS, [entry.title.lower()],
-				get_keywords(entry.command_name), query.lower()
+				_MATCHERS, [entry.title.lower()], keywords, query.lower()
 			)
 			if match is None:
 				continue
