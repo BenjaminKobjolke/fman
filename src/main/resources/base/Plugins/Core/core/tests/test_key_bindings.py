@@ -1,4 +1,5 @@
-from core.key_bindings import command_for_key_event, dispatch_bindable_command
+from core.key_bindings import command_for_key_event, command_for_shortcut, \
+	dispatch_bindable_command, DO_NOTHING
 from fman.impl.util.qt.key_event import QtKeyEvent
 from PyQt5.QtCore import Qt
 from unittest import TestCase
@@ -47,3 +48,36 @@ class DispatchBindableCommandTest(TestCase):
 		bindings = [{'keys': ['M'], 'command': 'video_mute'}]
 		self.assertFalse(dispatch_bindable_command(event, bindings, commands))
 		self.assertEqual([], called)
+
+	def test_an_explicitly_unbound_key_is_swallowed(self):
+		# The viewers' hardcoded fallback keys run after this lookup, so
+		# "unbound" has to mean the keystroke stops here.
+		called = []
+		commands = {'video_toggle_pause': lambda: called.append('pause')}
+		event = QtKeyEvent(Qt.Key_Space, Qt.NoModifier)
+		bindings = [
+			{'keys': ['Space'], 'command': DO_NOTHING},
+			{'keys': ['Space'], 'command': 'video_toggle_pause'},
+		]
+		self.assertTrue(dispatch_bindable_command(event, bindings, commands))
+		self.assertEqual([], called)
+
+class CommandForShortcutTest(TestCase):
+	_BINDINGS = [
+		{'keys': ['M'], 'command': 'video_mute'},
+		{'keys': ['M'], 'command': 'pack'},
+	]
+
+	def test_names_the_command_a_shortcut_runs(self):
+		self.assertEqual('video_mute', command_for_shortcut(self._BINDINGS, 'M'))
+
+	def test_first_match_wins_like_fmans_own_dispatch(self):
+		# The second M binding is dead, so naming it would mislead the user.
+		self.assertNotEqual('pack', command_for_shortcut(self._BINDINGS, 'M'))
+
+	def test_an_unbound_shortcut_is_none(self):
+		self.assertIsNone(command_for_shortcut(self._BINDINGS, 'Ctrl+Z'))
+
+	def test_malformed_entries_are_skipped(self):
+		bindings = ['nonsense', {'command': 'pack'}, {'keys': [], 'command': 'x'}]
+		self.assertIsNone(command_for_shortcut(bindings, 'M'))

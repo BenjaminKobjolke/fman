@@ -102,6 +102,14 @@ keywords without leaving fman. The screens, the ranking rules and where your
 edits are stored are in
 [`docs/COMMAND_PALETTE_KEYWORDS.md`](COMMAND_PALETTE_KEYWORDS.md).
 
+## Changing a command's shortcut
+
+The same **Shift+Enter** menu offers *Change key bindings for "…"*: a list of
+the shortcuts that currently run the command, where *Add shortcut…* records the
+next combination you **press** and picking one offers *Remove*. Bindings take
+effect immediately and are stored in your own `Key Bindings (<OS>).json` — see
+[`docs/COMMAND_PALETTE_KEYBINDINGS.md`](COMMAND_PALETTE_KEYBINDINGS.md).
+
 ## Renaming a command
 
 The same **Shift+Enter** menu offers *Rename to…*: call **Quit** *Exit* and the

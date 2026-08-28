@@ -221,7 +221,9 @@ class OpenViewerPaletteTest(TestCase):
 			side_effect=[('', entry, True), None]
 		), patch('core.viewer_navigation.edit_command_keywords') as edit:
 			open_viewer_palette(lambda: [entry])
-		edit.assert_called_once_with('video_mute', 'Mute')
+		edit.assert_called_once_with(
+			'video_mute', 'Mute', 'Viewer Key Bindings.json'
+		)
 		self.assertEqual([], ran)
 
 	def test_does_nothing_when_picker_cancelled(self):

@@ -18,6 +18,7 @@ lives in one place rather than being copied into each viewer widget.
 from collections import namedtuple
 from core.command_keywords import get_keywords
 from core.command_titles import apply_custom_title
+from core.key_bindings import VIEWER_KEY_BINDINGS_FILE
 from core.keyword_editor import edit_command_keywords
 from core.quicksearch_matchers import bucket_count, contains_chars, \
 	match_titles_or_keywords
@@ -169,7 +170,9 @@ def open_viewer_palette(get_actions):
 		if not alt:
 			entry.action()
 			return
-		edit_command_keywords(entry.command_name, entry.title)
+		edit_command_keywords(
+			entry.command_name, entry.title, VIEWER_KEY_BINDINGS_FILE
+		)
 
 def advance(pane, direction, category):
 	"""

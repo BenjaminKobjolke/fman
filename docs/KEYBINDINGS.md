@@ -37,6 +37,18 @@ To add your own binding, edit (or create) your user
 doesn't need to repeat anything from the Core files, only what you're adding
 or overriding.
 
+## Editing bindings from the palette
+
+You don't have to touch the file at all. Open the command palette
+(`Ctrl+Shift+P`), find the command, press **Shift+Enter** and choose *Change
+key bindings for "…"*: the shortcut list that opens adds a binding by having
+you *press* it, and removes one again. Changes are live immediately — no
+restart, no `reload_plugins` — and land in the same user file described above.
+
+The screens, the conflict prompt, how a shipped default is unbound and what the
+editor can't do are in
+[`docs/COMMAND_PALETTE_KEYBINDINGS.md`](COMMAND_PALETTE_KEYBINDINGS.md).
+
 The command names used here are also the keys of `Command Keywords.json`, the
 file that gives a command extra, never-displayed words to find it by in the
 command palette — see

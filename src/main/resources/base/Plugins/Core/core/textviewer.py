@@ -10,7 +10,7 @@ is a read-only sibling that mounts arbitrary text with no backing file - see
 core/commands/release_notes.py and docs/views/RELEASE_NOTES.md.
 """
 from core.key_bindings import (
-	dispatch_bindable_command, VIEWER_KEY_BINDINGS_FILE,
+	dispatch_bindable_command, KEY_BINDINGS_FILE, VIEWER_KEY_BINDINGS_FILE,
 )
 from core.textviewer_io import MAX_VIEW_BYTES as _MAX_VIEW_BYTES, load_for_view
 from core.textviewer_pane import (
@@ -62,7 +62,7 @@ class PaneTextView(QPlainTextEdit):
 			self._open_palette()
 			return
 		key_event = QtKeyEvent(event.key(), event.modifiers())
-		key_bindings = load_json('Key Bindings.json', default=[])
+		key_bindings = load_json(KEY_BINDINGS_FILE, default=[])
 		zoom_delta = zoom_delta_for(key_event, key_bindings)
 		if zoom_delta is not None:
 			# Whatever the user has increase/decrease pane font size bound
@@ -147,7 +147,7 @@ class PaneTextView(QPlainTextEdit):
 		open_viewer_palette(self._get_actions)
 
 	def _get_actions(self):
-		key_bindings = load_json('Key Bindings.json', default=[])
+		key_bindings = load_json(KEY_BINDINGS_FILE, default=[])
 		watching = self._watcher is not None
 		reload_actions = []
 		if self._path is not None:

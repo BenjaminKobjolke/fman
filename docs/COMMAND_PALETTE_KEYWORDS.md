@@ -19,7 +19,7 @@ Three screens, each a normal fuzzy-searchable list:
 
 | Screen | What it offers | Enter | Escape |
 |--------|----------------|-------|--------|
-| **Entry menu** | *Change keywords for "…"*, *Rename to…*, *Reset name* | opens the keyword list, asks for a new name, or drops the rename | back to the palette |
+| **Entry menu** | *Change keywords for "…"*, *Change key bindings for "…"*, *Rename to…*, *Reset name* | opens the keyword list or the [shortcut list](COMMAND_PALETTE_KEYBINDINGS.md), asks for a new name, or drops the rename | back to the palette |
 | **Keyword list** | *Add keyword…*, then one row per keyword | *Add* asks for a word; a keyword opens the menu below | back to the palette |
 | **Keyword menu** | *Delete*, *Go back* | deletes the keyword, or returns | back to the keyword list |
 
@@ -35,6 +35,9 @@ Notes:
   pseudo-commands (`video_mute`, `viewer_next_file`, …). A viewer entry that
   ships no command name has nothing to store keywords under and says so in the
   status bar.
+- *Change key bindings* is the third thing this menu edits, and the only one
+  that writes a different file per palette — see
+  [`docs/COMMAND_PALETTE_KEYBINDINGS.md`](COMMAND_PALETTE_KEYBINDINGS.md).
 
 ## Renaming a command
 

@@ -7,7 +7,7 @@ from core.font_size import clamp_font_size as _clamp_font_size, \
 	MIN_FONT_SIZE as _MIN_PANE_FONT_SIZE, MAX_FONT_SIZE as _MAX_PANE_FONT_SIZE
 from core.github import find_repos, GitHubRepo
 from core.key_bindings import get_shortcuts_for_command as \
-	_get_shortcuts_for_command, format_shortcut_hint
+	_get_shortcuts_for_command, format_shortcut_hint, KEY_BINDINGS_FILE
 from core.keyword_editor import edit_command_keywords
 from core.os_ import open_terminal_in_directory, open_native_file_manager, \
 	get_popen_kwargs_for_opening
@@ -1285,7 +1285,7 @@ class CommandPalette(DirectoryPaneCommand):
 		# One bucket per matcher, plus the exact-match and loose-keyword
 		# ones the helper adds around them - see match_titles_or_keywords.
 		result = [[] for _ in range(bucket_count(self._MATCHERS))]
-		key_bindings = load_json('Key Bindings.json')
+		key_bindings = load_json(KEY_BINDINGS_FILE)
 		for cmd_name, aliases, keywords, command in self._get_all_commands():
 			match = match_titles_or_keywords(
 				self._MATCHERS, [alias.lower() for alias in aliases], keywords,
@@ -1343,6 +1343,22 @@ class CommandPaletteItem:
 		self.title = title
 	def __call__(self):
 		self._run_fn(self.name)
+
+class DoNothing(DirectoryPaneCommand):
+
+	"""
+	Exists only to be bound to: unbinding a shipped default means shadowing it
+	with a higher-priority binding, and fman's sanitizer drops bindings whose
+	command doesn't exist. See core/binding_editor.py.
+	"""
+
+	aliases = ('Do nothing',)
+
+	def __call__(self):
+		pass
+	def is_visible(self):
+		# Nothing to run from the palette - it is a target, not an action.
+		return False
 
 class Quit(ApplicationCommand):
 

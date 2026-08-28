@@ -4,27 +4,36 @@ and delete its hidden search keywords (see docs/COMMAND_PALETTE_KEYWORDS.md).
 Both the global palette and the viewer palettes hand a command name to
 edit_command_keywords; everything below is the menu chain that follows.
 
+The menu also hosts the key binding editor, which lives in
+core/binding_editor.py - both palettes reach it the same way, they just hand in
+a different bindings file.
+
 Edits go through core.settings, so they land in the user's own
 Command Keywords.json / Command Titles.json and take effect on the next
 keystroke - no restart.
 """
+from core.binding_editor import edit_key_bindings
 from core.command_keywords import COMMAND_KEYWORDS_FILE
 from core.command_titles import COMMAND_TITLES_FILE, get_custom_title
+from core.key_bindings import KEY_BINDINGS_FILE
 from core.quicksearch_screen import QuicksearchScreen
 from core.settings import get_setting, save_setting
 from fman import show_prompt, show_status_message
 
-def edit_command_keywords(command_name, title):
+def edit_command_keywords(
+	command_name, title, bindings_file=KEY_BINDINGS_FILE
+):
 	"""
 	Open the per-entry menu for `command_name`. `title` is the palette row's
-	own label, used to name the command in the menus.
+	own label, used to name the command in the menus; `bindings_file` is the
+	Key Bindings file this palette's commands are bound in.
 	"""
 	if not command_name:
 		# Viewer entries may ship no command name (ViewerAction's default), and
 		# without one there is no key to store keywords under.
 		show_status_message('This entry has no command name to add keywords to.')
 		return
-	EntryMenu(command_name, title).show()
+	EntryMenu(command_name, title, bindings_file).show()
 
 def get_editable_keywords(command_name):
 	"""
@@ -52,19 +61,26 @@ class EntryMenu(QuicksearchScreen):
 	_RENAME = 'Rename to...'
 	_RESET_NAME = 'Reset name'
 
-	def __init__(self, command_name, title):
+	def __init__(self, command_name, title, bindings_file=KEY_BINDINGS_FILE):
 		super().__init__()
 		self._command_name = command_name
 		self._title = title
+		self._bindings_file = bindings_file
 		self._change_keywords = 'Change keywords for "%s"' % title
+		self._change_bindings = 'Change key bindings for "%s"' % title
 	def get_options(self):
 		yield self._change_keywords
+		yield self._change_bindings
 		yield self._RENAME
 		if get_custom_title(self._command_name):
 			yield self._RESET_NAME
 	def on_selected(self, option):
 		if option == self._change_keywords:
 			KeywordList(self._command_name, self._title).show()
+		elif option == self._change_bindings:
+			edit_key_bindings(
+				self._command_name, self._title, self._bindings_file
+			)
 		elif option == self._RENAME:
 			self._rename()
 		elif option == self._RESET_NAME:

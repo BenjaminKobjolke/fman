@@ -64,7 +64,11 @@ class EditCommandKeywordsTest(TestCase):
 	def test_entry_menu_offers_changing_the_keywords(self):
 		screens = _run([None], {'video_mute': ['sound']})
 		self.assertEqual(
-			[['Change keywords for "Mute"', 'Rename to...']], screens.shown
+			[[
+				'Change keywords for "Mute"',
+				'Change key bindings for "Mute"', 'Rename to...'
+			]],
+			screens.shown
 		)
 	def test_keyword_list_shows_add_then_the_keywords(self):
 		screens = _run(
@@ -100,7 +104,10 @@ class RenameTest(TestCase):
 	def test_reset_is_only_offered_once_renamed(self):
 		screens = _run([None], {}, titles={'video_mute': 'Exit'})
 		self.assertEqual(
-			['Change keywords for "Mute"', 'Rename to...', 'Reset name'],
+			[
+				'Change keywords for "Mute"',
+				'Change key bindings for "Mute"', 'Rename to...', 'Reset name'
+			],
 			screens.shown[0]
 		)
 	def test_reset_removes_the_custom_title(self):

@@ -12,7 +12,7 @@ from core.imageviewer_zoom import (
 )
 from core.key_bindings import (
 	dispatch_bindable_command, format_shortcut_hint, get_shortcuts_for_command,
-	VIEWER_KEY_BINDINGS_FILE,
+	KEY_BINDINGS_FILE, VIEWER_KEY_BINDINGS_FILE,
 )
 from core.textviewer_pane import begin_new_view, mount_view, close_view as close_text_viewer
 from core.textviewer_zoom import zoom_delta_for
@@ -85,7 +85,7 @@ class PaneImageView(QScrollArea):
 			self._open_palette()
 			return
 		key_event = QtKeyEvent(event.key(), event.modifiers())
-		key_bindings = load_json('Key Bindings.json', default=[])
+		key_bindings = load_json(KEY_BINDINGS_FILE, default=[])
 		zoom_delta = zoom_delta_for(key_event, key_bindings)
 		if zoom_delta is not None:
 			change_image_scale(self, self._apply_scale, zoom_delta)
@@ -151,7 +151,7 @@ class PaneImageView(QScrollArea):
 		open_viewer_palette(self._get_actions)
 
 	def _get_actions(self):
-		key_bindings = load_json('Key Bindings.json', default=[])
+		key_bindings = load_json(KEY_BINDINGS_FILE, default=[])
 		zoom_in_hint = format_shortcut_hint(
 			get_shortcuts_for_command(key_bindings, 'increase_pane_font_size')
 		)

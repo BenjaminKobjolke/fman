@@ -17,31 +17,62 @@ from fman import PLATFORM
 # error. A dedicated file sidesteps that entirely; see docs/KEYBINDINGS.md.
 VIEWER_KEY_BINDINGS_FILE = 'Viewer Key Bindings.json'
 
+# The global/file-list bindings, loaded and sanitized by fman itself.
+KEY_BINDINGS_FILE = 'Key Bindings.json'
+
+# A real, registered command that does nothing (core.commands.DoNothing), so a
+# shipped default can be unbound by shadowing it with a higher-priority binding:
+# the shipped files are never written to, and fman's sanitizer drops bindings
+# whose command doesn't exist. See core/binding_editor.py.
+DO_NOTHING = 'do_nothing'
+
 _KEY_SYMBOLS_MAC = {
 	'Cmd': '⌘', 'Alt': '⌥', 'Ctrl': '⌃', 'Shift': '⇧', 'Backspace': '⌫',
 	'Up': '↑', 'Down': '↓', 'Left': '←', 'Right': '→', 'Enter': '↩'
 }
 
-def get_shortcuts_for_command(key_bindings, command):
-	shortcuts_occupied_by_other_commands = set()
+def parse_bindings(key_bindings):
+	"""
+	The (shortcut, command) pairs of a Key Bindings file, skipping anything
+	malformed - these files are hand-editable, so every reader has to survive
+	whatever shape it finds. Only keys[0] is looked at, because that is all
+	fman's own dispatch uses (Controller.handle_shortcut).
+	"""
 	for binding in key_bindings:
 		try:
-			binding_cmd = binding['command']
-		except (KeyError, TypeError):
-			# Malformed Key Bindings.json
-			continue
-		try:
 			shortcut = binding['keys'][0]
+			command = binding['command']
 		except (KeyError, IndexError, TypeError):
-			# Malformed Key Bindings.json
 			continue
-		if not isinstance(shortcut, str):
-			# Malformed Key Bindings.json
-			continue
+		if isinstance(shortcut, str):
+			yield shortcut, command
+
+def get_shortcuts_for_command(key_bindings, command):
+	shortcuts_occupied_by_other_commands = set()
+	for shortcut, binding_cmd in parse_bindings(key_bindings):
 		if binding_cmd == command:
 			if shortcut not in shortcuts_occupied_by_other_commands:
 				yield shortcut
 		shortcuts_occupied_by_other_commands.add(shortcut)
+
+def command_for_shortcut(key_bindings, shortcut):
+	"""
+	The command a shortcut currently runs, or None. The inverse of
+	get_shortcuts_for_command, and first-match-wins like fman's own dispatch,
+	so it names the command the user would actually get. Shortcuts are compared
+	as raw strings, as everywhere else here - 'Ctrl+Shift+P' and
+	'Shift+Ctrl+P' are not recognized as the same.
+	"""
+	for binding_shortcut, command in parse_bindings(key_bindings):
+		if binding_shortcut == shortcut:
+			return command
+	return None
+
+def binds(key_bindings, shortcut, command):
+	"""
+	Whether key_bindings already binds `shortcut` to `command`.
+	"""
+	return (shortcut, command) in parse_bindings(key_bindings)
 
 def command_for_key_event(key_event, key_bindings, command_names):
 	"""
@@ -65,6 +96,10 @@ def dispatch_bindable_command(key_event, key_bindings, commands):
 	keyPressEvent - shared by all three viewers' keyPressEvent to avoid
 	repeating the same lookup-then-call sequence in each.
 	"""
+	if command_for_key_event(key_event, key_bindings, [DO_NOTHING]) is not None:
+		# Explicitly unbound in the user's file: swallow the keystroke instead
+		# of letting the viewer's hardcoded fallback keys handle it anyway.
+		return True
 	command = command_for_key_event(key_event, key_bindings, commands)
 	if command is not None:
 		commands[command]()
