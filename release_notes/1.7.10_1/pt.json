@@ -1,0 +1,10 @@
+{
+  "version": "1.7.10",
+  "build": 1,
+  "date": "2026-08-28",
+  "title": "Mude o nome de comandos e reatribua teclas sem sair da paleta",
+  "notes": [
+    "Os comandos podem agora ter o nome que quiser. Abra o menu da entrada de qualquer item da paleta de comandos, mude-lhe o nome para aquilo como realmente lhe chama, e, a partir daí, ele é encontrado e mostrado com esse nome. O nome original continua pesquisável, e uma ação de reposição volta a colocá-lo como estava.",
+    "Os atalhos de teclado podem agora ser alterados a partir da própria paleta de comandos, tanto na paleta principal como na paleta do visualizador. Escolha um comando, prima a combinação de teclas que pretende, e ela é adicionada, substitui a existente, ou é novamente removida — as suas atribuições são mantidas entre reinícios."
+  ]
+}

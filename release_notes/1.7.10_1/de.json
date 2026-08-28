@@ -1,0 +1,10 @@
+{
+  "version": "1.7.10",
+  "build": 1,
+  "date": "2026-08-28",
+  "title": "Befehle umbenennen und Tasten neu belegen, ohne die Palette zu verlassen",
+  "notes": [
+    "Befehle können jetzt deinen eigenen Namen tragen. Öffne das Eintragsmenü für einen beliebigen Eintrag in der Befehlspalette, benenne ihn so um, wie du ihn tatsächlich nennst, und er wird von da an unter diesem Namen gefunden und angezeigt. Der ursprüngliche Name bleibt weiterhin durchsuchbar, und eine Zurücksetzen-Aktion stellt ihn wieder her.",
+    "Tastenkürzel können jetzt direkt in der Befehlspalette geändert werden, sowohl in der Hauptpalette als auch in der Viewer-Palette. Wähle einen Befehl aus, drücke die gewünschte Tastenkombination, und sie wird hinzugefügt, ersetzt die bestehende oder wird wieder entfernt – deine Belegungen bleiben über Neustarts hinweg erhalten."
+  ]
+}

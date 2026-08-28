@@ -1,0 +1,10 @@
+{
+  "version": "1.7.10",
+  "build": 1,
+  "date": "2026-08-28",
+  "title": "Nimeä komennot uudelleen ja määritä pikanäppäimet ilman, että poistut paletista",
+  "notes": [
+    "Komennoille voi nyt antaa oman nimen. Avaa minkä tahansa komentopaletin merkinnän valikko, nimeä se uudelleen siihen nimeen, jolla itse sitä kutsut, ja jatkossa se löytyy ja näytetään sillä nimellä. Alkuperäinen nimi pysyy haettavana, ja nollaus palauttaa sen.",
+    "Pikanäppäimiä voi nyt muuttaa suoraan komentopaletista, sekä pääpaletissa että katselijan paletissa. Valitse komento, paina haluamasi näppäinyhdistelmä, ja se lisätään, korvaa olemassa olevan tai poistetaan uudelleen – määrityksesi säilyvät uudelleenkäynnistysten yli."
+  ]
+}

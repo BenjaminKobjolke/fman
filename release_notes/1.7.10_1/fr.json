@@ -1,0 +1,10 @@
+{
+  "version": "1.7.10",
+  "build": 1,
+  "date": "2026-08-28",
+  "title": "Renommez des commandes et réattribuez des raccourcis sans quitter la palette",
+  "notes": [
+    "Les commandes peuvent désormais porter le nom de votre choix. Ouvrez le menu d’une entrée de la palette de commandes, renommez-la selon l’appellation que vous utilisez réellement, et elle sera ensuite trouvée et affichée sous ce nom. Le nom d’origine reste recherchable, et une action de réinitialisation le restaure.",
+    "Les raccourcis clavier peuvent désormais être modifiés directement depuis la palette de commandes, à la fois dans la palette principale et dans la palette du visualiseur. Sélectionnez une commande, appuyez sur la combinaison de touches souhaitée, et elle est ajoutée, remplace celle existante ou est à nouveau supprimée — vos attributions sont conservées après redémarrage."
+  ]
+}

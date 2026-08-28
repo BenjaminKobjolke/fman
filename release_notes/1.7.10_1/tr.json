@@ -1,0 +1,10 @@
+{
+  "version": "1.7.10",
+  "build": 1,
+  "date": "2026-08-28",
+  "title": "Palettenin dışına çıkmadan komutları yeniden adlandırın ve tuşları yeniden atayın",
+  "notes": [
+    "Komutlar artık kendi verdiğiniz adı taşıyabilir. Herhangi bir komut paleti girdisi için giriş menüsünü açın, onu gerçekte nasıl adlandırıyorsanız o şekilde yeniden adlandırın; bundan sonra o adla bulunur ve gösterilir. Orijinal ad aranabilir kalır ve bir sıfırlama eylemi onu geri yükler.",
+    "Klavye kısayolları artık komut paletinin içinden değiştirilebilir; hem ana palette hem de görüntüleyici paletinde. Bir komut seçin, istediğiniz tuş kombinasyonuna basın; kısayol eklenir, mevcut olanın yerini alır ya da yeniden kaldırılır — atamalarınız yeniden başlatmalar arasında korunur."
+  ]
+}

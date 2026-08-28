@@ -1,0 +1,10 @@
+{
+  "version": "1.7.10",
+  "build": 1,
+  "date": "2026-08-28",
+  "title": "Gi nytt navn til kommandoer og endre hurtigtaster uten å forlate paletten",
+  "notes": [
+    "Kommandoer kan nå ha ditt eget navn. Åpne oppføringsmenyen for en hvilken som helst kommando i kommandopaletten, gi den nytt navn til det du faktisk kaller den, og den blir deretter funnet og vist under det navnet. Det opprinnelige navnet forblir søkbart, og en tilbakestillingshandling setter det tilbake.",
+    "Tastatursnarveier kan nå endres direkte fra kommandopaletten, både i hovedpaletten og i visningspaletten. Velg en kommando, trykk taste-kombinasjonen du vil bruke, og den legges til, erstatter den eksisterende, eller fjernes igjen – bindingene dine beholdes mellom omstarter."
+  ]
+}

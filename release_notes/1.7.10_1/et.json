@@ -1,0 +1,10 @@
+{
+  "version": "1.7.10",
+  "build": 1,
+  "date": "2026-08-28",
+  "title": "Nimeta käsud ümber ja muuda klahvisidemeid paletist lahkumata",
+  "notes": [
+    "Käsud võivad nüüd kanda sinu enda antud nime. Ava mis tahes käsupaleti kirje menüü, nimeta see ümber nii, nagu sa seda tegelikult kutsud, ning edaspidi leitakse ja kuvatakse see selle nime all. Algne nimi jääb otsitavaks ja lähtestamistoiming paneb selle tagasi.",
+    "Klaviatuuri otseteid saab nüüd muuta otse käsupaletis, nii põhialetis kui ka vaaturipaleti puhul. Vali käsk, vajuta soovitud klahvikombinatsiooni ja see lisatakse, asendab olemasoleva või eemaldatakse uuesti – sinu sidemed säilivad ka pärast taaskäivitusi."
+  ]
+}

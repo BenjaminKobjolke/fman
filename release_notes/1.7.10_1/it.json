@@ -1,0 +1,10 @@
+{
+  "version": "1.7.10",
+  "build": 1,
+  "date": "2026-08-28",
+  "title": "Rinomina i comandi e rimappa i tasti senza uscire dalla palette",
+  "notes": [
+    "I comandi possono ora avere un nome scelto da te. Apri il menu della voce per qualsiasi voce della palette dei comandi, rinominala con il nome che usi davvero e da quel momento verrà trovata e mostrata con quel nome. Il nome originale resta ricercabile e un'azione di ripristino lo riporta com'era.",
+    "Le scorciatoie da tastiera possono ora essere modificate direttamente dalla palette dei comandi, sia nella palette principale sia nella palette del visualizzatore. Seleziona un comando, premi la combinazione di tasti che desideri e verrà aggiunta, sostituirà quella esistente oppure verrà rimossa di nuovo: le tue assegnazioni vengono mantenute anche dopo il riavvio."
+  ]
+}

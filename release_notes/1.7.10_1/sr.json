@@ -1,0 +1,10 @@
+{
+  "version": "1.7.10",
+  "build": 1,
+  "date": "2026-08-28",
+  "title": "Preimenujte komande i ponovo dodelite prečice bez napuštanja palete",
+  "notes": [
+    "Komande sada mogu imati vaše sopstveno ime. Otvorite meni stavke za bilo koji unos u paleti komandi, preimenujte ga u ono kako ga vi zaista zovete, i od tada će biti pronađen i prikazan pod tim imenom. Originalni naziv ostaje pretraživ, a akcija resetovanja ga vraća nazad.",
+    "Prečice na tastaturi sada mogu da se menjaju direktno iz same palete komandi, i u glavnoj paleti i u paleti preglednika. Izaberite komandu, pritisnite kombinaciju tastera koju želite, i ona se dodaje, zamenjuje postojeću ili se ponovo uklanja — vaša podešavanja prečica se čuvaju i nakon ponovnog pokretanja."
+  ]
+}

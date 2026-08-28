@@ -1,0 +1,10 @@
+{
+  "version": "1.7.10",
+  "build": 1,
+  "date": "2026-08-28",
+  "title": "Premenovanie príkazov a zmena klávesových skratiek bez opustenia palety",
+  "notes": [
+    "Príkazy teraz môžu niesť váš vlastný názov. Otvorte ponuku položky pre ľubovoľnú položku v palete príkazov, premenujte ju na to, ako ju v skutočnosti nazývate, a odteraz sa bude vyhľadávať a zobrazovať pod týmto názvom. Pôvodný názov zostáva vyhľadateľný a akcia obnovenia ho vráti späť.",
+    "Klávesové skratky je teraz možné meniť priamo z palety príkazov, a to v hlavnej palete aj v palete prehliadača. Vyberte príkaz, stlačte požadovanú kombináciu klávesov a tá sa pridá, nahradí existujúcu alebo sa opäť odstráni – vaše väzby sa zachovajú aj po reštarte."
+  ]
+}

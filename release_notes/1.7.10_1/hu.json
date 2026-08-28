@@ -1,0 +1,10 @@
+{
+  "version": "1.7.10",
+  "build": 1,
+  "date": "2026-08-28",
+  "title": "Parancsok átnevezése és billentyűk újrakötése a paletta elhagyása nélkül",
+  "notes": [
+    "A parancsok mostantól viselhetik a saját, egyéni nevüket. Nyisd meg bármely parancspaletta-bejegyzéshez tartozó menüt, nevezd át arra, ahogyan te ténylegesen hívod, és ettől kezdve ezen a néven lesz megtalálható és megjelenítve. Az eredeti név továbbra is kereshető marad, és egy visszaállítás művelet visszateszi.",
+    "A billentyűparancsok mostantól magából a parancspalettából is módosíthatók, mind a fő palettában, mind a megtekintő palettában. Válassz egy parancsot, nyomd le a kívánt billentyűkombinációt, és az hozzáadásra kerül, lecseréli a meglévőt, vagy ismét eltávolításra kerül – a hozzárendeléseid újraindítások között is megmaradnak."
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "version": "1.7.10",
+  "build": 1,
+  "date": "2026-08-28",
+  "title": "Preimenujte naredbe i ponovno vežite tipke bez napuštanja palete",
+  "notes": [
+    "Naredbe sada mogu imati vaš vlastiti naziv. Otvorite izbornik unosa za bilo koji unos u paleti naredbi, preimenujte ga kako ga vi zapravo zovete i od tada će se pronalaziti i prikazivati pod tim nazivom. Izvorni naziv ostaje pretraživ, a radnja resetiranja vraća ga natrag.",
+    "Tipkovnički prečaci sada se mogu mijenjati izravno iz same palete naredbi, i u glavnoj paleti i u paleti preglednika. Odaberite naredbu, pritisnite željenu kombinaciju tipki i ona će se dodati, zamijeniti postojeću ili ponovno ukloniti – vaša mapiranja ostaju sačuvana kroz ponovna pokretanja."
+  ]
+}

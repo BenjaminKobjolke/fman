@@ -1,0 +1,10 @@
+{
+  "version": "1.7.10",
+  "build": 1,
+  "date": "2026-08-28",
+  "title": "Zmieniaj nazwy poleceń i przypisania klawiszy bez wychodzenia z palety",
+  "notes": [
+    "Polecenia mogą teraz mieć nadaną przez Ciebie własną nazwę. Otwórz menu wpisu dla dowolnej pozycji w palecie poleceń, zmień jej nazwę na taką, jakiej naprawdę używasz, a od tej pory będzie znajdowana i wyświetlana pod tą nazwą. Oryginalna nazwa pozostaje możliwa do wyszukania, a akcja resetowania przywraca ją z powrotem.",
+    "Skróty klawiszowe można teraz zmieniać bezpośrednio z poziomu palety poleceń — zarówno w głównej palecie, jak i w palecie przeglądarki. Wybierz polecenie, naciśnij żądaną kombinację klawiszy, a zostanie ona dodana, zastąpi istniejącą lub zostanie ponownie usunięta — Twoje przypisania są zachowywane między restartami."
+  ]
+}

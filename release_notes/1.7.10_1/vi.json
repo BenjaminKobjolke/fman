@@ -1,0 +1,10 @@
+{
+  "version": "1.7.10",
+  "build": 1,
+  "date": "2026-08-28",
+  "title": "Đổi tên lệnh và gán lại phím tắt mà không cần rời khỏi bảng lệnh",
+  "notes": [
+    "Giờ đây, các lệnh có thể mang tên do bạn tự đặt. Mở menu mục cho bất kỳ mục nào trong bảng lệnh, đổi tên theo cách bạn thực sự gọi nó, và từ đó về sau nó sẽ được tìm thấy và hiển thị dưới tên đó. Tên gốc vẫn có thể tìm kiếm, và một thao tác đặt lại sẽ đưa nó trở về như cũ.",
+    "Giờ đây, phím tắt bàn phím có thể được thay đổi ngay từ trong bảng lệnh, cả ở bảng chính và bảng của trình xem. Chọn một lệnh, nhấn tổ hợp phím bạn muốn, và nó sẽ được thêm vào, thay thế cái hiện có, hoặc được gỡ bỏ lại — các gán phím của bạn sẽ được giữ lại qua các lần khởi động lại."
+  ]
+}

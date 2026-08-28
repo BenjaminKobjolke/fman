@@ -1,0 +1,10 @@
+{
+  "version": "1.7.10",
+  "build": 1,
+  "date": "2026-08-28",
+  "title": "Renombrar comandos y reasignar teclas sin salir de la paleta",
+  "notes": [
+    "Ahora los comandos pueden llevar tu propio nombre. Abre el menú de la entrada de cualquier elemento de la paleta de comandos, cámbiale el nombre por el que realmente uses y, a partir de entonces, se encontrará y se mostrará con ese nombre. El nombre original seguirá siendo buscable, y una acción de restablecer lo devuelve.",
+    "Ahora los atajos de teclado se pueden cambiar desde la propia paleta de comandos, tanto en la paleta principal como en la paleta del visor. Elige un comando, pulsa la combinación de teclas que quieras y se añade, sustituye a la existente o se elimina de nuevo; tus asignaciones se conservan entre reinicios."
+  ]
+}

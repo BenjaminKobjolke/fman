@@ -1,0 +1,10 @@
+{
+  "version": "1.7.10",
+  "build": 1,
+  "date": "2026-08-28",
+  "title": "Hernoem opdrachten en wijs sneltoetsen opnieuw toe zonder het palet te verlaten",
+  "notes": [
+    "Opdrachten kunnen nu je eigen naam dragen. Open het itemmenu voor een item in het opdrachtpalet, hernoem het naar hoe je het zelf noemt, en vanaf dat moment wordt het onder die naam gevonden en weergegeven. De oorspronkelijke naam blijft doorzoekbaar en met een resetactie zet je het terug.",
+    "Sneltoetsen kunnen nu rechtstreeks vanuit het opdrachtpalet worden aangepast, zowel in het hoofdpalet als in het viewerpalet. Kies een opdracht, druk de gewenste toetsencombinatie in en deze wordt toegevoegd, vervangt de bestaande of wordt weer verwijderd — je toewijzingen blijven bewaard na herstarts."
+  ]
+}

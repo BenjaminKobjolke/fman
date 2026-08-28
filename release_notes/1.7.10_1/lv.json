@@ -1,0 +1,10 @@
+{
+  "version": "1.7.10",
+  "build": 1,
+  "date": "2026-08-28",
+  "title": "Pārdēvējiet komandas un pārsaistiet taustiņus, neizejot no paletes",
+  "notes": [
+    "Komandām tagad var piešķirt savu nosaukumu. Atveriet ieraksta izvēlni jebkuram komandu paletes ierakstam, pārdēvējiet to tā, kā jūs to patiesībā saucat, un turpmāk tas tiks atrasts un rādīts ar šo nosaukumu. Sākotnējais nosaukums paliek meklējams, un atiestatīšanas darbība to atjauno.",
+    "Tastatūras īsinājumtaustiņus tagad var mainīt pašā komandu paletē — gan galvenajā paletē, gan skatītāja paletē. Izvēlieties komandu, nospiediet vēlamo taustiņu kombināciju, un tā tiks pievienota, aizstās esošo vai tiks atkal noņemta — jūsu saistījumi tiek saglabāti arī pēc pārstartēšanas."
+  ]
+}

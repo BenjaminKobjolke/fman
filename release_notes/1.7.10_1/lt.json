@@ -1,0 +1,10 @@
+{
+  "version": "1.7.10",
+  "build": 1,
+  "date": "2026-08-28",
+  "title": "Pervadinkite komandas ir priskirkite klavišus iš naujo neišeidami iš paletės",
+  "notes": [
+    "Komandos dabar gali turėti jūsų pasirinktą pavadinimą. Atidarykite bet kurio komandų paletės įrašo meniu, pervadinkite jį taip, kaip iš tikrųjų jį vadinate, ir nuo tada jis bus randamas ir rodomas tuo pavadinimu. Pradinis pavadinimas išlieka paieškoje, o atkūrimo veiksmas grąžina jį atgal.",
+    "Klaviatūros spartieji klavišai dabar gali būti keičiami pačioje komandų paletėje – tiek pagrindinėje, tiek peržiūros paletėje. Pasirinkite komandą, paspauskite norimą klavišų kombinaciją, ir ji bus pridėta, pakeis esamą arba vėl pašalinta – jūsų priskyrimai išliks po paleidimų iš naujo."
+  ]
+}

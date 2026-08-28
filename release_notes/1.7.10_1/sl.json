@@ -1,0 +1,10 @@
+{
+  "version": "1.7.10",
+  "build": 1,
+  "date": "2026-08-28",
+  "title": "Preimenujte ukaze in ponovno povežite tipke, ne da bi zapustili paleto",
+  "notes": [
+    "Ukazi lahko zdaj nosijo vaše lastno ime. Odprite meni vnosa za kateri koli vnos v paleti ukazov, ga preimenujte v to, kot mu dejansko pravite, in od takrat naprej se bo iskal in prikazoval pod tem imenom. Izvirno ime ostane iskano, dejanje ponastavitve pa ga vrne nazaj.",
+    "Bližnjice na tipkovnici je zdaj mogoče spreminjati kar iz same palete ukazov, tako v glavni paleti kot v paleti pregledovalnika. Izberite ukaz, pritisnite želeno kombinacijo tipk in ta se doda, zamenja obstoječo ali pa se znova odstrani – vaše vezave se ohranijo tudi po ponovnem zagonu."
+  ]
+}

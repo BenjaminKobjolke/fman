@@ -1,0 +1,10 @@
+{
+  "version": "1.7.10",
+  "build": 1,
+  "date": "2026-08-28",
+  "title": "Byt namn på kommandon och bind om tangenter utan att lämna paletten",
+  "notes": [
+    "Kommandon kan nu ha ditt eget namn. Öppna postmenyn för valfri post i kommandopaletten, byt namn på den till det du faktiskt kallar den, och därefter hittas och visas den under det namnet. Det ursprungliga namnet förblir sökbart, och en återställningsåtgärd ställer tillbaka det.",
+    "Tangentbordsgenvägar kan nu ändras direkt från kommandopaletten, både i huvudpaletten och i visarpaletten. Välj ett kommando, tryck den tangentkombination du vill använda, så läggs den till, ersätter den befintliga eller tas bort igen – dina bindningar behålls mellan omstarter."
+  ]
+}

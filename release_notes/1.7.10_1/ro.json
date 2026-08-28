@@ -1,0 +1,10 @@
+{
+  "version": "1.7.10",
+  "build": 1,
+  "date": "2026-08-28",
+  "title": "Redenumește comenzile și reasociază tastele fără să părăsești paleta",
+  "notes": [
+    "Comenzile pot avea acum propriul tău nume. Deschide meniul de intrare pentru orice element din paleta de comenzi, redenumește-l cu numele pe care îl folosești tu de fapt, iar de atunci va fi găsit și afișat sub acel nume. Numele original rămâne căutabil, iar o acțiune de resetare îl readuce.",
+    "Scurtăturile de la tastatură pot fi acum schimbate chiar din paleta de comenzi, atât în paleta principală, cât și în paleta vizualizatorului. Alege o comandă, apasă combinația de taste dorită, iar aceasta este adăugată, o înlocuiește pe cea existentă sau este eliminată din nou — asocierile tale se păstrează între reporniri."
+  ]
+}

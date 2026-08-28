@@ -1,0 +1,10 @@
+{
+  "version": "1.7.10",
+  "build": 1,
+  "date": "2026-08-28",
+  "title": "Rename commands and rebind keys without leaving the palette",
+  "notes": [
+    "Commands can now carry your own name. Open the entry menu for any command palette entry, rename it to whatever you actually call it, and it is found and shown under that name from then on. The original name stays searchable, and a reset action puts it back.",
+    "Keyboard shortcuts can now be changed from the command palette itself, in both the main palette and the viewer palette. Pick a command, press the key combination you want, and it is added, replaces the existing one, or is removed again - your bindings are kept across restarts."
+  ]
+}

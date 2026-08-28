@@ -1,0 +1,10 @@
+{
+  "version": "1.7.10",
+  "build": 1,
+  "date": "2026-08-28",
+  "title": "Omdøb kommandoer og ombind genveje uden at forlade paletten",
+  "notes": [
+    "Kommandoer kan nu få dit eget navn. Åbn indgangsmenuen for en vilkårlig kommando i kommandopaletten, omdøb den til det, du faktisk kalder den, og den bliver fremover fundet og vist under det navn. Det oprindelige navn forbliver søgbart, og en nulstil-handling sætter det tilbage.",
+    "Tastaturgenveje kan nu ændres direkte fra selve kommandopaletten, både i hovedpaletten og i visningspaletten. Vælg en kommando, tryk den tastekombination, du ønsker, og den bliver tilføjet, erstatter den eksisterende eller fjernes igen – dine bindinger bevares på tværs af genstarter."
+  ]
+}
