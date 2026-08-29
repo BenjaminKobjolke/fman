@@ -918,26 +918,36 @@ class _Rename(Task):
 		self._dst_url = dst_url
 		super().__init__('Renaming ' + basename(src_url))
 	def __call__(self):
-		self.set_text('Preparing...')
-		tasks = list(prepare_move(self._src_url, self._dst_url))
-		self.set_size(sum(t.get_size() for t in tasks))
-		try:
-			for task in tasks:
-				self.check_canceled()
-				self.run(task)
-		except OSError as e:
-			if isinstance(e, PermissionError):
-				message = 'Access was denied trying to rename %s to %s.'
-			else:
-				message = 'Could not rename %s to %s.'
-			old_name = basename(self._src_url)
-			new_name = basename(self._dst_url)
-			self.show_alert(message % (old_name, new_name))
-		else:
+		# Loop so the alert below can offer Retry: the usual cause of a failure
+		# is another program holding the file open. The user closes it and
+		# retries without having to retype the new name. prepare_move(...) is
+		# re-run per attempt because the tasks it yields are single-use.
+		while True:
+			self.set_text('Preparing...')
+			self.set_progress(0)
+			tasks = list(prepare_move(self._src_url, self._dst_url))
+			self.set_size(sum(t.get_size() for t in tasks))
+			try:
+				for task in tasks:
+					self.check_canceled()
+					self.run(task)
+			except OSError as e:
+				if isinstance(e, PermissionError):
+					message = 'Access was denied trying to rename %s to %s.'
+				else:
+					message = 'Could not rename %s to %s.'
+				old_name = basename(self._src_url)
+				new_name = basename(self._dst_url)
+				message %= (old_name, new_name)
+				# Escape returns 0, which is falsy here - so it cancels:
+				if self.show_alert(message, RETRY | CANCEL, RETRY) & RETRY:
+					continue
+				return
 			try:
 				self._pane.place_cursor_at(self._dst_url)
 			except ValueError as file_disappeared:
 				pass
+			return
 
 class CreateDirectory(DirectoryPaneCommand):
 

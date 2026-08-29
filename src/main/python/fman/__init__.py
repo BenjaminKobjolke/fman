@@ -24,7 +24,7 @@ __all__ = [
 	'clipboard',
 	'submit_task', 'Task',
 	'PLATFORM', 'FMAN_VERSION', 'DATA_DIRECTORY',
-	'OK', 'CANCEL', 'YES', 'NO', 'YES_TO_ALL', 'NO_TO_ALL', 'ABORT'
+	'OK', 'CANCEL', 'YES', 'NO', 'YES_TO_ALL', 'NO_TO_ALL', 'ABORT', 'RETRY'
 ]
 
 YES = QMessageBox.Yes
@@ -32,6 +32,7 @@ NO = QMessageBox.No
 YES_TO_ALL = QMessageBox.YesToAll
 NO_TO_ALL = QMessageBox.NoToAll
 ABORT = QMessageBox.Abort
+RETRY = QMessageBox.Retry
 OK = QMessageBox.Ok
 CANCEL = QMessageBox.Cancel
 
