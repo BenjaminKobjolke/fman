@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, patch
 
 # unmount_widget is decorated with @run_in_main_thread, which needs a
 # QApplication to exist (even though it never enters its event loop) - same
-# reason core/tests/commands/test___init__.py:24 creates one.
+# reason core/tests/commands/test_pane_view.py creates one.
 _APP = QApplication.instance() or QApplication([])
 
 def _pane_widget():

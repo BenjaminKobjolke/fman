@@ -1,10 +1,17 @@
-from fman import PLATFORM
-from fman.url import splitscheme
+from fman import PLATFORM, show_alert
+from fman.fs import is_dir
+from fman.url import as_human_readable, splitscheme
 from getpass import getuser
 from os.path import expanduser
 from PyQt5.QtCore import QFileInfo
 
 import os
+
+# The two messages several unrelated commands answer with. They are one
+# string each rather than one literal per command so the wording cannot
+# drift between the command that deletes and the command that packs.
+NO_SELECTION = 'No file is selected!'
+CANNOT_READ = 'Could not read from %s (%s)'
 
 if PLATFORM == 'Windows':
 	import winreg
@@ -83,6 +90,41 @@ def is_file_url(url):
 	# window, external), and none of them may import another without making
 	# core/commands/__init__.py's star imports circular.
 	return splitscheme(url)[0] == 'file://'
+
+def chosen_files(command):
+	# The selection a "do this to the chosen files" command starts from.
+	# Alerts and returns [] when there is none, so each caller is one `if
+	# not files: return` instead of its own copy of the guard.
+	files = command.get_chosen_files()
+	if not files:
+		show_alert(NO_SELECTION)
+	return files
+
+def is_dir_checked(url, alert=show_alert):
+	# is_dir(...), except that a file system which cannot answer at all
+	# (a disconnected share, a permission error) alerts and yields None
+	# rather than raising - callers here want to stop, not to crash. None
+	# and False are different answers, so test with `is None`.
+	try:
+		return is_dir(url)
+	except OSError as e:
+		alert(CANNOT_READ % (as_human_readable(url), e))
+		return None
+
+def require_file_url(url, gerund):
+	# The commands that hand a file to another program can only do so for a
+	# real path on disk. They all point the user at the plugin API in the
+	# same breath, so the hint lives here rather than being retyped per
+	# command. `gerund` names the action: 'Opening', 'Editing'.
+	scheme = splitscheme(url)[0]
+	if scheme == 'file://':
+		return True
+	show_alert(
+		'%s files from %s is not supported. If you are a plugin developer, '
+		'you can implement this with DirectoryPaneListener#on_command(...).'
+		% (gerund, scheme)
+	)
+	return False
 
 def get_opposite_pane(pane):
 	# Same reason as is_file_url above: the panes' "the other one" lookup is

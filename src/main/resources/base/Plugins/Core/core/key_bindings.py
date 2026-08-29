@@ -6,8 +6,9 @@ configured, not a hardcoded default. Shared by the global command palette
 (hint display, core/commands/palette.py) and the text viewer (matching
 keystrokes against the user's configured zoom shortcuts, and showing hints
 in its own palette, core/textviewer.py). Kept in its own module since
-core/commands/__init__.py imports core/textviewer.py at module load - the
-reverse import would be circular.
+the Core command package imports core/textviewer.py at module load
+(core/commands/opening.py -> core/viewers.py) - the reverse import would
+be circular.
 """
 from fman import PLATFORM
 

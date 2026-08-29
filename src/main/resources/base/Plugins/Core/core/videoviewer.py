@@ -1,7 +1,7 @@
 """
 A minimal read-only video viewer shown inside a directory pane, in place of
 the file list - the "View file" command's video counterpart to
-core/imageviewer.py's PaneImageView (see ViewFile in core/commands/__init__.py,
+core/imageviewer.py's PaneImageView (see ViewFile in core/commands/opening.py,
 which routes to whichever viewer matches the file's extension via
 is_video()). Reuses core/textviewer_pane.py's pane-mounting glue
 (begin_new_view/mount_view/close_view) as-is, the same way the image viewer
@@ -14,7 +14,7 @@ on OS-provided codecs.
 `mpv` is imported lazily (inside show_video_viewer), not at module level:
 importing it raises OSError immediately if the native libmpv binary isn't on
 the system - and since this module is imported unconditionally by
-core/commands/__init__.py, an eager import would crash the whole Core plugin
+core/commands/opening.py, an eager import would crash the whole Core plugin
 (every command, not just video viewing) on a machine without libmpv
 installed. Deferring it means is_video()/browsing files still work, and only
 actually opening a video needs the native library.

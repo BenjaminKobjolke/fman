@@ -1,7 +1,7 @@
 """
 A minimal read-only image viewer shown inside a directory pane, in place of
 the file list - the "View file" command's image counterpart to
-core/textviewer.py's PaneTextView (see ViewFile in core/commands/__init__.py,
+core/textviewer.py's PaneTextView (see ViewFile in core/commands/opening.py,
 which routes to whichever viewer matches the file's extension via
 is_image()). Reuses core/textviewer_pane.py's pane-mounting glue
 (begin_new_view/mount_view/close_view) as-is; the only shared-code change is

@@ -4,12 +4,12 @@
 offer Retry without the user retyping the new name - see its own comment.
 """
 from core.commands.editor import _find_extension_start
+from core.commands.util import is_dir_checked, NO_SELECTION
 from fman import CANCEL, DirectoryPaneCommand, DirectoryPaneListener, \
 	PLATFORM, RETRY, show_alert, show_prompt, submit_task, Task
-from fman.fs import exists, FileSystem, is_dir, makedirs, prepare_move, \
+from fman.fs import exists, FileSystem, makedirs, prepare_move, \
 	query, samefile
-from fman.url import as_human_readable, dirname, join, normalize, relpath, \
-	splitscheme
+from fman.url import dirname, join, normalize, relpath, splitscheme
 # os.path.basename, not fman.url's, matching what core/commands/__init__.py
 # resolved this name to before this module existed.
 from os.path import basename, pardir
@@ -22,13 +22,8 @@ class Rename(DirectoryPaneCommand):
 	def __call__(self):
 		file_under_cursor = self.pane.get_file_under_cursor()
 		if file_under_cursor:
-			try:
-				file_is_dir = is_dir(file_under_cursor)
-			except OSError as e:
-				show_alert(
-					'Could not read from %s (%s)' %
-					(as_human_readable(file_under_cursor), e)
-				)
+			file_is_dir = is_dir_checked(file_under_cursor)
+			if file_is_dir is None:
 				return
 			if file_is_dir:
 				selection_end = None
@@ -37,7 +32,7 @@ class Rename(DirectoryPaneCommand):
 				selection_end = _find_extension_start(file_name)
 			self.pane.edit_name(file_under_cursor, selection_end=selection_end)
 		else:
-			show_alert('No file is selected!')
+			show_alert(NO_SELECTION)
 	def is_visible(self):
 		return bool(self.pane.get_file_under_cursor())
 

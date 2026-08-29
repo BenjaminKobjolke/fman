@@ -9,6 +9,7 @@ implement `prepare_trash`.
 from fman import DirectoryPaneCommand, PLATFORM, show_alert, submit_task, \
 	Task, NO, YES, YES_TO_ALL
 from fman.fs import prepare_delete, prepare_trash
+from core.commands.util import NO_SELECTION
 from fman.url import splitscheme
 from io import UnsupportedOperation
 from os import strerror
@@ -24,7 +25,7 @@ class MoveToTrash(DirectoryPaneCommand):
 		if urls is None:
 			urls = self.get_chosen_files()
 		if not urls:
-			show_alert('No file is selected!')
+			show_alert(NO_SELECTION)
 			return
 		description = _describe(urls, 'these %d files')
 		trash = 'Recycle Bin' if PLATFORM == 'Windows' else 'Trash'
@@ -39,7 +40,7 @@ class DeletePermanently(DirectoryPaneCommand):
 		if urls is None:
 			urls = self.get_chosen_files()
 		if not urls:
-			show_alert('No file is selected!')
+			show_alert(NO_SELECTION)
 			return
 		description = _describe(urls, 'these %d items')
 		message = \

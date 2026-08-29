@@ -19,7 +19,7 @@ from fman.impl.view.pane_mount import unmount_widget
 # draws the blinking text caret if `color`/`background-color` are set
 # explicitly; otherwise it silently stops drawing it. This mirrors the same
 # wildcard-rule problem the font-size feature works around for the file list
-# (`FileListView { font-size: ...pt; }`, commands/__init__.py) — a local
+# (`FileListView { font-size: ...pt; }`, commands/pane_view.py) — a local
 # type-selector override wins over the global `*` rule. `bg`/`fg` are read
 # from the live file view's palette (see begin_new_view) so the viewer
 # always matches the pane colors, whatever theme set them. `font_size`, when

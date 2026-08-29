@@ -19,7 +19,7 @@ add_dll_directory() is never consulted by that lookup. Confirmed end-to-end
 during development: prepending %PATH% and then `import mpv` succeeds.
 
 The download runs via fman's own Task/submit_task machinery (the same one
-core/commands/__init__.py uses for copy/move/delete/rename), which gives a
+core/commands/ uses for copy/move/delete/rename), which gives a
 real byte-accurate QProgressDialog for free and - just as importantly - is
 designed to be driven from a background thread. ensure_libmpv_on_path() must
 be called from show_video_viewer() *before* it hands off to the

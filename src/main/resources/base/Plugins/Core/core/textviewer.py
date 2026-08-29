@@ -1,6 +1,6 @@
 """
 A minimal text viewer/editor shown inside a directory pane, in place of the
-file list. Triggered by the "View file" command (see core/commands/__init__.py
+file list. Triggered by the "View file" command (see core/commands/opening.py
 - ViewFile) via show_text_viewer(pane, url), which reads `url` from disk.
 Enter/double-click still open files with the OS default app; this is a
 separate, palette-only path. Opens read-only; a viewer-scoped command palette

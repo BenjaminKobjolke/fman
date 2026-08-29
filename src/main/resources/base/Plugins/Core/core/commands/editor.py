@@ -4,13 +4,14 @@
 handed straight to the same editor, with the same "pick one" flow when none is
 configured yet.
 """
-from core.commands.util import get_program_files, get_program_files_x86
+from core.commands.util import get_program_files, get_program_files_x86, \
+	require_file_url, NO_SELECTION
 from core.os_ import get_popen_kwargs_for_opening
 from core.util import strformat_dict_values
 from fman import CANCEL, DirectoryPaneCommand, load_json, OK, PLATFORM, \
 	save_json, show_alert, show_file_open_dialog, show_prompt
 from fman.fs import exists, is_dir, resolve, touch
-from fman.url import as_human_readable, join, splitscheme
+from fman.url import as_human_readable, join
 # os.path.basename, not fman.url's: it is applied to the name part of a URL,
 # which is what core/commands/__init__.py did before this module existed.
 from os.path import basename
@@ -30,16 +31,10 @@ class OpenWithEditor(DirectoryPaneCommand):
 		if url is None:
 			url = self.pane.get_file_under_cursor()
 		if not url:
-			show_alert('No file is selected!')
+			show_alert(NO_SELECTION)
 			return
 		url = resolve(url)
-		scheme = splitscheme(url)[0]
-		if scheme != 'file://':
-			show_alert(
-				'Editing files from %s is not supported. If you are a plugin '
-				'developer, you can implement this with '
-				'DirectoryPaneListener#on_command(...).' % scheme
-			)
+		if not require_file_url(url, 'Editing'):
 			return
 		editor = self._get_editor()
 		if editor:

@@ -15,7 +15,7 @@ SNIFF_BYTES = 8192
 def is_text_file(path):
 	"""
 	Cheap binary/text sniff used to decide whether the internal viewer should
-	touch `path` at all (see ViewFile/OpenOrView in core/commands/__init__.py)
+	touch `path` at all (see ViewFile/OpenOrView in core/commands/opening.py)
 	rather than routing it to the text viewer, which would otherwise render
 	.exe/.zip/etc. as garbled replacement characters. Reads the first chunk
 	and calls anything containing a NUL byte binary — avoids maintaining an

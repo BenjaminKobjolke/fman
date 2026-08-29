@@ -2,7 +2,7 @@
 Which of the three built-in viewers claims which file, and the local-file
 guard in front of them. This is the half of "View file" that used to be the
 if/elif chain in core/commands/__init__.py; the other half (validation,
-which pane, focus) is in tests/commands/test___init__.py.
+which pane, focus) is in tests/commands/test_opening.py.
 """
 from core.viewers import ImageViewer, TextViewer, VideoViewer, viewer_for
 from fman.url import as_url

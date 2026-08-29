@@ -40,7 +40,7 @@ class CopyToClipboard(DirectoryPaneCommand):
 			clipboard.copy_files(files)
 			_report_clipboard_action('Copying', files)
 		else:
-			show_alert('No file is selected!')
+			show_alert(NO_SELECTION)
 	def is_visible(self):
 		return bool(self.pane.get_file_under_cursor())
 
@@ -57,7 +57,7 @@ class Cut(DirectoryPaneCommand):
 			clipboard.cut_files(files)
 			_report_clipboard_action('Cutting', files)
 		else:
-			show_alert('No file is selected!')
+			show_alert(NO_SELECTION)
 	def is_visible(self):
 		return bool(self.pane.get_file_under_cursor())
 
