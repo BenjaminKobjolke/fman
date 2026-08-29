@@ -47,7 +47,7 @@ the command in the palette without ever being shown. See
 
 ## Implementation
 
-- `src/main/resources/base/Plugins/Core/core/commands/__init__.py` —
+- `src/main/resources/base/Plugins/Core/core/commands/opening.py` —
   `OpenOrView` (`DirectoryPaneCommand`). Checks `is_dir`, the URL scheme,
   and `_is_viewable` (shared with `ViewFile`) on the file under the
   cursor, then routes via `self.pane.run_command('view_file')` or

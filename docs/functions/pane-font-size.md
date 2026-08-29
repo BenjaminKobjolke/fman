@@ -129,8 +129,9 @@ These can be rebound in `Key Bindings.json` like any other command, e.g.:
   `_clamp_font_size` so the moved bodies read as they always did. They were
   split out so the
   [text viewer's own zoom](../views/TEXT_VIEWER.md#zoom) could reuse them
-  without a circular import (`core/commands/__init__.py` imports
-  `core/textviewer.py` at module load, so the reverse import isn't possible).
+  without a circular import (the Core command package imports
+  `core/textviewer.py` at module load, via `core/commands/opening.py`, so
+  the reverse import isn't possible).
 - Likewise, `_get_saved_pane_font_size`/`_save_pane_font_size` are now thin
   wrappers over `core/settings.py`'s generic `get_setting`/`save_setting`
   (`json_name, key[, value]`) — extracted once the text viewer's own zoom

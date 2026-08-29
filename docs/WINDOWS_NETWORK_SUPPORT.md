@@ -177,7 +177,7 @@ Neither freezes the UI, but both are worth knowing about:
   needs nothing: `location_disappeared` navigates elsewhere, which produces a
   fresh `location_changed`.
 - Tests:
-  - `src/main/resources/base/Plugins/Core/core/tests/commands/test___init__.py`
+  - `src/main/resources/base/Plugins/Core/core/tests/commands/test_hidden_files.py`
     (`HiddenFileFilterTest` — hidden, not hidden, failing `stat`, and that a
     non-`file://` URL is never stat'ed)
   - `src/main/resources/base/Plugins/Core/core/tests/fs/test_network.py`

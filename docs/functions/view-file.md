@@ -68,7 +68,7 @@ viewing in place (and there the viewer takes focus as usual).
 
 ## Implementation
 
-- `src/main/resources/base/Plugins/Core/core/commands/__init__.py` —
+- `src/main/resources/base/Plugins/Core/core/commands/opening.py` —
   `ViewFile` (`DirectoryPaneCommand`). Validates the file under the cursor
   (exists, not a directory, local `file://` scheme), then routes on
   `is_image(url)`/`is_video(url)`/`is_text_file(...)`: image files call

@@ -9,7 +9,7 @@ For where plugins live, load order and the other plugin commands, see
 [`docs/PLUGINS.md`](PLUGINS.md). For writing one, see
 [`docs/PLUGINS_API.md`](PLUGINS_API.md).
 
-Implementation: `core/commands/__init__.py` (`InstallPlugin`),
+Implementation: `core/commands/plugins.py` (`InstallPlugin`),
 `core/github.py`, `core/net.py`.
 
 ## Running it

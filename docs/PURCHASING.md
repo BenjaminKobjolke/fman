@@ -26,7 +26,8 @@ machinery outright rather than leaving it dormant:
   [WINDOW_TITLE_AND_BARS.md](WINDOW_TITLE_AND_BARS.md)).
 - **The `install_license_key` command** and the listener that offered to install
   any file named `User.json` you tried to open, both in
-  `src/main/resources/base/Plugins/Core/core/commands/__init__.py`.
+  `src/main/resources/base/Plugins/Core/core/commands/` (the command
+  package - both were deleted before it was split into modules).
 - **The registration line in `About`** — the About dialog now shows only the fman
   version.
 - **The `BUY` and `LOGIN` links** — removed from `src/main/python/fman/links.py`

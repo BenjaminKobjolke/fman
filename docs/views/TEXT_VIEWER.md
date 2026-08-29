@@ -277,8 +277,9 @@ genuinely separate concerns (reading a file vs. the Qt widget vs. zoom):
   and the min/max bounds, shared verbatim by both this feature and
   [pane font size](../functions/pane-font-size.md) so the two zoom features
   step/clamp identically. Split into its own module (rather than one
-  importing the other) because `core/commands/__init__.py` imports
-  `core/textviewer.py` at load time — the reverse import would be circular.
+  importing the other) because the Core command package imports
+  `core/textviewer.py` at load time, via `core/commands/opening.py` — the
+  reverse import would be circular.
 - `src/main/resources/base/Plugins/Core/core/key_bindings.py` —
   `get_shortcuts_for_command(key_bindings, command)` (which shortcut(s) the
   user currently has a command bound to, in the merged
@@ -465,9 +466,9 @@ genuinely separate concerns (reading a file vs. the Qt widget vs. zoom):
     immediately, since the command palette's modal dialog restores focus to
     the (now hidden) file view as it closes, right before this code runs —
     grabbing focus synchronously would get clobbered by that restore.
-- `src/main/resources/base/Plugins/Core/core/commands/__init__.py` —
+- `src/main/resources/base/Plugins/Core/core/commands/opening.py` —
   `ViewFile` (`DirectoryPaneCommand`), the palette command that triggers this;
-  see [`docs/functions/view-file.md`](../functions/view-file.md). Also where
+  see [`docs/functions/view-file.md`](../functions/view-file.md). `core/commands/pane_view.py` is where
   `increase_pane_font_size`/`decrease_pane_font_size`/`reset_pane_font_size`
   live (pane font-size zoom, reused by `core/textviewer_zoom.py` as above).
 - Tests, split the same way as the production modules:

@@ -148,7 +148,7 @@ pane's focus proxy/Tab handling are re-pointed at it the same way.
   False)`, so an image view (always read-only) safely reports "fine to
   close" instead of raising `AttributeError`. The only change to code
   shared with the text viewer.
-- `src/main/resources/base/Plugins/Core/core/commands/__init__.py` —
+- `src/main/resources/base/Plugins/Core/core/commands/opening.py` —
   `ViewFile.__call__` branches on `is_image(url)` after its existing
   exists/not-a-directory/local-file guards, calling `show_image_viewer`
   instead of `show_text_viewer` for image files; see

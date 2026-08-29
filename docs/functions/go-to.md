@@ -130,7 +130,7 @@ Bind any of them to a key in `Key Bindings.json` like any other command
   `Plugins/Core/core/commands/util.py` (`get_well_known_dirs`,
   `shell_folder`) — shared by GoTo and the palette commands
 - `go_up` / `go_back` / `go_forward` / `go_to_root_of_current_drive`:
-  `Plugins/Core/core/commands/__init__.py`
+  `Plugins/Core/core/commands/navigation.py`
 - Hidden keywords: `Plugins/Core/Command Keywords.json`
 - Default bindings: `Plugins/Core/Key Bindings.json` and
   `Key Bindings (Windows|Mac|Linux).json`

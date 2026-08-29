@@ -88,7 +88,7 @@ e.g.:
      columns to relayout and fill the pane immediately — otherwise nothing
      triggers that relayout until the next real `resizeEvent` (e.g. the user
      resizing the window).
-- `src/main/resources/base/Plugins/Core/core/tests/commands/test___init__.py`
+- `src/main/resources/base/Plugins/Core/core/tests/commands/test_columns.py`
   — `FindColumnIndexTest` covers the pure index-lookup logic, including the
   "column doesn't exist here" case. The live-relayout fix itself needs a real
   Qt view and isn't covered by a unit test.

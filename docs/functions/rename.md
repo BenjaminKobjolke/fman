@@ -96,6 +96,6 @@ Three pieces, all in
 listed in `__all__`, so plugins get it from `from fman import *`.
 
 Tests: `RenameTest` in
-`src/main/resources/base/Plugins/Core/core/tests/commands/test___init__.py`
+`src/main/resources/base/Plugins/Core/core/tests/commands/test_rename.py`
 covers retry (the move is re-run, cursor lands on the destination) and
 both ways of giving up (Cancel, and `Esc`'s `0`).

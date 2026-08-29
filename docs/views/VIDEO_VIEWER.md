@@ -118,7 +118,7 @@ without depending on whatever codecs happen to be installed on the OS.
     the user data dir.
   - **Real progress dialog, not a status-bar message.** The download runs
     as an `fman.Task` submitted via `fman.submit_task` — the same mechanism
-    `core/commands/__init__.py` uses for copy/move/delete/rename — which
+    `core/commands/` uses for copy/move/delete/rename — which
     pops a byte-accurate `QProgressDialog` (with a working Cancel button)
     once the download runs past ~1 second. `show_video_viewer()` is
     deliberately *not* `@run_in_main_thread`: fman already runs each
@@ -152,7 +152,7 @@ without depending on whatever codecs happen to be installed on the OS.
     not at import time, so a runtime `os.environ` tweak is too late.
 - **Missing libmpv doesn't break fman.** `import mpv` raises `OSError`
   immediately if the native library isn't found — and since `videoviewer.py`
-  is imported unconditionally by `core/commands/__init__.py`, an eager
+  is imported unconditionally by `core/commands/opening.py`, an eager
   top-level `import mpv` would have broken *every* command on a machine
   without libmpv installed. The import (and, on Windows,
   `ensure_libmpv_on_path()`) is deferred to the moment a video is actually
@@ -252,7 +252,7 @@ The video viewer reuses the identical pane-mounting glue
   progress reporting (see "Playback backend" above), so it streams via
   `requests.get(..., stream=True)` directly instead — a genuinely different
   capability `get_bytes`'s small in-memory GitHub API fetches don't need.
-- `src/main/resources/base/Plugins/Core/core/commands/__init__.py` —
+- `src/main/resources/base/Plugins/Core/core/commands/opening.py` —
   `ViewFile.__call__` branches on `is_video(url)` (checked after
   `is_image(url)`, before the text fallback), calling `show_video_viewer`
   instead of `show_image_viewer`/`show_text_viewer` for video files; see

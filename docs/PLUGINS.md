@@ -120,6 +120,6 @@ the collision is reported at load time, where it can name both paths.
   `_report_if_package_name_taken`, and the unload actions.
 - `src/main/python/fman/impl/plugins/__init__.py` — `PluginSupport`, which
   holds the loaded plugins and backs `fman.load_plugin` / `fman.unload_plugin`.
-- `src/main/resources/base/Plugins/Core/core/commands/__init__.py` —
+- `src/main/resources/base/Plugins/Core/core/commands/plugins.py` —
   `InstallPlugin`, `ListPlugins`, `RemovePlugin`, `ReloadPlugins` and
   `PreservePanePaths`.
