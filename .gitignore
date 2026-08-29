@@ -19,6 +19,9 @@ PLAN.md
 HANDOFF.md
 PLAN_REFRACTOR.md
 /PLAN_*.md
+# Dash-named plan working files and delegate run logs
+/PLAN-*.md
+/PLAN-*.log
 graphify-out
 # Records the scan root the graph was built from, for `graphify update`. Listed
 # explicitly (the line above already covers it) because it is tempting to commit
