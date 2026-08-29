@@ -93,6 +93,10 @@ command palette — see
 | `Alt+Up` | `increase_pane_font_size` |
 | `Alt+Down` | `decrease_pane_font_size` |
 
+`Shift+F6` edits the name in place rather than opening a dialog, and offers
+*Retry* when the rename fails — see
+[`docs/functions/rename.md`](functions/rename.md).
+
 ## Windows additions
 
 | Keys | Command |
