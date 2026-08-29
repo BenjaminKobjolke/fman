@@ -9,40 +9,25 @@ Deliberately decoupled from PyQt widget styling: callers pass an `apply_size`
 callback (new size, or None to clear the override) rather than this module
 touching stylesheets itself.
 """
-from core.font_size import clamp_font_size
+from core.font_size import change_font_size, effective_font_size, 	get_saved_font_size, reset_font_size, save_font_size
 from core.key_bindings import format_shortcut_hint, get_shortcuts_for_command
-from core.settings import get_setting, save_setting
-from fman import PLATFORM
-from PyQt5.QtGui import QFontInfo
 
-_FALLBACK_VIEW_FONT_SIZE = 11 if PLATFORM == 'Mac' else 9
 _SETTING_KEY = 'text_viewer_font_size'
 
 def get_saved_view_font_size():
-	return get_setting('Core Settings.json', _SETTING_KEY)
+	return get_saved_font_size(_SETTING_KEY)
 
 def save_view_font_size(size):
-	# size=None clears the override (Reset), falling back to the theme's own
-	# font again - mirrors _save_pane_font_size in commands/__init__.py.
-	save_setting('Core Settings.json', _SETTING_KEY, size)
+	save_font_size(_SETTING_KEY, size)
 
 def effective_view_font_size(view):
-	# Base to step from: whatever font Qt is actually rendering the viewer
-	# with right now (theme default, or a previously-applied override).
-	size = QFontInfo(view.font()).pointSize()
-	return size if size > 0 else _FALLBACK_VIEW_FONT_SIZE
+	return effective_font_size(view.font)
 
 def change_view_font_size(view, apply_size, delta):
-	base = get_saved_view_font_size()
-	if base is None:
-		base = effective_view_font_size(view)
-	new_size = clamp_font_size(base, delta)
-	save_view_font_size(new_size)
-	apply_size(new_size)
+	change_font_size(_SETTING_KEY, view.font, apply_size, delta)
 
 def reset_view_font_size(apply_size):
-	save_view_font_size(None)
-	apply_size(None)
+	reset_font_size(_SETTING_KEY, apply_size)
 
 def zoom_actions(view, apply_size, key_bindings):
 	"""

@@ -7,14 +7,12 @@ of the global in another module would silently break the icon scaling that
 derives from it (see docs/ICONS.md).
 """
 from core.commands.util import get_opposite_pane
-from core.font_size import clamp_font_size as _clamp_font_size
-from core.settings import get_setting, save_setting
-from fman import DirectoryPaneCommand, DirectoryPaneListener, PLATFORM
+from core.font_size import change_font_size, effective_font_size, 	get_saved_font_size, reset_font_size
+from fman import DirectoryPaneCommand, DirectoryPaneListener
 # Not in fman's __all__, so a star import would not bring these in - the same
 # reason commands/theme.py names the icon functions explicitly.
 from fman import set_icon_scale, set_palette_font_scale
 from fman.impl.util.qt.thread import run_in_main_thread
-from PyQt5.QtGui import QFontInfo
 
 __all__ = [
 	'DecreasePaneFontSize', 'IncreasePaneFontSize', 'InitPaneFontSize',
@@ -65,10 +63,11 @@ class ShowAllPanes(DirectoryPaneCommand):
 			pane._widget.setVisible(True)
 		self.pane.focus()
 
-_FALLBACK_PANE_FONT_SIZE = 11 if PLATFORM == 'Mac' else 9
-# _clamp_font_size / _MIN_PANE_FONT_SIZE / _MAX_PANE_FONT_SIZE live in
-# core/font_size (imported above) so the text viewer's own zoom can reuse
-# them without a circular import - see that module's docstring.
+_SETTING_KEY = 'pane_font_size'
+# The read/clamp/save/apply algorithm lives in core/font_size (imported
+# above) so the text viewer's own zoom can reuse it without a circular
+# import - see that module's docstring. Only the two things below are the
+# pane's own: the icon-scale baseline, and applying a size to every pane.
 
 # The pane font size before this session zoomed anything, which is what the
 # icons are scaled relative to. It can only be read off a live view that has
@@ -76,24 +75,12 @@ _FALLBACK_PANE_FONT_SIZE = 11 if PLATFORM == 'Mac' else 9
 # first moment either code path has a pane in hand - see docs/ICONS.md.
 _base_pane_font_size = None
 
-def _get_saved_pane_font_size():
-	return get_setting('Core Settings.json', 'pane_font_size')
-
-def _save_pane_font_size(size):
-	# size=None clears the override (Reset), falling back to the theme's own
-	# font again.
-	save_setting('Core Settings.json', 'pane_font_size', size)
-
-def _effective_font_size(pane):
-	# Base to step from: the theme's actual pane font (respects a user
-	# Theme.css), read off the live view before any override is applied.
-	try:
-		size = QFontInfo(pane._widget._file_view.font()).pointSize()
-		if size > 0:
-			return size
-	except (AttributeError, RuntimeError):
-		pass
-	return _FALLBACK_PANE_FONT_SIZE
+def _pane_font(pane):
+	# The theme's actual pane font (respects a user Theme.css), read off the
+	# live view. Passed to core/font_size as a callable, not a QFont: reaching
+	# through a pane that is going away raises, and that has to be caught
+	# where the fallback is.
+	return pane._widget._file_view.font()
 
 @run_in_main_thread
 def _apply_pane_font_size(pane, size):
@@ -107,7 +94,7 @@ def _remember_base_pane_font_size(pane):
 	# the override, and the theme's own size is gone for the session.
 	global _base_pane_font_size
 	if _base_pane_font_size is None:
-		_base_pane_font_size = _effective_font_size(pane)
+		_base_pane_font_size = effective_font_size(lambda: _pane_font(pane))
 
 def _apply_zoom_scale(size):
 	# The icons and the command palette zoom with the pane text, from
@@ -123,23 +110,25 @@ def _apply_zoom_scale(size):
 	set_icon_scale(factor)
 	set_palette_font_scale(factor)
 
-def _change_pane_font_size(window, delta):
-	base = _get_saved_pane_font_size()
-	first_pane = window.get_panes()[0]
-	_remember_base_pane_font_size(first_pane)
-	if base is None:
-		base = _effective_font_size(first_pane)
-	new_size = _clamp_font_size(base, delta)
-	_save_pane_font_size(new_size)
+def _apply_to_all_panes(window, size):
 	for pane in window.get_panes():
-		_apply_pane_font_size(pane, new_size)
-	_apply_zoom_scale(new_size)
+		_apply_pane_font_size(pane, size)
+	_apply_zoom_scale(size)
+
+def _change_pane_font_size(window, delta):
+	first_pane = window.get_panes()[0]
+	# Before the step, not after: once an override is applied the view reports
+	# it, and the theme's own size - the icon scale's baseline - is gone.
+	_remember_base_pane_font_size(first_pane)
+	change_font_size(
+		_SETTING_KEY, lambda: _pane_font(first_pane),
+		lambda size: _apply_to_all_panes(window, size), delta
+	)
 
 def _reset_pane_font_size(window):
-	_save_pane_font_size(None)
-	for pane in window.get_panes():
-		_apply_pane_font_size(pane, None)
-	_apply_zoom_scale(None)
+	reset_font_size(
+		_SETTING_KEY, lambda size: _apply_to_all_panes(window, size)
+	)
 
 class IncreasePaneFontSize(DirectoryPaneCommand):
 
@@ -168,7 +157,7 @@ class InitPaneFontSize(DirectoryPaneListener):
 		super().__init__(*args, **kwargs)
 		# Mirrors InitHiddenFilesFilter: fman instantiates commands lazily,
 		# so re-applying a saved setting on startup has to happen here.
-		size = _get_saved_pane_font_size()
+		size = get_saved_font_size(_SETTING_KEY)
 		# Unconditionally, and before applying: this is the only moment in a
 		# session where the pane still reports the theme's own font size, so
 		# it is the only moment the icon scale's baseline can be read.
