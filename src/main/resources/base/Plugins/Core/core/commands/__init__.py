@@ -1,7 +1,6 @@
 from core.command_keywords import get_keywords
 from core.command_titles import apply_custom_title
-from core.commands.util import get_program_files, get_program_files_x86, \
-	is_hidden
+from core.commands.util import get_program_files, get_program_files_x86
 from core.fileoperations import CopyFiles, MoveFiles
 from core.font_size import clamp_font_size as _clamp_font_size, \
 	MIN_FONT_SIZE as _MIN_PANE_FONT_SIZE, MAX_FONT_SIZE as _MAX_PANE_FONT_SIZE
@@ -39,7 +38,6 @@ from io import UnsupportedOperation
 from itertools import chain
 from os import strerror
 from os.path import basename, pardir
-from stat import FILE_ATTRIBUTE_HIDDEN
 from pathlib import PurePath
 from PyQt5.QtCore import QUrl
 from PyQt5.QtGui import QDesktopServices, QFontInfo
@@ -55,7 +53,9 @@ import os.path
 import re
 import sys
 
+from .clipboard import *
 from .goto import *
+from .hidden_files import *
 from .places import *
 from .release_notes import *
 from .theme import *
@@ -1020,78 +1020,6 @@ class OpenNativeFileManager(DirectoryPaneCommand):
 			return
 		open_native_file_manager(as_human_readable(url))
 
-class CopyPathsToClipboard(DirectoryPaneCommand):
-	def __call__(self):
-		to_copy = self.get_chosen_files() or [self.pane.get_path()]
-		files = '\n'.join(to_copy)
-		clipboard.clear()
-		clipboard.set_text('\n'.join(map(as_human_readable, to_copy)))
-		_report_clipboard_action('Copied', to_copy, ' to the clipboard', 'path')
-
-def _report_clipboard_action(verb, files, suffix='', ftype='file'):
-	num = len(files)
-	first_file = as_human_readable(files[0])
-	if num == 1:
-		message = '%s %s%s' % (verb, first_file, suffix)
-	else:
-		plural = 's' if num > 2 else ''
-		message = '%s %s and %d other %s%s%s' % \
-				  (verb, first_file, num - 1, ftype, plural, suffix)
-	show_status_message(message, timeout_secs=3)
-
-class CopyToClipboard(DirectoryPaneCommand):
-	def __call__(self):
-		files = self.get_chosen_files()
-		if files:
-			clipboard.copy_files(files)
-			_report_clipboard_action('Copying', files)
-		else:
-			show_alert('No file is selected!')
-	def is_visible(self):
-		return bool(self.pane.get_file_under_cursor())
-
-class Cut(DirectoryPaneCommand):
-	def __call__(self):
-		if PLATFORM == 'Mac':
-			show_alert(
-				"Sorry, macOS doesn't support cutting files. Please press "
-				"⌘-C (copy) followed by ⌘-⌥-V (move)."
-			)
-			return
-		files = self.get_chosen_files()
-		if files:
-			clipboard.cut_files(files)
-			_report_clipboard_action('Cutting', files)
-		else:
-			show_alert('No file is selected!')
-	def is_visible(self):
-		return bool(self.pane.get_file_under_cursor())
-
-class Paste(DirectoryPaneCommand):
-	def __call__(self):
-		files = clipboard.get_files()
-		if not files:
-			return
-		if clipboard.files_were_cut():
-			self.pane.run_command('paste_cut')
-		else:
-			dest = self.pane.get_path()
-			self.pane.run_command('copy', {'files': files, 'dest_dir': dest})
-	def is_visible(self):
-		return bool(clipboard.get_files())
-
-class PasteCut(DirectoryPaneCommand):
-	def __call__(self):
-		files = clipboard.get_files()
-		if not any(map(exists, files)):
-			# This can happen when the paste-cut has already been performed.
-			return
-		dest_dir = self.pane.get_path()
-		self.pane.run_command('move', {
-			'files': files,
-			'dest_dir': dest_dir
-		})
-
 class SelectAll(DirectoryPaneCommand):
 	def __call__(self):
 		self.pane.select_all()
@@ -1108,70 +1036,6 @@ class InvertSelection(DirectoryPaneCommand):
 		to_select = (f for f in all_files if f not in to_deselect)
 		self.pane.deselect(to_deselect)
 		self.pane.select(to_select)
-
-class ToggleHiddenFiles(DirectoryPaneCommand):
-
-	aliases = ('Toggle hidden files',)
-
-	def __call__(self):
-		_toggle_hidden_files(self.pane, not _is_showing_hidden_files(self.pane))
-
-class InitHiddenFilesFilter(DirectoryPaneListener):
-	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
-		# We need to do this somewhere when fman starts. We can't do it in the
-		# __init__ of ToggleHiddenFiles, because fman instantiates commands
-		# lazily.
-		if not _is_showing_hidden_files(self.pane):
-			_toggle_hidden_files(self.pane, False)
-
-def _is_showing_hidden_files(pane):
-	return _get_pane_info(pane)['show_hidden_files']
-
-def _toggle_hidden_files(pane, value):
-	if value:
-		pane._remove_filter(_hidden_file_filter)
-	else:
-		pane._add_filter(_hidden_file_filter)
-	_get_pane_info(pane)['show_hidden_files'] = value
-	# Consider a scenario where the user:
-	#  1. shows hidden files, then
-	#  2. reloads plugins.
-	# The second step reloads the settings. This reverts 'Panes.json' to the
-	# version that was last saved. If we only relied on the save_on_quit
-	# functionality of load_json(...), then the last saved version would be the
-	# one when fman was last closed. But this does not reflect the fact that we
-	# are now showing hidden files. So we flush Panes.json immediately to disk:
-	save_json('Panes.json')
-	# When we toggle hidden files again, this avoids an error caused by
-	# `_remove_filter` being called for a non-active filter.
-
-def _get_pane_info(pane):
-	settings = load_json('Panes.json', default=[])
-	default = {'show_hidden_files': False}
-	pane_index = pane.window.get_panes().index(pane)
-	for _ in range(pane_index - len(settings) + 1):
-		settings.append(default.copy())
-	return settings[pane_index]
-
-def _hidden_file_filter(url):
-	if PLATFORM == 'Mac' and url == 'file:///Volumes':
-		return True
-	scheme, path = splitscheme(url)
-	if scheme != 'file://':
-		return True
-	if PLATFORM == 'Windows':
-		# This filter runs in the GUI thread (Model#_record_files_main and
-		# #update are @run_in_main_thread), so it must not perform an FS call of
-		# its own: QFileInfo#isHidden() is uncached and froze the whole window
-		# on network drives, where every call is a round trip. fman's own stat
-		# is cached and has already been loaded for the Size/Modified columns.
-		try:
-			attrs = query(url, 'stat').st_file_attributes
-		except OSError:
-			return True
-		return not attrs & FILE_ATTRIBUTE_HIDDEN
-	return not is_hidden(path)
 
 class _OpenInPaneCommand(DirectoryPaneCommand):
 	def __call__(self):
