@@ -132,11 +132,12 @@ Neither freezes the UI, but both are worth knowing about:
 
 ## Implementation
 
-- `src/main/resources/base/Plugins/Core/core/commands/__init__.py` —
+- `src/main/resources/base/Plugins/Core/core/commands/hidden_files.py` —
   `_hidden_file_filter(url)` reads `query(url, 'stat').st_file_attributes` on
   Windows and treats any `OSError` as "not hidden" (the file still shows).
+- `src/main/resources/base/Plugins/Core/core/commands/window.py` —
   `ToggleNetworkIcons` is an `ApplicationCommand`, so it registers by MRO like
-  every other command in the file; it writes `_NETWORK_ICONS_KEY` via
+  every other command in the package; it writes `_NETWORK_ICONS_KEY` via
   `core/settings.py`'s `save_setting` (passing `None` to clear the key when
   returning to the default) and then calls `pane.reload()` on each pane —
   `Model.reload()` already clears the FS cache for that location, which is where

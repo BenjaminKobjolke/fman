@@ -48,7 +48,7 @@ e.g.:
 
 ## Implementation
 
-- `src/main/resources/base/Plugins/Core/core/commands/__init__.py` —
+- `src/main/resources/base/Plugins/Core/core/commands/columns.py` —
   `ToggleSizeColumn`, `ToggleModifiedColumn` (`DirectoryPaneCommand`
   subclasses), plus `InitColumnVisibility` (`DirectoryPaneListener`) which
   re-applies the saved visibility on startup and after every navigation

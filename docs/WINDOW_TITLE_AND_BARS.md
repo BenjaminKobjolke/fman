@@ -38,7 +38,7 @@ fman - file manager - C:\test | D:\GIT\BenjaminKobjolke\fman\debug
 
 ### Implementation
 
-- `src/main/resources/base/Plugins/Core/core/commands/__init__.py` —
+- `src/main/resources/base/Plugins/Core/core/commands/window.py` —
   `UpdateWindowTitle` (`DirectoryPaneListener`). Sets the title once on
   startup and again on every `on_path_changed`, mirroring the existing
   `InitHiddenFilesFilter` / `InitPaneFontSize` startup-listener pattern.

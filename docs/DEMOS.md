@@ -537,7 +537,7 @@ The global palette (`Ctrl+Shift+P`) matches in three tiers —
 word-prefixes, then contained characters, then contained characters in any
 order — takes each command's **first** matching alias, and sorts each tier by
 title length, so the shortest matching command title wins. Verify a new query
-against `core/commands/__init__.py` rather than guessing:
+against `core/commands/palette.py` rather than guessing:
 
 | query | resolves to | rival it beats |
 |-------|-------------|----------------|

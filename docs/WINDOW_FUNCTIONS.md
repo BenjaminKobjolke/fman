@@ -91,9 +91,10 @@ Bind it like any other command
 
 ## Implementation
 
-- `src/main/resources/base/Plugins/Core/core/commands/__init__.py` — the
-  commands themselves (`CenterWindow`, `Minimize`, the chrome toggles, the
-  opacity picker).
+- `src/main/resources/base/Plugins/Core/core/commands/window.py` —
+  `CenterWindow`, `Minimize` and the chrome toggles;
+  `src/main/resources/base/Plugins/Core/core/commands/theme.py` — the
+  opacity picker (`SetWindowOpacity`).
 - `src/main/python/fman/impl/widgets.py` — `MainWindow` and `Scrim`; the
   scrim is applied in `exec_dialog`, which is also where the comment lives
   explaining why dialogs never inherit the window's opacity.

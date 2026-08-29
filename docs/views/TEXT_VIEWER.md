@@ -284,7 +284,7 @@ genuinely separate concerns (reading a file vs. the Qt widget vs. zoom):
   user currently has a command bound to, in the merged
   `Key Bindings.json`) and `format_shortcut_hint(shortcuts)` (join +
   Mac-symbol substitution for display). Also shared with — and, after this
-  feature, factored out of — `core/commands/__init__.py`'s `CommandPalette`,
+  feature, factored out of — `core/commands/palette.py`'s `CommandPalette`,
   which uses the same two functions for its own hint display. Same
   circular-import reason as `font_size.py`. `command_for_key_event(key_event,
   key_bindings, command_names)` generalizes `zoom_delta_for` below (a single
