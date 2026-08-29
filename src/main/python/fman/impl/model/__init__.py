@@ -35,7 +35,8 @@ class SortedFileSystemModel(QSortFilterProxyModel):
 		self, url, sort_column='', ascending=True, callback=None, onerror=None
 	):
 		if callback is None:
-			callback = lambda: None
+			def callback():
+				pass
 		if onerror is None:
 			def onerror(*_):
 				raise

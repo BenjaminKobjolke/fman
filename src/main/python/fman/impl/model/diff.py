@@ -159,12 +159,12 @@ class DiffEntry(ConstructorMixin, EqMixin, ReprMixin):
 		t = self._type
 		if t == 'update':
 			return 'update %d rows, starting at %d' % \
-				   (len(self), self.insert_start)
+				(len(self), self.insert_start)
 		if t == 'move':
 			return 'move %d rows from %d to %d' % \
-				   (len(self), self.cut_start, self.insert_start)
+				(len(self), self.cut_start, self.insert_start)
 		if t == 'remove':
 			return 'remove %d rows, starting at %d' % \
-				   (len(self), self.cut_start)
+				(len(self), self.cut_start)
 		if t == 'insert':
 			return 'insert %d rows at %s' % (len(self), self.insert_start)

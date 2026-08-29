@@ -186,7 +186,7 @@ class FileSystem:
 				path_callbacks = self._file_changed_callbacks[path]
 			except KeyError:
 				raise ValueError('file_changed callback is not registered') \
-				      from None
+					from None
 			path_callbacks.remove(callback)
 			if not path_callbacks:
 				del self._file_changed_callbacks[path]

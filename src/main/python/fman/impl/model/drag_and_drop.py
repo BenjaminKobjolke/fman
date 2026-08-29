@@ -32,7 +32,8 @@ class DragAndDrop(QAbstractTableModel):
 		if not urls:
 			return False
 		dest_dir = self._get_drop_dest(parent)
-		is_in_dest_dir = lambda url: dirname(url) == dest_dir
+		def is_in_dest_dir(url):
+			return dirname(url) == dest_dir
 		return not all(map(is_in_dest_dir, urls))
 	def mimeTypes(self):
 		"""

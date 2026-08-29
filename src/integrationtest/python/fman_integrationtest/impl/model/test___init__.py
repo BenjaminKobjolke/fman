@@ -156,7 +156,7 @@ class SortedFileSystemModelAT: # Instantiated in fman_integrationtest.test_qt
 		self.test_set_location()
 		self._stubfs.move('stub://0', 'stub://dir/0')
 		self._wait_until(
-			lambda: not '0' in self._get_first_column(),
+			lambda: '0' not in self._get_first_column(),
 			'Did not pick up move of file into subdirectory'
 		)
 	def test_rename_file_different_case(self):

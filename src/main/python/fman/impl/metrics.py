@@ -144,7 +144,8 @@ class LoggingBackend:
 		self._backend.update_user(user, **properties)
 	def flush(self, log_file_path):
 		with open(log_file_path, 'w') as f:
-			fmt_log = lambda data: json.dumps(data, indent=4)
+			def fmt_log(data):
+				return json.dumps(data, indent=4)
 			f.write('\n\n'.join(map(fmt_log, self._logs)))
 
 class AsynchronousMetrics:

@@ -33,7 +33,8 @@ class StubDirectoryPaneWidget:
 		self._columns = ()
 	def set_location(self, url, callback=None):
 		if callback is None:
-			callback = lambda: None
+			def callback():
+				pass
 		url = self._fs.resolve(url)
 		if url != self._location:
 			self._location = url

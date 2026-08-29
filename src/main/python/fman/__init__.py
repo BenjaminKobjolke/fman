@@ -62,7 +62,7 @@ class ApplicationCommand:
 	@property
 	def aliases(self):
 		return re.sub(r'([a-z])([A-Z])', r'\1 \2', self.__class__.__name__) \
-				   .lower().capitalize(),
+				.lower().capitalize(),
 
 def _set_path_onerror(e, url):
 	if isinstance(e, FileNotFoundError):

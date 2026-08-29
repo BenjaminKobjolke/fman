@@ -62,9 +62,9 @@ class LoadJsonTest(TestCase):
 		json2 = self._save_to_json(d2)
 		self.assertEqual({'a': 1, 'b': 2, 'c': 2}, load_json([json1, json2]))
 	def test_list(self):
-		l = [1, 2]
-		json_path = self._save_to_json(l)
-		self.assertEqual(l, load_json([json_path]))
+		values = [1, 2]
+		json_path = self._save_to_json(values)
+		self.assertEqual(values, load_json([json_path]))
 	def test_list_multiple_files(self):
 		l1 = [1, 2]
 		l2 = [3]
@@ -154,11 +154,11 @@ class WriteDifferentialJsonTest(TestCase):
 			write_differential_json(json1, [], json2)
 	def test_no_change(self):
 		json1 = self._json_file(0)
-		l = [0, 1]
+		values = [0, 1]
 		with open(json1, 'w') as f:
-			json.dump(l, f)
+			json.dump(values, f)
 		json2 = self._json_file(1)
-		write_differential_json(l, [json1], json2)
+		write_differential_json(values, [json1], json2)
 		self.assertFalse(exists(json2))
 	def test_delete_dict_key_same_file_ok(self):
 		json1 = self._json_file(0)
