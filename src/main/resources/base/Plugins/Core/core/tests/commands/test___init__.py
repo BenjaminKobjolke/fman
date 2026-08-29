@@ -2,9 +2,9 @@ from core.commands import History, Move, OpenOrView, \
 	ShowAllPanes, ShowOnlyActivePane, SwitchPanes, ViewFile, \
 	ViewFileInOtherPane, \
 	_from_human_readable, get_dest_suggestion, _find_extension_start, \
-	_get_shortcuts_for_command, _clamp_font_size, _MIN_PANE_FONT_SIZE, \
-	_MAX_PANE_FONT_SIZE, _format_window_title, _find_column_index, \
-	_Rename
+	_clamp_font_size, _MIN_PANE_FONT_SIZE, \
+	_MAX_PANE_FONT_SIZE, _Rename
+from core.key_bindings import get_shortcuts_for_command
 from core.tests import StubUI
 from core.util import filenotfounderror
 from fman import OK, YES, NO, PLATFORM, RETRY, CANCEL, Task
@@ -254,7 +254,7 @@ class GetShortcutsForCommandTest(TestCase):
 		self._check(bindings, 'open', ['Enter'])
 		self._check(bindings, 'alternative', [])
 	def _check(self, key_bindings, command, expected_shortcuts):
-		actual = list(_get_shortcuts_for_command(key_bindings, command))
+		actual = list(get_shortcuts_for_command(key_bindings, command))
 		self.assertEqual(expected_shortcuts, actual)
 
 class _FakeWidget:
@@ -466,33 +466,6 @@ class ClampFontSizeTest(TestCase):
 	def test_clamps_at_maximum(self):
 		self.assertEqual(
 			_MAX_PANE_FONT_SIZE, _clamp_font_size(_MAX_PANE_FONT_SIZE, +1)
-		)
-
-class FindColumnIndexTest(TestCase):
-	_COLUMNS = ['core.Name', 'core.Size', 'core.Modified']
-	def test_present(self):
-		self.assertEqual(1, _find_column_index(self._COLUMNS, 'core.Size'))
-	def test_absent(self):
-		# The Windows drives view only has a DriveName column - Size/Modified
-		# don't exist there, so toggling must not raise.
-		self.assertIsNone(
-			_find_column_index(['core.DriveName'], 'core.Size')
-		)
-
-class FormatWindowTitleTest(TestCase):
-	def test_no_paths(self):
-		self.assertEqual('fman - file manager', _format_window_title([]))
-	def test_blank_paths_skipped(self):
-		self.assertEqual('fman - file manager', _format_window_title(['', '']))
-	def test_one_path(self):
-		self.assertEqual(
-			'fman - file manager - C:\\test',
-			_format_window_title(['C:\\test'])
-		)
-	def test_two_paths(self):
-		self.assertEqual(
-			'fman - file manager - C:\\test | D:\\other',
-			_format_window_title(['C:\\test', 'D:\\other'])
 		)
 
 class HistoryTest(TestCase):

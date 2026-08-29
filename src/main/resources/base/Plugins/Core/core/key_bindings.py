@@ -3,7 +3,7 @@ Looks up the shortcut(s) currently bound to a command in the merged,
 effective key bindings (base + platform + user overrides, as returned by
 fman.load_json('Key Bindings.json')) - i.e. whatever the user actually has
 configured, not a hardcoded default. Shared by the global command palette
-(hint display, core/commands/__init__.py) and the text viewer (matching
+(hint display, core/commands/palette.py) and the text viewer (matching
 keystrokes against the user's configured zoom shortcuts, and showing hints
 in its own palette, core/textviewer.py). Kept in its own module since
 core/commands/__init__.py imports core/textviewer.py at module load - the

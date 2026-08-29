@@ -1,4 +1,5 @@
 from fman import PLATFORM
+from fman.url import splitscheme
 from getpass import getuser
 from os.path import expanduser
 from PyQt5.QtCore import QFileInfo
@@ -75,3 +76,10 @@ def get_user():
 
 def is_hidden(file_path):
 	return QFileInfo(file_path).isHidden()
+
+def is_file_url(url):
+	# Lives here rather than next to any one caller: the commands that only
+	# work on local files are spread over several modules (opening, transfer,
+	# window, external), and none of them may import another without making
+	# core/commands/__init__.py's star imports circular.
+	return splitscheme(url)[0] == 'file://'

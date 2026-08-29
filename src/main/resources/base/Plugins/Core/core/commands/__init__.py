@@ -1,42 +1,28 @@
-from core.command_keywords import get_keywords
-from core.command_titles import apply_custom_title
-from core.commands.util import get_program_files, get_program_files_x86
+from core.commands.util import get_program_files, get_program_files_x86, \
+	is_file_url
 from core.fileoperations import CopyFiles, MoveFiles
 from core.font_size import clamp_font_size as _clamp_font_size, \
 	MIN_FONT_SIZE as _MIN_PANE_FONT_SIZE, MAX_FONT_SIZE as _MAX_PANE_FONT_SIZE
 from core.github import find_repos, GitHubRepo
-from core.key_bindings import get_shortcuts_for_command as \
-	_get_shortcuts_for_command, format_shortcut_hint, KEY_BINDINGS_FILE
-from core.keyword_editor import edit_command_keywords
 from core.os_ import open_terminal_in_directory, open_native_file_manager, \
 	get_popen_kwargs_for_opening
-from core.panes import reload_panes
 from core.settings import get_setting, save_setting
 from core.util import strformat_dict_values, listdir_absolute, is_parent
 from core.quicksearch_screen import QuicksearchScreen
-from core.quicksearch_matchers import bucket_count, contains_chars, \
-	contains_chars_after_separator, contains_chars_any_order, \
-	match_titles_or_keywords
+from core.quicksearch_matchers import contains_chars
 from core.viewers import viewer_for
 from fman import *
 from fman.fs import exists, touch, mkdir, is_dir, delete, samefile, copy, \
-	iterdir, resolve, prepare_copy, prepare_move, prepare_delete, \
-	FileSystem, prepare_trash, query, makedirs, notify_file_added
+	iterdir, resolve, prepare_copy, prepare_move, \
+	FileSystem, query, makedirs, notify_file_added
 from fman import links
 # Not in fman's __all__, so the star import above does not bring it in - the
 # same reason commands/theme.py names the icon functions explicitly.
 from fman import set_icon_scale, set_palette_font_scale
-# The engine owns these: it reads the settings the two icon toggles below
-# write, and never imports this plugin - so the names live there.
-from fman.impl.model.icon_provider import EXECUTABLE_ICONS_KEY, \
-	NETWORK_ICONS_KEY, SETTINGS_FILE as ICON_SETTINGS_FILE
 from fman.impl.util import get_user
 from fman.impl.util.qt.thread import run_in_main_thread
 from fman.url import splitscheme, as_url, join, basename, as_human_readable, \
 	dirname, relpath, normalize
-from io import UnsupportedOperation
-from itertools import chain
-from os import strerror
 from os.path import basename, pardir
 from pathlib import PurePath
 from PyQt5.QtCore import QUrl
@@ -53,12 +39,23 @@ import os.path
 import re
 import sys
 
+from .archives import *
+# `import *` skips underscore names, and Pack needs the same suffix -> scheme
+# lookup to decide which filesystem should create the archive it packs into.
+from .archives import _get_handler_for_archive
 from .clipboard import *
+from .columns import *
+from .deletion import *
+# `import *` skips underscore names, but Pack's task title reuses the same
+# "1 file / N files" phrasing as the delete tasks.
+from .deletion import _describe
 from .goto import *
 from .hidden_files import *
+from .palette import *
 from .places import *
 from .release_notes import *
 from .theme import *
+from .window import *
 
 class About(ApplicationCommand):
 	def __call__(self):
@@ -100,110 +97,6 @@ class ToggleSelection(DirectoryPaneCommand):
 		file_under_cursor = self.pane.get_file_under_cursor()
 		if file_under_cursor:
 			self.pane.toggle_selection(file_under_cursor)
-
-class MoveToTrash(DirectoryPaneCommand):
-
-	aliases = ('Delete',)
-
-	def __call__(self, urls=None):
-		if urls is None:
-			urls = self.get_chosen_files()
-		if not urls:
-			show_alert('No file is selected!')
-			return
-		description = _describe(urls, 'these %d files')
-		trash = 'Recycle Bin' if PLATFORM == 'Windows' else 'Trash'
-		msg = "Do you really want to move %s to the %s?" % (description, trash)
-		if show_alert(msg, YES | NO, YES) & YES:
-			submit_task(_Delete(urls, prepare_trash, prepare_delete))
-	def is_visible(self):
-		return bool(self.pane.get_file_under_cursor())
-
-class DeletePermanently(DirectoryPaneCommand):
-	def __call__(self, urls=None):
-		if urls is None:
-			urls = self.get_chosen_files()
-		if not urls:
-			show_alert('No file is selected!')
-			return
-		description = _describe(urls, 'these %d items')
-		message = \
-			"Do you really want to PERMANENTLY delete %s? This action cannot " \
-			"be undone!" % description
-		if show_alert(message, YES | NO, YES) & YES:
-			submit_task(_Delete(urls, prepare_delete))
-
-class _Delete(Task):
-	def __init__(self, urls, prepare_fn, fallback=None):
-		super().__init__('Deleting ' + _describe(urls))
-		self._urls = urls
-		self._num_urls_prepared = 0
-		self._prepare_fn = prepare_fn
-		self._fallback = fallback
-		self._tasks = []
-	def __call__(self):
-		try:
-			self._gather_tasks()
-		except (UnsupportedOperation, NotImplementedError):
-			failing_url = self._urls[self._num_urls_prepared]
-			self.show_alert(
-				'Deleting files in %s is not supported.'
-				% splitscheme(failing_url)[0]
-			)
-			return
-		ignore_errors = False
-		for i, task in enumerate(self._tasks):
-			self.check_canceled()
-			try:
-				self.run(task)
-			except FileNotFoundError:
-				# Perhaps the file has already been deleted.
-				pass
-			except OSError as e:
-				if ignore_errors:
-					continue
-				text = task.get_title()
-				message = 'Error ' + text[0].lower() + text[1:]
-				reason = e.strerror or ''
-				if not reason and e.errno is not None:
-					reason = strerror(e.errno)
-				if reason:
-					message += ': ' + reason
-				message += '.'
-				is_last = i == len(self._tasks) - 1
-				if is_last:
-					self.show_alert(message)
-				else:
-					message += ' Do you want to continue?'
-					choice = show_alert(message, YES | NO | YES_TO_ALL)
-					if choice & NO:
-						break
-					if choice & YES_TO_ALL:
-						ignore_errors = True
-	def _gather_tasks(self):
-		for url in self._urls:
-			try:
-				self._prepare(url, self._prepare_fn)
-			except (NotImplementedError, UnsupportedOperation):
-				if self._fallback is None:
-					raise
-				self._prepare(url, self._fallback)
-			self._num_urls_prepared += 1
-		self.set_size(sum(t.get_size() for t in self._tasks))
-	def _prepare(self, url, prepare_fn):
-		url_tasks = []
-		for task in prepare_fn(url):
-			self.check_canceled()
-			url_tasks.append(task)
-			if task.get_size():
-				num = len(self._tasks) + len(url_tasks)
-				self.set_text('Preparing to delete {:,} files.'.format(num))
-		self._tasks.extend(url_tasks)
-
-def _describe(files, template='%d files'):
-	if len(files) == 1:
-		return basename(files[0])
-	return template % len(files)
 
 class GoUp(DirectoryPaneCommand):
 
@@ -317,7 +210,7 @@ def _open_files(urls, pane):
 		# //192.168.0.2. If the former maps to the latter, then CMD fails to
 		# run .bat files in that location. So only resolve if absolutely
 		# necessary, i.e. when not a file:// URL:
-		if not _is_file_url(url):
+		if not is_file_url(url):
 			try:
 				url = resolve(url)
 			except FileNotFoundError:
@@ -340,9 +233,6 @@ def _open_files(urls, pane):
 		# above to get backslashes on Windows:
 		local_file_paths.append(as_human_readable(url))
 	_open_local_files(local_file_paths, pane)
-
-def _is_file_url(url):
-	return splitscheme(url)[0] == 'file://'
 
 def _open_local_files(paths, pane):
 	if PLATFORM == 'Windows':
@@ -817,16 +707,16 @@ class Symlink(_TreeCommand):
 	def is_visible(self):
 		if not super().is_visible():
 			return False
-		return _is_file_url(self.pane.get_path()) and \
-			   _is_file_url(_get_opposite_pane(self.pane).get_path())
+		return is_file_url(self.pane.get_path()) and \
+			   is_file_url(_get_opposite_pane(self.pane).get_path())
 
 	def __call__(self):
 		src_url = self.pane.get_path()
-		if not _is_file_url(src_url):
+		if not is_file_url(src_url):
 			self._refuse()
 			return
 		dest_url = _get_opposite_pane(self.pane).get_path()
-		if not _is_file_url(dest_url):
+		if not is_file_url(dest_url):
 			self._refuse()
 			return
 		super().__call__()
@@ -835,7 +725,7 @@ class Symlink(_TreeCommand):
 		ignore_exists = False
 		for i, f_url in enumerate(files):
 			dest_url = join(dest_dir, dest_name or basename(f_url))
-			if not _is_file_url(f_url) or not _is_file_url(dest_url):
+			if not is_file_url(f_url) or not is_file_url(dest_url):
 				self._refuse()
 				return
 			f_path = as_human_readable(f_url)
@@ -1111,112 +1001,6 @@ def _get_volumes_url():
 			return 'file:///mnt'
 	else:
 		raise NotImplementedError(PLATFORM)
-
-class CommandPalette(DirectoryPaneCommand):
-
-	_MATCHERS = (
-		contains_chars_after_separator(' '), contains_chars,
-		contains_chars_any_order
-	)
-
-	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
-		self._last_query = ''
-		self._last_cmd_name = ''
-	def __call__(self):
-		# A loop, not a single call: editing an entry's keywords (Shift+Enter)
-		# reopens the palette where the user left it instead of dropping them
-		# back into the panes.
-		while True:
-			result = show_quicksearch(
-				self._suggest_commands, query=self._last_query,
-				item=self._get_initial_item(), alt_accept=True
-			)
-			if not result:
-				self._last_query = self._last_cmd_name = ''
-				return
-			query, command, alt = result
-			if not command:
-				return
-			self._last_query = query
-			self._last_cmd_name = command.name
-			if not alt:
-				command()
-				return
-			edit_command_keywords(command.name, command.title)
-	def _get_initial_item(self):
-		if not self._last_cmd_name:
-			return 0
-		initial_suggestions = [
-			quicksearch_item.value.name
-			for quicksearch_item in self._suggest_commands(self._last_query)
-		]
-		try:
-			return initial_suggestions.index(self._last_cmd_name)
-		except ValueError:
-			return 0
-	def _suggest_commands(self, query):
-		# One bucket per matcher, plus the exact-match and loose-keyword
-		# ones the helper adds around them - see match_titles_or_keywords.
-		result = [[] for _ in range(bucket_count(self._MATCHERS))]
-		key_bindings = load_json(KEY_BINDINGS_FILE)
-		for cmd_name, aliases, keywords, command in self._get_all_commands():
-			match = match_titles_or_keywords(
-				self._MATCHERS, [alias.lower() for alias in aliases], keywords,
-				query.lower()
-			)
-			if match is None:
-				continue
-			bucket, index, highlight = match
-			hint = format_shortcut_hint(
-				_get_shortcuts_for_command(key_bindings, cmd_name)
-			)
-			result[bucket].append(
-				QuicksearchItem(command, aliases[index], highlight, hint)
-			)
-		for results in result:
-			results.sort(key=lambda item: (len(item.title), item.title))
-		return chain.from_iterable(result)
-	def _get_all_commands(self):
-		result = []
-		for cmd_name in self.pane.get_commands():
-			if not self.pane.is_command_visible(cmd_name):
-				continue
-			result.append(_palette_row(
-				cmd_name, self.pane.get_command_aliases(cmd_name),
-				self.pane.run_command
-			))
-		for cmd_name in get_application_commands():
-			result.append(_palette_row(
-				cmd_name, get_application_command_aliases(cmd_name),
-				run_application_command
-			))
-		return result
-
-def _palette_row(cmd_name, aliases, run_fn):
-	# The user's rename, if any, replaces the aliases the row is displayed and
-	# searched by; the originals live on as keywords - see core/command_titles.
-	aliases, keywords = apply_custom_title(
-		cmd_name, aliases, get_keywords(cmd_name)
-	)
-	command = CommandPaletteItem(run_fn, cmd_name, aliases[0])
-	return cmd_name, aliases, keywords, command
-
-# _get_shortcuts_for_command / format_shortcut_hint live in core/key_bindings
-# (imported above as _get_shortcuts_for_command) so the text viewer's own
-# palette can reuse them without a circular import - see that module's
-# docstring.
-
-class CommandPaletteItem:
-	def __init__(self, run_fn, cmd_name, title):
-		self._run_fn = run_fn
-		self.name = cmd_name
-		# The row's first alias. Kept here because the chosen QuicksearchItem's
-		# title is not part of what show_quicksearch returns, and the keyword
-		# menus name the command the user picked.
-		self.title = title
-	def __call__(self):
-		self._run_fn(self.name)
 
 class DoNothing(DirectoryPaneCommand):
 
@@ -1658,36 +1442,6 @@ class _Pack(Task):
 				self.check_canceled()
 				self.run(task)
 
-def _get_handler_for_archive(file_name):
-	settings = load_json('Core Settings.json', default={})
-	archive_types = sorted(
-		settings.get('archive_handlers', {}).items(),
-		key=lambda tpl: -len(tpl[0])
-	)
-	for suffix, scheme in archive_types:
-		if file_name.lower().endswith(suffix):
-			return scheme
-
-class ArchiveOpenListener(DirectoryPaneListener):
-	def on_command(self, command_name, args):
-		if command_name in ('open_file', 'open_directory'):
-			url = args['url']
-			try:
-				scheme, path = splitscheme(url)
-			except (KeyError, ValueError):
-				return None
-			if scheme == 'file://':
-				new_scheme = _get_handler_for_archive(basename(path))
-				if new_scheme:
-					try:
-						if is_dir(url):
-							return None
-					except OSError:
-						return None
-					new_args = dict(args)
-					new_args['url'] = new_scheme + path
-					return 'open_directory', new_args
-
 class Reload(DirectoryPaneCommand):
 
 	aliases = ('Reload',)
@@ -1843,244 +1597,6 @@ class InitPaneFontSize(DirectoryPaneListener):
 			_apply_pane_font_size(self.pane, size)
 			_apply_zoom_scale(size)
 
-# fman has no pane.set_columns(...) - the FileSystem owns the column set and
-# the model is rebuilt on every navigation. So we hide/show columns directly
-# on the live Qt view instead, keyed by the columns' qualified names.
-_COLUMN_SETTING_KEYS = {
-	'core.Size': 'hide_size_column',
-	'core.Modified': 'hide_modified_column',
-}
-
-def _find_column_index(columns, col_qual_name):
-	# Some filesystems (e.g. the Windows drives view) don't offer Size/
-	# Modified at all - callers must be able to skip those gracefully.
-	try:
-		return columns.index(col_qual_name)
-	except ValueError:
-		return None
-
-def _is_column_hidden(col_qual_name):
-	key = _COLUMN_SETTING_KEYS[col_qual_name]
-	return get_setting('Core Settings.json', key, False)
-
-def _set_column_hidden(col_qual_name, hidden):
-	save_setting('Core Settings.json', _COLUMN_SETTING_KEYS[col_qual_name], hidden)
-
-@run_in_main_thread
-def _apply_column_visibility(pane):
-	columns = pane.get_columns()
-	view = pane._widget._file_view
-	# setColumnHidden(...) resizes the section (to 0 when hiding, back to its
-	# old width when showing). Either resize fires sectionResized ->
-	# ResizeColumnsToContents._on_col_resized, which then overwrites the
-	# width we just set with its own idea of the "right" width - undoing the
-	# show/hide until the next navigation resets that handler's state.
-	# _handle_col_resize is the same reentrancy guard _on_col_resized itself
-	# uses; toggling it here (rather than view.horizontalHeader().blockSignals)
-	# only suppresses that one handler, so the header's other signals still
-	# fire and the view still repaints/relayouts normally.
-	view._handle_col_resize = False
-	try:
-		for col_qual_name in _COLUMN_SETTING_KEYS:
-			index = _find_column_index(columns, col_qual_name)
-			if index is not None:
-				view.setColumnHidden(index, _is_column_hidden(col_qual_name))
-	finally:
-		view._handle_col_resize = True
-	# setColumnHidden(...) alone doesn't relayout the visible columns to fill
-	# the freed/needed width - that normally only happens on the next
-	# resizeEvent (e.g. the user resizing the window). Force it now so
-	# toggling is visible immediately.
-	view.resizeColumnsToContents()
-
-def _toggle_column(window, col_qual_name):
-	_set_column_hidden(col_qual_name, not _is_column_hidden(col_qual_name))
-	for pane in window.get_panes():
-		_apply_column_visibility(pane)
-
-class ToggleSizeColumn(DirectoryPaneCommand):
-
-	# Palette-only by design - no default key binding requested.
-	aliases = ('Toggle size column',)
-
-	def __call__(self):
-		_toggle_column(self.pane.window, 'core.Size')
-
-class ToggleModifiedColumn(DirectoryPaneCommand):
-
-	# Palette-only by design - no default key binding requested.
-	aliases = ('Toggle modified column',)
-
-	def __call__(self):
-		_toggle_column(self.pane.window, 'core.Modified')
-
-class InitColumnVisibility(DirectoryPaneListener):
-	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
-		# Mirrors InitPaneFontSize: re-apply the saved setting on startup.
-		_apply_column_visibility(self.pane)
-	def on_path_changed(self):
-		# The model (and its columns) is rebuilt on every navigation, so the
-		# hidden state has to be re-applied each time, not just on startup.
-		_apply_column_visibility(self.pane)
-
-_WINDOW_TITLE_PREFIX = 'fman - file manager'
-
-def _format_window_title(paths):
-	# Pure string builder, kept separate from the pane/Qt access so it's
-	# unit-testable without a running application.
-	paths = [path for path in paths if path]
-	if not paths:
-		return _WINDOW_TITLE_PREFIX
-	return _WINDOW_TITLE_PREFIX + ' - ' + ' | '.join(paths)
-
-def _path_for_title(pane):
-	try:
-		return as_human_readable(pane.get_path())
-	except Exception:
-		# Some locations (e.g. 'null://') can't be turned into a human
-		# path. Skip them rather than let the title update crash.
-		return ''
-
-@run_in_main_thread
-def _refresh_window_title(window):
-	paths = [_path_for_title(pane) for pane in window.get_panes()]
-	window._widget.setWindowTitle(_format_window_title(paths))
-
-class UpdateWindowTitle(DirectoryPaneListener):
-	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
-		# Set the initial title when fman starts (mirrors InitPaneFontSize),
-		# then keep it in sync as either pane navigates.
-		_refresh_window_title(self.pane.window)
-	def on_path_changed(self):
-		_refresh_window_title(self.pane.window)
-
-class SortByColumn(DirectoryPaneCommand):
-
-	_MATCHERS = (contains_chars_after_separator(' '), contains_chars)
-
-	def __call__(self, column_index=None):
-		columns = self.pane.get_columns()
-		if column_index is None:
-			curr_sort_col = self.pane.get_sort_column()[0]
-			curr_sort_col_index = columns.index(curr_sort_col)
-			result = show_quicksearch(
-				lambda q: self._get_items(columns, q), item=curr_sort_col_index
-			)
-			if result:
-				column_index = columns.index(result[1])
-		if column_index is not None:
-			column = columns[column_index]
-			sort_column, sort_column_is_ascending = self.pane.get_sort_column()
-			if column == sort_column:
-				ascending = not sort_column_is_ascending
-			else:
-				ascending = True
-			self.pane.set_sort_column(column, ascending)
-	def _get_items(self, columns, query):
-		result = [[] for _ in self._MATCHERS]
-		for col_qual_name in columns:
-			col_name = col_qual_name.rsplit('.', 1)[1]
-			for i, matcher in enumerate(self._MATCHERS):
-				highlight = matcher(col_name.lower(), query.lower())
-				if highlight is not None:
-					item = QuicksearchItem(col_qual_name, col_name, highlight)
-					result[i].append(item)
-					break
-		return chain.from_iterable(result)
-
-class RememberSortSettings(DirectoryPaneListener):
-	def before_location_change(self, url, sort_column='', ascending=True):
-		self._remember_curr_sort_column()
-		try:
-			# Consider: We're at zip:///foo.zip and go up. This moves us to
-			# zip:/// - which resolves to file:///. The sort settings will have
-			# been saved for this latter URL. So we have to resolve(...) to go
-			# from the former to the latter:
-			url_resolved = resolve(url)
-		except OSError:
-			url_resolved = url
-		settings = load_json('Sort Settings.json', default={})
-		try:
-			data = settings[url_resolved]
-		except KeyError:
-			return
-		remembered_col, remembered_asc = data['column'], data['is_ascending']
-		# Note that we return `url` here, not `url_resolved`. This is eg.
-		# because we don't want to rewrite C:\Windows\System32 -> ...\SysWOW64.
-		return url, remembered_col, remembered_asc
-	def _remember_curr_sort_column(self):
-		column, is_ascending = self.pane.get_sort_column()
-		url = self.pane.get_path()
-		settings = load_json('Sort Settings.json', default={})
-		default = (self.pane.get_columns()[0], True)
-		if (column, is_ascending) == default:
-			settings.pop(url, None)
-		else:
-			settings[url] = {
-				'column': column,
-				'is_ascending': is_ascending
-			}
-		save_json('Sort Settings.json')
-
-class Minimize(ApplicationCommand):
-	def __call__(self):
-		self.window.minimize()
-
-class CenterWindow(ApplicationCommand):
-
-	aliases = ('Center window',)
-
-	def __call__(self):
-		self.window.center_on_screen()
-
-class ToggleNetworkIcons(ApplicationCommand):
-
-	aliases = ('Toggle network drive icons',)
-
-	def __call__(self):
-		show_real_icons = not _is_showing_network_icons()
-		# None clears the key so the file doesn't carry the default around:
-		save_setting(
-			ICON_SETTINGS_FILE, NETWORK_ICONS_KEY, show_real_icons or None
-		)
-		reload_panes(self.window)
-
-def _is_showing_network_icons():
-	return get_setting(ICON_SETTINGS_FILE, NETWORK_ICONS_KEY, False)
-
-class ToggleExecutableIcons(ApplicationCommand):
-
-	aliases = ('Toggle real icons for programs and shortcuts',)
-
-	def __call__(self):
-		# An icon set draws every .exe the same. The OS icon says *which*
-		# program it is, which is worth more in a folder full of them - so
-		# this opts .exe and .lnk back out of the active icon set.
-		use_os_icons = not _is_showing_executable_icons()
-		# None clears the key so the file doesn't carry the default around:
-		save_setting(
-			ICON_SETTINGS_FILE, EXECUTABLE_ICONS_KEY, use_os_icons or None
-		)
-		reload_panes(self.window)
-
-def _is_showing_executable_icons():
-	return get_setting(ICON_SETTINGS_FILE, EXECUTABLE_ICONS_KEY, False)
-
-class LocationBarListener(DirectoryPaneListener):
-	def on_location_bar_clicked(self):
-		url = self.pane.get_path()
-		if _is_file_url(url):
-			path = as_human_readable(url)
-			self.pane.run_command('go_to', {'query': path})
-			ctrl = 'Cmd' if PLATFORM == 'Mac' else 'Ctrl'
-			show_status_message(
-				'Hint: You can also press %s+P to open GoTo. If you merely '
-				'want to copy the current path, close GoTo, then press '
-				'Backspace followed by F11.' % ctrl, timeout_secs=15
-			)
-
 class OpenWith(DirectoryPaneCommand):
 
 	aliases = 'Open with...',
@@ -2121,7 +1637,7 @@ class OpenWith(DirectoryPaneCommand):
 		return files, ''
 	def is_visible(self):
 		pane = self.pane
-		return _is_file_url(pane.get_path()) and pane.get_file_under_cursor()
+		return is_file_url(pane.get_path()) and pane.get_file_under_cursor()
 
 def _open_files_with_app(files, app):
 	associations = _load_file_associations()
@@ -2355,7 +1871,7 @@ if PLATFORM == 'Mac':
 			if not files:
 				show_alert('No file is selected!')
 				return
-			if any(not _is_file_url(f) for f in files):
+			if any(not is_file_url(f) for f in files):
 				show_alert('Sorry, can only preview normal files.')
 				return
 			args = ['qlmanage', '-p']

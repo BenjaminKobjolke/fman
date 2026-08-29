@@ -1,4 +1,4 @@
-from core.commands import CommandPalette
+from core.commands.palette import CommandPalette
 from unittest import TestCase
 from unittest.mock import patch
 
@@ -67,10 +67,12 @@ class CommandPaletteSuggestionsTest(TestCase):
 			'extract_to_opposite': ('Extract to opposite',),
 		})
 		titles = titles or {}
-		with patch('core.commands.load_json', return_value=[]), \
-			patch('core.commands.get_application_commands', return_value=[]), \
+		with patch('core.commands.palette.load_json', return_value=[]), \
 			patch(
-				'core.commands.get_keywords',
+				'core.commands.palette.get_application_commands',
+				return_value=[]
+			), patch(
+				'core.commands.palette.get_keywords',
 				side_effect=lambda name: keywords.get(name, ())
 			), patch(
 				'core.command_titles.get_setting',
