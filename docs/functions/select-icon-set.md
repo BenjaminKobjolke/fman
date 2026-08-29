@@ -89,7 +89,7 @@ size decide how tall a row is.
   `SelectIconSet`, `SetIconSize`, `SetIconColor`
 - `src/main/resources/base/Plugins/Core/core/commands/window.py` —
   `ToggleExecutableIcons`
-- `src/main/resources/base/Plugins/Core/core/commands/__init__.py` — the pane
+- `src/main/resources/base/Plugins/Core/core/commands/pane_view.py` — the pane
   font size commands that drive the icon zoom
 - `src/main/python/fman/impl/model/icon_set.py` — the manifest and its
   lookup rules

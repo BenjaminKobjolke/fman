@@ -271,7 +271,7 @@ genuinely separate concerns (reading a file vs. the Qt widget vs. zoom):
   generic "one key in a JSON settings file, `None` clears it" pattern.
   Extracted after it turned out to be duplicated verbatim (just a different
   key) between the pane font-size feature's own settings functions
-  (`core/commands/__init__.py`) and this feature's
+  (`core/commands/pane_view.py`) and this feature's
   (`core/textviewer_zoom.py`, below).
 - `src/main/resources/base/Plugins/Core/core/font_size.py` — `clamp_font_size`
   and the min/max bounds, shared verbatim by both this feature and
@@ -303,7 +303,7 @@ genuinely separate concerns (reading a file vs. the Qt widget vs. zoom):
   base-size fallback): `get_saved_view_font_size`, `save_view_font_size`,
   `effective_view_font_size` (reads the live widget's `QFontInfo` as the
   step-from base when nothing's saved yet — same technique
-  `core/commands/__init__.py`'s `_effective_font_size` uses for the file
+  `core/commands/pane_view.py`'s `_effective_font_size` uses for the file
   list), `change_view_font_size`, `reset_view_font_size` (these two take an
   `apply_size(size_or_None)` callback rather than touching a stylesheet
   directly, keeping this module PyQt-styling-agnostic), and

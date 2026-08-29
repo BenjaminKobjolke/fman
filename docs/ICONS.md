@@ -282,6 +282,6 @@ Three guards worth knowing about:
   the row height when the icon size changes
 - `src/main/resources/base/Plugins/Core/core/commands/theme.py` —
   `SelectIconSet`, `SetIconSize`, `SetIconColor`
-- `src/main/resources/base/Plugins/Core/core/commands/__init__.py` — the
+- `src/main/resources/base/Plugins/Core/core/commands/pane_view.py` — the
   pane font size commands, which is where the icon zoom factor comes from
 - `src/main/resources/base/Icons/Material/` — the bundled set

@@ -52,8 +52,9 @@ fman - file manager - C:\test | D:\GIT\BenjaminKobjolke\fman\debug
   callbacks run off the Qt main thread
   (`ListenerWrapper._notify_listener_in_thread`), so this function is
   decorated with `@run_in_main_thread` — the same pattern already used by
-  `ResetPaneFontSize` and `ShowOnlyActivePane`/`ShowAllPanes` in this file.
-- `src/main/resources/base/Plugins/Core/core/tests/commands/test___init__.py`
+  `ResetPaneFontSize` and `ShowOnlyActivePane`/`ShowAllPanes` in
+  `core/commands/pane_view.py`.
+- `src/main/resources/base/Plugins/Core/core/tests/commands/test_window.py`
   — `FormatWindowTitleTest` covers the pure title-building logic (no paths,
   blank paths skipped, one path, two paths).
 

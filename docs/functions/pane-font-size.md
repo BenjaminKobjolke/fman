@@ -78,7 +78,7 @@ These can be rebound in `Key Bindings.json` like any other command, e.g.:
 
 ## Implementation
 
-- `src/main/resources/base/Plugins/Core/core/commands/__init__.py` —
+- `src/main/resources/base/Plugins/Core/core/commands/pane_view.py` —
   `IncreasePaneFontSize`, `DecreasePaneFontSize`, `ResetPaneFontSize`
   (`DirectoryPaneCommand` subclasses), plus `InitPaneFontSize`
   (`DirectoryPaneListener`) which re-applies a saved size when fman starts
@@ -120,15 +120,14 @@ These can be rebound in `Key Bindings.json` like any other command, e.g.:
   binding for a key a platform file already claims is silently shadowed on
   that platform; adding Alt+Up in the base file alone would not have worked
   on Windows/Linux.
-- `src/main/resources/base/Plugins/Core/core/tests/commands/test___init__.py`
+- `src/main/resources/base/Plugins/Core/core/tests/test_font_size.py`
   — `ClampFontSizeTest` covers the pure step/clamp logic.
 - The clamp logic (`clamp_font_size`, 6–40pt bounds) and the shortcut-lookup
   helpers (`get_shortcuts_for_command`, `format_shortcut_hint`) actually live
-  in `core/font_size.py` and `core/key_bindings.py` respectively, re-exported
-  into `core/commands/__init__.py` under their original private names
-  (`_clamp_font_size`, `_MIN_PANE_FONT_SIZE`, `_MAX_PANE_FONT_SIZE`,
-  `_get_shortcuts_for_command`) so this feature's code and tests didn't need
-  to change. They were split out so the
+  in `core/font_size.py` and `core/key_bindings.py` respectively, imported by
+  `core/commands/pane_view.py`, which aliases `clamp_font_size` back to
+  `_clamp_font_size` so the moved bodies read as they always did. They were
+  split out so the
   [text viewer's own zoom](../views/TEXT_VIEWER.md#zoom) could reuse them
   without a circular import (`core/commands/__init__.py` imports
   `core/textviewer.py` at module load, so the reverse import isn't possible).

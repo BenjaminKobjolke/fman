@@ -42,11 +42,11 @@ No default key binding is set — the feature is palette-only.
 
 ## Implementation
 
-- `src/main/resources/base/Plugins/Core/core/commands/__init__.py` —
+- `src/main/resources/base/Plugins/Core/core/commands/pane_view.py` —
   `ShowOnlyActivePane` and `ShowAllPanes` (`DirectoryPaneCommand` subclasses).
   Each pane's Qt widget visibility (`pane._widget.setVisible(...)`) is toggled
   directly; the `QSplitter` that holds the panes redistributes space
   automatically. `is_visible()` on each command determines which one the
   palette offers, based on current pane visibility — not a static label.
-- `src/main/resources/base/Plugins/Core/core/tests/commands/test___init__.py` —
+- `src/main/resources/base/Plugins/Core/core/tests/commands/test_pane_view.py` —
   `ShowOnlyActivePaneTest`, `ShowAllPanesTest`.

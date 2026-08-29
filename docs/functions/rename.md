@@ -73,11 +73,12 @@ is nothing to rename.
 ## Implementation
 
 Three pieces, all in
-`src/main/resources/base/Plugins/Core/core/commands/__init__.py`:
+`src/main/resources/base/Plugins/Core/core/commands/rename.py`:
 
 - `Rename` (`DirectoryPaneCommand`) — only opens the editor. Calls
   `is_dir` to decide how much of the name to preselect (via
-  `_find_extension_start`, shared with `create_and_edit_file`), then
+  `_find_extension_start`, imported from `core/commands/editor.py`,
+  which `create_and_edit_file` shares), then
   `pane.edit_name(...)`. `is_visible()` hides it when the pane is empty.
 - `RenameListener` (`DirectoryPaneListener`) — receives `on_name_edited`
   and does the validation above (empty/unchanged, relative path,
