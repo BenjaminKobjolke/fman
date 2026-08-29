@@ -1,6 +1,27 @@
+from itertools import chain
 from os.path import basename
 
 import os
+
+def matched_in_order(matchers, entries, query, make_item):
+	"""
+	`entries` - (text, value) pairs - as rows, best matches first: one bucket
+	per matcher, in the order given, and within a bucket the order `entries`
+	came in. An entry lands in the bucket of the FIRST matcher that hits it,
+	so a loose matcher never outranks a strict one on the same entry.
+	Unmatched entries are dropped. `make_item(value, text, highlight)` builds
+	the row - usually a QuicksearchItem, which this module deliberately does
+	not import.
+	"""
+	buckets = [[] for _ in matchers]
+	for text, value in entries:
+		for i, matcher in enumerate(matchers):
+			highlight = matcher(text.lower(), query.lower())
+			if highlight is not None:
+				buckets[i].append(make_item(value, text, highlight))
+				break
+	return list(chain.from_iterable(buckets))
+
 
 def path_starts_with(path, query):
 	# We do want to return ~/Downloads when query is ~/Downloads/:

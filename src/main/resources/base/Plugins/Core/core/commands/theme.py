@@ -12,13 +12,12 @@ See docs/THEMES.md.
 """
 from core.panes import reload_panes
 from core.quicksearch_matchers import contains_chars, \
-	contains_chars_after_separator
+	contains_chars_after_separator, matched_in_order
 from fman import ApplicationCommand, QuicksearchItem, get_font, \
 	get_fonts, get_icon_color, get_icon_set, get_icon_sets, \
 	get_icon_size, get_theme, get_themes, get_window_opacity, set_font, \
 	set_icon_color, set_icon_set, set_icon_size, set_theme, \
 	set_window_opacity, show_quicksearch
-from itertools import chain
 
 __all__ = [
 	'ResetFont', 'SelectFont', 'SelectIconSet', 'SelectTheme',
@@ -60,17 +59,13 @@ def _matched_items(entries, current, query):
 	beyond QuicksearchItem) so it can be tested without a running fman - see
 	core/tests/commands/test_theme.py.
 	"""
-	buckets = [[] for _ in _MATCHERS]
-	for value, label in entries:
-		for i, matcher in enumerate(_MATCHERS):
-			highlight = matcher(label.lower(), query.lower())
-			if highlight is not None:
-				hint = CURRENT_HINT if value == current else ''
-				buckets[i].append(
-					QuicksearchItem(value, label, highlight, hint=hint)
-				)
-				break
-	return list(chain.from_iterable(buckets))
+	return matched_in_order(
+		_MATCHERS, [(label, value) for value, label in entries], query,
+		lambda value, label, highlight: QuicksearchItem(
+			value, label, highlight,
+			hint=CURRENT_HINT if value == current else ''
+		)
+	)
 
 def get_theme_items(names, current, query):
 	return _matched_items(_name_entries(names), current, query)

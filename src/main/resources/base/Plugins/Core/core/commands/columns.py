@@ -6,13 +6,12 @@ column is remembered per directory in 'Sort Settings.json' and restored by
 `RememberSortSettings` before each location change.
 """
 from core.quicksearch_matchers import contains_chars, \
-	contains_chars_after_separator
+	contains_chars_after_separator, matched_in_order
 from core.settings import get_setting, save_setting
 from fman import DirectoryPaneCommand, DirectoryPaneListener, load_json, \
 	QuicksearchItem, save_json, show_quicksearch
 from fman.fs import resolve
 from fman.impl.util.qt.thread import run_in_main_thread
-from itertools import chain
 
 __all__ = [
 	'InitColumnVisibility', 'RememberSortSettings', 'SortByColumn',
@@ -123,16 +122,11 @@ class SortByColumn(DirectoryPaneCommand):
 				ascending = True
 			self.pane.set_sort_column(column, ascending)
 	def _get_items(self, columns, query):
-		result = [[] for _ in self._MATCHERS]
-		for col_qual_name in columns:
-			col_name = col_qual_name.rsplit('.', 1)[1]
-			for i, matcher in enumerate(self._MATCHERS):
-				highlight = matcher(col_name.lower(), query.lower())
-				if highlight is not None:
-					item = QuicksearchItem(col_qual_name, col_name, highlight)
-					result[i].append(item)
-					break
-		return chain.from_iterable(result)
+		return matched_in_order(
+			self._MATCHERS,
+			[(name.rsplit('.', 1)[1], name) for name in columns], query,
+			QuicksearchItem
+		)
 
 class RememberSortSettings(DirectoryPaneListener):
 	def before_location_change(self, url, sort_column='', ascending=True):
