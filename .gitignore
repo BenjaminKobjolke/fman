@@ -16,6 +16,7 @@ tmp/commit_msg.tmp
 .php-cs-fixer.cache
 PLAN-changed-files.md
 PLAN.md
+HANDOFF.md
 PLAN_REFRACTOR.md
 /PLAN_*.md
 graphify-out
