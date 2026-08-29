@@ -4,6 +4,32 @@
     "enabled": true,
     "warning": 300,
     "error": 500,
+    "exceptions": [
+      {
+        "file": "src/main/python/fman/*",
+        "warning": 1100,
+        "error": 1500,
+        "reason": "Upstream fman application source. Splitting these creates conflicts on every upstream merge for zero functional gain; the fork's own code lives in Plugins/Core. Thresholds still catch runaway growth beyond today's largest file (widgets.py, 1002)."
+      },
+      {
+        "file": "src/main/resources/base/Plugins/Core/core/tests/*",
+        "warning": 700,
+        "error": 1200,
+        "reason": "Test suites - many similar scenarios per file, splitting fragments the suite without improving navigability."
+      },
+      {
+        "file": "src/unittest/*",
+        "warning": 700,
+        "error": 1200,
+        "reason": "Test suites - many similar scenarios per file, splitting fragments the suite without improving navigability."
+      },
+      {
+        "file": "src/integrationtest/*",
+        "warning": 700,
+        "error": 1200,
+        "reason": "Test suites and their fixture resources - many similar scenarios per file."
+      }
+    ],
     "exclude_patterns": {
       "python": [
         "__pycache__/**",
