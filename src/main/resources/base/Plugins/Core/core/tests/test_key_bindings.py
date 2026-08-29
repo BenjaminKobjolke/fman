@@ -1,5 +1,5 @@
 from core.key_bindings import command_for_key_event, command_for_shortcut, \
-	dispatch_bindable_command, DO_NOTHING
+	dispatch_bindable_command, get_shortcuts_for_command, DO_NOTHING
 from fman.impl.util.qt.key_event import QtKeyEvent
 from PyQt5.QtCore import Qt
 from unittest import TestCase
@@ -81,3 +81,25 @@ class CommandForShortcutTest(TestCase):
 	def test_malformed_entries_are_skipped(self):
 		bindings = ['nonsense', {'command': 'pack'}, {'keys': [], 'command': 'x'}]
 		self.assertIsNone(command_for_shortcut(bindings, 'M'))
+
+class GetShortcutsForCommandTest(TestCase):
+	def test_no_shortcut(self):
+		self._check([{'keys': ['Enter'], 'command': 'open'}], 'copy', [])
+	def test_simple(self):
+		self._check([{'keys': ['Enter'], 'command': 'open'}], 'open', ['Enter'])
+	def test_two_shortcuts(self):
+		self._check(
+			[{'keys': ['Enter'], 'command': 'open'},
+			 {'keys': ['Down'], 'command': 'open'}],
+			'open', ['Enter', 'Down']
+		)
+	def test_shortcut_only_displayed_for_one_command(self):
+		bindings = [
+			{'keys': ['Enter'], 'command': 'open'},
+			{'keys': ['Enter'], 'command': 'alternative'}
+		]
+		self._check(bindings, 'open', ['Enter'])
+		self._check(bindings, 'alternative', [])
+	def _check(self, key_bindings, command, expected_shortcuts):
+		actual = list(get_shortcuts_for_command(key_bindings, command))
+		self.assertEqual(expected_shortcuts, actual)
