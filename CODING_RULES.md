@@ -1,6 +1,6 @@
 <!-- Managed by /coding-rules:apply — do not edit rule blocks by hand -->
-<!-- codex: enabled -->
-<!-- deepseek: disabled -->
+<!-- codex: disabled -->
+<!-- deepseek: enabled -->
 
 # Version
 3
