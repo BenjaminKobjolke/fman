@@ -31,9 +31,9 @@ def _remove_gtk_dependencies():
 	)
 	assert output.endswith('\n')
 	for line in output.split('\n')[:-1]:
-		if not '=>' in line:
+		if '=>' not in line:
 			continue
-		match = re.match('\t(?:(.*) => )?(.*) \(0x[0-9a-f]+\)', line)
+		match = re.match(r'\t(?:(.*) => )?(.*) \(0x[0-9a-f]+\)', line)
 		if not match:
 			raise ValueError(repr(line))
 		so_name, so_path = match.groups()

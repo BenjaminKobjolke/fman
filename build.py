@@ -186,8 +186,8 @@ def _replace_re_group(pattern, string, group_replacement):
 	match = re.match(pattern, string)
 	if match:
 		return string[:match.start(1)] + \
-			   group_replacement + \
-			   string[match.end(1):]
+			group_replacement + \
+			string[match.end(1):]
 
 if __name__ == '__main__':
 	project_dir = dirname(__file__)
