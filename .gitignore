@@ -37,3 +37,4 @@ media/demos/feature-*/
 media/demos/plugin-*/
 # Theme stills - intermediates, joined into media/demos/themes/themes.gif
 media/demos/themes/*.png
+tmp
