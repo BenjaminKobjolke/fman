@@ -65,38 +65,38 @@ class CenterWindow(ApplicationCommand):
 	def __call__(self):
 		self.window.center_on_screen()
 
-class ToggleNetworkIcons(ApplicationCommand):
+def _is_showing_icons(key):
+	return get_setting(ICON_SETTINGS_FILE, key, False)
+
+class _ToggleIconSetting(ApplicationCommand):
+
+	# Underscore-prefixed so `from .window import *` skips it: the plugin
+	# loader registers every class reachable from `core`, and a base class
+	# is not a command anyone should be able to bind a key to.
+	_SETTING_KEY = None
+
+	def __call__(self):
+		show_real_icons = not _is_showing_icons(self._SETTING_KEY)
+		# None clears the key so the file doesn't carry the default around:
+		save_setting(
+			ICON_SETTINGS_FILE, self._SETTING_KEY, show_real_icons or None
+		)
+		reload_panes(self.window)
+
+class ToggleNetworkIcons(_ToggleIconSetting):
 
 	aliases = ('Toggle network drive icons',)
 
-	def __call__(self):
-		show_real_icons = not _is_showing_network_icons()
-		# None clears the key so the file doesn't carry the default around:
-		save_setting(
-			ICON_SETTINGS_FILE, NETWORK_ICONS_KEY, show_real_icons or None
-		)
-		reload_panes(self.window)
+	_SETTING_KEY = NETWORK_ICONS_KEY
 
-def _is_showing_network_icons():
-	return get_setting(ICON_SETTINGS_FILE, NETWORK_ICONS_KEY, False)
+class ToggleExecutableIcons(_ToggleIconSetting):
 
-class ToggleExecutableIcons(ApplicationCommand):
-
+	# An icon set draws every .exe the same. The OS icon says *which*
+	# program it is, which is worth more in a folder full of them - so this
+	# opts .exe and .lnk back out of the active icon set.
 	aliases = ('Toggle real icons for programs and shortcuts',)
 
-	def __call__(self):
-		# An icon set draws every .exe the same. The OS icon says *which*
-		# program it is, which is worth more in a folder full of them - so
-		# this opts .exe and .lnk back out of the active icon set.
-		use_os_icons = not _is_showing_executable_icons()
-		# None clears the key so the file doesn't carry the default around:
-		save_setting(
-			ICON_SETTINGS_FILE, EXECUTABLE_ICONS_KEY, use_os_icons or None
-		)
-		reload_panes(self.window)
-
-def _is_showing_executable_icons():
-	return get_setting(ICON_SETTINGS_FILE, EXECUTABLE_ICONS_KEY, False)
+	_SETTING_KEY = EXECUTABLE_ICONS_KEY
 
 class LocationBarListener(DirectoryPaneListener):
 	def on_location_bar_clicked(self):
