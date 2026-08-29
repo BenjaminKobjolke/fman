@@ -1,6 +1,6 @@
 """
 Font-size zoom for the text viewer (core/textviewer.py) - mirrors the pane
-font-size feature (core/commands/__init__.py: increase/decrease/reset pane
+font-size feature (core/commands/pane_view.py: increase/decrease/reset pane
 font size) but applies to the viewer's own QPlainTextEdit, persisted under
 its own settings key so the two zoom levels are independent. Split out of
 core/textviewer.py to stay under the project's 300-line file cap.

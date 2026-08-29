@@ -1,39 +1,17 @@
-from core.commands import History, Move, OpenOrView, \
-	ShowAllPanes, ShowOnlyActivePane, SwitchPanes, ViewFile, \
-	ViewFileInOtherPane, \
-	_from_human_readable, get_dest_suggestion, _find_extension_start, \
-	_clamp_font_size, _MIN_PANE_FONT_SIZE, \
-	_MAX_PANE_FONT_SIZE, _Rename
+from core.commands import History, Move, OpenOrView, ViewFile, \
+	ViewFileInOtherPane, _from_human_readable, get_dest_suggestion
 from core.key_bindings import get_shortcuts_for_command
 from core.tests import StubUI
+from core.tests.commands import FakeWindow
 from core.util import filenotfounderror
-from fman import OK, YES, NO, PLATFORM, RETRY, CANCEL, Task
-# Not in fman's __all__, so it isn't part of the star import Core uses:
-from fman import DirectoryPane
+from fman import OK, YES, NO, PLATFORM
 from fman.url import join, as_human_readable, as_url, dirname
-from PyQt5.QtWidgets import QApplication
 from tempfile import NamedTemporaryFile
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
 import os
 import os.path
-
-# ShowOnlyActivePane is decorated with @run_in_main_thread, which needs a
-# QApplication instance to exist (even though it never enters its event
-# loop here, since the test runs on the same thread it dispatches to).
-# Keep a module-level reference so it isn't garbage-collected:
-_APP = QApplication.instance() or QApplication([])
-
-class FindExtensionStartTest(TestCase):
-	def test_no_extension(self):
-		self.assertIsNone(_find_extension_start('File'))
-	def test_normal_extension(self):
-		self.assertEqual(4, _find_extension_start('test.zip'))
-	def test_tar_xz(self):
-		self.assertEqual(7, _find_extension_start('archive.tar.xz'))
-	def test_tar_gz(self):
-		self.assertEqual(7, _find_extension_start('archive.tar.gz'))
 
 class ConfirmTreeOperationTest(TestCase):
 
@@ -257,74 +235,6 @@ class GetShortcutsForCommandTest(TestCase):
 		actual = list(get_shortcuts_for_command(key_bindings, command))
 		self.assertEqual(expected_shortcuts, actual)
 
-class _FakeWidget:
-	def __init__(self, visible=True):
-		self._visible = visible
-	def isVisible(self):
-		return self._visible
-	def setVisible(self, visible):
-		self._visible = visible
-
-class _FakePane:
-	def __init__(self, window):
-		self.window = window
-		self._widget = _FakeWidget()
-		self.focused = False
-	def focus(self):
-		self.focused = True
-
-class _FakeWindow:
-	def __init__(self, panes=()):
-		self._panes = list(panes)
-	def get_panes(self):
-		return self._panes
-
-def _two_pane_window():
-	window = _FakeWindow()
-	active, other = _FakePane(window), _FakePane(window)
-	window._panes = [active, other]
-	return window, active, other
-
-class ShowOnlyActivePaneTest(TestCase):
-	def test_hides_other_panes(self):
-		window, active, other = _two_pane_window()
-		ShowOnlyActivePane(active)()
-		self.assertTrue(active._widget.isVisible())
-		self.assertFalse(other._widget.isVisible())
-		self.assertTrue(active.focused)
-	def test_visible_only_with_multiple_panes_all_shown(self):
-		window, active, other = _two_pane_window()
-		self.assertTrue(ShowOnlyActivePane(active).is_visible())
-		other._widget.setVisible(False)
-		self.assertFalse(ShowOnlyActivePane(active).is_visible())
-		window._panes = [active]
-		self.assertFalse(ShowOnlyActivePane(active).is_visible())
-
-class SwitchPanesTest(TestCase):
-	def test_switches_to_visible_pane(self):
-		window, active, other = _two_pane_window()
-		SwitchPanes(active)()
-		self.assertTrue(other.focused)
-	def test_does_not_switch_to_hidden_pane(self):
-		window, active, other = _two_pane_window()
-		ShowOnlyActivePane(active)()
-		SwitchPanes(active)()
-		self.assertFalse(other.focused)
-
-class ShowAllPanesTest(TestCase):
-	def test_restores_all_panes(self):
-		window, active, other = _two_pane_window()
-		other._widget.setVisible(False)
-		ShowAllPanes(active)()
-		self.assertTrue(active._widget.isVisible())
-		self.assertTrue(other._widget.isVisible())
-		self.assertTrue(active.focused)
-	def test_visible_only_when_a_pane_is_hidden(self):
-		window, active, other = _two_pane_window()
-		self.assertFalse(ShowAllPanes(active).is_visible())
-		other._widget.setVisible(False)
-		self.assertTrue(ShowAllPanes(active).is_visible())
-
 class _FakeOpenOrViewPane:
 	def __init__(self, url):
 		self._url = url
@@ -413,7 +323,7 @@ class _FakeViewInOtherPane:
 class ViewFileInOtherPaneTest(TestCase):
 	def test_mounts_in_other_pane_without_stealing_focus(self):
 		path = _write_temp_file(self, b'hello world')
-		window = _FakeWindow()
+		window = FakeWindow()
 		source = _FakeViewInOtherPane(as_url(path), window)
 		target = _FakeViewInOtherPane(None, window)
 		window._panes = [source, target]
@@ -430,7 +340,7 @@ class ViewFileInOtherPaneTest(TestCase):
 
 	def test_single_pane_views_in_place_and_takes_focus(self):
 		path = _write_temp_file(self, b'hello world')
-		window = _FakeWindow()
+		window = FakeWindow()
 		only = _FakeViewInOtherPane(as_url(path), window)
 		window._panes = [only]
 		viewer = MagicMock()
@@ -443,7 +353,7 @@ class ViewFileInOtherPaneTest(TestCase):
 		show_alert.assert_not_called()
 
 	def test_validation_failure_mounts_nothing(self):
-		window = _FakeWindow()
+		window = FakeWindow()
 		source = _FakeViewInOtherPane(None, window)  # no file selected
 		target = _FakeViewInOtherPane(None, window)
 		window._panes = [source, target]
@@ -453,20 +363,6 @@ class ViewFileInOtherPaneTest(TestCase):
 			ViewFileInOtherPane(source)()
 		show_alert.assert_called_once()
 		viewer.show.assert_not_called()
-
-class ClampFontSizeTest(TestCase):
-	def test_steps_up(self):
-		self.assertEqual(10, _clamp_font_size(9, +1))
-	def test_steps_down(self):
-		self.assertEqual(8, _clamp_font_size(9, -1))
-	def test_clamps_at_minimum(self):
-		self.assertEqual(
-			_MIN_PANE_FONT_SIZE, _clamp_font_size(_MIN_PANE_FONT_SIZE, -1)
-		)
-	def test_clamps_at_maximum(self):
-		self.assertEqual(
-			_MAX_PANE_FONT_SIZE, _clamp_font_size(_MAX_PANE_FONT_SIZE, +1)
-		)
 
 class HistoryTest(TestCase):
 	def test_empty_back(self):
@@ -508,75 +404,3 @@ class HistoryTest(TestCase):
 	def _go_to(self, *paths):
 		for path in paths:
 			self._history.path_changed(path)
-
-class RenameTest(TestCase):
-
-	"""
-	A failed rename must not throw away the name the user typed: the alert
-	offers Retry, which re-attempts the very same rename (see #_Rename).
-	"""
-
-	_SRC = 'file://C:/dir/a'
-	_DST = 'file://C:/dir/b'
-	_ALERT = (
-		'Access was denied trying to rename a to b.', RETRY | CANCEL, RETRY
-	)
-
-	def test_retry_reruns_the_move(self):
-		self._expect_alert(answer=RETRY)
-		self._rename()
-		self.assertEqual([(self._SRC, self._DST)] * 2, self._prepared)
-		self._pane.place_cursor_at.assert_called_once_with(self._DST)
-	def test_cancel_gives_up(self):
-		self._expect_alert(answer=CANCEL)
-		self._rename()
-		self.assertEqual([(self._SRC, self._DST)], self._prepared)
-		self._pane.place_cursor_at.assert_not_called()
-	def test_escape_gives_up(self):
-		# MessageBox lets Escape through, which returns 0 rather than a button.
-		self._expect_alert(answer=0)
-		self._rename()
-		self.assertEqual([(self._SRC, self._DST)], self._prepared)
-		self._pane.place_cursor_at.assert_not_called()
-	def setUp(self):
-		super().setUp()
-		self._prepared = []
-		self._dialog = _StubProgressDialog(self)
-		self._pane = MagicMock(spec=DirectoryPane)
-	def _expect_alert(self, answer):
-		self._dialog.expect_alert(self._ALERT, answer)
-	def _rename(self):
-		task = _Rename(self._pane, self._SRC, self._DST)
-		task._dialog = self._dialog
-		with patch('core.commands.prepare_move', self._prepare_move):
-			task()
-		self._dialog.verify_expected_dialogs_were_shown()
-	def _prepare_move(self, src_url, dst_url):
-		self._prepared.append((src_url, dst_url))
-		# Only the first attempt fails - a Retry must then succeed:
-		fails = len(self._prepared) == 1
-		yield Task('Moving a', size=1, fn=self._move, args=(fails,))
-	def _move(self, fails):
-		if fails:
-			raise PermissionError()
-
-class _StubProgressDialog(StubUI):
-
-	"""
-	StubUI's alert queue plus the progress-dialog methods Task calls on
-	#_dialog. Tasks are given one by fman.submit_task(...), which tests skip.
-	"""
-
-	def __init__(self, test_case):
-		super().__init__(test_case)
-		self._progress = 0
-	def set_text(self, text):
-		pass
-	def set_task_size(self, size):
-		pass
-	def get_progress(self):
-		return self._progress
-	def set_progress(self, progress):
-		self._progress = progress
-	def was_canceled(self):
-		return False

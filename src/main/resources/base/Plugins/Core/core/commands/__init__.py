@@ -1,32 +1,23 @@
-from core.commands.util import get_program_files, get_program_files_x86, \
-	is_file_url
+from core.commands.util import get_opposite_pane, is_file_url
 from core.fileoperations import CopyFiles, MoveFiles
-from core.font_size import clamp_font_size as _clamp_font_size, \
-	MIN_FONT_SIZE as _MIN_PANE_FONT_SIZE, MAX_FONT_SIZE as _MAX_PANE_FONT_SIZE
 from core.github import find_repos, GitHubRepo
 from core.os_ import open_terminal_in_directory, open_native_file_manager, \
 	get_popen_kwargs_for_opening
-from core.settings import get_setting, save_setting
-from core.util import strformat_dict_values, listdir_absolute, is_parent
+from core.util import listdir_absolute, is_parent
 from core.quicksearch_screen import QuicksearchScreen
 from core.quicksearch_matchers import contains_chars
 from core.viewers import viewer_for
 from fman import *
-from fman.fs import exists, touch, mkdir, is_dir, delete, samefile, copy, \
-	iterdir, resolve, prepare_copy, prepare_move, \
-	FileSystem, query, makedirs, notify_file_added
+from fman.fs import exists, mkdir, is_dir, delete, copy, iterdir, \
+	resolve, prepare_copy, makedirs, notify_file_added
 from fman import links
-# Not in fman's __all__, so the star import above does not bring it in - the
-# same reason commands/theme.py names the icon functions explicitly.
-from fman import set_icon_scale, set_palette_font_scale
 from fman.impl.util import get_user
-from fman.impl.util.qt.thread import run_in_main_thread
-from fman.url import splitscheme, as_url, join, basename, as_human_readable, \
-	dirname, relpath, normalize
-from os.path import basename, pardir
+from fman.url import splitscheme, as_url, join, basename, \
+	as_human_readable, dirname
+from os.path import basename
 from pathlib import PurePath
 from PyQt5.QtCore import QUrl
-from PyQt5.QtGui import QDesktopServices, QFontInfo
+from PyQt5.QtGui import QDesktopServices
 from subprocess import Popen, DEVNULL, PIPE
 from tempfile import TemporaryDirectory
 from urllib.error import URLError
@@ -49,11 +40,19 @@ from .deletion import *
 # `import *` skips underscore names, but Pack's task title reuses the same
 # "1 file / N files" phrasing as the delete tasks.
 from .deletion import _describe
+from .editor import *
+# `import *` skips underscore names, and code still in this file needs
+# three of them: get_dest_suggestion splits the extension off a rename
+# suggestion, and OpenWith's app dialogs reuse the editor picker.
+from .editor import _find_extension_start, _PLATFORM_APPLICATIONS_FILTER, \
+	_show_app_open_dialog
 from .goto import *
 from .hidden_files import *
 from .palette import *
+from .pane_view import *
 from .places import *
 from .release_notes import *
+from .rename import *
 from .theme import *
 from .window import *
 
@@ -360,7 +359,7 @@ class ViewFileInOtherPane(DirectoryPaneCommand):
 	aliases = ('View file in other pane',)
 
 	def __call__(self):
-		target = _get_opposite_pane(self.pane)
+		target = get_opposite_pane(self.pane)
 		_view_file_in(self.pane, target, focus_view=target is self.pane)
 
 class OpenOrView(DirectoryPaneCommand):
@@ -380,132 +379,6 @@ class OpenOrView(DirectoryPaneCommand):
 		else:
 			self.pane.run_command('open')
 
-class OpenWithEditor(DirectoryPaneCommand):
-
-	aliases = ('Edit',)
-
-	def __call__(self, url=None):
-		if url is None:
-			url = self.pane.get_file_under_cursor()
-		if not url:
-			show_alert('No file is selected!')
-			return
-		url = resolve(url)
-		scheme = splitscheme(url)[0]
-		if scheme != 'file://':
-			show_alert(
-				'Editing files from %s is not supported. If you are a plugin '
-				'developer, you can implement this with '
-				'DirectoryPaneListener#on_command(...).' % scheme
-			)
-			return
-		editor = self._get_editor()
-		if editor:
-			file_path = as_human_readable(url)
-			popen_kwargs = strformat_dict_values(editor, {'file': file_path})
-			Popen(**popen_kwargs)
-	def _get_editor(self):
-		settings = load_json('Core Settings.json', default={})
-		result = settings.get('editor', {})
-		if result:
-			try:
-				executable_path = result['args'][0]
-			except (KeyError, IndexError, TypeError):
-				pass
-			else:
-				if os.path.exists(executable_path):
-					return result
-			message = 'Could not find your editor. Please select it again.'
-		else:
-			message = 'Editor is currently not configured. Please pick one.'
-		choice = show_alert(message, OK | CANCEL, OK)
-		if choice & OK:
-			editor_path = _show_app_open_dialog('Pick an Editor')
-			if editor_path:
-				result = get_popen_kwargs_for_opening(['{file}'], editor_path)
-				settings['editor'] = result
-				save_json('Core Settings.json')
-				return result
-		return {}
-
-def _show_app_open_dialog(caption):
-	return show_file_open_dialog(
-		caption, _get_applications_directory(),
-		_PLATFORM_APPLICATIONS_FILTER[PLATFORM]
-	)
-
-_PLATFORM_APPLICATIONS_FILTER = {
-	'Mac': 'Applications (*.app)',
-	'Windows': 'Applications (*.exe)',
-	'Linux': 'Applications (*)'
-}
-
-def _get_applications_directory():
-	if PLATFORM == 'Mac':
-		return '/Applications'
-	elif PLATFORM == 'Windows':
-		result = get_program_files()
-		if not os.path.exists(result):
-			result = get_program_files_x86()
-		if not os.path.exists(result):
-			result = PurePath(sys.executable).anchor
-		return result
-	elif PLATFORM == 'Linux':
-		return '/usr/bin'
-	raise NotImplementedError(PLATFORM)
-
-class CreateAndEditFile(OpenWithEditor):
-
-	aliases = ('New file',)
-
-	def __call__(self, url=None):
-		file_under_cursor = self.pane.get_file_under_cursor()
-		default_name = ''
-		if file_under_cursor:
-			try:
-				file_is_dir = is_dir(file_under_cursor)
-			except OSError:
-				file_is_dir = False
-			if not file_is_dir:
-				default_name = basename(file_under_cursor)
-		selection_end = _find_extension_start(default_name)
-		file_name, ok = show_prompt(
-			'Enter file name to create/edit:', default_name,
-			selection_end=selection_end
-		)
-		if ok and file_name:
-			file_to_edit = join(self.pane.get_path(), file_name)
-			if not exists(file_to_edit):
-				try:
-					touch(file_to_edit)
-				except PermissionError:
-					show_alert(
-						"You do not have enough permissions to create %s."
-						% as_human_readable(file_to_edit)
-					)
-					return
-				except NotImplementedError:
-					show_alert(
-						'Sorry, creating a file for editing is not supported '
-						'here.'
-					)
-					return
-			try:
-				self.pane.place_cursor_at(file_to_edit)
-			except ValueError:
-				# This can happen when the file is hidden. Eg .bashrc on Linux.
-				pass
-			super().__call__(file_to_edit)
-
-def _find_extension_start(file_name, start=0):
-	for dual_extension in ('.pkg.tar.xz', '.tar.xz', '.tar.gz'):
-		if file_name.endswith(dual_extension):
-			return len(file_name) - len(dual_extension)
-	try:
-		return file_name.rindex('.', start)
-	except ValueError as not_found:
-		return None
-
 class _TreeCommand(DirectoryPaneCommand):
 	def __call__(self, files=None, dest_dir=None):
 		if files is None:
@@ -515,7 +388,7 @@ class _TreeCommand(DirectoryPaneCommand):
 			# This for instance happens in Drag and Drop operations.
 			src_dir = None
 		if dest_dir is None:
-			dest_dir = _get_opposite_pane(self.pane).get_path()
+			dest_dir = get_opposite_pane(self.pane).get_path()
 		proceed = self._confirm_tree_operation(files, dest_dir, src_dir)
 		if proceed:
 			dest_dir, dest_name = proceed
@@ -646,10 +519,6 @@ def get_dest_suggestion(dst_url):
 	selection_end = _find_extension_start(suggested_dst, selection_start)
 	return suggested_dst, selection_start, selection_end
 
-def _get_opposite_pane(pane):
-	panes = pane.window.get_panes()
-	return panes[(panes.index(pane) + 1) % len(panes)]
-
 def _from_human_readable(path_or_url, dest_dir, src_dir):
 	try:
 		splitscheme(path_or_url)
@@ -708,14 +577,14 @@ class Symlink(_TreeCommand):
 		if not super().is_visible():
 			return False
 		return is_file_url(self.pane.get_path()) and \
-			   is_file_url(_get_opposite_pane(self.pane).get_path())
+			   is_file_url(get_opposite_pane(self.pane).get_path())
 
 	def __call__(self):
 		src_url = self.pane.get_path()
 		if not is_file_url(src_url):
 			self._refuse()
 			return
-		dest_url = _get_opposite_pane(self.pane).get_path()
+		dest_url = get_opposite_pane(self.pane).get_path()
 		if not is_file_url(dest_url):
 			self._refuse()
 			return
@@ -755,132 +624,6 @@ class Symlink(_TreeCommand):
 
 	def _refuse(self):
 		show_alert('Sorry, can only create symlinks between local files.')
-
-class Rename(DirectoryPaneCommand):
-	def __call__(self):
-		file_under_cursor = self.pane.get_file_under_cursor()
-		if file_under_cursor:
-			try:
-				file_is_dir = is_dir(file_under_cursor)
-			except OSError as e:
-				show_alert(
-					'Could not read from %s (%s)' %
-					(as_human_readable(file_under_cursor), e)
-				)
-				return
-			if file_is_dir:
-				selection_end = None
-			else:
-				file_name = basename(file_under_cursor)
-				selection_end = _find_extension_start(file_name)
-			self.pane.edit_name(file_under_cursor, selection_end=selection_end)
-		else:
-			show_alert('No file is selected!')
-	def is_visible(self):
-		return bool(self.pane.get_file_under_cursor())
-
-class RenameListener(DirectoryPaneListener):
-	def on_name_edited(self, file_url, new_name):
-		old_name = basename(file_url)
-		if not new_name or new_name == old_name:
-			return
-		is_relative = \
-			os.sep in new_name or new_name in (pardir, '.') \
-			or (PLATFORM == 'Windows' and '/' in new_name)
-		if is_relative:
-			show_alert(
-				'Relative paths are not supported. Please use Move (F6) '
-				'instead.'
-			)
-			return
-		new_url = join(dirname(file_url), new_name)
-		if exists(new_url):
-			# Don't show dialog when "Foo" was simply renamed to "foo":
-			if not samefile(new_url, file_url):
-				show_alert(new_name + ' already exists!')
-				return
-		submit_task(_Rename(self.pane, file_url, new_url))
-
-class _Rename(Task):
-	def __init__(self, pane, src_url, dst_url):
-		self._pane = pane
-		self._src_url = src_url
-		self._dst_url = dst_url
-		super().__init__('Renaming ' + basename(src_url))
-	def __call__(self):
-		# Loop so the alert below can offer Retry: the usual cause of a failure
-		# is another program holding the file open. The user closes it and
-		# retries without having to retype the new name. prepare_move(...) is
-		# re-run per attempt because the tasks it yields are single-use.
-		while True:
-			self.set_text('Preparing...')
-			self.set_progress(0)
-			tasks = list(prepare_move(self._src_url, self._dst_url))
-			self.set_size(sum(t.get_size() for t in tasks))
-			try:
-				for task in tasks:
-					self.check_canceled()
-					self.run(task)
-			except OSError as e:
-				if isinstance(e, PermissionError):
-					message = 'Access was denied trying to rename %s to %s.'
-				else:
-					message = 'Could not rename %s to %s.'
-				old_name = basename(self._src_url)
-				new_name = basename(self._dst_url)
-				message %= (old_name, new_name)
-				# Escape returns 0, which is falsy here - so it cancels:
-				if self.show_alert(message, RETRY | CANCEL, RETRY) & RETRY:
-					continue
-				return
-			try:
-				self._pane.place_cursor_at(self._dst_url)
-			except ValueError as file_disappeared:
-				pass
-			return
-
-class CreateDirectory(DirectoryPaneCommand):
-
-	aliases = ('New folder',)
-
-	def __call__(self):
-		file_under_cursor = self.pane.get_file_under_cursor()
-		if file_under_cursor:
-			default = basename(file_under_cursor).split('.', 1)[0]
-		else:
-			default = ''
-		name, ok = show_prompt("New folder (directory)", default)
-		if ok and name:
-			# Support recursive creation of directories:
-			if PLATFORM == 'Windows':
-				name = name.replace('\\', '/')
-			base_url = self.pane.get_path()
-			dir_url = join(base_url, name)
-			try:
-				makedirs(dir_url)
-			except FileExistsError:
-				show_alert("A file with this name already exists!")
-			# Use normalize(...) instead of resolve(...) to avoid the following
-			# problem: Say c/ is a symlink to a/b/. We're inside c/ and create
-			# d. Then # resolve(c/d) would give a/b/d and the relative path
-			# further down # would be ../a/b/d. We could not place the cursor at
-			# that. If on # the other hand, we use normalize(...), then we
-			# compute the relpath from c -> c/d, which does work.
-			effective_url = normalize(dir_url)
-			select = relpath(effective_url, base_url).split('/')[0]
-			if select != '..':
-				try:
-					self.pane.place_cursor_at(join(base_url, select))
-				except ValueError as dir_disappeared:
-					pass
-	def is_visible(self):
-		fs = splitscheme(self.pane.get_path())[0]
-		return _fs_implements(fs, 'mkdir')
-
-def _fs_implements(scheme, method_name):
-	# Using query(...) in this way is quite hacky, but works:
-	method = query(scheme + method_name, '__getattr__')
-	return method.__func__ is not getattr(FileSystem, method_name)
 
 class OpenTerminal(DirectoryPaneCommand):
 
@@ -1402,7 +1145,7 @@ class Pack(DirectoryPaneCommand):
 			dest_name = PurePath(basename(files[0])).stem + '.zip'
 		else:
 			dest_name = basename(self.pane.get_path()) + '.zip'
-		dest_dir = _get_opposite_pane(self.pane).get_path()
+		dest_dir = get_opposite_pane(self.pane).get_path()
 		dest_url = join(dest_dir, dest_name)
 		suggested_dst, selection_start, selection_end = \
 			get_dest_suggestion(dest_url)
@@ -1441,161 +1184,6 @@ class _Pack(Task):
 			for task in prepare_copy(f, join(self._archive, basename(f))):
 				self.check_canceled()
 				self.run(task)
-
-class Reload(DirectoryPaneCommand):
-
-	aliases = ('Reload',)
-
-	def __call__(self):
-		self.pane.reload()
-
-class SwitchPanes(DirectoryPaneCommand):
-	def __call__(self, pane_index=None):
-		if pane_index is None:
-			pane = _get_opposite_pane(self.pane)
-		else:
-			pane = self.pane.window.get_panes()[pane_index]
-		# In single-pane mode (ShowOnlyActivePane) the other pane is hidden;
-		# focusing it would move the cursor into a pane the user can't see.
-		if not pane._widget.isVisible():
-			return
-		pane.focus()
-
-def _any_pane_hidden(panes):
-	return any(not pane._widget.isVisible() for pane in panes)
-
-class ShowOnlyActivePane(DirectoryPaneCommand):
-
-	def is_visible(self):
-		panes = self.pane.window.get_panes()
-		return len(panes) > 1 and not _any_pane_hidden(panes)
-	@run_in_main_thread
-	def __call__(self):
-		for pane in self.pane.window.get_panes():
-			pane._widget.setVisible(pane is self.pane)
-		self.pane.focus()
-
-class ShowAllPanes(DirectoryPaneCommand):
-
-	def is_visible(self):
-		return _any_pane_hidden(self.pane.window.get_panes())
-	@run_in_main_thread
-	def __call__(self):
-		for pane in self.pane.window.get_panes():
-			pane._widget.setVisible(True)
-		self.pane.focus()
-
-_FALLBACK_PANE_FONT_SIZE = 11 if PLATFORM == 'Mac' else 9
-# _clamp_font_size / _MIN_PANE_FONT_SIZE / _MAX_PANE_FONT_SIZE live in
-# core/font_size (imported above) so the text viewer's own zoom can reuse
-# them without a circular import - see that module's docstring.
-
-# The pane font size before this session zoomed anything, which is what the
-# icons are scaled relative to. It can only be read off a live view that has
-# not been given an override stylesheet yet, so it is captured once, at the
-# first moment either code path has a pane in hand - see docs/ICONS.md.
-_base_pane_font_size = None
-
-def _get_saved_pane_font_size():
-	return get_setting('Core Settings.json', 'pane_font_size')
-
-def _save_pane_font_size(size):
-	# size=None clears the override (Reset), falling back to the theme's own
-	# font again.
-	save_setting('Core Settings.json', 'pane_font_size', size)
-
-def _effective_font_size(pane):
-	# Base to step from: the theme's actual pane font (respects a user
-	# Theme.css), read off the live view before any override is applied.
-	try:
-		size = QFontInfo(pane._widget._file_view.font()).pointSize()
-		if size > 0:
-			return size
-	except (AttributeError, RuntimeError):
-		pass
-	return _FALLBACK_PANE_FONT_SIZE
-
-@run_in_main_thread
-def _apply_pane_font_size(pane, size):
-	# size=None removes our override stylesheet so the pane falls back to
-	# whatever the app-wide theme (Theme.css) sets.
-	css = '' if size is None else 'FileListView { font-size: %dpt; }' % size
-	pane._widget._file_view.setStyleSheet(css)
-
-def _remember_base_pane_font_size(pane):
-	# Call before applying an override to `pane`: afterwards the view reports
-	# the override, and the theme's own size is gone for the session.
-	global _base_pane_font_size
-	if _base_pane_font_size is None:
-		_base_pane_font_size = _effective_font_size(pane)
-
-def _apply_zoom_scale(size):
-	# The icons and the command palette zoom with the pane text, from
-	# whatever size the theme or the user picked for them: the engine
-	# multiplies its own resolved icon size (and the palette's own font
-	# sizes) by this, so "Set icon size 48" zooms from 48 rather than from
-	# Qt's 16. One factor for both, computed once - they can only disagree
-	# if something derives it twice.
-	if size is None or not _base_pane_font_size:
-		factor = 1.0
-	else:
-		factor = size / _base_pane_font_size
-	set_icon_scale(factor)
-	set_palette_font_scale(factor)
-
-def _change_pane_font_size(window, delta):
-	base = _get_saved_pane_font_size()
-	first_pane = window.get_panes()[0]
-	_remember_base_pane_font_size(first_pane)
-	if base is None:
-		base = _effective_font_size(first_pane)
-	new_size = _clamp_font_size(base, delta)
-	_save_pane_font_size(new_size)
-	for pane in window.get_panes():
-		_apply_pane_font_size(pane, new_size)
-	_apply_zoom_scale(new_size)
-
-def _reset_pane_font_size(window):
-	_save_pane_font_size(None)
-	for pane in window.get_panes():
-		_apply_pane_font_size(pane, None)
-	_apply_zoom_scale(None)
-
-class IncreasePaneFontSize(DirectoryPaneCommand):
-
-	aliases = ('Increase font size',)
-
-	def __call__(self):
-		_change_pane_font_size(self.pane.window, +1)
-
-class DecreasePaneFontSize(DirectoryPaneCommand):
-
-	aliases = ('Decrease font size',)
-
-	def __call__(self):
-		_change_pane_font_size(self.pane.window, -1)
-
-class ResetPaneFontSize(DirectoryPaneCommand):
-
-	# Palette-only by design — no default key binding requested.
-	aliases = ('Reset font size',)
-
-	def __call__(self):
-		_reset_pane_font_size(self.pane.window)
-
-class InitPaneFontSize(DirectoryPaneListener):
-	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
-		# Mirrors InitHiddenFilesFilter: fman instantiates commands lazily,
-		# so re-applying a saved setting on startup has to happen here.
-		size = _get_saved_pane_font_size()
-		# Unconditionally, and before applying: this is the only moment in a
-		# session where the pane still reports the theme's own font size, so
-		# it is the only moment the icon scale's baseline can be read.
-		_remember_base_pane_font_size(self.pane)
-		if size is not None:
-			_apply_pane_font_size(self.pane, size)
-			_apply_zoom_scale(size)
 
 class OpenWith(DirectoryPaneCommand):
 

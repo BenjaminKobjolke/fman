@@ -1,7 +1,7 @@
 """
 The common "get/set one key in a JSON settings file, None clears the key"
 pattern - used by both the pane font-size feature
-(core/commands/__init__.py: pane_font_size in Core Settings.json) and the
+(core/commands/pane_view.py: pane_font_size in Core Settings.json) and the
 text viewer's own font-size feature (core/textviewer_zoom.py:
 text_viewer_font_size in Core Settings.json).
 """

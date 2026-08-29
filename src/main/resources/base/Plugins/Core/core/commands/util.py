@@ -83,3 +83,11 @@ def is_file_url(url):
 	# window, external), and none of them may import another without making
 	# core/commands/__init__.py's star imports circular.
 	return splitscheme(url)[0] == 'file://'
+
+def get_opposite_pane(pane):
+	# Same reason as is_file_url above: the panes' "the other one" lookup is
+	# needed by commands in pane_view, transfer and opening, and none of those
+	# may import another without making core/commands/__init__.py's star
+	# imports circular.
+	panes = pane.window.get_panes()
+	return panes[(panes.index(pane) + 1) % len(panes)]
