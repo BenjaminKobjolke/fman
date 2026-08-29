@@ -76,6 +76,24 @@ Results are written to `code_analysis_results/` as **per-rule CSV files** (e.g.
 no `.md` report, and a missing CSV means that rule found nothing. Fix any
 reported issues before committing.
 
+### `tools/fix_ruff_issues.bat` — safe now, but it only adds newlines
+
+It used to break the build: ruff's F401 autofix deleted `from .zip import *`
+(`core/fs/__init__.py`, how the 7-Zip filesystem registers) and
+`viewer_for_category` from `core/viewers.py` (re-exported to
+`core/viewer_navigation.py`), erroring 4 Core tests. cli-code-analyzer now
+force-ignores F401/F403/F405/F811 for fix runs, so this can't recur.
+
+What remains is 146 changes across 121 files that are all trailing
+newline-at-EOF, most of them in upstream fman source. Zero functional gain,
+guaranteed conflicts on any upstream merge — so running it is still not worth
+it here. `/analyze:run-and-fix` says to run a fixer bat first; skip it and run
+only `analyze_code.bat`.
+
+Note `--unsafe-fixes` is off, which is what keeps the codebase-wide
+`except ValueError as file_disappeared:` idiom intact — the unused name
+documents *why* the exception is expected. Do not turn it on.
+
 ## Knowledge Graph (graphify)
 
 This project's graph is built from the **repository root**, never from `src/`:
