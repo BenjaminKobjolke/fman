@@ -1,0 +1,11 @@
+{
+  "version": "1.7.11",
+  "build": 1,
+  "date": "2026-08-30",
+  "title": "Los cambios de nombre fallidos se pueden reintentar y el modo de un solo panel mantiene tu concentración",
+  "notes": [
+    "Un cambio de nombre que falla ya no descarta lo que escribiste. El error ahora ofrece Reintentar y Cancelar, para que puedas corregir la causa (cerrar el archivo, liberar el nombre) y probar el mismo nombre de nuevo sin tener que escribirlo una segunda vez.",
+    "Cuando solo se muestra el panel activo, cambiar de panel ya no mueve el foco al que está oculto. Tus pulsaciones de teclas se quedan donde puedes verlas.",
+    "Los plugins que importan desde el módulo Core commands de fman vuelven a funcionar después de que el módulo se dividiera internamente."
+  ]
+}

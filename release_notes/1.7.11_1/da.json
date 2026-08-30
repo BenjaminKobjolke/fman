@@ -1,0 +1,11 @@
+{
+  "version": "1.7.11",
+  "build": 1,
+  "date": "2026-08-30",
+  "title": "Mislykkede omdøbninger kan prøves igen, og enkeltpaneltilstand bevarer dit fokus",
+  "notes": [
+    "En omdøbning, der mislykkes, smider ikke længere det, du har skrevet, væk. Fejlen tilbyder nu Prøv igen og Annuller, så du kan rette årsagen – lukke filen, frigøre navnet – og prøve det samme navn igen uden at skulle skrive det en anden gang.",
+    "Når kun det aktive panel vises, flytter skift mellem paneler ikke længere fokus til det skjulte. Dine tastetryk bliver dér, hvor du kan se dem.",
+    "Plugins, der importerer fra fmans modul Core commands, fungerer igen, efter at modulet internt blev opdelt."
+  ]
+}

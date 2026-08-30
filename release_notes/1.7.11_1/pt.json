@@ -1,0 +1,11 @@
+{
+  "version": "1.7.11",
+  "build": 1,
+  "date": "2026-08-30",
+  "title": "Renomeações com falha podem ser tentadas novamente, e o modo de painel único mantém seu foco",
+  "notes": [
+    "Uma renomeação que falha não descarta mais o que você digitou. O erro agora oferece Tentar novamente e Cancelar, para que você possa corrigir a causa — fechar o arquivo, liberar o nome — e tentar o mesmo nome de novo sem precisar digitá-lo uma segunda vez.",
+    "Enquanto apenas o painel ativo é exibido, alternar entre painéis não move mais o foco para o painel oculto. Suas teclas pressionadas permanecem onde você pode vê-las.",
+    "Plugins que importam do módulo de comandos principais do fman voltaram a funcionar depois que o módulo foi dividido internamente."
+  ]
+}

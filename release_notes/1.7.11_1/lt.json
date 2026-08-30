@@ -1,0 +1,11 @@
+{
+  "version": "1.7.11",
+  "build": 1,
+  "date": "2026-08-30",
+  "title": "Nepavykusius pervadinimus galima bandyti dar kartą, o vieno skydelio režimas išlaiko jūsų dėmesį",
+  "notes": [
+    "Nepavykęs pervadinimas nebepraranda to, ką įvedėte. Klaidos lange dabar siūlomi mygtukai „Bandyti dar kartą“ ir „Atšaukti“, todėl galite pašalinti priežastį – uždaryti failą, atlaisvinti pavadinimą – ir bandyti tą patį pavadinimą dar kartą jo neįvesdami antrąsyk.",
+    "Kai rodomas tik aktyvus skydelis, perjungiant skydelius fokusas nebepersikelia į paslėptą. Jūsų klavišų paspaudimai lieka ten, kur juos matote.",
+    "Įskiepiai, kurie importuoja iš fman „Core commands“ modulio, vėl veikia po to, kai modulis buvo viduje išskaidytas."
+  ]
+}

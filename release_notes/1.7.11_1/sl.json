@@ -1,0 +1,11 @@
+{
+  "version": "1.7.11",
+  "build": 1,
+  "date": "2026-08-30",
+  "title": "Neuspešna preimenovanja lahko poskusite znova, način z enim podoknom pa ohranja vašo osredotočenost",
+  "notes": [
+    "Preimenovanje, ki spodleti, ne zavrže več tega, kar ste vnesli. Napaka zdaj ponuja Poskusi znova in Prekliči, tako da lahko odpravite vzrok – zaprete datoteko, sprostite ime – in nato znova poskusite z istim imenom, ne da bi ga morali vnašati še enkrat.",
+    "Ko je prikazano samo aktivno podokno, preklapljanje med podokni ne premakne več fokusa v skrito podokno. Vaši pritiski tipk ostanejo tam, kjer jih lahko vidite.",
+    "Vtičniki, ki uvažajo iz fmanovega modula Core commands, po tem, ko je bil modul interno razdeljen, ponovno delujejo."
+  ]
+}

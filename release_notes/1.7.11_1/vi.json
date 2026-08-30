@@ -1,0 +1,11 @@
+{
+  "version": "1.7.11",
+  "build": 1,
+  "date": "2026-08-30",
+  "title": "Có thể thử lại thao tác đổi tên thất bại, và chế độ một khung giữ bạn luôn tập trung",
+  "notes": [
+    "Một lần đổi tên bị lỗi sẽ không còn làm mất những gì bạn đã gõ. Thông báo lỗi giờ cung cấp Thử lại và Hủy, ताकि bạn có thể khắc phục nguyên nhân - đóng tệp, giải phóng tên - và thử lại cùng một tên mà không cần gõ lại lần nữa.",
+    "Khi chỉ khung đang hoạt động được hiển thị, việc chuyển đổi giữa các khung sẽ không còn chuyển tiêu điểm sang khung bị ẩn. Các phím bạn gõ sẽ ở đúng nơi bạn nhìn thấy.",
+    "Các plugin nhập từ mô-đun lệnh Core của fman lại hoạt động bình thường sau khi mô-đun được tách nội bộ."
+  ]
+}

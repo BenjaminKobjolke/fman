@@ -1,0 +1,11 @@
+{
+  "version": "1.7.11",
+  "build": 1,
+  "date": "2026-08-30",
+  "title": "Neizdevušos pārdēvējumus var mēģināt vēlreiz, un vienas rūts režīms saglabā jūsu fokusu",
+  "notes": [
+    "Neizdevies pārdēvējums vairs neizmet to, ko ierakstījāt. Kļūdas paziņojums tagad piedāvā \"Mēģināt vēlreiz\" un \"Atcelt\", lai varētu novērst cēloni — aizvērt failu, atbrīvot nosaukumu — un mēģināt to pašu nosaukumu vēlreiz, to neievadot otru reizi.",
+    "Kad redzama tikai aktīvā rūts, rūšu pārslēgšana vairs nepārvieto fokusu uz paslēpto rūti. Jūsu taustiņu nospiedieni paliek tur, kur tos varat redzēt.",
+    "Spraudņi, kas importē no fman Core commands moduļa, atkal turpina darboties pēc tam, kad modulis tika iekšēji sadalīts."
+  ]
+}

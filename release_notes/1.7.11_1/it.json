@@ -1,0 +1,11 @@
+{
+  "version": "1.7.11",
+  "build": 1,
+  "date": "2026-08-30",
+  "title": "Le rinomine non riuscite possono essere riprovate e la modalità a riquadro singolo mantiene la tua concentrazione",
+  "notes": [
+    "Una rinomina che non riesce non elimina più ciò che hai digitato. L’errore ora offre Riprova e Annulla, così puoi correggere la causa — chiudere il file, liberare il nome — e provare di nuovo lo stesso nome senza doverlo digitare una seconda volta.",
+    "Quando è visibile solo il riquadro attivo, il passaggio da un riquadro all’altro non sposta più il focus in quello nascosto. I tuoi tasti restano dove puoi vederli.",
+    "I plugin che importano dal modulo Core commands di fman tornano a funzionare dopo che il modulo è stato suddiviso internamente."
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "version": "1.7.11",
+  "build": 1,
+  "date": "2026-08-30",
+  "title": "Neuspele promene imena mogu da se ponove, a režim sa jednim panelom zadržava vaš fokus",
+  "notes": [
+    "Promena imena koja ne uspe više ne odbacuje ono što ste uneli. Greška sada nudi opcije Ponovi i Otkaži, tako da možete otkloniti uzrok – zatvoriti fajl, osloboditi naziv – i ponovo pokušati isto ime bez ponovnog kucanja.",
+    "Dok je prikazan samo aktivni panel, prebacivanje između panela više ne premešta fokus na skriveni. Vaši pritisci tastera ostaju tamo gde ih možete videti.",
+    "Dodaci koji uvoze iz fman-ovog modula Core commands ponovo rade nakon što je modul interno podeljen."
+  ]
+}

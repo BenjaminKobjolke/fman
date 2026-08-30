@@ -1,0 +1,11 @@
+{
+  "version": "1.7.11",
+  "build": 1,
+  "date": "2026-08-30",
+  "title": "A sikertelen átnevezések újrapróbálhatók, és az egyablakos mód megőrzi a fókuszt",
+  "notes": [
+    "Egy sikertelen átnevezés többé nem dobja el azt, amit beírtál. A hibaüzenet most Újrapróbálás és Mégse lehetőséget kínál, így elháríthatod az okát – zárd be a fájlt, szabadítsd fel a nevet – és ugyanazzal a névvel újra próbálkozhatsz anélkül, hogy másodszor is be kellene gépelned.",
+    "Amikor csak az aktív panel látható, a panelek közti váltás többé nem viszi át a fókuszt a rejtettbe. A billentyűleütések ott maradnak, ahol látod őket.",
+    "Azok a bővítmények, amelyek az fman Core commands moduljából importálnak, ismét működnek, miután a modult belsőleg feldarabolták."
+  ]
+}

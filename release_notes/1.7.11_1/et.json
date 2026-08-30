@@ -1,0 +1,11 @@
+{
+  "version": "1.7.11",
+  "build": 1,
+  "date": "2026-08-30",
+  "title": "Ebaõnnestunud ümbernimetamisi saab uuesti proovida ja ühepaneelirežiim hoiab fookuse paigas",
+  "notes": [
+    "Kui ümbernimetamine ebaõnnestub, ei visata enam ära seda, mida kirjutasid. Veateade pakub nüüd valikuid Proovi uuesti ja Tühista, nii et saad põhjuse kõrvaldada – sulgeda faili, vabastada nime – ja proovida sama nime uuesti ilma seda teist korda sisestamata.",
+    "Kui kuvatakse ainult aktiivne paneel, siis paneelide vahetamine ei vii fookust enam peidetud paneelile. Sinu klahvivajutused jäävad sinna, kus sa neid näed.",
+    "Pluginad, mis impordivad fmani Core commands moodulist, töötavad jälle pärast seda, kui moodul sisemiselt osadeks jagati."
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "version": "1.7.11",
+  "build": 1,
+  "date": "2026-08-30",
+  "title": "Epäonnistuneita uudelleennimeämisiä voi yrittää uudelleen, ja yhden paneelin tila pitää fokusin kohdallaan",
+  "notes": [
+    "Epäonnistunut uudelleennimeäminen ei enää hukkaa kirjoittamaasi. Virheilmoitus tarjoaa nyt vaihtoehdot Yritä uudelleen ja Peruuta, joten voit korjata syyn – sulkea tiedoston, vapauttaa nimen – ja yrittää samaa nimeä uudelleen ilman että sinun tarvitsee kirjoittaa sitä toistamiseen.",
+    "Kun vain aktiivinen paneeli näytetään, paneelien vaihtaminen ei enää siirrä kohdistusta piilotettuun paneeliin. Näppäinpainalluksesi pysyvät siellä, missä näet ne.",
+    "Liitännäiset, jotka tuovat fmanin Core commands -moduulista, toimivat jälleen sen jälkeen, kun moduuli jaettiin sisäisesti osiin."
+  ]
+}

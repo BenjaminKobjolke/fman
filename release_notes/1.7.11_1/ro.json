@@ -1,0 +1,11 @@
+{
+  "version": "1.7.11",
+  "build": 1,
+  "date": "2026-08-30",
+  "title": "Redenumirile eșuate pot fi reîncercate, iar modul cu un singur panou îți păstrează concentrarea",
+  "notes": [
+    "O redenumire care eșuează nu mai aruncă ce ai tastat. Eroarea oferă acum Reîncearcă și Anulează, astfel încât să poți remedia cauza - închide fișierul, eliberează numele - și să încerci din nou același nume fără să-l tastezi a doua oară.",
+    "În timp ce este afișat doar panoul activ, comutarea între panouri nu mai mută focalizarea în cel ascuns. Apăsările de taste rămân acolo unde le poți vedea.",
+    "Pluginurile care importă din modulul Core commands al lui fman funcționează din nou după ce modulul a fost împărțit intern."
+  ]
+}

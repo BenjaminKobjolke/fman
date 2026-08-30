@@ -1,0 +1,11 @@
+{
+  "version": "1.7.11",
+  "build": 1,
+  "date": "2026-08-30",
+  "title": "Fehlgeschlagene Umbenennungen können erneut versucht werden, und der Einspaltenmodus hält Ihren Fokus",
+  "notes": [
+    "Eine Umbenennung, die fehlschlägt, verwirft nicht länger das, was Sie eingegeben haben. Der Fehlerdialog bietet jetzt „Erneut versuchen“ und „Abbrechen“, sodass Sie die Ursache beheben können – die Datei schließen, den Namen freigeben – und denselben Namen erneut versuchen können, ohne ihn ein zweites Mal eingeben zu müssen.",
+    "Während nur der aktive Bereich angezeigt wird, verschiebt das Wechseln zwischen Bereichen den Fokus nicht mehr in den ausgeblendeten. Ihre Tastatureingaben bleiben dort, wo Sie sie sehen können.",
+    "Plugins, die aus dem Core-Befehlsmodul von fman importieren, funktionieren wieder, nachdem das Modul intern aufgeteilt wurde."
+  ]
+}

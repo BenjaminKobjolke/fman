@@ -1,0 +1,11 @@
+{
+  "version": "1.7.11",
+  "build": 1,
+  "date": "2026-08-30",
+  "title": "Neúspešné premenovania môžete skúsiť znova a režim jedného panela udrží vašu pozornosť",
+  "notes": [
+    "Premenovanie, ktoré zlyhá, už nestratí to, čo ste napísali. Chybové hlásenie teraz ponúka možnosť Skúsiť znova a Zrušiť, takže môžete odstrániť príčinu – zavrieť súbor, uvoľniť názov – a skúsiť ten istý názov znova bez toho, aby ste ho museli písať ešte raz.",
+    "Keď je zobrazený iba aktívny panel, prepínanie panelov už nepresúva fokus do skrytého. Vaše stlačenia klávesov zostanú tam, kde ich vidíte.",
+    "Pluginy, ktoré importujú z modulu Core commands fmanu, po internom rozdelení modulu opäť fungujú."
+  ]
+}

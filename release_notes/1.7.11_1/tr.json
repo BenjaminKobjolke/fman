@@ -1,0 +1,11 @@
+{
+  "version": "1.7.11",
+  "build": 1,
+  "date": "2026-08-30",
+  "title": "Başarısız yeniden adlandırmalar yeniden denenebilir ve tek bölmeli mod odağınızı korur",
+  "notes": [
+    "Başarısız olan bir yeniden adlandırma artık yazdıklarınızı silip atmıyor. Hata artık Yeniden dene ve İptal seçeneklerini sunuyor; böylece nedeni düzeltebilir (dosyayı kapatın, adı boşa çıkarın) ve aynı adı ikinci kez yazmak zorunda kalmadan yeniden deneyebilirsiniz.",
+    "Yalnızca etkin bölme gösterilirken, bölmeler arasında geçiş yapmak artık odağı gizli olana taşımıyor. Tuş vuruşlarınız görebildiğiniz yerde kalır.",
+    "fman'in Core commands modülünden içe aktaran eklentiler, modülün dahili olarak bölünmesinden sonra yeniden sorunsuz çalışıyor."
+  ]
+}

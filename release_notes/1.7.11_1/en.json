@@ -1,0 +1,11 @@
+{
+  "version": "1.7.11",
+  "build": 1,
+  "date": "2026-08-30",
+  "title": "Failed renames can be retried, and single-pane mode keeps your focus",
+  "notes": [
+    "A rename that fails no longer throws away what you typed. The error now offers Retry and Cancel, so you can fix the cause - close the file, free the name - and try the same name again without typing it a second time.",
+    "While only the active pane is shown, switching panes no longer moves focus into the hidden one. Your keystrokes stay where you can see them.",
+    "Plugins that import from fman's Core commands module keep working again after the module was split up internally."
+  ]
+}

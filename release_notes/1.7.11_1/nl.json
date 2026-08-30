@@ -1,0 +1,11 @@
+{
+  "version": "1.7.11",
+  "build": 1,
+  "date": "2026-08-30",
+  "title": "Mislukte hernoemingen kunnen opnieuw worden geprobeerd, en de modus met één paneel houdt je focus vast",
+  "notes": [
+    "Een hernoeming die mislukt, gooit niet langer weg wat je hebt getypt. De foutmelding biedt nu Opnieuw proberen en Annuleren, zodat je de oorzaak kunt verhelpen – het bestand sluiten, de naam vrijmaken – en dezelfde naam opnieuw kunt proberen zonder hem een tweede keer te typen.",
+    "Wanneer alleen het actieve paneel wordt getoond, verplaatst het wisselen van paneel de focus niet langer naar het verborgen paneel. Je toetsaanslagen blijven waar je ze kunt zien.",
+    "Plugins die importeren uit fmans module Core commands werken weer nadat de module intern is opgesplitst."
+  ]
+}

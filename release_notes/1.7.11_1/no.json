@@ -1,0 +1,11 @@
+{
+  "version": "1.7.11",
+  "build": 1,
+  "date": "2026-08-30",
+  "title": "Mislykkede omdøpinger kan prøves på nytt, og enkeltpanelmodus holder fokus",
+  "notes": [
+    "Et omdøp som mislykkes forkaster ikke lenger det du skrev inn. Feilmeldingen tilbyr nå Prøv på nytt og Avbryt, slik at du kan rette årsaken – lukke filen, frigjøre navnet – og prøve det samme navnet igjen uten å skrive det inn en gang til.",
+    "Når bare det aktive panelet vises, flytter ikke bytte av paneler lenger fokuset til det skjulte. Tastetrykkene dine blir der du kan se dem.",
+    "Programtillegg som importerer fra fmans Core commands-modul fungerer igjen etter at modulen ble delt opp internt."
+  ]
+}

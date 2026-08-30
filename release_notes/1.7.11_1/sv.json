@@ -1,0 +1,11 @@
+{
+  "version": "1.7.11",
+  "build": 1,
+  "date": "2026-08-30",
+  "title": "Misslyckade namnbyten kan göras om, och enkelpanelsläge behåller ditt fokus",
+  "notes": [
+    "Ett namnbyte som misslyckas kastar inte längre bort det du skrev. Felet erbjuder nu Försök igen och Avbryt, så att du kan åtgärda orsaken – stäng filen, frigör namnet – och försöka med samma namn igen utan att behöva skriva det en gång till.",
+    "När endast den aktiva panelen visas flyttar växling mellan paneler inte längre fokus till den dolda. Dina tangenttryckningar stannar där du kan se dem.",
+    "Plugins som importerar från fmans Core commands-modul fungerar igen efter att modulen delades upp internt."
+  ]
+}

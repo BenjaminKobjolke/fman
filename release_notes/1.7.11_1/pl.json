@@ -1,0 +1,11 @@
+{
+  "version": "1.7.11",
+  "build": 1,
+  "date": "2026-08-30",
+  "title": "Nieudane zmiany nazw można ponowić, a tryb jednego panelu pomaga zachować koncentrację",
+  "notes": [
+    "Nieudana zmiana nazwy nie powoduje już utraty wpisanego tekstu. Komunikat o błędzie oferuje teraz opcje Ponów i Anuluj, dzięki czemu możesz usunąć przyczynę — zamknąć plik, zwolnić nazwę — i spróbować tej samej nazwy ponownie bez ponownego wpisywania.",
+    "Gdy wyświetlany jest tylko aktywny panel, przełączanie paneli nie przenosi już fokusu do ukrytego. Twoje naciśnięcia klawiszy pozostają tam, gdzie je widzisz.",
+    "Wtyczki importujące z modułu Core commands fmana znów działają po wewnętrznym podziale tego modułu."
+  ]
+}

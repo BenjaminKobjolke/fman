@@ -1,0 +1,11 @@
+{
+  "version": "1.7.11",
+  "build": 1,
+  "date": "2026-08-30",
+  "title": "Neuspjela preimenovanja mogu se ponovno pokušati, a način rada s jednim oknom zadržava vašu usredotočenost",
+  "notes": [
+    "Preimenovanje koje ne uspije više ne odbacuje ono što ste upisali. Poruka o pogrešci sada nudi Ponovi i Odustani, pa možete ukloniti uzrok – zatvoriti datoteku, osloboditi naziv – i ponovno pokušati s istim nazivom bez ponovnog upisivanja.",
+    "Dok je prikazano samo aktivno okno, prebacivanje između okana više ne premješta fokus u skriveno okno. Vaši pritisci tipki ostaju ondje gdje ih možete vidjeti.",
+    "Dodaci koji uvoze iz fmanovog modula Core commands ponovno rade nakon što je modul interno razdvojen."
+  ]
+}

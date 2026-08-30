@@ -1,0 +1,11 @@
+{
+  "version": "1.7.11",
+  "build": 1,
+  "date": "2026-08-30",
+  "title": "Les renommages échoués peuvent être retentés, et le mode à un seul volet vous permet de rester concentré",
+  "notes": [
+    "Un renommage qui échoue ne fait désormais plus perdre ce que vous avez saisi. L’erreur propose maintenant Réessayer et Annuler, afin que vous puissiez corriger la cause — fermer le fichier, libérer le nom — et réessayer le même nom sans avoir à le retaper une seconde fois.",
+    "Lorsqu’un seul volet est affiché (le volet actif), le changement de volet ne déplace plus le focus vers celui qui est masqué. Vos frappes restent là où vous pouvez les voir.",
+    "Les plugins qui importent depuis le module « Core commands » de fman fonctionnent à nouveau après que le module a été scindé en interne."
+  ]
+}

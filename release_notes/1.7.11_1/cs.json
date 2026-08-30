@@ -1,0 +1,11 @@
+{
+  "version": "1.7.11",
+  "build": 1,
+  "date": "2026-08-30",
+  "title": "Neúspěšná přejmenování lze zkusit znovu a režim s jedním panelem udrží vaše soustředění",
+  "notes": [
+    "Přejmenování, které selže, už nezahodí to, co jste napsali. Chyba nyní nabízí Zkusit znovu a Zrušit, takže můžete odstranit příčinu – zavřít soubor, uvolnit název – a zkusit stejný název znovu, aniž byste ho museli psát podruhé.",
+    "Když je zobrazen pouze aktivní panel, přepínání panelů už nepřesune fokus do skrytého. Vaše stisky kláves zůstanou tam, kde je vidíte.",
+    "Zásuvné moduly, které importují z modulu fmanu Core commands, opět fungují poté, co byl modul interně rozdělen."
+  ]
+}
