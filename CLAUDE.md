@@ -42,6 +42,13 @@ These are excluded from `run_core_tests.bat` (filename doesn't match `test*.py`)
 because they spawn `7za.exe` as a real subprocess and can hang under
 AV/EDR interference.
 
+If you touched the pane model (`src/main/python/fman/impl/model/**` — sorting,
+filtering, or where an added/renamed/changed row is inserted), run:
+
+```bash
+powershell -Command "cd 'D:\GIT\BenjaminKobjolke\fman'; cmd /c '.\tools\run_model_tests.bat'"
+```
+
 How fman drives 7-Zip (the `-bsp1` progress protocol, canceling, why there is
 no pseudo-terminal on Windows) is documented in `docs/ARCHIVES.md`.
 
