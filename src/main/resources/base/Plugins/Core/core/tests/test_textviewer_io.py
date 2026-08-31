@@ -1,9 +1,11 @@
+from core.textviewer_save import write_view
 from core.textviewer_io import (
 	read_text_for_view, MAX_VIEW_BYTES, is_editable, read_capped,
 	load_for_view, is_text_file,
 )
 from tempfile import NamedTemporaryFile
 from unittest import TestCase
+from unittest.mock import patch
 
 import os
 
@@ -102,3 +104,25 @@ class IsTextFileTest(TestCase):
 
 	def test_missing_file_is_not_text(self):
 		self.assertFalse(is_text_file('/no/such/path/does-not-exist'))
+
+class _StubView:
+	# write_view only reads the buffer, so it runs against this - the real
+	# PaneTextView is a QPlainTextEdit and would need a QApplication.
+	def toPlainText(self):
+		return 'contents'
+
+class WriteTest(TestCase):
+	def test_writes_the_buffer_as_utf8(self):
+		path = _write_temp_file(self, b'')
+		self.assertTrue(write_view(_StubView(), path))
+		with open(path, 'rb') as f:
+			self.assertEqual(b'contents', f.read())
+
+	def test_a_failed_write_reports_instead_of_raising(self):
+		# A read-only file or a missing directory reaches write_view as OSError.
+		# Uncaught, a palette save would traceback and the user would believe
+		# it saved.
+		missing_dir = os.path.join(_write_temp_file(self, b''), 'nope.txt')
+		with patch('core.viewer_status.show_status_message') as status:
+			self.assertFalse(write_view(_StubView(), missing_dir))
+		self.assertIn('Could not save:', status.call_args[0][0])

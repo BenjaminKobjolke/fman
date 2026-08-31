@@ -35,7 +35,7 @@ sliders.
 |--------------------|-------------------------------|
 | Space              | Play / pause                  |
 | Left / Right       | Seek −5s / +5s                |
-| Up / Down          | Volume +5 / −5 (0–100), flashes `Volume: N` on screen |
+| Up / Down          | Volume +5 / −5 (0–100), flashes `Volume: N` on screen and in the status bar |
 | Escape/Enter/Backspace | Close viewer               |
 | Tab / Shift+Tab    | Switch panes                   |
 | Ctrl+Shift+P       | Open viewer command palette    |
@@ -43,6 +43,11 @@ sliders.
 **Palette entries:** *Play / Pause*, *Restart*, *Mute / Unmute*,
 *Reset volume*, *Exit viewer*. Mute has no default key — bind one yourself
 (see [`docs/KEYBINDINGS.md`](../KEYBINDINGS.md#viewer-specific-bindings)).
+
+**Every control reports itself twice:** as mpv's own on-video flash and in
+the [status bar](../STATUSBAR.md) — `Playing` / `Paused`, `Restarted`,
+`Volume: 60`, `Muted` / `Unmuted`. The OSD is easy to miss on a bright frame
+and invisible if you're looking at the other pane; the status bar isn't.
 
 **Volume and mute persist across sessions** — the last value set via
 Up/Down, *Reset volume*, or *Mute / Unmute* is restored the next time any
@@ -88,6 +93,9 @@ listed in Controls above.
 | `viewer_open_palette`   | Ctrl+Shift+P | Open viewer command palette |
 | `viewer_next_file` / `viewer_previous_file` | *(none)* | View next / previous file in the directory |
 | `viewer_toggle_same_type_advance` | *(none)* | Toggle "advance only for same type" |
+| `viewer_delete_file` | *(none)* | Move the video to the trash |
+| `viewer_rename_file` | *(none)* | Rename the video, keeping it playing |
+| `viewer_toggle_close_after_delete` | *(none)* | Toggle whether a delete closes the viewer or goes to the next file |
 
 Next/previous and the same-type toggle are **shared** across all three viewers
 — see [File viewers](../viewers/FILE_VIEWERS.md#shared-behaviour) for how they
@@ -222,6 +230,12 @@ The video viewer reuses the identical pane-mounting glue
       `_open_palette` delegates to that module's `open_viewer_palette`. See the
       [image viewer](IMAGE_VIEWER.md#implementation) for the module's own
       description.
+    - `_get_actions` names every row after the pseudo-command it runs
+      (`video_toggle_pause`, `video_restart`, `video_mute`,
+      `video_reset_volume`, `viewer_close`, plus the navigator's), which is
+      what lets Shift+Enter on any of them rename it, add keywords, or bind a
+      key — see
+      [Changing key bindings from the palette](../COMMAND_PALETTE_KEYBINDINGS.md).
     - **`start_playback(mpv_module, path)` is separate from `__init__`, and
       must run only after the view is mounted into the pane and shown.**
       Creating the mpv player (which grabs `winId()`) and calling `.play()`

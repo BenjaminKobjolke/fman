@@ -18,17 +18,16 @@ from core.textviewer_pane import (
 	close_view as close_text_viewer,
 )
 from core.textviewer_reload import reload_from_disk
+from core.textviewer_save import save as save_view, save_as as save_view_as
 from core.textviewer_search import ViewerSearch
-from core.textviewer_watch import toggle_auto_reload, toggle_tail
+from core.textviewer_watch import rewatch, toggle_auto_reload, toggle_tail
 from core.textviewer_zoom import (
-	get_saved_view_font_size, change_view_font_size, zoom_actions,
-	zoom_delta_for,
+	get_saved_view_font_size, change_view_font_size, reset_view_font_size,
+	zoom_actions, zoom_delta_for, RESET_COMMAND,
 )
 from core.viewer_navigation import open_viewer_palette, ViewerNavigator
-from fman import (
-	show_alert, show_prompt, show_status_message, YES, NO, load_json,
-)
-from fman.fs import notify_file_changed
+from core.viewer_status import viewer_status
+from fman import show_alert, YES, NO, load_json
 from fman.impl.util.qt.key_event import QtKeyEvent
 from fman.impl.util.qt.thread import run_in_main_thread
 from fman.url import as_human_readable
@@ -40,7 +39,7 @@ class PaneTextView(QPlainTextEdit):
 		super().__init__()
 		self._on_close = on_close
 		self._on_switch = on_switch
-		self._nav = ViewerNavigator(pane, 'text')
+		self._nav = ViewerNavigator(pane, 'text', on_close, self._on_renamed)
 		self._search = ViewerSearch(self)
 		self._bg = bg
 		self._fg = fg
@@ -114,8 +113,8 @@ class PaneTextView(QPlainTextEdit):
 		# edit mode - Tab must keep typing normally there (see keyPressEvent).
 		if self._editing:
 			commands = {
-				'text_save': self._save,
-				'text_save_as': self._save_as,
+				'text_save': lambda: save_view(self),
+				'text_save_as': lambda: save_view_as(self),
 				'text_revert': self._revert,
 				'viewer_close': self._exit_with_dirty_check,
 				'viewer_open_palette': self._open_palette,
@@ -134,9 +133,25 @@ class PaneTextView(QPlainTextEdit):
 			if self._url is not None:
 				commands.update(self._nav.commands())
 		# Both modes: a bound key is dispatched before the edit-mode
-		# passthrough, so e.g. Ctrl+F keeps searching while typing.
+		# passthrough, so e.g. Ctrl+F keeps searching while typing. Zoom
+		# in/out need no entry here - they follow the pane font-size shortcut,
+		# matched earlier by zoom_delta_for; only Reset ships no key at all.
 		commands.update(self._search.commands())
+		commands[RESET_COMMAND] = \
+			lambda: reset_view_font_size(self._apply_font_size)
 		return commands
+
+	@run_in_main_thread
+	def _on_renamed(self, new_url):
+		# Unlike the image and video viewers, this one keeps addressing its
+		# file by path after loading it - Save would otherwise write the
+		# buffer back under the old name. Same bookkeeping Save as… does
+		# (core/textviewer_save.py). Marshalled onto the main thread because
+		# the rename itself runs off it (core/viewer_file_ops.py) and rewatch
+		# builds a QFileSystemWatcher.
+		self._url = new_url
+		self._path = as_human_readable(new_url)
+		rewatch(self)
 
 	def _apply_font_size(self, size):
 		# Passed as the apply_size callback to core.textviewer_zoom, which
@@ -160,17 +175,29 @@ class PaneTextView(QPlainTextEdit):
 				else 'Enable tail mode (follow end)'
 			)
 			reload_actions = [
-				(auto_label, lambda: toggle_auto_reload(self), ''),
-				(tail_label, lambda: toggle_tail(self), ''),
+				(
+					auto_label, lambda: toggle_auto_reload(self), '',
+					'text_toggle_auto_reload'
+				),
+				(
+					tail_label, lambda: toggle_tail(self), '',
+					'text_toggle_tail'
+				),
 			]
 		zoom = zoom_actions(self, self._apply_font_size, key_bindings)
 		if self._editing:
 			mode_actions = [
-				('Save file', self._save, ''),
-				('Save file as…', self._save_as, ''),
-				('Revert / reload from disk', self._revert, ''),
+				('Save file', lambda: save_view(self), '', 'text_save'),
+				('Save file as…', lambda: save_view_as(self), '', 'text_save_as'),
+				(
+					'Revert / reload from disk', self._revert, '',
+					'text_revert'
+				),
 			] + reload_actions + zoom + [
-				('Exit viewer', self._exit_with_dirty_check, ''),
+				(
+					'Exit viewer', self._exit_with_dirty_check, '',
+					'viewer_close'
+				),
 			]
 		else:
 			# Navigation is view-mode only (this branch), and only for a real
@@ -179,9 +206,9 @@ class PaneTextView(QPlainTextEdit):
 			# Mirrors the self._path gate on reload_actions.
 			nav_actions = self._nav.actions() if self._url is not None else []
 			mode_actions = [
-				('Exit viewer', self._on_close, ''),
-				('Edit file', self._enter_edit_mode, ''),
-				('Reload from disk', self._revert, ''),
+				('Exit viewer', self._on_close, '', 'viewer_close'),
+				('Edit file', self._enter_edit_mode, '', 'text_edit'),
+				('Reload from disk', self._revert, '', 'text_reload'),
 			] + reload_actions + zoom + nav_actions
 		# Listed in both modes (core/textviewer_search.py).
 		return mode_actions + self._search.actions()
@@ -199,29 +226,7 @@ class PaneTextView(QPlainTextEdit):
 		self._editing = True
 		self.setReadOnly(False)
 		self.setTextInteractionFlags(Qt.TextEditorInteraction)
-
-	def _write(self, path):
-		# QPlainTextEdit normalizes all line endings to '\n', so a file
-		# originally using CRLF is rewritten with LF on save — a known,
-		# accepted limitation (see docs/views/TEXT_VIEWER.md).
-		with open(path, 'wb') as f:
-			f.write(self.toPlainText().encode('utf-8'))
-
-	def _save(self):
-		self._write(self._path)
-		notify_file_changed(self._url)
-		self.document().setModified(False)
-		show_status_message('Saved')
-
-	def _save_as(self):
-		new_path, ok = show_prompt('Save as (full path):', default=self._path)
-		if not ok or not new_path:
-			return
-		self._write(new_path)
-		self._path = new_path
-		notify_file_changed(self._url)
-		self.document().setModified(False)
-		show_status_message('Saved as %s' % new_path)
+		viewer_status('Edit mode')
 
 	def _revert(self):
 		if self._editing and self.document().isModified():
@@ -229,7 +234,8 @@ class PaneTextView(QPlainTextEdit):
 				'Discard unsaved changes and reload from disk?', YES | NO, NO
 			) & YES:
 				return
-		reload_from_disk(self, tail=False)
+		if not reload_from_disk(self, tail=False):
+			viewer_status('Reloaded from disk')
 
 	def _exit_with_dirty_check(self):
 		if confirm_close(self):

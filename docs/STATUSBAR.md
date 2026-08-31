@@ -14,8 +14,9 @@ There is a single message slot, left-aligned. Whatever wrote last wins.
 | Startup | `v1.7.8 ready.` — or `Updated to v1.7.8. Changelog` after a version change, where *Changelog* is a clickable link |
 | Copy / cut to clipboard | `Copying foo.txt`, `Cutting foo.txt and 3 other files`, `Copied C:\dir\foo.txt to the clipboard` |
 | Reloading plugins | `Reloaded 2 plugins.` |
-| Saving in the [text viewer](views/TEXT_VIEWER.md#editing) | `Saved`, `Saved as <path>` |
+| Saving in the [text viewer](views/TEXT_VIEWER.md#editing) | `Saved`, `Saved as <path>`, `Could not save: <reason>` |
 | Auto-reload / tail toggles | `Auto-reload on`, `Tail mode on`, `Auto-reload off`, `File changed on disk (not reloaded)` |
+| Any other [viewer](viewers/FILE_VIEWERS.md#status-bar-feedback) action | `Reloaded from disk`, `Edit mode`, `Font size 12`, `Zoom 125%`, `Paused`, the name of the file Next/Previous landed on, ... |
 | [Viewer navigation](viewers/FILE_VIEWERS.md) | `Advance only for same type: on`, `No further file to view` |
 | Long-running work | a "doing X…" line for as long as the work runs, then cleared |
 | Nothing recent | `Ready.` |
@@ -88,6 +89,10 @@ default, 11pt on macOS), which maps to `QStatusBar, QStatusBar QLabel`.
   `core.commands.StatusMessage` is a context manager wrapping the pair for
   "show while this runs"
 - The startup message: `fman/impl/session.py`
+- The viewers' own line: `Plugins/Core/core/viewer_status.py` —
+  `viewer_status(text)`, a 3-second-timeout wrapper every in-pane viewer
+  reports through (see
+  [`docs/viewers/FILE_VIEWERS.md`](viewers/FILE_VIEWERS.md#status-bar-feedback))
 - Toggle command: `fman/impl/plugins/builtin.py` (`ToggleStatusBar`), beside
   `ToggleTitleBar`
 - Show/hide on the widget: `MainWindow.set_status_bar_visible`

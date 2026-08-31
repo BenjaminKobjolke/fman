@@ -12,6 +12,7 @@ get_saved_scale/save_scale) so the step+clamp math is unit-testable without
 touching real settings I/O - see core/tests/test_imageviewer_zoom.py.
 """
 from core.settings import get_setting, save_setting
+from core.viewer_status import viewer_status
 
 _SETTING_KEY = 'image_viewer_zoom'
 MIN_SCALE = 0.1
@@ -28,7 +29,14 @@ def save_scale(scale):
 def clamp_scale(scale):
 	return max(MIN_SCALE, min(MAX_SCALE, scale))
 
-def change_image_scale(view, apply_scale, delta, get_saved=get_saved_scale, save=save_scale):
+def zoom_message(scale):
+	# One formatter so PaneImageView._actual_size, which sets 1.0 directly
+	# rather than through change_image_scale, still says it the same way.
+	return 'Zoom %d%%' % round(scale * 100)
+
+def change_image_scale(
+	view, apply_scale, delta, get_saved=get_saved_scale, save=save_scale
+):
 	base = get_saved()
 	if base is None:
 		# Nothing saved yet (fit mode): step from what's actually on screen
@@ -39,7 +47,9 @@ def change_image_scale(view, apply_scale, delta, get_saved=get_saved_scale, save
 	new_scale = clamp_scale(base * (SCALE_STEP ** delta))
 	save(new_scale)
 	apply_scale(new_scale)
+	viewer_status(zoom_message(new_scale))
 
 def reset_image_scale(apply_scale, save=save_scale):
 	save(None)
 	apply_scale(None)
+	viewer_status('Fit to window')

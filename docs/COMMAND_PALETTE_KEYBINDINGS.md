@@ -78,6 +78,13 @@ Removing a viewer default (`Space` for play/pause, say) shadows it with
 `do_nothing` just like a global one, and the viewer honours that instead of
 falling through to its built-in key.
 
+The one exception is the zoom rows — *Increase/Decrease font size* in the text
+viewer, *Zoom in*/*Zoom out* in the image viewer. They follow the global pane
+font-size shortcut (`increase_pane_font_size`/`decrease_pane_font_size`), which
+the viewers read from `Key Bindings (<OS>).json`, so Shift+Enter on them edits
+that file instead. Rebinding one there moves the key for the file list and the
+viewers together, which is the point: it is one shortcut, not two.
+
 ## Where your edits are stored
 
 `%APPDATA%/fman/Plugins/User/Settings/Key Bindings (Windows).json` — the

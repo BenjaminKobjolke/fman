@@ -13,7 +13,9 @@ name (see _same_type_key), defaulting to on.
 
 Also home to the small viewer-scoped command-palette plumbing
 (open_viewer_palette) that all three viewers share, so the quicksearch handling
-lives in one place rather than being copied into each viewer widget.
+lives in one place rather than being copied into each viewer widget, and to the
+ViewerNavigator rows for core/viewer_file_ops.py's Delete/Rename entries - they
+ride along here because this is already the collaborator every viewer holds.
 """
 from collections import namedtuple
 from core.command_keywords import get_keywords
@@ -22,10 +24,12 @@ from core.key_bindings import VIEWER_KEY_BINDINGS_FILE
 from core.keyword_editor import edit_command_keywords
 from core.quicksearch_matchers import bucket_count, contains_chars, \
 	match_titles_or_keywords
-from core.settings import get_setting, save_setting
-from fman import show_quicksearch, show_status_message, QuicksearchItem
-
-_SETTINGS_FILE = 'Core Settings.json'
+from core.settings import get_setting, save_setting, SETTINGS_FILE
+from core.viewer_file_ops import after_delete_label, delete_current, \
+	rename_current, toggle_close_after_delete
+from core.viewer_status import viewer_status
+from fman import show_quicksearch, QuicksearchItem
+from fman.url import basename
 
 def _same_type_key(category):
 	# Derived rather than tabulated, so a plugin's viewer gets its own setting
@@ -43,12 +47,12 @@ def _same_type_key(category):
 	return '%s_viewer_advance_same_type' % category
 
 def get_same_type_only(category):
-	return bool(get_setting(_SETTINGS_FILE, _same_type_key(category), True))
+	return bool(get_setting(SETTINGS_FILE, _same_type_key(category), True))
 
 def toggle_same_type_only(category):
 	new_value = not get_same_type_only(category)
-	save_setting(_SETTINGS_FILE, _same_type_key(category), new_value)
-	show_status_message(
+	save_setting(SETTINGS_FILE, _same_type_key(category), new_value)
+	viewer_status(
 		'Advance only for same type: %s' % ('on' if new_value else 'off')
 	)
 	return new_value
@@ -68,13 +72,21 @@ def _category(url):
 class ViewerNavigator:
 	"""
 	Per-viewer navigation collaborator, injected into each viewer widget so the
-	next/previous-file and same-type-toggle wiring lives in one place instead of
-	being duplicated across imageviewer/videoviewer/textviewer. Bound once to a
-	pane and the owning viewer's category ('image'|'video'|'text').
+	next/previous-file, same-type-toggle and file-operation wiring lives in one
+	place instead of being duplicated across imageviewer/videoviewer/
+	textviewer. Bound once to a pane and the owning viewer's category
+	('image'|'video'|'text').
+
+	`on_close` and `on_renamed` are optional: a viewer passing no on_close gets
+	no Delete/Rename entries (there would be nowhere to leave the user once the
+	file is gone), and one passing no on_renamed simply keeps showing what it
+	has already loaded - see core/viewer_file_ops.py.
 	"""
-	def __init__(self, pane, category):
+	def __init__(self, pane, category, on_close=None, on_renamed=None):
 		self._pane = pane
 		self._category = category
+		self._on_close = on_close
+		self._on_renamed = on_renamed
 
 	def next_file(self):
 		advance(self._pane, +1, self._category)
@@ -85,6 +97,20 @@ class ViewerNavigator:
 	def toggle_same_type(self):
 		toggle_same_type_only(self._category)
 
+	def delete_file(self):
+		delete_current(
+			self._pane, self._pane.get_file_under_cursor(), self._category,
+			self._on_close
+		)
+
+	def rename_file(self):
+		rename_current(
+			self._pane, self._pane.get_file_under_cursor(), self._on_renamed
+		)
+
+	def toggle_after_delete(self):
+		toggle_close_after_delete()
+
 	def same_type_label(self):
 		# Label reflects the action the entry performs, like the text viewer's
 		# auto-reload label: when the restriction is on, the entry lifts it.
@@ -94,32 +120,58 @@ class ViewerNavigator:
 
 	def actions(self):
 		# The ViewerAction tuples shared by all three viewers'
-		# _get_actions(). Hints are blank: these ship no default key.
-		return [
+		# _get_actions(). Hints are blank: these ship no default key - least
+		# of all the destructive one.
+		actions = [
 			('Next file', self.next_file, '', 'viewer_next_file'),
 			(
 				'Previous file', self.previous_file, '',
 				'viewer_previous_file'
 			),
-			(self.same_type_label(), self.toggle_same_type, ''),
+			(
+				self.same_type_label(), self.toggle_same_type, '',
+				'viewer_toggle_same_type_advance'
+			),
 		]
+		if self._on_close is not None:
+			actions += [
+				('Delete file', self.delete_file, '', 'viewer_delete_file'),
+				('Rename file…', self.rename_file, '', 'viewer_rename_file'),
+				(
+					after_delete_label(), self.toggle_after_delete, '',
+					'viewer_toggle_close_after_delete'
+				),
+			]
+		return actions
 
 	def commands(self):
 		# The bindable-pseudo-command mappings each viewer merges into its own
 		# _bindable_commands() dict, kept here so the navigation contract lives
 		# in one place (see docs/KEYBINDINGS.md for the command names).
-		return {
+		commands = {
 			'viewer_next_file': self.next_file,
 			'viewer_previous_file': self.previous_file,
 			'viewer_toggle_same_type_advance': self.toggle_same_type,
 		}
+		if self._on_close is not None:
+			commands.update({
+				'viewer_delete_file': self.delete_file,
+				'viewer_rename_file': self.rename_file,
+				'viewer_toggle_close_after_delete': self.toggle_after_delete,
+			})
+		return commands
 
 # A viewer palette entry. command_name is the viewer pseudo-command this entry
 # runs (video_mute, viewer_next_file, ... - see docs/KEYBINDINGS.md), and the
-# key its hidden search keywords are stored under. Optional, because most
-# entries ship none.
-ViewerAction = namedtuple('ViewerAction', 'title action hint command_name')
-ViewerAction.__new__.__defaults__ = ('',)
+# key its hidden search keywords are stored under. bindings_file overrides
+# which Key Bindings file Shift+Enter edits: the zoom rows follow the global
+# pane font-size shortcuts, so theirs live in Key Bindings.json rather than the
+# viewer file (see core/textviewer_zoom.py). Both optional; an entry that gives
+# neither is a plain 3-tuple that can't be edited from the palette.
+ViewerAction = namedtuple(
+	'ViewerAction', 'title action hint command_name bindings_file'
+)
+ViewerAction.__new__.__defaults__ = ('', '')
 
 # The viewer palettes search a single, short title each, so the global
 # palette's word-boundary and any-order matchers would only ever repeat
@@ -159,19 +211,26 @@ def open_viewer_palette(get_actions):
 			))
 		return sum(buckets, [])
 	# A loop for the same reason as the global palette's: after editing an
-	# entry's keywords, reopen the palette instead of closing it.
+	# entry's keywords, reopen the palette instead of closing it - reopened on
+	# the same query, so an edit doesn't cost you the search you typed
+	# (core/commands/palette.py does the same).
+	last_query = ''
 	while True:
-		result = show_quicksearch(suggest, alt_accept=True)
+		result = show_quicksearch(
+			suggest, query=last_query, alt_accept=True
+		)
 		if not result:
 			return
-		_query, entry, alt = result
+		query, entry, alt = result
 		if not entry:
 			return
 		if not alt:
 			entry.action()
 			return
+		last_query = query
 		edit_command_keywords(
-			entry.command_name, entry.title, VIEWER_KEY_BINDINGS_FILE
+			entry.command_name, entry.title,
+			entry.bindings_file or VIEWER_KEY_BINDINGS_FILE
 		)
 
 def advance(pane, direction, category):
@@ -193,7 +252,7 @@ def advance(pane, direction, category):
 			# Qt's moveCursor clamps at the ends (no wrap), so an unchanged
 			# cursor means we hit the boundary without finding a match.
 			pane.place_cursor_at(start)
-			show_status_message('No further file to view')
+			viewer_status('No further file to view')
 			return
 		found = _category(after)
 		if found is None:
@@ -201,4 +260,8 @@ def advance(pane, direction, category):
 		if same_type_only and found != category:
 			continue
 		pane.run_command('view_file')
+		# Named, not silent: the pane looks the same after a successful step
+		# except for the content itself, which may not say which file it is.
+		# After view_file, so mounting the new viewer can't overwrite it.
+		viewer_status(basename(after))
 		return

@@ -7,6 +7,10 @@ text_viewer_font_size in Core Settings.json).
 """
 from fman import load_json, save_json
 
+# The file Core's own features keep their settings in - named here, where the
+# get/save pair lives, rather than spelled out by each module that uses it.
+SETTINGS_FILE = 'Core Settings.json'
+
 def get_setting(json_name, key, default=None):
 	return load_json(json_name, default={}).get(key, default)
 

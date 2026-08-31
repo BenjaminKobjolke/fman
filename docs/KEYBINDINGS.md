@@ -245,6 +245,9 @@ do anything while the matching viewer has focus.
 | `viewer_open_palette` | all | Ctrl+Shift+P | Open viewer command palette |
 | `viewer_next_file` / `viewer_previous_file` | all (text: view mode, backed file) | *(none)* | View next / previous file in the directory |
 | `viewer_toggle_same_type_advance` | all (text: view mode, backed file) | *(none)* | Toggle "advance only for same type" (per viewer) |
+| `viewer_delete_file` | all (text: view mode, backed file) | *(none)* | Move the viewed file to the trash, confirmation and all |
+| `viewer_rename_file` | all (text: view mode, backed file) | *(none)* | Prompt for a new name for the viewed file |
+| `viewer_toggle_close_after_delete` | all (text: view mode, backed file) | *(none)* | Toggle whether a delete closes the viewer or goes to the next file (global) |
 | `video_toggle_pause` | video | Space | Play / pause |
 | `video_seek_forward` / `video_seek_backward` | video | Right / Left | Seek ±5s |
 | `video_volume_up` / `video_volume_down` | video | Up / Down | Volume ±5 |
@@ -256,6 +259,7 @@ do anything while the matching viewer has focus.
 | `text_edit` / `text_reload` | text (view mode) | *(none)* | Edit file / Reload from disk |
 | `text_toggle_auto_reload` / `text_toggle_tail` | text (view mode, backed file) | *(none)* | Toggle auto-reload / tail mode |
 | `text_save` / `text_save_as` / `text_revert` | text (edit mode) | *(none)* | Save / Save as… / Revert |
+| `text_reset_font_size` | text (both modes) | *(none)* | Reset the viewer's own zoom (not the pane's) |
 | `text_find` | text (both modes) | `/` (view mode) | Prompt for a search query, jump to the first match |
 | `text_find_next` / `text_find_previous` | text (both modes) | `n` / `N` (view mode) | Next / previous match (wraps) |
 | `text_search_exit` | text (both modes) | Escape (view mode, while searching) | Leave search mode |

@@ -38,25 +38,39 @@ class Rename(DirectoryPaneCommand):
 
 class RenameListener(DirectoryPaneListener):
 	def on_name_edited(self, file_url, new_name):
-		old_name = basename(file_url)
-		if not new_name or new_name == old_name:
-			return
-		is_relative = \
-			os.sep in new_name or new_name in (pardir, '.') \
-			or (PLATFORM == 'Windows' and '/' in new_name)
-		if is_relative:
-			show_alert(
-				'Relative paths are not supported. Please use Move (F6) '
-				'instead.'
-			)
-			return
-		new_url = join(dirname(file_url), new_name)
-		if exists(new_url):
-			# Don't show dialog when "Foo" was simply renamed to "foo":
-			if not samefile(new_url, file_url):
-				show_alert(new_name + ' already exists!')
-				return
-		submit_task(_Rename(self.pane, file_url, new_url))
+		rename_to(self.pane, file_url, new_name)
+
+def rename_to(pane, file_url, new_name):
+	"""
+	Validates `new_name` and submits the rename, returning the new url - or
+	None when there is nothing to do (unchanged name) or the name was
+	rejected, in which case the user has already been told why.
+
+	Split out of RenameListener.on_name_edited so the in-pane viewers can
+	rename the file they are showing (core/viewer_file_ops.py): the Rename
+	command itself is unusable there, driving pane.edit_name on the file list
+	the viewer is covering.
+	"""
+	old_name = basename(file_url)
+	if not new_name or new_name == old_name:
+		return None
+	is_relative = \
+		os.sep in new_name or new_name in (pardir, '.') \
+		or (PLATFORM == 'Windows' and '/' in new_name)
+	if is_relative:
+		show_alert(
+			'Relative paths are not supported. Please use Move (F6) '
+			'instead.'
+		)
+		return None
+	new_url = join(dirname(file_url), new_name)
+	if exists(new_url):
+		# Don't show dialog when "Foo" was simply renamed to "foo":
+		if not samefile(new_url, file_url):
+			show_alert(new_name + ' already exists!')
+			return None
+	submit_task(_Rename(pane, file_url, new_url))
+	return new_url
 
 class _Rename(Task):
 	def __init__(self, pane, src_url, dst_url):

@@ -10,6 +10,7 @@ the reload sequence is inherently tied to that widget's private state
 (`_path`/`_editable`/`_editing`/`_set_read_only`).
 """
 from core.textviewer_io import load_for_view
+from core.viewer_status import viewer_status
 from PyQt5.QtGui import QTextCursor
 
 def set_text_preserving_scroll(view, text):
@@ -34,6 +35,10 @@ def reload_from_disk(view, tail):
 	(core.textviewer_watch.on_file_changed): loads `view._path`, updates
 	`_editable`, replaces the text (preserving scroll, or jumping to the end
 	if `tail`), and falls back to read-only if editing is no longer supported.
+
+	Returns whether that fallback happened - losing edit mode is the one
+	outcome worth reporting over the caller's own status message, so callers
+	report theirs only when this is False (see PaneTextView._revert).
 	"""
 	text, editable = load_for_view(view._path)
 	view._editable = editable
@@ -46,3 +51,6 @@ def reload_from_disk(view, tail):
 	if view._editing and not view._editable:
 		view._editing = False
 		view._set_read_only()
+		viewer_status('File no longer editable - now read-only')
+		return True
+	return False

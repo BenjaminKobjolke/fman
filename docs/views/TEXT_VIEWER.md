@@ -49,6 +49,12 @@ searches the file-list widget and that's hidden while viewing).
 
 Notes:
 
+- **Entering edit mode is confirmed, not silent.** *Edit file* reports
+  `Edit mode` in the [status bar](../STATUSBAR.md); the buffer looks the same
+  either way. Saving reports `Saved` / `Saved as <path>` — or
+  `Could not save: <reason>` if the write fails (a read-only file, a path
+  whose directory doesn't exist), which leaves the buffer modified so you can
+  retry with *Save file as…* rather than losing the edit.
 - **Not every file can be edited.** *Edit file* only makes the buffer
   editable if the file wasn't [size-truncated](#behaviour) and its bytes are
   strict UTF-8 — the same replacement decoding used for display is lossy, so
@@ -108,7 +114,14 @@ Notes:
 - **Reload keeps your place.** *Reload from disk* (view mode) and
   *Revert / reload from disk* (edit mode) preserve the viewport's scroll
   position and cursor location rather than jumping back to the top of the
-  file.
+  file. Both report `Reloaded from disk` in the
+  [status bar](../STATUSBAR.md) — a file that hasn't changed on disk reloads
+  to a pane that looks identical, so without the message there is nothing to
+  tell you it ran.
+- **A file that stops being editable says so.** If a reload finds the file
+  now too large or no longer valid UTF-8, the viewer drops back to read-only
+  and reports `File no longer editable - now read-only` instead of the plain
+  reload confirmation.
 - **Auto-reload** is an opt-in, per-view toggle (*Enable/Disable auto-reload*
   in the palette): once enabled, the viewer watches the open file on disk and
   reloads automatically whenever it changes, still preserving scroll
@@ -137,10 +150,19 @@ zoom ([pane font size](../functions/pane-font-size.md)):
    current shortcut as a hint, plus a palette-only **Reset font size**.
 3. The chosen size is remembered separately from the pane list's own zoom —
    survives closing/reopening the viewer and restarting fman — until reset.
+4. Each step reports the size it settled on in the
+   [status bar](../STATUSBAR.md) (`Font size 12`, or `Font size reset`), from
+   the key path as well as the palette — the clamp at 6pt/40pt is otherwise
+   indistinguishable from a keystroke that didn't register.
 
 Rebinding `increase_pane_font_size`/`decrease_pane_font_size` in
 `Key Bindings.json` changes what the viewer listens for too, since it looks
-up the *current* binding rather than hardcoding `Alt+Up`/`Alt+Down`.
+up the *current* binding rather than hardcoding `Alt+Up`/`Alt+Down`. That is
+also why **Shift+Enter** on those two palette rows edits
+`Key Bindings (<OS>).json` and not the viewer file — see
+[Changing key bindings from the palette](../COMMAND_PALETTE_KEYBINDINGS.md).
+*Reset font size* is the viewer's own (`text_reset_font_size`), so it edits
+the viewer file like every other row here.
 
 ## Bindable commands
 
@@ -164,12 +186,16 @@ mode (see [Editing](#editing)).
 | `text_find`                   | `/` (view mode)          | both | Prompt for a search query, jump to the first match |
 | `text_find_next`              | `n` (view mode)          | both | Next match (wraps)      |
 | `text_find_previous`          | `N` (view mode)          | both | Previous match (wraps)  |
+| `text_reset_font_size`        | *(none — palette only)*  | both | Reset the viewer's own zoom (leaves the pane's alone) |
 | `text_search_exit`            | Escape (view mode, while searching) | both | Leave search mode |
 | `viewer_close`                | Escape/Enter/Backspace   | both | Close viewer (edit mode: with unsaved-changes prompt) |
 | `viewer_switch_panes`         | Tab                      | view only | Switch panes — deliberately not bindable in edit mode, where Tab always types |
 | `viewer_open_palette`         | Ctrl+Shift+P             | both | Open viewer command palette |
 | `viewer_next_file` / `viewer_previous_file` | *(none — palette only)* | view, with a backing file | View next / previous file in the directory |
 | `viewer_toggle_same_type_advance` | *(none — palette only)* | view, with a backing file | Toggle "advance only for same type" |
+| `viewer_delete_file` | *(none — palette only)* | view, with a backing file | Move the file to the trash |
+| `viewer_rename_file` | *(none — palette only)* | view, with a backing file | Rename the file, keeping it open |
+| `viewer_toggle_close_after_delete` | *(none — palette only)* | view, with a backing file | Toggle whether a delete closes the viewer or goes to the next file |
 
 Next/previous and the same-type toggle are **shared** across all three viewers
 (view mode only here — never while editing, and not in the backing-file-less
@@ -314,7 +340,20 @@ genuinely separate concerns (reading a file vs. the Qt widget vs. zoom):
   it against `get_shortcuts_for_command`'s result for
   `increase_pane_font_size`/`decrease_pane_font_size`, so it always follows
   the user's actual configured shortcut rather than a hardcoded
-  `Alt+Up`/`Alt+Down`. `zoom_actions(view, apply_size, key_bindings)` builds
+  `Alt+Up`/`Alt+Down` (the two command names live here as
+  `INCREASE_COMMAND`/`DECREASE_COMMAND`, imported by the image viewer too, so
+  the strings aren't re-typed per module).
+  `zoom_step(title, command, key_bindings, run)` builds one step entry — label,
+  shortcut hint, command name, and `KEY_BINDINGS_FILE` as the entry's bindings
+  file, since a Shift+Enter rebind of a step has to land in the global file
+  `zoom_delta_for` actually reads. Shared with the image viewer's Zoom in/out,
+  which steps a scale rather than a font size but hints and rebinds
+  identically. `RESET_COMMAND` (`text_reset_font_size`) is the viewer-only
+  pseudo-command *Reset font size* ships, registered in
+  `PaneTextView._bindable_commands()` for both modes at once (it is the one
+  zoom action with no global counterpart — `reset_pane_font_size` resets the
+  file list's zoom, not this one).
+  `zoom_actions(view, apply_size, key_bindings)` builds
   the three zoom palette entries (labels + shortcut hints) here rather than in
   `core/textviewer.py`, which the search feature pushed up against the
   300-line cap.
@@ -361,7 +400,18 @@ genuinely separate concerns (reading a file vs. the Qt widget vs. zoom):
     `view._set_read_only()` if the reloaded file is no longer editable. Used
     by `PaneTextView._revert` and by `core/textviewer_watch.py`'s
     `on_file_changed`, so the load+editability+modified-state sequence is
-    specified once.
+    specified once. Returns whether it fell back to read-only, so `_revert`
+    reports `Reloaded from disk` only when that more important message
+    (`File no longer editable - now read-only`) isn't the one to show.
+- `src/main/resources/base/Plugins/Core/core/textviewer_save.py` — the write
+  direction, the same shape as `textviewer_reload.py` above (operates on the
+  `view` passed in; split out for the 300-line cap):
+  - `write_view(view, path)` — encodes the buffer as UTF-8 and writes it,
+    returning `False` after reporting `Could not save: <reason>` if the write
+    raises `OSError`. A palette action must not traceback, and must not leave
+    the user believing a failed save happened.
+  - `save(view)` / `save_as(view)` — the two palette entries; both go through
+    one `_persist`, so notify + clear-modified + report can't drift apart.
 - `src/main/resources/base/Plugins/Core/core/textviewer_search.py` — the
   [search](#search) feature, injected into `PaneTextView` as a `ViewerSearch`
   collaborator the same way `ViewerNavigator` is (see

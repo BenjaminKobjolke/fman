@@ -9,10 +9,19 @@ Deliberately decoupled from PyQt widget styling: callers pass an `apply_size`
 callback (new size, or None to clear the override) rather than this module
 touching stylesheets itself.
 """
-from core.font_size import change_font_size, effective_font_size, 	get_saved_font_size, reset_font_size, save_font_size
-from core.key_bindings import format_shortcut_hint, get_shortcuts_for_command
+from core.font_size import change_font_size, effective_font_size, \
+	get_saved_font_size, reset_font_size, save_font_size
+from core.key_bindings import format_shortcut_hint, get_shortcuts_for_command, \
+	KEY_BINDINGS_FILE
+from core.viewer_status import viewer_status
 
 _SETTING_KEY = 'text_viewer_font_size'
+# The two global pane font-size commands every viewer's zoom follows (the
+# image viewer imports these too), and the viewer-only pseudo-command Reset
+# ships (core/textviewer.py binds it).
+INCREASE_COMMAND = 'increase_pane_font_size'
+DECREASE_COMMAND = 'decrease_pane_font_size'
+RESET_COMMAND = 'text_reset_font_size'
 
 def get_saved_view_font_size():
 	return get_saved_font_size(_SETTING_KEY)
@@ -24,10 +33,34 @@ def effective_view_font_size(view):
 	return effective_font_size(view.font)
 
 def change_view_font_size(view, apply_size, delta):
-	change_font_size(_SETTING_KEY, view.font, apply_size, delta)
+	# Reported here rather than from the palette entry so the Alt+Up/Alt+Down
+	# key path (zoom_delta_for) confirms the step too.
+	viewer_status(
+		'Font size %d'
+		% change_font_size(_SETTING_KEY, view.font, apply_size, delta)
+	)
 
 def reset_view_font_size(apply_size):
 	reset_font_size(_SETTING_KEY, apply_size)
+	viewer_status('Font size reset')
+
+def zoom_step(title, command, key_bindings, run):
+	"""
+	One zoom palette entry (a ViewerAction tuple, see core/viewer_navigation.py)
+	for a step that follows the pane font-size shortcut: `run` applies the step,
+	`command` is the global command whose current shortcut it follows. Shared
+	with the image viewer's own Zoom in/out, which steps a scale rather than a
+	font size but hints and rebinds identically.
+
+	The bindings file is the global KEY_BINDINGS_FILE, not the viewer one:
+	zoom_delta_for matches against that file, so a Shift+Enter rebind has to
+	land there or the viewer would never see it.
+	"""
+	return (
+		title, run,
+		format_shortcut_hint(get_shortcuts_for_command(key_bindings, command)),
+		command, KEY_BINDINGS_FILE,
+	)
 
 def zoom_actions(view, apply_size, key_bindings):
 	"""
@@ -38,22 +71,18 @@ def zoom_actions(view, apply_size, key_bindings):
 	global Key Bindings.json: the two step entries hint at the pane
 	font-size shortcut they follow, and Reset ships no key at all.
 	"""
+	def step(title, delta, command):
+		return zoom_step(
+			title, command, key_bindings,
+			lambda: change_view_font_size(view, apply_size, delta)
+		)
 	return [
+		step('Increase font size', +1, INCREASE_COMMAND),
+		step('Decrease font size', -1, DECREASE_COMMAND),
 		(
-			'Increase font size',
-			lambda: change_view_font_size(view, apply_size, +1),
-			format_shortcut_hint(
-				get_shortcuts_for_command(key_bindings, 'increase_pane_font_size')
-			),
+			'Reset font size', lambda: reset_view_font_size(apply_size), '',
+			RESET_COMMAND,
 		),
-		(
-			'Decrease font size',
-			lambda: change_view_font_size(view, apply_size, -1),
-			format_shortcut_hint(
-				get_shortcuts_for_command(key_bindings, 'decrease_pane_font_size')
-			),
-		),
-		('Reset font size', lambda: reset_view_font_size(apply_size), ''),
 	]
 
 def zoom_delta_for(key_event, key_bindings):
@@ -64,9 +93,7 @@ def zoom_delta_for(key_event, key_bindings):
 	rebind), else None. Reuses the pane font-size feature's own shortcut so
 	the viewer doesn't invent a second, separate zoom binding.
 	"""
-	for command, delta in (
-		('increase_pane_font_size', +1), ('decrease_pane_font_size', -1)
-	):
+	for command, delta in ((INCREASE_COMMAND, +1), (DECREASE_COMMAND, -1)):
 		shortcuts = get_shortcuts_for_command(key_bindings, command)
 		if any(key_event.matches(shortcut) for shortcut in shortcuts):
 			return delta

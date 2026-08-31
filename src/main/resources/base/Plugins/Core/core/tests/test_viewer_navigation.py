@@ -1,38 +1,10 @@
+from core.tests.viewer_stubs import FakeSettings, StubPane
 from core.viewer_navigation import (
 	advance, get_same_type_only, open_viewer_palette, toggle_same_type_only,
 	ViewerAction, ViewerNavigator,
 )
 from unittest import TestCase
 from unittest.mock import patch
-
-class _StubPane:
-	# Minimal stand-in for a DirectoryPane: a fixed url list plus a cursor that
-	# clamps at both ends, exactly like Qt's moveCursor (see
-	# fman/impl/view/cursor_movement.py). run_command just records the call so
-	# tests can assert view_file was (or wasn't) re-run.
-	def __init__(self, urls, cursor=0):
-		self._urls = urls
-		self._cursor = cursor
-		self.commands = []
-
-	def get_file_under_cursor(self):
-		if 0 <= self._cursor < len(self._urls):
-			return self._urls[self._cursor]
-		return None
-
-	def move_cursor_down(self):
-		if self._cursor < len(self._urls) - 1:
-			self._cursor += 1
-
-	def move_cursor_up(self):
-		if self._cursor > 0:
-			self._cursor -= 1
-
-	def place_cursor_at(self, url):
-		self._cursor = self._urls.index(url)
-
-	def run_command(self, name):
-		self.commands.append(name)
 
 def _fake_category(url):
 	if url.endswith('.png'):
@@ -60,28 +32,28 @@ class AdvanceTest(TestCase):
 
 	def test_next_walks_to_immediate_neighbour(self):
 		self._set_same_type(False)
-		pane = _StubPane(['file:///a.png', 'file:///b.png'], cursor=0)
+		pane = StubPane(['file:///a.png', 'file:///b.png'], cursor=0)
 		advance(pane, +1, 'image')
 		self.assertEqual('file:///b.png', pane.get_file_under_cursor())
 		self.assertEqual(['view_file'], pane.commands)
 
 	def test_previous_walks_backwards(self):
 		self._set_same_type(False)
-		pane = _StubPane(['file:///a.png', 'file:///b.png'], cursor=1)
+		pane = StubPane(['file:///a.png', 'file:///b.png'], cursor=1)
 		advance(pane, -1, 'image')
 		self.assertEqual('file:///a.png', pane.get_file_under_cursor())
 		self.assertEqual(['view_file'], pane.commands)
 
 	def test_same_type_off_crosses_into_other_category(self):
 		self._set_same_type(False)
-		pane = _StubPane(['file:///a.png', 'file:///b.mp4'], cursor=0)
+		pane = StubPane(['file:///a.png', 'file:///b.mp4'], cursor=0)
 		advance(pane, +1, 'image')
 		self.assertEqual('file:///b.mp4', pane.get_file_under_cursor())
 		self.assertEqual(['view_file'], pane.commands)
 
 	def test_same_type_on_skips_differing_category(self):
 		self._set_same_type(True)
-		pane = _StubPane(
+		pane = StubPane(
 			['file:///a.png', 'file:///b.mp4', 'file:///c.png'], cursor=0
 		)
 		advance(pane, +1, 'image')
@@ -91,7 +63,7 @@ class AdvanceTest(TestCase):
 	def test_skips_non_viewable_entries(self):
 		self._set_same_type(False)
 		# The middle entry classifies as None (a directory / binary).
-		pane = _StubPane(
+		pane = StubPane(
 			['file:///a.png', 'file:///sub', 'file:///c.txt'], cursor=0
 		)
 		advance(pane, +1, 'image')
@@ -100,31 +72,26 @@ class AdvanceTest(TestCase):
 
 	def test_boundary_with_no_match_restores_cursor_and_does_not_view(self):
 		self._set_same_type(True)
-		pane = _StubPane(['file:///a.png', 'file:///b.mp4'], cursor=0)
-		with patch('core.viewer_navigation.show_status_message') as status:
+		pane = StubPane(['file:///a.png', 'file:///b.mp4'], cursor=0)
+		# Patched where viewer_status calls it, not where advance does: every
+		# viewer message goes through core/viewer_status.py now.
+		with patch('core.viewer_status.show_status_message') as status:
 			advance(pane, +1, 'image')
 		self.assertEqual('file:///a.png', pane.get_file_under_cursor())
 		self.assertEqual([], pane.commands)
 		status.assert_called_once()
 
-class _FakeSettings:
-	# Same thin-wrapper fake used by test_videoviewer.py: core.settings itself
-	# is untested elsewhere, so fake the get_setting/save_setting functions.
-	def __init__(self):
-		self._values = {}
-
-	def get(self, json_name, key, default=None):
-		return self._values.get(key, default)
-
-	def save(self, json_name, key, value):
-		if value is None:
-			self._values.pop(key, None)
-		else:
-			self._values[key] = value
+	def test_a_successful_step_names_the_file_it_landed_on(self):
+		self._set_same_type(True)
+		pane = StubPane(['file:///a.png', 'file:///c.png'], cursor=0)
+		with patch('core.viewer_status.show_status_message') as status:
+			advance(pane, +1, 'image')
+		self.assertEqual(['view_file'], pane.commands)
+		self.assertEqual('c.png', status.call_args[0][0])
 
 class SameTypePersistenceTest(TestCase):
 	def setUp(self):
-		self._settings = _FakeSettings()
+		self._settings = FakeSettings()
 		patcher_get = patch(
 			'core.viewer_navigation.get_setting', self._settings.get
 		)
@@ -225,6 +192,35 @@ class OpenViewerPaletteTest(TestCase):
 			'video_mute', 'Mute', 'Viewer Key Bindings.json'
 		)
 		self.assertEqual([], ran)
+
+	def test_shift_enter_uses_the_entrys_own_bindings_file(self):
+		# The zoom entries follow the global pane font-size shortcut, so their
+		# rebinds belong in Key Bindings.json - not the viewer file.
+		entry = ViewerAction(
+			'Increase font size', lambda: None, 'Alt+Up',
+			'increase_pane_font_size', 'Key Bindings.json'
+		)
+		with patch(
+			'core.viewer_navigation.show_quicksearch',
+			side_effect=[('zoom', entry, True), None]
+		), patch('core.viewer_navigation.edit_command_keywords') as edit:
+			open_viewer_palette(lambda: [entry])
+		edit.assert_called_once_with(
+			'increase_pane_font_size', 'Increase font size',
+			'Key Bindings.json'
+		)
+
+	def test_palette_reopens_on_the_query_that_was_typed(self):
+		entry = ViewerAction('Mute', lambda: None, '', 'video_mute')
+		with patch(
+			'core.viewer_navigation.show_quicksearch',
+			side_effect=[('mut', entry, True), None]
+		) as quicksearch, patch(
+			'core.viewer_navigation.edit_command_keywords'
+		):
+			open_viewer_palette(lambda: [entry])
+		self.assertEqual('', quicksearch.call_args_list[0][1]['query'])
+		self.assertEqual('mut', quicksearch.call_args_list[1][1]['query'])
 
 	def test_does_nothing_when_picker_cancelled(self):
 		def actions():

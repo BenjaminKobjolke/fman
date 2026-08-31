@@ -7,7 +7,7 @@ on_file_changed functions operate directly on the PaneTextView instance
 same pattern.
 """
 from core.textviewer_reload import reload_from_disk, scroll_to_end
-from fman import show_status_message
+from core.viewer_status import viewer_status
 import os
 
 from PyQt5.QtCore import QFileSystemWatcher
@@ -45,11 +45,25 @@ def toggle_tail(view):
 	else:
 		start_auto_reload(view, tail=True)
 
+def _watch_view(view):
+	return start_watch(view._path, lambda: on_file_changed(view), view)
+
+def rewatch(view):
+	"""
+	Re-points an active watcher at view._path, for when the file is renamed
+	under it (core/viewer_file_ops.py) - QFileSystemWatcher watches the path,
+	not the file. A no-op when nothing is being watched.
+	"""
+	if view._watcher is None:
+		return
+	view._watcher.deleteLater()
+	view._watcher = _watch_view(view)
+
 def start_auto_reload(view, tail):
 	if view._watcher is None:
-		view._watcher = start_watch(view._path, lambda: on_file_changed(view), view)
+		view._watcher = _watch_view(view)
 	view._tail = tail
-	show_status_message('Tail mode on' if tail else 'Auto-reload on')
+	viewer_status('Tail mode on' if tail else 'Auto-reload on')
 	if tail:
 		scroll_to_end(view)
 
@@ -57,11 +71,11 @@ def stop_auto_reload(view):
 	view._watcher.deleteLater()
 	view._watcher = None
 	view._tail = False
-	show_status_message('Auto-reload off')
+	viewer_status('Auto-reload off')
 
 def on_file_changed(view):
 	if view._editing and view.document().isModified():
-		show_status_message('File changed on disk (not reloaded)')
+		viewer_status('File changed on disk (not reloaded)')
 		return
 	if not os.path.exists(view._path):
 		return  # Transient during an atomic save (temp file not yet renamed).

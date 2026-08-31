@@ -28,9 +28,11 @@ Qt widget construction (_open_video_view) marshals onto the main thread.
 """
 from core.key_bindings import dispatch_bindable_command, VIEWER_KEY_BINDINGS_FILE
 from core.libmpv import ensure_libmpv_on_path
-from core.settings import get_setting, save_setting
-from core.textviewer_pane import begin_new_view, mount_view, close_view as close_text_viewer
+from core.settings import get_setting, save_setting, SETTINGS_FILE
+from core.textviewer_pane import begin_new_view, mount_view, \
+	close_view as close_text_viewer
 from core.viewer_navigation import open_viewer_palette, ViewerNavigator
+from core.viewer_status import viewer_status
 from fman import show_alert, load_json
 from fman.impl.util.qt.key_event import QtKeyEvent
 from fman.impl.util.qt.thread import run_in_main_thread
@@ -52,16 +54,16 @@ def is_video(url):
 	return url.lower().endswith(VIDEO_EXTENSIONS)
 
 def get_saved_volume():
-	return get_setting('Core Settings.json', _VOLUME_KEY)
+	return get_setting(SETTINGS_FILE, _VOLUME_KEY)
 
 def save_volume(volume):
-	save_setting('Core Settings.json', _VOLUME_KEY, volume)
+	save_setting(SETTINGS_FILE, _VOLUME_KEY, volume)
 
 def get_saved_mute():
-	return bool(get_setting('Core Settings.json', _MUTE_KEY, False))
+	return bool(get_setting(SETTINGS_FILE, _MUTE_KEY, False))
 
 def save_mute(muted):
-	save_setting('Core Settings.json', _MUTE_KEY, bool(muted))
+	save_setting(SETTINGS_FILE, _MUTE_KEY, bool(muted))
 
 def format_time(seconds):
 	if seconds is None or seconds < 0:
@@ -78,7 +80,10 @@ class PaneVideoView(QWidget):
 		super().__init__()
 		self._on_close = on_close
 		self._on_switch = on_switch
-		self._nav = ViewerNavigator(pane, 'video')
+		# No on_renamed: nothing here is addressed by path once playback has
+		# started, and navigation follows the pane's cursor, which _Rename
+		# moves to the new name.
+		self._nav = ViewerNavigator(pane, 'video', on_close)
 		self._player = None
 		self._muted = False
 		layout = QVBoxLayout(self)
@@ -141,7 +146,9 @@ class PaneVideoView(QWidget):
 		key_bindings = load_json(VIEWER_KEY_BINDINGS_FILE, default=[])
 		# A user rebind always wins over the hardcoded defaults below -
 		# checked first for that reason.
-		if dispatch_bindable_command(key_event, key_bindings, self._bindable_commands()):
+		if dispatch_bindable_command(
+			key_event, key_bindings, self._bindable_commands()
+		):
 			return
 		if event.key() == Qt.Key_Space:
 			self._toggle_pause()
@@ -178,6 +185,7 @@ class PaneVideoView(QWidget):
 
 	def _toggle_pause(self):
 		self._player.pause = not self._player.pause
+		self._show_osd('Paused' if self._player.pause else 'Playing')
 
 	def _adjust_volume(self, delta):
 		self._player.volume = max(0, min(100, self._player.volume + delta))
@@ -187,7 +195,7 @@ class PaneVideoView(QWidget):
 	def _reset_volume(self):
 		self._player.volume = 100
 		save_volume(100)
-		self._show_osd('Volume: 100')
+		self._show_osd('Volume: %d' % int(self._player.volume))
 
 	def _toggle_mute(self):
 		self._muted = not self._muted
@@ -198,11 +206,15 @@ class PaneVideoView(QWidget):
 	def _show_osd(self, text):
 		# mpv's own on-screen-display renders over the video and auto-hides -
 		# there's no reliable way to overlay a Qt widget on top of the native
-		# mpv surface (embedded via wid=, see start_playback).
+		# mpv surface (embedded via wid=, see start_playback). The status bar
+		# gets the same text, so video feedback reads the same as every other
+		# viewer's even when the OSD is missed or the video is letterboxed.
 		self._player.show_text(text, 1000)
+		viewer_status(text)
 
 	def _restart(self):
 		self._player.time_pos = 0
+		self._show_osd('Restarted')
 
 	def _bindable_commands(self):
 		# Viewer-only pseudo-commands a focused PaneVideoView matches against
@@ -230,15 +242,15 @@ class PaneVideoView(QWidget):
 
 	def _get_actions(self):
 		return [
-			('Play / Pause', self._toggle_pause, ''),
-			('Restart', self._restart, ''),
+			('Play / Pause', self._toggle_pause, '', 'video_toggle_pause'),
+			('Restart', self._restart, '', 'video_restart'),
 			('Mute / Unmute', self._toggle_mute, '', 'video_mute'),
 			(
 				'Reset volume', self._reset_volume, '',
 				'video_reset_volume'
 			),
 		] + self._nav.actions() + [
-			('Exit viewer', self._on_close, ''),
+			('Exit viewer', self._on_close, '', 'viewer_close'),
 		]
 
 def show_video_viewer(pane, url, focus_view=True):

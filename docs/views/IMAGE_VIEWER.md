@@ -35,14 +35,16 @@ zoom ([pane font size](../functions/pane-font-size.md)):
    separate binding to learn.
 2. The viewer's own command palette (Ctrl+Shift+P) has **Zoom in** /
    **Zoom out** (showing the same shortcut as a hint), plus **Fit to
-   window**, **Actual size (100%)**, and **Reset zoom** (Fit to window and
-   Reset zoom both return to fit mode).
+   window** (which returns to fit mode) and **Actual size (100%)**.
 3. The chosen scale is remembered — survives closing/reopening the viewer
    and restarting fman — until reset (or Fit to window) clears it back to
    fit mode.
 4. Zooming in from fit mode steps from whatever scale is *currently on
    screen*, not a hardcoded value — so the image doesn't jump when you first
    zoom in.
+5. Every step reports where it landed in the
+   [status bar](../STATUSBAR.md) — `Zoom 125%`, or `Fit to window` — which is
+   the only way to read the current scale as a number.
 
 ## Pan
 
@@ -86,6 +88,9 @@ rebind always wins over the default key listed below.
 | `viewer_open_palette`   | Ctrl+Shift+P           | Open viewer command palette |
 | `viewer_next_file` / `viewer_previous_file` | *(none — palette only)* | View next / previous file in the directory |
 | `viewer_toggle_same_type_advance` | *(none — palette only)* | Toggle "advance only for same type" |
+| `viewer_delete_file` | *(none — palette only)* | Move the image to the trash |
+| `viewer_rename_file` | *(none — palette only)* | Rename the image, keeping it open |
+| `viewer_toggle_close_after_delete` | *(none — palette only)* | Toggle whether a delete closes the viewer or goes to the next file |
 
 Next/previous and the same-type toggle are **shared** across all three viewers
 — see [File viewers](../viewers/FILE_VIEWERS.md#shared-behaviour) for how they
@@ -123,6 +128,15 @@ pane's focus proxy/Tab handling are re-pointed at it the same way.
     supplies the Next/Previous-file actions, the same-type toggle, and their
     bindable pseudo-commands; `_open_palette` delegates to that module's shared
     `open_viewer_palette`.
+  - `_get_actions` — every row carries its command name (`image_reset_zoom`,
+    `image_actual_size`, `viewer_close`, plus the navigator's), which is what
+    makes Shift+Enter on it open the entry menu rather than report a nameless
+    entry. Zoom in/out are built by `core/textviewer_zoom.py`'s shared
+    `zoom_step`, so they name the global pane font-size commands and edit
+    `Key Bindings.json` — the file whose shortcut they follow. There is no
+    separate *Reset zoom* row: it ran the same `_fit_to_window` as *Fit to
+    window*, and two rows cannot share one command name without their renames
+    and keywords colliding.
   - `show_image_viewer(pane, url)` — mirrors `show_text_viewer`: mounts via
     `core/textviewer_pane.py`'s `begin_new_view`/`mount_view`, same as the
     text viewer.
@@ -133,6 +147,12 @@ pane's focus proxy/Tab handling are re-pointed at it the same way.
   and re-runs `view_file`; `ViewerNavigator` bundles the per-viewer actions and
   commands; `open_viewer_palette` is the shared Ctrl+Shift+P handler. Same-type
   toggles persist per viewer in `Core Settings.json` (`image_viewer_advance_same_type`, etc.).
+  A palette row is a `ViewerAction(title, action, hint, command_name,
+  bindings_file)` — the last two optional. `command_name` is what Shift+Enter
+  edits (keywords, rename, key binding); `bindings_file` overrides which Key
+  Bindings file that edit writes, defaulting to `Viewer Key Bindings.json` and
+  set only by the zoom rows. After an edit the palette reopens on the query
+  that was typed, the way `core/commands/palette.py` does for the global one.
 - `src/main/resources/base/Plugins/Core/core/imageviewer_zoom.py` — the
   viewer's scale persistence, mirroring `core/textviewer_zoom.py`'s
   font-size persistence but for a multiplicative scale factor (own settings

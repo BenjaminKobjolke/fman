@@ -1,3 +1,4 @@
+from core.tests.viewer_stubs import FakeSettings
 from core.videoviewer import (
 	VIDEO_EXTENSIONS, format_time, get_saved_mute, get_saved_volume, is_video,
 	save_mute, save_volume, show_video_viewer,
@@ -37,26 +38,9 @@ class FormatTimeTest(TestCase):
 	def test_hours_minutes_and_seconds(self):
 		self.assertEqual('1:01:01', format_time(3661))
 
-class _FakeSettings:
-	# Stands in for Core Settings.json - core.settings.get_setting/save_setting
-	# themselves are untested elsewhere in this codebase (see
-	# test_imageviewer_zoom.py, test_textviewer_zoom.py), so this fakes the
-	# thin wrapper functions videoviewer.py imports rather than fman I/O.
-	def __init__(self):
-		self._values = {}
-
-	def get(self, json_name, key, default=None):
-		return self._values.get(key, default)
-
-	def save(self, json_name, key, value):
-		if value is None:
-			self._values.pop(key, None)
-		else:
-			self._values[key] = value
-
 class VolumeAndMutePersistenceTest(TestCase):
 	def setUp(self):
-		self._settings = _FakeSettings()
+		self._settings = FakeSettings()
 		patcher_get = patch('core.videoviewer.get_setting', self._settings.get)
 		patcher_save = patch('core.videoviewer.save_setting', self._settings.save)
 		patcher_get.start()
@@ -84,7 +68,10 @@ class ShowVideoViewerTest(TestCase):
 		# reproduces the frozen build, where the Core plugin ships as resource
 		# data so PyInstaller never sees `import mpv` (see the mpv entry in
 		# src/build/settings/base.json's hidden_imports).
-		with patch.dict(sys.modules, {'mpv': None}), 				patch('core.videoviewer.ensure_libmpv_on_path'), 				patch('core.videoviewer.show_alert') as alert, 				patch('core.videoviewer._open_video_view') as open_view:
+		with patch.dict(sys.modules, {'mpv': None}), \
+				patch('core.videoviewer.ensure_libmpv_on_path'), \
+				patch('core.videoviewer.show_alert') as alert, \
+				patch('core.videoviewer._open_video_view') as open_view:
 			show_video_viewer(MagicMock(), 'file:///a/b/c.mp4')
 		self.assertEqual(1, alert.call_count)
 		open_view.assert_not_called()

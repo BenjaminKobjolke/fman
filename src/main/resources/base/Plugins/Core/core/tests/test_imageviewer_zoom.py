@@ -1,5 +1,6 @@
 from core.imageviewer_zoom import (
 	MAX_SCALE, MIN_SCALE, change_image_scale, clamp_scale, reset_image_scale,
+	zoom_message,
 )
 from unittest import TestCase
 
@@ -18,6 +19,15 @@ class ClampScaleTest(TestCase):
 
 	def test_leaves_in_range_value_untouched(self):
 		self.assertEqual(2.0, clamp_scale(2.0))
+
+class ZoomMessageTest(TestCase):
+	# The one formatter PaneImageView._actual_size reuses, so "Actual size"
+	# and a zoom step that lands on 1.0 can't drift apart.
+	def test_reports_a_scale_as_a_percentage(self):
+		self.assertEqual('Zoom 100%', zoom_message(1.0))
+
+	def test_rounds_to_whole_percent(self):
+		self.assertEqual('Zoom 125%', zoom_message(1.25))
 
 class ChangeImageScaleTest(TestCase):
 	def test_steps_up_from_saved_scale(self):

@@ -32,9 +32,12 @@ Notes:
   the list are ignored.
 - Changes apply on the next keystroke. No restart.
 - The viewer palettes have the same Shift+Enter, for the viewer
-  pseudo-commands (`video_mute`, `viewer_next_file`, …). A viewer entry that
-  ships no command name has nothing to store keywords under and says so in the
-  status bar.
+  pseudo-commands (`video_mute`, `viewer_next_file`, …). Every row the three
+  built-in viewers ship carries one, so every row is editable; a viewer entry
+  added by a plugin that ships no command name has nothing to store keywords
+  under and says so in the status bar. The viewer palettes reopen on the query
+  you typed, but always with the first row selected — they don't restore the
+  row the way the global palette does.
 - *Change key bindings* is the third thing this menu edits, and the only one
   that writes a different file per palette — see
   [`docs/COMMAND_PALETTE_KEYBINDINGS.md`](COMMAND_PALETTE_KEYBINDINGS.md).

@@ -49,12 +49,17 @@ def effective_font_size(get_font, fallback=FALLBACK_FONT_SIZE):
 	return size if size > 0 else fallback
 
 def change_font_size(setting_key, get_font, apply_size, delta):
+	# Returns the size it settled on (clamping means that isn't always
+	# base + delta), for callers that report it - reading it back off the
+	# widget wouldn't work: apply_size sets a stylesheet, which get_font
+	# doesn't reflect.
 	base = get_saved_font_size(setting_key)
 	if base is None:
 		base = effective_font_size(get_font)
 	new_size = clamp_font_size(base, delta)
 	save_font_size(setting_key, new_size)
 	apply_size(new_size)
+	return new_size
 
 def reset_font_size(setting_key, apply_size):
 	save_font_size(setting_key, None)

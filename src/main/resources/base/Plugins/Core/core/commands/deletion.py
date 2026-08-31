@@ -27,13 +27,27 @@ class MoveToTrash(DirectoryPaneCommand):
 		if not urls:
 			show_alert(NO_SELECTION)
 			return
-		description = _describe(urls, 'these %d files')
-		trash = 'Recycle Bin' if PLATFORM == 'Windows' else 'Trash'
-		msg = "Do you really want to move %s to the %s?" % (description, trash)
-		if show_alert(msg, YES | NO, YES) & YES:
-			submit_task(_Delete(urls, prepare_trash, prepare_delete))
+		if confirm_trash(urls):
+			trash(urls)
 	def is_visible(self):
 		return bool(self.pane.get_file_under_cursor())
+
+# Split out of MoveToTrash.__call__ so the in-pane viewers can reuse this
+# command's wording and machinery without a second confirmation of their own
+# (core/viewer_file_ops.py). Two functions rather than one because the viewer
+# has to confirm first, move its cursor off the doomed file and only then
+# submit - _Delete runs in the background, so a delete submitted before the
+# cursor moves races the pane model. Deliberately not in __all__, which is what
+# keeps them from being picked up as commands.
+def confirm_trash(urls):
+	description = _describe(urls, 'these %d files')
+	trash_name = 'Recycle Bin' if PLATFORM == 'Windows' else 'Trash'
+	msg = \
+		"Do you really want to move %s to the %s?" % (description, trash_name)
+	return bool(show_alert(msg, YES | NO, YES) & YES)
+
+def trash(urls):
+	submit_task(_Delete(urls, prepare_trash, prepare_delete))
 
 class DeletePermanently(DirectoryPaneCommand):
 	def __call__(self, urls=None):

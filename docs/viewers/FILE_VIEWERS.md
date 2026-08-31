@@ -50,9 +50,32 @@ All three viewers work the same way where it counts:
   file, switching viewer type as needed. No default keys — bind your own (see
   [`docs/KEYBINDINGS.md`](../KEYBINDINGS.md#viewer-specific-bindings) for
   suggestions).
+- **Delete / rename the file you're looking at:** **"Delete file"** moves it to
+  the Recycle Bin (Trash on macOS/Linux) after the same confirmation the file
+  list's Delete asks, and **"Rename file…"** prompts for a new name with the
+  extension left unselected, then keeps the viewer open on the renamed file. A
+  **"Close viewer after deleting"** toggle decides where a delete leaves you:
+  on (the default) the file list comes back, off walks to the next file the way
+  Next file does — so a folder of photos can be culled without leaving the
+  viewer. Unlike the toggle above this one is global, shared by all three
+  viewers. No default keys, deliberately.
 - **Bindable keys:** viewer actions are pseudo-commands you rebind in a
   **separate** `Viewer Key Bindings (<OS>).json` — see
   [`docs/KEYBINDINGS.md`](../KEYBINDINGS.md#viewer-specific-bindings).
+- **Editable palette rows:** `Shift+Enter` on any row of a viewer palette opens
+  the same entry menu the global palette has — rename it, give it hidden search
+  keywords, add or remove a key — writing to the viewer bindings file above.
+  The exception is the zoom rows, which follow the global pane font-size
+  shortcut and so edit `Key Bindings (<OS>).json` instead; see
+  [`docs/COMMAND_PALETTE_KEYBINDINGS.md`](../COMMAND_PALETTE_KEYBINDINGS.md).
+- **Status bar feedback:** every palette action confirms what it did in the
+  [status bar](../STATUSBAR.md) — `Reloaded from disk`, `Edit mode`, `Saved`,
+  `Font size 12`, `Zoom 125%`, `Paused`, `Renamed to notes.md`, or the name of
+  the file Next/Previous landed on. It matters most where the pane looks unchanged afterwards: a
+  reload of a file that hasn't changed on disk is otherwise invisible. Messages
+  clear after 3 seconds. The exceptions are "Exit viewer" (the file list coming
+  back says it) and [search](../views/TEXT_VIEWER.md#search), whose line stays
+  up for as long as search mode is active.
 - **Per-pane, one at a time:** opening a viewer replaces whatever viewer is
   already open in that pane; the other pane is unaffected.
 - **Theme-aware:** background/letterbox colors follow the active file-list
@@ -67,5 +90,5 @@ The three above are not special-cased: each is an `fman.Viewer` subclass in the
 Core plugin (`Plugins/Core/core/viewers.py`), registered through the same
 lookup a plugin's viewer uses. A plugin that subclasses `Viewer` inherits
 everything on this page — the close keys, pane switching, the viewer palette,
-next/previous-file and the same-type toggle. See
+next/previous-file, the same-type toggle and delete/rename. See
 [Plugin API](../PLUGINS_API.md#viewers).

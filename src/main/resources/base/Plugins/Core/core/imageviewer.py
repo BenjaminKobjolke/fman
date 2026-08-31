@@ -9,14 +9,18 @@ confirm_close() tolerating a view with no `_editing` attribute of its own.
 """
 from core.imageviewer_zoom import (
 	change_image_scale, get_saved_scale, reset_image_scale, save_scale,
+	zoom_message,
 )
 from core.key_bindings import (
-	dispatch_bindable_command, format_shortcut_hint, get_shortcuts_for_command,
-	KEY_BINDINGS_FILE, VIEWER_KEY_BINDINGS_FILE,
+	dispatch_bindable_command, KEY_BINDINGS_FILE, VIEWER_KEY_BINDINGS_FILE,
 )
-from core.textviewer_pane import begin_new_view, mount_view, close_view as close_text_viewer
-from core.textviewer_zoom import zoom_delta_for
+from core.textviewer_pane import begin_new_view, mount_view, \
+	close_view as close_text_viewer
+from core.textviewer_zoom import (
+	zoom_delta_for, zoom_step, DECREASE_COMMAND, INCREASE_COMMAND,
+)
 from core.viewer_navigation import open_viewer_palette, ViewerNavigator
+from core.viewer_status import viewer_status
 from fman import load_json
 from fman.impl.util.qt.key_event import QtKeyEvent
 from fman.impl.util.qt.thread import run_in_main_thread
@@ -35,7 +39,9 @@ class PaneImageView(QScrollArea):
 		super().__init__()
 		self._on_close = on_close
 		self._on_switch = on_switch
-		self._nav = ViewerNavigator(pane, 'image')
+		# No on_renamed: the pixmap/movie is already loaded, and navigation
+		# follows the pane's cursor, which _Rename moves to the new name.
+		self._nav = ViewerNavigator(pane, 'image', on_close)
 		self._scale = get_saved_scale()
 		self._movie = None
 		self._pixmap = None
@@ -95,7 +101,9 @@ class PaneImageView(QScrollArea):
 		# up in their own file, separate from the zoom binding above - see
 		# core.key_bindings.VIEWER_KEY_BINDINGS_FILE.
 		viewer_bindings = load_json(VIEWER_KEY_BINDINGS_FILE, default=[])
-		if dispatch_bindable_command(key_event, viewer_bindings, self._bindable_commands()):
+		if dispatch_bindable_command(
+			key_event, viewer_bindings, self._bindable_commands()
+		):
 			return
 		if event.key() in (
 			Qt.Key_Escape, Qt.Key_Return, Qt.Key_Enter, Qt.Key_Backspace
@@ -138,7 +146,9 @@ class PaneImageView(QScrollArea):
 				max(1, round(self._original_size.height() * self._scale)),
 			)
 		else:
-			target = self._original_size.scaled(self.viewport().size(), Qt.KeepAspectRatio)
+			target = self._original_size.scaled(
+				self.viewport().size(), Qt.KeepAspectRatio
+			)
 		if self._movie is not None:
 			self._movie.setScaledSize(target)
 		else:
@@ -152,28 +162,21 @@ class PaneImageView(QScrollArea):
 
 	def _get_actions(self):
 		key_bindings = load_json(KEY_BINDINGS_FILE, default=[])
-		zoom_in_hint = format_shortcut_hint(
-			get_shortcuts_for_command(key_bindings, 'increase_pane_font_size')
-		)
-		zoom_out_hint = format_shortcut_hint(
-			get_shortcuts_for_command(key_bindings, 'decrease_pane_font_size')
-		)
+		def zoom(title, delta, command):
+			return zoom_step(
+				title, command, key_bindings,
+				lambda: change_image_scale(self, self._apply_scale, delta)
+			)
 		return [
-			('Fit to window', self._fit_to_window, ''),
-			('Actual size (100%)', self._actual_size, ''),
+			('Fit to window', self._fit_to_window, '', 'image_reset_zoom'),
 			(
-				'Zoom in',
-				lambda: change_image_scale(self, self._apply_scale, +1),
-				zoom_in_hint,
+				'Actual size (100%)', self._actual_size, '',
+				'image_actual_size'
 			),
-			(
-				'Zoom out',
-				lambda: change_image_scale(self, self._apply_scale, -1),
-				zoom_out_hint,
-			),
-			('Reset zoom', self._fit_to_window, ''),
+			zoom('Zoom in', +1, INCREASE_COMMAND),
+			zoom('Zoom out', -1, DECREASE_COMMAND),
 		] + self._nav.actions() + [
-			('Exit viewer', self._on_close, ''),
+			('Exit viewer', self._on_close, '', 'viewer_close'),
 		]
 
 	def _fit_to_window(self):
@@ -182,6 +185,7 @@ class PaneImageView(QScrollArea):
 	def _actual_size(self):
 		save_scale(1.0)
 		self._apply_scale(1.0)
+		viewer_status(zoom_message(1.0))
 
 @run_in_main_thread
 def show_image_viewer(pane, url, focus_view=True):
