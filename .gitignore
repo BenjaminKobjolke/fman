@@ -10,6 +10,7 @@ tools/analyze_code_config.bat
 code_analysis_results/
 claude-plans
 .claude
+.reasonix/
 code_analysis_results
 PLAN_RELEASE_NOTES.md
 tmp/commit_msg.tmp
