@@ -62,6 +62,8 @@ command palette — see
 | `Shift+Down` | `move_cursor_down` (extends selection) |
 | `Up` / `Num+Up` | `move_cursor_up` |
 | `Shift+Up` | `move_cursor_up` (extends selection) |
+| `Ctrl+J` | `move_cursor_down` (vim-style) |
+| `Ctrl+K` | `move_cursor_up` (vim-style) |
 | `Home` / `Num+Home` | `move_cursor_home` |
 | `Shift+Home` | `move_cursor_home` (extends selection) |
 | `End` / `Num+End` | `move_cursor_end` |
@@ -96,6 +98,21 @@ command palette — see
 `Shift+F6` edits the name in place rather than opening a dialog, and offers
 *Retry* when the rename fails — see
 [`docs/functions/rename.md`](functions/rename.md).
+
+### Don't bind bare letters — they belong to the live filter
+
+`Ctrl+J`/`Ctrl+K` are the vim-style cursor aliases deliberately: **`j` and `k`
+themselves stay unbound**, and so should every other bare letter. Typing a
+plain letter into a pane starts fman's live filter (the small box in the
+bottom-right corner — `FilterBar`, `src/main/python/fman/impl/widgets.py:253`),
+which narrows the list to matching names and jumps the cursor to the first hit.
+
+A keypress is matched against the key bindings *before* it is offered to that
+filter (`DirectoryPaneWidget._on_key_pressed`, `impl/widgets.py:216-227`), and
+the binding files have no "only when the filter is closed" condition. So any
+bare letter you bind is a letter you can no longer type into the filter — bind
+`j` and no filename containing a `j` is reachable by typing. Put a modifier on
+it and both keep working.
 
 ## Windows additions
 

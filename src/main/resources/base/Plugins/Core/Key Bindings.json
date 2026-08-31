@@ -5,6 +5,8 @@
 	{ "keys": ["Up"], "command": "move_cursor_up" },
 	{ "keys": ["Num+Up"], "command": "move_cursor_up" },
 	{ "keys": ["Shift+Up"], "command": "move_cursor_up", "args": {"toggle_selection": true} },
+	{ "keys": ["Ctrl+J"], "command": "move_cursor_down" },
+	{ "keys": ["Ctrl+K"], "command": "move_cursor_up" },
 	{ "keys": ["Home"], "command": "move_cursor_home" },
 	{ "keys": ["Num+Home"], "command": "move_cursor_home" },
 	{ "keys": ["Shift+Home"], "command": "move_cursor_home", "args": {"toggle_selection": true} },
