@@ -54,6 +54,24 @@ class MotherFileSystemTest(TestCase):
 		mother_fs.move('stub://a/b', 'stub://c/b')
 		self.assertEqual([], list(mother_fs.iterdir('stub://a')))
 		self.assertEqual(['b'], list(mother_fs.iterdir('stub://c')))
+	def test_move_over_existing_clears_dest_cache(self):
+		"""
+		#_on_file_removed(...) clears the removed path's cache, but
+		#_on_file_added(...) used to only add the name to the parent's
+		iterdir. So overwriting a file - LocalFileSystem#_rename(...) uses
+		Path.replace(), which destroys the destination without notifying -
+		left the *old* file's size, mtime and icon in the cache.
+		"""
+		fs = StubFileSystem({
+			'a': { 'is_dir': True, 'files': ['b', 'c'] },
+			'a/b': { 'size': 1 },
+			'a/c': { 'size': 2 }
+		})
+		mother_fs = self._create_mother_fs(fs)
+		# Put a/c's size in the cache:
+		self.assertEqual(2, mother_fs.query('stub://a/c', 'size_bytes'))
+		mother_fs.move('stub://a/b', 'stub://a/c')
+		self.assertEqual(1, mother_fs.query('stub://a/c', 'size_bytes'))
 	def test_touch(self):
 		fs = StubFileSystem({
 			'a': { 'is_dir': True }

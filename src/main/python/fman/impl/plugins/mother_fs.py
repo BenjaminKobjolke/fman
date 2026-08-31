@@ -178,7 +178,7 @@ class MotherFileSystem:
 		child, path = self._split(url)
 		child.notify_file_removed(path)
 	def _on_file_added(self, url):
-		self._add_to_parent(url)
+		self._add(url)
 		self.file_added.trigger(url)
 	def _on_file_removed(self, url):
 		self._remove(url)
@@ -203,6 +203,14 @@ class MotherFileSystem:
 				parent_files.remove(basename(url))
 			except ValueError:
 				pass
+	def _add(self, url):
+		# Clear `url`'s own cache, not just the parent's listing: the file may
+		# have overwritten an existing one - LocalFileSystem#_rename(...) uses
+		# Path.replace(), which destroys the destination without notifying us -
+		# and its size, mtime and icon would otherwise still be cached.
+		child, path = self._split(url)
+		child.cache.clear(path)
+		self._add_to_parent(url)
 	def _add_to_parent(self, url):
 		parent = dirname(url)
 		child, parent_path = self._split(parent)

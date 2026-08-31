@@ -1,6 +1,29 @@
 from fman.impl.model.table import TableModel
 from PyQt5.QtCore import Qt, pyqtSignal
 
+class _Descending:
+
+	"""
+	Inverts a sort value's ordering, so that a descending pane's rows are still
+	*ascending* in #_get_sortval(...).
+
+	#_sorted(...) used to pass reverse=True instead. But RecordFiles places new
+	and moved rows with bisect_left over the live row list, and bisect_left on
+	a decreasing sequence returns garbage - which is how a file renamed in a
+	pane sorted by Modified descending (a rename reaches the model as remove +
+	add) jumped to the bottom until the next reload.
+	"""
+
+	__slots__ = ('value',)
+	def __init__(self, value):
+		self.value = value
+	def __lt__(self, other):
+		return other.value < self.value
+	def __eq__(self, other):
+		return self.value == other.value
+	def __repr__(self):
+		return '<%s: %r>' % (self.__class__.__name__, self.value)
+
 class SortFilterTableModel(TableModel):
 
 	sort_order_changed = pyqtSignal(int, int)
@@ -28,11 +51,11 @@ class SortFilterTableModel(TableModel):
 		"""
 		self.set_rows(self._sorted(self._filter(self.get_rows())))
 	def _sorted(self, rows):
-		return sorted(
-			rows, key=self._get_sortval, reverse=not self._sort_ascending
-		)
+		return sorted(rows, key=self._get_sortval)
 	def _get_sortval(self, row):
-		return self.get_sort_value(row, self._sort_column, self._sort_ascending)
+		result = \
+			self.get_sort_value(row, self._sort_column, self._sort_ascending)
+		return result if self._sort_ascending else _Descending(result)
 	def _filter(self, rows):
 		return filter(self._accepts, rows)
 	def _accepts(self, row):

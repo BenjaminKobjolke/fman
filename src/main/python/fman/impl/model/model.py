@@ -368,25 +368,9 @@ class Model(SortFilterTableModel, DragAndDrop):
 		assert dirname(url) == self._location
 		self._fs.clear_cache(url)
 		self._load_files([url])
-	@transaction(priority=6, synchronous=True)
-	def notify_file_renamed(self, old_url, new_url):
-		assert dirname(old_url) == dirname(new_url) == self._location
-		self._fs.clear_cache(old_url)
-		try:
-			new_file = self._load_file(new_url)
-		except FileNotFoundError:
-			self._record_files([], [old_url, new_url])
-		else:
-			self._on_file_renamed(old_url, new_file)
-	@run_in_main_thread
-	def _on_file_renamed(self, old_url, new_file):
-		try:
-			old_row = self.find(old_url).row()
-		except ValueError:
-			pass
-		else:
-			self.update_rows([new_file], old_row)
-		self._record_files([new_file], [old_url])
+	# There is deliberately no notify_file_renamed(...): a rename reaches the
+	# model as #notify_file_removed(...) + #notify_file_added(...) - see
+	# LocalFileSystem#_rename(...).
 	@transaction(priority=6, synchronous=True)
 	def notify_file_removed(self, url):
 		assert dirname(url) == self._location

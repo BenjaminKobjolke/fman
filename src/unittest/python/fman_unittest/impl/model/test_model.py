@@ -28,6 +28,13 @@ class ExecutorTestCase(TestCase):
 		self._app.aboutToQuit.emit()
 		Executor._INSTANCE = self._executor_before
 		super().tearDown()
+	def _expect_data(self, expected, message=None):
+		m = self._model
+		actual = [
+			tuple(m.data(m.index(i, j)) for j in range(m.columnCount()))
+			for i in range(m.rowCount())
+		]
+		self.assertEqual(expected, actual, message)
 
 class ModelRecordFilesTest(ExecutorTestCase):
 	def test_load_file(self):
@@ -159,13 +166,56 @@ class ModelRecordFilesTest(ExecutorTestCase):
 		self._fs = StubFileSystem({})
 		self._model = Model(self._fs, 'null://', [Column()])
 		self.maxDiff = None
-	def _expect_data(self, expected, message=None):
-		m = self._model
-		actual = [
-			tuple(m.data(m.index(i, j)) for j in range(m.columnCount()))
-			for i in range(m.rowCount())
-		]
-		self.assertEqual(expected, actual, message)
+
+class ModelRecordFilesDescendingTest(ExecutorTestCase):
+
+	"""
+	The same incremental updates, but in a pane sorted *descending*.
+
+	RecordFiles places new and moved rows with bisect_left over the live row
+	list. #_sorted(...) used to build that list with reverse=True, so in a
+	descending pane bisect_left searched a decreasing sequence and returned
+	garbage - which is how a renamed file (a rename reaches the model as
+	remove + add) jumped to the bottom until the next reload.
+	"""
+
+	def test_insert_into_middle(self):
+		self._record(3, 1)
+		self._model._record_files([self._f(2)])
+		self._expect(3, 2, 1)
+	def test_insert_at_top(self):
+		self._record(3, 1)
+		self._model._record_files([self._f(4)])
+		self._expect(4, 3, 1)
+	def test_insert_at_bottom(self):
+		self._record(3, 1)
+		self._model._record_files([self._f(0)])
+		self._expect(3, 1, 0)
+	def test_rename_keeps_position(self):
+		# What a rename looks like to the model: the old url disappears and a
+		# new one with the same sort value appears.
+		self._record(5, 3, 1)
+		self._model._record_files([self._f(3, url='s://renamed')], ['s://3'])
+		self._expect(5, 3, 1)
+	def test_changed_sort_value_moves_row(self):
+		self._record(5, 3, 1)
+		# 's://5' was touched and is now the *oldest* of the three:
+		self._model._record_files([self._f(0, url='s://5')])
+		self._expect(3, 1, 0)
+	def _record(self, *sort_values):
+		self._model._record_files([self._f(i) for i in sort_values])
+		self._expect(*sort_values)
+	def _f(self, sort_value, url=None):
+		if url is None:
+			url = 's://%d' % sort_value
+		return f(url, [c(str(sort_value), sort_value_desc=sort_value)])
+	def _expect(self, *sort_values):
+		self._expect_data([(str(i),) for i in sort_values])
+	def setUp(self):
+		super().setUp()
+		self._model = \
+			Model(StubFileSystem({}), 'null://', [Column()], ascending=False)
+		self.maxDiff = None
 
 class LoadRemainingFilesTest(ExecutorTestCase):
 
