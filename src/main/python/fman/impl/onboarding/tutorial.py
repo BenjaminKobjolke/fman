@@ -213,14 +213,33 @@ class Tutorial(Tour):
 			TourStep(
 				'',
 				[
-					"Perfect! The files were selected. Last step: Can you find "
-					"a way to _de_select them?",
+					"Perfect! The files were selected. Can you find a way to "
+					"_de_select them?",
 					"Hint: The shortcut for the Command Palette is *%s*."
 					% self._cmd_shift_p
 				],
 				{
 					'after': {
 						'Deselect': self._next_step
+					}
+				}
+			),
+			TourStep(
+				'Make fman your own',
+				[
+					"One last thing: fman's looks are yours to change. Press "
+					"*%s* again and type *theme*. The palette will suggest "
+					"*Select theme* - confirm with *Enter*, then pick the "
+					"theme you like." % self._cmd_shift_p,
+					"The palette also has *Select icon set*, *Set icon color* "
+					"and *Select font* if you want to go further."
+				],
+				# Fires whether or not the user actually picks a theme: the
+				# command completes when the quicksearch closes, so canceling
+				# does not strand the user on a step that never advances.
+				{
+					'after': {
+						'SelectTheme': self._next_step
 					}
 				}
 			),
