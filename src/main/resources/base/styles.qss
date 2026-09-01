@@ -89,18 +89,23 @@ QMessageBox QLabel {
 	/*
 	 * QMessageBox sizes itself from its label. Without the padding, short texts
 	 * (eg. the About dialog) produce a cramped box whose text nearly touches
-	 * the border. Center the text so it lines up with the centered buttons
-	 * (see MessageBox in widgets.py) instead of hugging the left edge.
+	 * the border.
 	 *
 	 * Do NOT add a min-width here. It does not act as a floor: it pins the box
 	 * to that width for every message, so anything longer is silently cut off
 	 * ("Matrix screensaver is off." showed as "Matrix screensaver is o"). The
 	 * padding is what keeps short messages from looking cramped, and unlike
 	 * min-width it is part of QLabel::sizeHint(), which is what QMessageBox
-	 * measures - so the box still grows with the text.
+	 * measures - so the box still grows with the text. MessageBox in widgets.py
+	 * establishes the width floor with a layout spacer instead.
+	 *
+	 * Alignment is NOT set here either. It used to be `qproperty-alignment:
+	 * AlignCenter`, but a stylesheet qproperty is re-applied on every polish and
+	 * so silently overrode the left-alignment that multi-line messages need.
+	 * MessageBox._apply_layout_fixes() now owns it: centered for a one-line
+	 * message (matching the centered buttons), left-aligned for a paragraph.
 	 */
 	padding: .5em .75em;
-	qproperty-alignment: AlignCenter;
 }
 
 QLineEdit {

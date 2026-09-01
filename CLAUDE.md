@@ -49,6 +49,18 @@ filtering, or where an added/renamed/changed row is inserted), run:
 powershell -Command "cd 'D:\GIT\BenjaminKobjolke\fman'; cmd /c '.\tools\run_model_tests.bat'"
 ```
 
+If you touched dialog widgets (`src/main/python/fman/impl/widgets.py` —
+`MessageBox` sizing/alignment — or the `QMessageBox` rules in
+`src/main/resources/base/styles.qss`), run:
+
+```bash
+powershell -Command "cd 'D:\GIT\BenjaminKobjolke\fman'; cmd /c '.\tools\run_messagebox_tests.bat'"
+```
+
+Like `run_overlay_focus_tests.bat`, these live in a `*_test.py` file that
+`python build.py test` deliberately does not discover: they need a
+`QApplication` of their own, and stray Qt state is what makes that suite hang.
+
 How fman drives 7-Zip (the `-bsp1` progress protocol, canceling, why there is
 no pseudo-terminal on Windows) is documented in `docs/ARCHIVES.md`.
 

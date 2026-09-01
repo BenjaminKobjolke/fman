@@ -17,7 +17,7 @@ from PyQt5.QtWidgets import QWidget, QMainWindow, QSplitter, QStatusBar, \
 	QMessageBox, QInputDialog, QLineEdit, QFileDialog, QLabel, QDialog, \
 	QHBoxLayout, QPushButton, QVBoxLayout, QSplitterHandle, QApplication, \
 	QFrame, QAction, QSizePolicy, QProgressDialog, QProgressBar, \
-	QDialogButtonBox
+	QDialogButtonBox, QSpacerItem
 from collections import namedtuple
 from time import time
 
@@ -658,12 +658,63 @@ class MessageBox(QMessageBox):
 
 	shown = pyqtSignal()
 
+	# Width floor for the message text, in characters. Wide enough that a short
+	# sentence is not broken up, narrow enough that a one-line message does not
+	# produce a comically wide box.
+	_MIN_TEXT_CHARS = 44
+	# Never claim more than this share of the screen, so the floor cannot push
+	# the box off-screen under a large theme font.
+	_MAX_SCREEN_SHARE = .5
+
 	def __init__(self, parent, allow_escape=True):
 		super().__init__(parent)
 		self._allow_escape = allow_escape
+		self._width_floor_applied = False
 		# Qt right-aligns the buttons on Windows/Linux, which looks lopsided
 		# in our narrow, icon-less message boxes:
 		self.findChild(QDialogButtonBox).setCenterButtons(True)
+	def _apply_layout_fixes(self):
+		"""
+		Give the message text a minimum width, and left-align it when it spans
+		several lines.
+
+		Without a floor, QMessageBox sizes itself purely from its label. Once the
+		text is wide relative to the screen - which happens readily under a theme
+		with a large font - Qt turns on word wrap and clamps the label, so even
+		text that already contains explicit newlines is re-wrapped into a tall,
+		narrow column that can run off the bottom of the screen.
+
+		The floor is a spacer in the last layout row rather than a min-width in
+		styles.qss: a stylesheet min-width pins the box to exactly that width for
+		every message, so longer text is cut off (see the comment on
+		`QMessageBox QLabel` there). A spacer only raises the minimum, leaving the
+		box free to grow with its content.
+		"""
+		label = self.findChild(QLabel, 'qt_msgbox_label')
+		if label is None:
+			return
+		# Centered text lines up with the centered buttons and suits a one-line
+		# message, but reads poorly once it is a paragraph. Set here rather than
+		# in styles.qss: a stylesheet `qproperty-alignment` is re-applied on every
+		# polish, which silently undid this.
+		if '\n' in self.text():
+			label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+		else:
+			label.setAlignment(Qt.AlignCenter)
+		if self._width_floor_applied:
+			return
+		self._width_floor_applied = True
+		char_width = label.fontMetrics().horizontalAdvance('0')
+		screen = self.screen() or QApplication.primaryScreen()
+		width = min(
+			char_width * self._MIN_TEXT_CHARS,
+			int(screen.availableGeometry().width() * self._MAX_SCREEN_SHARE)
+		)
+		layout = self.layout()
+		layout.addItem(
+			QSpacerItem(width, 0, QSizePolicy.Minimum, QSizePolicy.Fixed),
+			layout.rowCount(), 0, 1, layout.columnCount()
+		)
 	def setStandardButtons(self, buttons):
 		super().setStandardButtons(buttons)
 		if is_mac():
@@ -684,6 +735,9 @@ class MessageBox(QMessageBox):
 		if self._allow_escape or event.key() != Key_Escape:
 			super().keyPressEvent(event)
 	def showEvent(self, event):
+		# Before super(), so the box is laid out at its final size rather than
+		# resizing once it is already on screen.
+		self._apply_layout_fixes()
 		super().showEvent(event)
 		self.shown.emit()
 
