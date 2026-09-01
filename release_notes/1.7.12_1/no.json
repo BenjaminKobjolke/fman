@@ -1,0 +1,16 @@
+{
+  "version": "1.7.12",
+  "build": 1,
+  "date": "2026-09-01",
+  "title": "Slett og gi nytt navn uten å forlate visningen, F2 gir nytt navn, og hver handling i visningen sier nå hva den gjorde",
+  "notes": [
+    "Bilde-, tekst- og videovisningene kan nå slette og gi nytt navn til filen du ser på. «Slett fil» flytter den til Papirkurven etter vanlig bekreftelse, og «Gi fil nytt navn …» lar visningen være åpen på filen med det nye navnet. En bryter for «Lukk visning etter sletting» avgjør om en sletting tar deg tilbake til fillisten eller går videre til neste fil – slik at en mappe med bilder kan ryddes uten å forlate visningen.",
+    "Hver handling i visningen bekrefter nå seg selv i statuslinjen: «Lastet inn på nytt fra disk», «Redigeringsmodus», «Lagret», «Skriftstørrelse 12», «Zoom 125%», «Pauset» eller navnet på filen Neste/Forrige landet på. Det betyr mest der ruten ser uendret ut etterpå – å laste inn en fil på nytt som ikke hadde endret seg på disk var tidligere usynlig.",
+    "En mislykket lagring forsvinner ikke lenger i stillhet. Statuslinjen rapporterer «Kunne ikke lagre: <årsak>» og bufferen forblir endret, slik at du kan prøve igjen med «Lagre fil som …» i stedet for å miste endringen.",
+    "F2 gir nå nytt navn til filen under markøren. Det fungerer sammen med Shift+F6, som fortsatt er konvensjonen i to-rutevisning.",
+    "Ctrl+J og Ctrl+K flytter markøren ned og opp, for vim-trente fingre. De enkle bokstavene j og k forblir med vilje ubundet – de skriver fortsatt inn i det levende filteret.",
+    "Rettet: Å gi nytt navn til en fil i en rute sortert etter Endret (synkende) sendte den til bunnen av listen til neste oppdatering. Den havner nå i korrekt sortert posisjon.",
+    "Rettet: En fil som overskrev en eksisterende, fortsatte å vise den gamle filens størrelse, dato og ikon.",
+    "Førstegangsveiledningen avsluttes nå med å vise deg hvor temaer, ikonsett og skrifter finnes, slik at fman ikke må beholde standardutseendet sitt."
+  ]
+}

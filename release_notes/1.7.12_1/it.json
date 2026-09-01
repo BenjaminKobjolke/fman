@@ -1,0 +1,16 @@
+{
+  "version": "1.7.12",
+  "build": 1,
+  "date": "2026-09-01",
+  "title": "Elimina e rinomina senza uscire dal visualizzatore, F2 rinomina, e ogni azione del visualizzatore ora dice cosa ha fatto",
+  "notes": [
+    "I visualizzatori di immagini, testo e video possono ora eliminare e rinominare il file che stai guardando. \"Elimina file\" lo sposta nel Cestino dopo la consueta conferma, e \"Rinomina file...\" mantiene il visualizzatore aperto sul file rinominato. Un interruttore \"Chiudi visualizzatore dopo l'eliminazione\" decide se un'eliminazione ti riporta all'elenco dei file o passa al file successivo: così una cartella di foto può essere sfoltita senza mai uscire dal visualizzatore.",
+    "Ogni azione del visualizzatore ora si conferma nella barra di stato: \"Ricaricato dal disco\", \"Modalità modifica\", \"Salvato\", \"Dimensione carattere 12\", \"Zoom 125%\", \"In pausa\" oppure il nome del file su cui sono arrivati Successivo/Precedente. È particolarmente utile quando il riquadro sembra invariato dopo l'azione: ricaricare un file che non era cambiato su disco in precedenza non mostrava alcun segnale.",
+    "Un salvataggio non riuscito non scompare più in silenzio. La barra di stato segnala \"Impossibile salvare: <motivo>\" e il buffer resta modificato, così puoi riprovare con \"Salva file con nome...\" invece di perdere la modifica.",
+    "F2 ora rinomina il file sotto il cursore. Funziona insieme a Maiusc+F6, che resta la convenzione del doppio riquadro.",
+    "Ctrl+J e Ctrl+K spostano il cursore in basso e in alto, per dita allenate a vim. Le sole lettere j e k restano volutamente non assegnate: continuano a essere digitate nel filtro in tempo reale.",
+    "Corretto: rinominare un file in un riquadro ordinato per Modificato (decrescente) lo mandava in fondo all'elenco fino al successivo ricaricamento. Ora finisce nella posizione corretta secondo l'ordinamento.",
+    "Corretto: un file che sovrascriveva un file esistente continuava a mostrare la dimensione, la data e l'icona del vecchio file.",
+    "Il tutorial del primo avvio ora termina mostrandoti dove si trovano temi, set di icone e font, così fman non deve mantenere sempre l'aspetto predefinito."
+  ]
+}

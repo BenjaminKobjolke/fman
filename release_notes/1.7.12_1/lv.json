@@ -1,0 +1,16 @@
+{
+  "version": "1.7.12",
+  "build": 1,
+  "date": "2026-09-01",
+  "title": "Dzēšana un pārdēvēšana, neizejot no skatītāja; F2 pārdēvē; un katra skatītāja darbība tagad pasaka, ko tā izdarīja",
+  "notes": [
+    "Attēlu, teksta un video skatītāji tagad var dzēst un pārdēvēt failu, kuru skatāt. “Dzēst failu” pēc ierastā apstiprinājuma to pārvieto uz Atkritni, bet “Pārdēvēt failu…” atstāj skatītāju atvērtu pie pārdēvētā faila. Slēdzis “Aizvērt skatītāju pēc dzēšanas” nosaka, vai dzēšana atgriež jūs failu sarakstā vai pāriet uz nākamo failu — tā foto mapi var izšķirot, nekad nepametot skatītāju.",
+    "Katra skatītāja darbība tagad apstiprina sevi statusa joslā: “Pārlādēts no diska”, “Rediģēšanas režīms”, “Saglabāts”, “Fonta lielums 12”, “Mērogs 125%”, “Pauzēts” vai faila nosaukums, pie kura nonāca Nākamais/Iepriekšējais. Tas ir īpaši svarīgi gadījumos, kad rūts pēc tam izskatās nemainīga — iepriekš faila pārlādēšana, kas uz diska nebija mainījusies, nebija pamanāma.",
+    "Neizdevusies saglabāšana vairs nepazūd klusējot. Statusa josla ziņo “Nevarēja saglabāt: <iemesls>”, un buferis paliek modificēts, lai jūs varētu mēģināt vēlreiz ar “Saglabāt failu kā…”, nevis pazaudēt labojumu.",
+    "F2 tagad pārdēvē failu zem kursora. Tas darbojas līdzās Shift+F6, kas paliek kā divu rūšu konvencija.",
+    "Ctrl+J un Ctrl+K pārvieto kursoru uz leju un uz augšu — vim pieradinātiem pirkstiem. Atsevišķie burti j un k apzināti paliek nepiesaistīti — tie joprojām ievadās tiešajā filtrā.",
+    "Labots: pārdēvējot failu rūtī, kas sakārtota pēc “Modificēts” (dilstoši), tas līdz nākamajai pārlādei nonāca saraksta apakšā. Tagad tas nonāk pareizajā vietā atbilstoši kārtojumam.",
+    "Labots: fails, kas pārrakstīja esošu, turpināja rādīt vecā faila izmēru, datumu un ikonu.",
+    "Pirmās palaišanas pamācība tagad beidzas, parādot, kur atrodas tēmas, ikonu komplekti un fonti, lai fman nebūtu jāpaliek ar noklusēto izskatu."
+  ]
+}

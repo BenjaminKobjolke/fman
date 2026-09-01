@@ -1,0 +1,16 @@
+{
+  "version": "1.7.12",
+  "build": 1,
+  "date": "2026-09-01",
+  "title": "Kustuta ja nimeta ümber vaaturist lahkumata, F2 nimetab ümber ning iga vaaturi toiming ütleb nüüd, mida see tegi",
+  "notes": [
+    "Pildi-, teksti- ja videovaatur saavad nüüd kustutada ja ümber nimetada faili, mida parasjagu vaatad. „Kustuta fail” liigutab selle pärast tavapärast kinnitust Prügikasti ning „Nimeta fail ümber...” hoiab vaaturi avatuna ümbernimetatud failil. Lüliti „Sulge vaatur pärast kustutamist” otsustab, kas kustutamine viib sind tagasi faililoendisse või liigub edasi järgmise faili juurde – nii saab fotokausta läbi vaadata ja üleliigsed kustutada ilma vaaturist kordagi lahkumata.",
+    "Iga vaaturi toiming kinnitab end nüüd olekuribal: „Laaditi kettalt uuesti”, „Redigeerimisrežiim”, „Salvestatud”, „Fondi suurus 12”, „Suum 125%”, „Paus”, või faili nimi, millele Järgmine/Eelmine maandus. See on kõige olulisem olukordades, kus paan näib pärast toimingut muutumatuna – faili uuesti laadimine, mis polnud kettal muutunud, oli varem nähtamatu.",
+    "Nurjunud salvestamine ei kao enam vaikselt. Olekuriba näitab „Ei saanud salvestada: <põhjus>” ja puhver jääb muudetuks, nii et saad proovida uuesti valikuga „Salvesta fail kui...” selle asemel, et muudatused kaotsi lasta.",
+    "F2 nimetab nüüd ümber kursori all oleva faili. See toimib kõrvuti Shift+F6-ga, mis jääb kahe paneeliga vaate tavapäraseks kiirklahviks.",
+    "Ctrl+J ja Ctrl+K liigutavad kursorit alla ja üles, vimiga harjunud sõrmede jaoks. Paljad tähed j ja k on tahtlikult sidumata – need sisestavad endiselt teksti reaalaja filtrisse.",
+    "Parandus: kui fail nimetati ümber paneelis, mis oli sorditud välja „Muudetud” järgi (kahanevalt), saadeti see kuni järgmise uuestilaadimiseni loendi lõppu. Nüüd satub see oma õigesse sorteeritud asukohta.",
+    "Parandus: fail, mis kirjutas olemasoleva faili üle, näitas edasi vana faili suurust, kuupäeva ja ikooni.",
+    "Esmakäivituse õpetus lõpeb nüüd sellega, et näitab sulle, kus asuvad teemad, ikoonikomplektid ja fondid, et fman ei peaks jääma oma vaikimisi väljanägemise juurde."
+  ]
+}

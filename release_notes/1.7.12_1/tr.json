@@ -1,0 +1,16 @@
+{
+  "version": "1.7.12",
+  "build": 1,
+  "date": "2026-09-01",
+  "title": "Görüntüleyiciden çıkmadan silme ve yeniden adlandırma, F2 yeniden adlandırır ve artık her görüntüleyici eylemi ne yaptığını söylüyor",
+  "notes": [
+    "Resim, metin ve video görüntüleyicileri artık baktığınız dosyayı silebilir ve yeniden adlandırabilir. \"Dosyayı sil\" her zamanki onaydan sonra onu Geri Dönüşüm Kutusu'na taşır ve \"Dosyayı yeniden adlandır...\" görüntüleyiciyi yeniden adlandırılmış dosya üzerinde açık tutar. \"Sildikten sonra görüntüleyiciyi kapat\" anahtarı, bir silme işleminden sonra sizi dosya listesine mi geri döndüreceğini yoksa bir sonraki dosyaya mı geçeceğini belirler — böylece bir fotoğraf klasörü görüntüleyiciden hiç çıkmadan ayıklanabilir.",
+    "Artık her görüntüleyici eylemi durum çubuğunda kendini doğruluyor: \"Diskten yeniden yüklendi\", \"Düzenleme modu\", \"Kaydedildi\", \"Yazı tipi boyutu 12\", \"Yakınlaştırma %125\", \"Duraklatıldı\" veya Sonraki/Önceki'nin indiği dosyanın adı. Bu, özellikle panel daha sonra değişmemiş göründüğünde önemlidir — diskte değişmemiş bir dosyayı yeniden yüklemek daha önce görünmezdi.",
+    "Başarısız bir kaydetme artık sessizce kaybolmuyor. Durum çubuğu \"Kaydedilemedi: <neden>\" diye bildiriyor ve arabellek değiştirilmiş halde kalıyor; böylece düzenlemeyi kaybetmek yerine \"Dosyayı farklı kaydet...\" ile yeniden deneyebilirsiniz.",
+    "F2 artık imlecin altındaki dosyayı yeniden adlandırır. Çift bölmeli gelenek olarak kalan Shift+F6 ile birlikte çalışır.",
+    "Ctrl+J ve Ctrl+K, vim'e alışık parmaklar için imleci aşağı ve yukarı taşır. j ve k harfleri özellikle bağlı bırakılmadı — canlı filtreye yazmaya devam ediyorlar.",
+    "Düzeltildi: Değiştirilme zamanına göre (azalan) sıralanmış bir panelde bir dosyayı yeniden adlandırmak, bir sonraki yeniden yüklemeye kadar onu listenin en altına gönderiyordu. Artık doğru sıralı konumuna yerleşiyor.",
+    "Düzeltildi: Mevcut bir dosyanın üzerine yazan bir dosya, eski dosyanın boyutunu, tarihini ve simgesini göstermeye devam ediyordu.",
+    "İlk çalıştırma öğreticisi artık temaların, simge setlerinin ve yazı tiplerinin nerede bulunduğunu göstererek bitiyor; böylece fman varsayılan görünümünde kalmak zorunda değil."
+  ]
+}

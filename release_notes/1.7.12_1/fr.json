@@ -1,0 +1,16 @@
+{
+  "version": "1.7.12",
+  "build": 1,
+  "date": "2026-09-01",
+  "title": "Supprimer et renommer sans quitter le visualiseur, F2 pour renommer, et chaque action du visualiseur indique désormais ce qu’elle a fait",
+  "notes": [
+    "Les visualiseurs d’images, de texte et de vidéos peuvent désormais supprimer et renommer le fichier que vous consultez. « Supprimer le fichier » le déplace vers la Corbeille après la confirmation habituelle, et « Renommer le fichier… » garde le visualiseur ouvert sur le fichier renommé. Un interrupteur « Fermer le visualiseur après suppression » décide si une suppression vous ramène à la liste de fichiers ou passe au fichier suivant — ainsi, un dossier de photos peut être trié sans jamais quitter le visualiseur.",
+    "Chaque action du visualiseur se confirme désormais dans la barre d’état : « Rechargé depuis le disque », « Mode édition », « Enregistré », « Taille de police 12 », « Zoom 125 % », « En pause », ou le nom du fichier sur lequel Suivant/Précédent a atterri. C’est surtout utile lorsque le panneau semble inchangé ensuite — recharger un fichier qui n’avait pas changé sur le disque était auparavant invisible.",
+    "Un échec d’enregistrement ne disparaît plus silencieusement. La barre d’état indique « Impossible d’enregistrer : <raison> » et le tampon reste modifié, afin que vous puissiez réessayer avec « Enregistrer le fichier sous… » au lieu de perdre la modification.",
+    "F2 renomme désormais le fichier sous le curseur. Cela fonctionne en parallèle avec Maj+F6, qui reste la convention en double panneau.",
+    "Ctrl+J et Ctrl+K déplacent le curseur vers le bas et vers le haut, pour les doigts entraînés à vim. Les lettres j et k seules restent volontairement non assignées — elles continuent de s’écrire dans le filtre en direct.",
+    "Correctif : renommer un fichier dans un panneau trié par Modifié (décroissant) l’envoyait en bas de la liste jusqu’au prochain rechargement. Il atterrit désormais à sa position correcte dans l’ordre de tri.",
+    "Correctif : un fichier qui en écrasait un existant continuait d’afficher l’ancienne taille, date et icône du fichier.",
+    "Le tutoriel de première utilisation se termine désormais en vous montrant où se trouvent les thèmes, les jeux d’icônes et les polices, afin que fman n’ait pas à conserver son apparence par défaut."
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "version": "1.7.12",
+  "build": 1,
+  "date": "2026-09-01",
+  "title": "Ištrynimas ir pervadinimas neišeinant iš peržiūros, F2 pervadina, o kiekvienas peržiūros veiksmas dabar parodo, ką atliko",
+  "notes": [
+    "Vaizdų, teksto ir vaizdo įrašų peržiūros langai dabar leidžia ištrinti ir pervadinti failą, kurį žiūrite. „Ištrinti failą“ po įprasto patvirtinimo perkelia jį į Šiukšlinę, o „Pervadinti failą…“ palieka peržiūros langą atidarytą su pervadintu failu. Perjungiklis „Uždaryti peržiūrą po ištrynimo“ nustato, ar ištrynus grįžtama į failų sąrašą, ar pereinama prie kito failo – taip nuotraukų aplanką galima perrinkti niekada neišeinant iš peržiūros.",
+    "Kiekvienas peržiūros veiksmas dabar patvirtinamas būsenos juostoje: „Perkrauta iš disko“, „Redagavimo režimas“, „Išsaugota“, „Šrifto dydis 12“, „Mastelis 125%“, „Pristabdyta“ arba failo, į kurį perėjo Kitas / Ankstesnis, pavadinimas. Tai ypač svarbu, kai po veiksmo vaizdas atrodo nepakitęs – anksčiau failo perkrovimas, kai jis diske nebuvo pasikeitęs, buvo nematomas.",
+    "Nepavykęs išsaugojimas daugiau nebedingsta tyliai. Būsenos juosta praneša „Nepavyko išsaugoti: <priežastis>“, o buferis lieka pakeistas, kad galėtumėte bandyti dar kartą su „Išsaugoti failą kaip…“, neprarasdami redagavimo.",
+    "F2 dabar pervadina failą po žymekliu. Tai veikia kartu su Shift+F6, kuris išlieka kaip dviejų langų konvencija.",
+    "Ctrl+J ir Ctrl+K perkelia žymeklį žemyn ir aukštyn – vim įpratusiems pirštams. Vien raidės j ir k sąmoningai paliktos nepriskirtos – jos vis dar įvedamos į tiesioginį filtrą.",
+    "Pataisyta: pervadinus failą lange, surikiuotame pagal „Pakeista“ (mažėjančia tvarka), jis nusikeldavo į sąrašo apačią iki kito perkrovimo. Dabar jis atsiduria teisingoje surikiuotoje vietoje.",
+    "Pataisyta: failas, kuris perrašė jau esantį, toliau rodė seno failo dydį, datą ir piktogramą.",
+    "Pirmosios paleisties mokomasis vedlys dabar baigiasi parodydamas, kur yra temos, piktogramų rinkiniai ir šriftai, kad fman neprivalėtų visada išlaikyti numatytosios išvaizdos."
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "version": "1.7.12",
+  "build": 1,
+  "date": "2026-09-01",
+  "title": "Eliminar y renombrar sin salir del visor, F2 renombra y ahora cada acción del visor indica qué hizo",
+  "notes": [
+    "Los visores de imágenes, texto y vídeo ahora pueden eliminar y renombrar el archivo que estás viendo. \"Eliminar archivo\" lo mueve a la Papelera de reciclaje tras la confirmación habitual, y \"Renombrar archivo...\" mantiene el visor abierto sobre el archivo renombrado. Un interruptor \"Cerrar visor tras eliminar\" decide si al eliminar vuelves a la lista de archivos o pasas al siguiente archivo, de modo que se pueda cribar una carpeta de fotos sin salir nunca del visor.",
+    "Ahora cada acción del visor se confirma en la barra de estado: \"Recargado desde el disco\", \"Modo de edición\", \"Guardado\", \"Tamaño de fuente 12\", \"Zoom 125%\", \"En pausa\" o el nombre del archivo en el que han aterrizado Siguiente/Anterior. Esto importa sobre todo cuando el panel parece no cambiar después: antes, recargar un archivo que no había cambiado en el disco era imperceptible.",
+    "Un guardado fallido ya no desaparece en silencio. La barra de estado muestra \"No se pudo guardar: <motivo>\" y el búfer sigue marcado como modificado, para que puedas reintentarlo con \"Guardar archivo como...\" en lugar de perder la edición.",
+    "F2 ahora renombra el archivo bajo el cursor. Funciona junto con Shift+F6, que se mantiene como la convención de doble panel.",
+    "Ctrl+J y Ctrl+K mueven el cursor hacia abajo y hacia arriba, para dedos entrenados en vim. Las letras j y k sin modificadores se mantienen intencionadamente sin asignar: siguen escribiendo en el filtro en vivo.",
+    "Corregido: renombrar un archivo en un panel ordenado por Modificado (descendente) lo enviaba al final de la lista hasta la siguiente recarga. Ahora aparece en su posición correcta según el orden.",
+    "Corregido: un archivo que sobrescribía uno existente seguía mostrando el tamaño, la fecha y el icono del archivo antiguo.",
+    "El tutorial del primer inicio ahora termina mostrándote dónde están los temas, los conjuntos de iconos y las fuentes, para que fman no tenga que mantener su aspecto predeterminado."
+  ]
+}

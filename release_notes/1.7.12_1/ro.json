@@ -1,0 +1,16 @@
+{
+  "version": "1.7.12",
+  "build": 1,
+  "date": "2026-09-01",
+  "title": "Ștergere și redenumire fără a părăsi vizualizatorul, F2 redenumește, iar fiecare acțiune din vizualizator spune acum ce a făcut",
+  "notes": [
+    "Vizualizatoarele de imagini, text și video pot acum să șteargă și să redenumească fișierul pe care îl privești. „Șterge fișierul” îl mută în Coșul de reciclare după confirmarea obișnuită, iar „Redenumește fișierul...” păstrează vizualizatorul deschis pe fișierul redenumit. Un comutator „Închide vizualizatorul după ștergere” decide dacă o ștergere te întoarce la lista de fișiere sau trece la următorul fișier – astfel un dosar cu fotografii poate fi triat fără să părăsești vreodată vizualizatorul.",
+    "Fiecare acțiune din vizualizator se confirmă acum în bara de stare: „Reîncărcat de pe disc”, „Mod de editare”, „Salvat”, „Dimensiune font 12”, „Zoom 125%”, „În pauză” sau numele fișierului pe care au ajuns Următor/Anterior. Este cel mai important acolo unde panoul pare neschimbat după aceea – reîncărcarea unui fișier care nu s-a schimbat pe disc era anterior invizibilă.",
+    "O salvare eșuată nu mai dispare în tăcere. Bara de stare raportează „Nu s-a putut salva: <motiv>”, iar bufferul rămâne modificat, astfel încât poți reîncerca cu „Salvează fișierul ca...” în loc să pierzi editarea.",
+    "F2 redenumește acum fișierul de sub cursor. Funcționează alături de Shift+F6, care rămâne convenția pentru două panouri.",
+    "Ctrl+J și Ctrl+K mută cursorul în jos și în sus, pentru degete antrenate în vim. Literele simple j și k rămân intenționat nealocate – ele încă se tastează în filtrul live.",
+    "Remediat: redenumirea unui fișier într-un panou sortat după Modificat (descrescător) îl trimitea la baza listei până la următoarea reîncărcare. Acum ajunge în poziția corectă sortată.",
+    "Remediat: un fișier care a suprascris unul existent continua să afișeze dimensiunea, data și pictograma vechiului fișier.",
+    "Tutorialul de la prima rulare se încheie acum arătându-ți unde se află temele, seturile de pictograme și fonturile, astfel încât fman să nu fie nevoit să-și păstreze aspectul implicit."
+  ]
+}

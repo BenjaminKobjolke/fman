@@ -1,0 +1,16 @@
+{
+  "version": "1.7.12",
+  "build": 1,
+  "date": "2026-09-01",
+  "title": "Usuwanie i zmiana nazwy bez wychodzenia z podglądu, F2 zmienia nazwę, a każda akcja w podglądzie teraz mówi, co zrobiła",
+  "notes": [
+    "Podglądy obrazów, tekstu i wideo mogą teraz usuwać i zmieniać nazwę pliku, który oglądasz. „Usuń plik” przenosi go do Kosza po zwykłym potwierdzeniu, a „Zmień nazwę pliku...” pozostawia podgląd otwarty na pliku o nowej nazwie. Przełącznik „Zamknij podgląd po usunięciu” decyduje, czy usunięcie przeniesie Cię z powrotem do listy plików, czy przejdzie do następnego pliku — dzięki temu możesz przeglądać i selekcjonować folder zdjęć bez opuszczania podglądu.",
+    "Każda akcja w podglądzie teraz potwierdza się na pasku stanu: „Przeładowano z dysku”, „Tryb edycji”, „Zapisano”, „Rozmiar czcionki 12”, „Powiększenie 125%”, „Wstrzymano” albo nazwa pliku, na którym zatrzymały się polecenia Następny/Poprzedni. Ma to największe znaczenie tam, gdzie panel po akcji wygląda na niezmieniony — wcześniej przeładowanie pliku, który nie zmienił się na dysku, było niewidoczne.",
+    "Nieudany zapis nie znika już po cichu. Pasek stanu zgłasza „Nie można zapisać: <powód>”, a bufor pozostaje zmodyfikowany, dzięki czemu możesz spróbować ponownie przez „Zapisz plik jako...”, zamiast utracić edycję.",
+    "F2 zmienia teraz nazwę pliku pod kursorem. Działa obok Shift+F6, który pozostaje konwencją dla trybu z dwoma panelami.",
+    "Ctrl+J i Ctrl+K przesuwają kursor w dół i w górę — dla palców przyzwyczajonych do vima. Same litery j i k celowo pozostają nieprzypisane — nadal wpisują się do filtra na żywo.",
+    "Naprawiono: zmiana nazwy pliku w panelu posortowanym według Zmodyfikowano (malejąco) wysyłała go na dół listy aż do następnego przeładowania. Teraz trafia na właściwą pozycję zgodną z sortowaniem.",
+    "Naprawiono: plik, który nadpisał istniejący, nadal pokazywał rozmiar, datę i ikonę starego pliku.",
+    "Samouczek przy pierwszym uruchomieniu kończy się teraz pokazaniem, gdzie znajdują się motywy, zestawy ikon i czcionki, aby fman nie musiał zachowywać swojego domyślnego wyglądu."
+  ]
+}

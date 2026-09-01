@@ -1,0 +1,16 @@
+{
+  "version": "1.7.12",
+  "build": 1,
+  "date": "2026-09-01",
+  "title": "Brisanje in preimenovanje brez zapiranja pregledovalnika, F2 preimenuje, vsako dejanje v pregledovalniku pa zdaj pove, kaj je naredilo",
+  "notes": [
+    "Pregledovalniki slik, besedila in videa lahko zdaj izbrišejo in preimenujejo datoteko, ki jo gledate. »Delete file« jo po običajni potrditvi premakne v Koš, »Rename file...« pa pusti pregledovalnik odprt na preimenovani datoteki. Preklop »Close viewer after deleting« določa, ali vas brisanje vrne na seznam datotek ali nadaljuje na naslednjo datoteko – tako lahko mapo fotografij preberete brez da bi sploh zapustili pregledovalnik.",
+    "Vsako dejanje v pregledovalniku se zdaj potrdi v vrstici stanja: »Reloaded from disk«, »Edit mode«, »Saved«, »Font size 12«, »Zoom 125%«, »Paused« ali ime datoteke, na katero sta pristala Next/Previous. To je najpomembnejše tam, kjer podokno po dejanju deluje nespremenjeno – ponovni naložitvi datoteke, ki se na disku ni spremenila, prej ni bilo mogoče opaziti.",
+    "Neuspešno shranjevanje se ne skrije več tiho. Vrstica stanja prikaže »Could not save: <reason>«, medpomnilnik pa ostane spremenjen, da lahko poskusite znova z »Save file as...« namesto da izgubite spremembo.",
+    "F2 zdaj preimenuje datoteko pod kazalcem. Deluje skupaj s Shift+F6, ki ostaja kot dvopodokenska konvencija.",
+    "Ctrl+J in Ctrl+K premakneta kazalec navzdol in navzgor, za prste, vajene vima. Goli črki j in k namenoma ostaneta nevezani – še vedno se vpisujeta v sprotni filter.",
+    "Popravljeno: preimenovanje datoteke v podoknu, razvrščenem po Modified (padajoče), jo je poslalo na dno seznama do naslednjega ponovnega nalaganja. Zdaj pristane na pravilnem mestu glede na razvrstitev.",
+    "Popravljeno: datoteka, ki je prepisala obstoječo, je še naprej prikazovala staro velikost, datum in ikono.",
+    "Vodnik ob prvem zagonu se zdaj konča s prikazom, kje se nahajajo teme, nabori ikon in pisave, tako da fman ni več vezan na privzeti videz."
+  ]
+}

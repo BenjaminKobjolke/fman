@@ -1,0 +1,16 @@
+{
+  "version": "1.7.12",
+  "build": 1,
+  "date": "2026-09-01",
+  "title": "Brisanje i preimenovanje bez napuštanja preglednika, F2 preimenuje, a svaka radnja u pregledniku sada kaže što je učinila",
+  "notes": [
+    "Preglednici slika, teksta i videa sada mogu obrisati i preimenovati datoteku koju gledate. \"Obriši datoteku\" premješta je u Koš za smeće nakon uobičajene potvrde, a \"Preimenuj datoteku...\" ostavlja preglednik otvoren na preimenovanoj datoteci. Prekidač \"Zatvori preglednik nakon brisanja\" odlučuje hoće li vas brisanje vratiti na popis datoteka ili prijeći na sljedeću datoteku – tako se mapa s fotografijama može probrati bez ikad napuštanja preglednika.",
+    "Svaka radnja u pregledniku sada se potvrđuje u statusnoj traci: \"Ponovno učitano s diska\", \"Način uređivanja\", \"Spremljeno\", \"Veličina fonta 12\", \"Zum 125%\", \"Pauzirano\" ili naziv datoteke na koju su otišle radnje Sljedeće/Prethodno. Najviše znači ondje gdje okno nakon toga izgleda nepromijenjeno – ponovno učitavanje datoteke koja se nije promijenila na disku ranije nije bilo vidljivo.",
+    "Neuspjelo spremanje više ne nestaje tiho. Statusna traka javlja \"Nije moguće spremiti: <razlog>\", a međuspremnik ostaje izmijenjen, tako da možete pokušati ponovno s \"Spremi datoteku kao...\" umjesto da izgubite izmjenu.",
+    "F2 sada preimenuje datoteku ispod kursora. Radi uz Shift+F6, koji ostaje kao konvencija u prikazu s dva okna.",
+    "Ctrl+J i Ctrl+K pomiču kursor dolje i gore, za prste istrenirane na vimu. Sama slova j i k namjerno ostaju nedodijeljena – i dalje se upisuju u aktivni filtar.",
+    "Ispravljeno: preimenovanje datoteke u oknu sortiranom po Izmijenjeno (silazno) slalo ju je na dno popisa do sljedećeg ponovnog učitavanja. Sada završava na ispravnom mjestu prema sortiranju.",
+    "Ispravljeno: datoteka koja je prepisala postojeću i dalje je prikazivala veličinu, datum i ikonu stare datoteke.",
+    "Vodič pri prvom pokretanju sada završava tako što vam pokaže gdje se nalaze teme, skupovi ikona i fontovi, kako fman ne bi morao zadržati svoj zadani izgled."
+  ]
+}

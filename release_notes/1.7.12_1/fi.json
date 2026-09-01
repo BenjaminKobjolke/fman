@@ -1,0 +1,16 @@
+{
+  "version": "1.7.12",
+  "build": 1,
+  "date": "2026-09-01",
+  "title": "Poista ja nimeä uudelleen poistumatta katselusta, F2 nimeää uudelleen, ja jokainen katselutoiminto kertoo nyt mitä se teki",
+  "notes": [
+    "Kuva-, teksti- ja videokatselijat voivat nyt poistaa ja nimetä uudelleen tiedoston, jota katsot. \"Poista tiedosto\" siirtää sen roskakoriin tavallisen vahvistuksen jälkeen, ja \"Nimeä tiedosto uudelleen...\" pitää katselijan auki uudelleennimetyn tiedoston kohdalla. \"Sulje katselin poistamisen jälkeen\" -kytkin päättää, palaako poisto sinut tiedostolistaan vai siirtyykö se seuraavaan tiedostoon – joten valokuvakansion voi karsia poistumatta koskaan katselusta.",
+    "Jokainen katselutoiminto vahvistaa nyt itsensä tilarivillä: \"Ladattu uudelleen levyltä\", \"Muokkaustila\", \"Tallennettu\", \"Fonttikoko 12\", \"Zoom 125%\", \"Keskeytetty\" tai sen tiedoston nimi, johon Seuraava/Edellinen pysähtyi. Tämä merkitsee eniten silloin, kun näkymä näyttää jälkeenpäin muuttumattomalta – tiedoston uudelleenlataus, joka ei ollut muuttunut levyllä, oli aiemmin näkymätön.",
+    "Epäonnistunut tallennus ei enää katoa hiljaa. Tilarivi ilmoittaa \"Tallennus ei onnistunut: <syy>\" ja puskuri pysyy muokattuna, jotta voit yrittää uudelleen komennolla \"Tallenna tiedosto nimellä...\" sen sijaan, että muokkaus katoaisi.",
+    "F2 nimeää nyt uudelleen kohdistimen alla olevan tiedoston. Se toimii rinnakkain Shift+F6:n kanssa, joka säilyy kaksipaneelisen näkymän käytäntönä.",
+    "Ctrl+J ja Ctrl+K siirtävät kohdistinta alas ja ylös vim-koulutettujen sormien avuksi. Pelkät kirjaimet j ja k jätetään tarkoituksella sitomatta – ne kirjoittavat edelleen reaaliaikasuodattimeen.",
+    "Korjattu: tiedoston uudelleennimeäminen paneelissa, joka oli lajiteltu Muokattu (laskeva), lähetti sen listan alareunaan seuraavaan uudelleenlataukseen asti. Nyt se asettuu oikeaan lajiteltuun kohtaan.",
+    "Korjattu: tiedosto, joka korvasi olemassa olevan, näytti edelleen vanhan tiedoston koon, päivämäärän ja kuvakkeen.",
+    "Ensikäynnistyksen opastus päättyy nyt näyttämällä, mistä teemat, kuvakepaketit ja fontit löytyvät, jotta fmanin ei tarvitse säilyttää oletusilmettään."
+  ]
+}

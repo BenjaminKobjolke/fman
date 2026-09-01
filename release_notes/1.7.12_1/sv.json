@@ -1,0 +1,16 @@
+{
+  "version": "1.7.12",
+  "build": 1,
+  "date": "2026-09-01",
+  "title": "Ta bort och byt namn utan att lämna visaren, F2 byter namn, och varje åtgärd i visaren säger nu vad den gjorde",
+  "notes": [
+    "Bild-, text- och videovisarna kan nu ta bort och byta namn på filen du tittar på. \"Ta bort fil\" flyttar den till Papperskorgen efter den vanliga bekräftelsen, och \"Byt namn på fil...\" håller visaren öppen på den omdöpta filen. En växel \"Stäng visaren efter borttagning\" avgör om en borttagning tar dig tillbaka till fillistan eller går vidare till nästa fil – så att en mapp med foton kan gallras utan att du någonsin lämnar visaren.",
+    "Varje åtgärd i visaren bekräftar nu sig själv i statusfältet: \"Laddades om från disk\", \"Redigeringsläge\", \"Sparad\", \"Teckenstorlek 12\", \"Zoom 125%\", \"Pausad\", eller namnet på filen som Nästa/Föregående landade på. Det är viktigast när panelen ser oförändrad ut efteråt – att läsa in en fil på nytt som inte har ändrats på disk var tidigare osynligt.",
+    "En misslyckad sparning försvinner inte längre tyst. Statusfältet rapporterar \"Kunde inte spara: <orsak>\" och bufferten förblir ändrad, så att du kan försöka igen med \"Spara fil som...\" i stället för att förlora redigeringen.",
+    "F2 byter nu namn på filen under markören. Det fungerar sida vid sida med Skift+F6, som fortsätter att vara tvåpanelskonventionen.",
+    "Ctrl+J och Ctrl+K flyttar markören ned och upp, för vim-tränade fingrar. De rena bokstäverna j och k förblir avsiktligt obundna – de skriver fortfarande in i live-filtret.",
+    "Åtgärdat: att byta namn på en fil i en panel sorterad efter Ändrad (fallande) skickade den längst ned i listan tills nästa omladdning. Den hamnar nu på sin korrekta sorterade position.",
+    "Åtgärdat: en fil som skrev över en befintlig fortsatte att visa den gamla filens storlek, datum och ikon.",
+    "Förstagångshandledningen avslutas nu med att visa var teman, ikonuppsättningar och typsnitt finns, så att fman inte behöver behålla sitt standardutseende."
+  ]
+}

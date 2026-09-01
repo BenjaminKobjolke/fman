@@ -1,0 +1,16 @@
+{
+  "version": "1.7.12",
+  "build": 1,
+  "date": "2026-09-01",
+  "title": "Eliminar e mudar o nome sem sair do visualizador, F2 muda o nome, e todas as ações do visualizador agora dizem o que fizeram",
+  "notes": [
+    "Os visualizadores de imagens, texto e vídeo podem agora eliminar e mudar o nome do ficheiro que está a ver. \"Eliminar ficheiro\" move-o para o Caixote do Lixo após a confirmação habitual, e \"Mudar o nome do ficheiro...\" mantém o visualizador aberto no ficheiro com o novo nome. Um interruptor \"Fechar visualizador após eliminar\" decide se, ao eliminar, volta à lista de ficheiros ou avança para o ficheiro seguinte — assim, pode selecionar e eliminar fotos numa pasta sem nunca sair do visualizador.",
+    "Todas as ações do visualizador agora se confirmam na barra de estado: \"Recarregado do disco\", \"Modo de edição\", \"Guardado\", \"Tamanho de letra 12\", \"Zoom 125%\", \"Em pausa\", ou o nome do ficheiro em que Próximo/Anterior parou. Isto é especialmente importante quando o painel parece não ter mudado — recarregar um ficheiro que não mudou no disco era anteriormente invisível.",
+    "Uma falha ao guardar já não desaparece silenciosamente. A barra de estado indica \"Não foi possível guardar: <motivo>\" e o buffer mantém-se modificado, para que possa tentar novamente com \"Guardar ficheiro como...\" em vez de perder a edição.",
+    "F2 agora muda o nome do ficheiro sob o cursor. Funciona em conjunto com Shift+F6, que se mantém como a convenção de dois painéis.",
+    "Ctrl+J e Ctrl+K movem o cursor para baixo e para cima, para dedos treinados em vim. As letras simples j e k mantêm-se deliberadamente sem atalhos — continuam a escrever no filtro em tempo real.",
+    "Corrigido: mudar o nome de um ficheiro num painel ordenado por Modificado (descendente) enviava-o para o fim da lista até ao próximo recarregamento. Agora fica na posição correta de acordo com a ordenação.",
+    "Corrigido: um ficheiro que substituía um existente continuava a mostrar o tamanho, a data e o ícone do ficheiro antigo.",
+    "O tutorial da primeira execução agora termina mostrando onde ficam os temas, os conjuntos de ícones e as fontes, para que o fman não tenha de manter o seu aspeto predefinido."
+  ]
+}

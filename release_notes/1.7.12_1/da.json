@@ -1,0 +1,16 @@
+{
+  "version": "1.7.12",
+  "build": 1,
+  "date": "2026-09-01",
+  "title": "Slet og omdøb uden at forlade fremviseren, F2 omdøber, og hver handling i fremviseren fortæller nu, hvad den gjorde",
+  "notes": [
+    "Billed-, tekst- og videofremviserne kan nu slette og omdøbe den fil, du kigger på. \"Slet fil\" flytter den til Papirkurven efter den sædvanlige bekræftelse, og \"Omdøb fil...\" holder fremviseren åben på den omdøbte fil. En \"Luk fremviser efter sletning\"-kontakt afgør, om en sletning sender dig tilbage til fillisten eller går videre til næste fil – så en mappe med fotos kan sorteres uden nogensinde at forlade fremviseren.",
+    "Hver handling i fremviseren bekræfter nu sig selv i statuslinjen: \"Genindlæst fra disk\", \"Redigeringstilstand\", \"Gemt\", \"Skriftstørrelse 12\", \"Zoom 125%\", \"Pause\", eller navnet på den fil, som Næste/Forrige landede på. Det betyder mest, når ruden ser uændret ud bagefter – genindlæsning af en fil, der ikke var ændret på disken, var tidligere usynlig.",
+    "En mislykket gemning forsvinder ikke længere lydløst. Statuslinjen viser \"Kunne ikke gemme: <årsag>\", og bufferen forbliver ændret, så du kan prøve igen med \"Gem fil som...\" i stedet for at miste redigeringen.",
+    "F2 omdøber nu filen under markøren. Det fungerer side om side med Shift+F6, som fortsat er dual-panel-konventionen.",
+    "Ctrl+J og Ctrl+K flytter markøren ned og op, for vim-trænede fingre. De blotte bogstaver j og k forbliver med vilje ubundne – de skriver stadig i live-filteret.",
+    "Rettet: at omdøbe en fil i en rude sorteret efter Ændret (faldende) sendte den til bunden af listen indtil næste genindlæsning. Den lander nu på sin korrekte sorterede position.",
+    "Rettet: en fil, der overskrev en eksisterende, blev ved med at vise den gamle fils størrelse, dato og ikon.",
+    "Førstegangsintroduktionen slutter nu med at vise dig, hvor temaer, ikonsæt og skrifttyper findes, så fman ikke behøver at beholde sit standardudseende."
+  ]
+}

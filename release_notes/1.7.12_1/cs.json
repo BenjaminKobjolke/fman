@@ -1,0 +1,16 @@
+{
+  "version": "1.7.12",
+  "build": 1,
+  "date": "2026-09-01",
+  "title": "Mazání a přejmenování bez opuštění prohlížeče, F2 přejmenovává a každá akce v prohlížeči teď říká, co provedla",
+  "notes": [
+    "Prohlížeče obrázků, textu a videa nyní umí smazat a přejmenovat soubor, na který se díváte. „Smazat soubor“ jej po obvyklém potvrzení přesune do Koše a „Přejmenovat soubor…“ ponechá prohlížeč otevřený na přejmenovaném souboru. Přepínač „Zavřít prohlížeč po smazání“ rozhoduje, zda vás smazání vrátí zpět do seznamu souborů, nebo přejde na další soubor – takže lze probrat složku fotek, aniž byste kdy opustili prohlížeč.",
+    "Každá akce v prohlížeči se nyní potvrzuje ve stavovém řádku: „Znovu načteno z disku“, „Režim úprav“, „Uloženo“, „Velikost písma 12“, „Přiblížení 125 %“, „Pozastaveno“ nebo název souboru, na který se přesunulo Další/Předchozí. Nejvíc je to vidět tam, kde podokno potom vypadá beze změny – opětovné načtení souboru, který se na disku nezměnil, bylo dříve neviditelné.",
+    "Neúspěšné uložení už nezmizí potichu. Stavový řádek hlásí „Nelze uložit: <důvod>“ a buffer zůstane změněný, takže můžete zkusit znovu „Uložit soubor jako…“ místo toho, abyste přišli o úpravy.",
+    "F2 nyní přejmenuje soubor pod kurzorem. Funguje vedle Shift+F6, který zůstává jako konvence pro dvojpanelové rozhraní.",
+    "Ctrl+J a Ctrl+K posouvají kurzor dolů a nahoru pro prsty vycvičené ve vimu. Samotná písmena j a k zůstávají záměrně nenamapovaná – stále se píší do živého filtru.",
+    "Opraveno: přejmenování souboru v panelu seřazeném podle Změněno (sestupně) jej posílalo na konec seznamu až do dalšího znovunačtení. Nyní se zařadí na správné místo podle řazení.",
+    "Opraveno: soubor, který přepsal existující, dál zobrazoval starou velikost, datum a ikonu souboru.",
+    "Průvodce při prvním spuštění nyní končí tím, že ukáže, kde jsou motivy, sady ikon a písma, takže fman nemusí zůstávat u výchozího vzhledu."
+  ]
+}

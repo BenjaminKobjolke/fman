@@ -1,0 +1,16 @@
+{
+  "version": "1.7.12",
+  "build": 1,
+  "date": "2026-09-01",
+  "title": "Törlés és átnevezés a megtekintő elhagyása nélkül, F2-vel átnevezés, és mostantól minden megtekintőművelet jelzi, mit tett",
+  "notes": [
+    "A kép-, szöveg- és videómegtekintőben most már törölheted és átnevezheted a megtekintett fájlt. A „Fájl törlése” a szokásos megerősítés után a Lomtárba helyezi, a „Fájl átnevezése...” pedig nyitva hagyja a megtekintőt az átnevezett fájlon. A „Megtekintő bezárása törlés után” kapcsoló dönti el, hogy törlés után visszakerülsz-e a fájllistára, vagy továbblépsz a következő fájlra – így egy fotómappa úgy is átválogatható, hogy közben végig a megtekintőben maradsz.",
+    "Mostantól minden megtekintőművelet megerősítést ad az állapotsorban: „Újratöltve lemezről”, „Szerkesztő mód”, „Mentve”, „Betűméret: 12”, „Nagyítás: 125%”, „Szüneteltetve”, vagy annak a fájlnak a neve, amelyre a Következő/Előző lépett. Ez főleg ott fontos, ahol a panel utána változatlannak tűnik – korábban láthatatlan volt például egy olyan fájl újratöltése, amely nem változott a lemezen.",
+    "A sikertelen mentés többé nem tűnik el csendben. Az állapotsor jelzi: „Nem sikerült menteni: <ok>”, és a puffer módosított marad, így a szerkesztés elvesztése helyett újrapróbálkozhatsz a „Fájl mentése másként...” paranccsal.",
+    "Az F2 mostantól átnevezi a kurzor alatt lévő fájlt. A Shift+F6 továbbra is megmarad a kétpaneles konvenció részeként, azzal együtt működik.",
+    "A Ctrl+J és Ctrl+K lefelé, illetve felfelé mozgatja a kurzort, a vimhez szokott ujjak kedvéért. A sima j és k szándékosan nincs hozzárendelve – továbbra is beíródnak az élő szűrőbe.",
+    "Javítva: ha egy panelben a „Módosítva” (csökkenő) szerint volt rendezve a lista, egy fájl átnevezése a következő újratöltésig a lista aljára került. Most már a rendezés szerinti helyes pozícióban landol.",
+    "Javítva: egy már létező fájlt felülíró fájl továbbra is a régi fájl méretét, dátumát és ikonját mutatta.",
+    "Az első indítási útmutató most már azzal zárul, hogy megmutatja, hol találhatók a témák, ikonkészletek és betűkészletek, így az fmannek nem kell a gyári megjelenésén maradnia."
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "version": "1.7.12",
+  "build": 1,
+  "date": "2026-09-01",
+  "title": "Verwijderen en hernoemen zonder de viewer te verlaten, F2 hernoemt, en elke viewer-actie zegt nu wat hij deed",
+  "notes": [
+    "De image-, tekst- en video-viewers kunnen nu het bestand dat je bekijkt verwijderen en hernoemen. \"Bestand verwijderen\" verplaatst het na de gebruikelijke bevestiging naar de Prullenbak, en \"Bestand hernoemen...\" laat de viewer open op het hernoemde bestand. Een schakelaar \"Viewer sluiten na verwijderen\" bepaalt of een verwijderactie je terugbrengt naar de bestandslijst of doorgaat naar het volgende bestand – zo kun je een map met foto’s opschonen zonder ooit de viewer te verlaten.",
+    "Elke viewer-actie bevestigt zichzelf nu in de statusbalk: \"Opnieuw geladen van schijf\", \"Bewerkmodus\", \"Opgeslagen\", \"Lettergrootte 12\", \"Zoom 125%\", \"Gepauzeerd\", of de naam van het bestand waar Volgende/Vorige op uitkwam. Dit is vooral belangrijk wanneer het paneel er achteraf onveranderd uitziet – het opnieuw laden van een bestand dat niet op schijf was gewijzigd was voorheen onzichtbaar.",
+    "Een mislukte opslaanactie verdwijnt niet langer stilletjes. De statusbalk meldt \"Kon niet opslaan: <reden>\" en de buffer blijft gewijzigd, zodat je opnieuw kunt proberen met \"Bestand opslaan als...\" in plaats van de bewerking te verliezen.",
+    "F2 hernoemt nu het bestand onder de cursor. Het werkt naast Shift+F6, dat de conventie voor dual-pane blijft.",
+    "Ctrl+J en Ctrl+K verplaatsen de cursor omlaag en omhoog, voor vim-getrainde vingers. De losse letters j en k blijven bewust ongebonden – ze typen nog steeds in de livefilter.",
+    "Opgelost: het hernoemen van een bestand in een paneel gesorteerd op Gewijzigd (aflopend) stuurde het naar de onderkant van de lijst tot de volgende herlaadactie. Het komt nu op zijn juiste gesorteerde positie terecht.",
+    "Opgelost: een bestand dat een bestaand bestand overschreef bleef de oude grootte, datum en het pictogram van het oude bestand tonen.",
+    "De eerste-keer-tutorial eindigt nu met het laten zien waar de thema’s, iconensets en lettertypen staan, zodat fman niet zijn standaarduiterlijk hoeft te behouden."
+  ]
+}

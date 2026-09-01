@@ -1,0 +1,16 @@
+{
+  "version": "1.7.12",
+  "build": 1,
+  "date": "2026-09-01",
+  "title": "Brisanje i preimenovanje bez napuštanja pregledača, F2 preimenuje, i svaka radnja u pregledaču sada kaže šta je uradila",
+  "notes": [
+    "Pregledači slika, teksta i videa sada mogu da obrišu i preimenuju fajl koji gledate. „Obriši fajl“ ga, nakon uobičajene potvrde, premešta u Kantu za reciklažu, a „Preimenuj fajl...“ ostavlja pregledač otvoren na preimenovanom fajlu. Prekidač „Zatvori pregledač nakon brisanja“ određuje da li vas brisanje vraća na listu fajlova ili prelazi na sledeći fajl — tako se fascikla sa fotografijama može probrati bez napuštanja pregledača.",
+    "Svaka radnja u pregledaču sada se potvrđuje u statusnoj traci: „Ponovo učitano sa diska“, „Režim uređivanja“, „Sačuvano“, „Veličina fonta 12“, „Zum 125%“, „Pauzirano“, ili naziv fajla na koji su prešli Sledeće/Prethodno. Ovo je najvažnije kada okno posle radnje izgleda nepromenjeno — ponovno učitavanje fajla koji se nije promenio na disku ranije je bilo nevidljivo.",
+    "Neuspešno čuvanje se više ne gubi tiho. Statusna traka prikazuje „Nije moguće sačuvati: <razlog>“ i bafer ostaje izmenjen, pa možete da pokušate ponovo uz „Sačuvaj fajl kao...“ umesto da izgubite izmene.",
+    "F2 sada preimenuje fajl ispod kursora. Radi uporedo sa Shift+F6, koji ostaje kao konvencija za dva okna.",
+    "Ctrl+J i Ctrl+K pomeraju kursor nadole i nagore, za prste navikle na vim. Samostalna slova j i k namerno ostaju nedodeljena — i dalje se unose u aktivni filter.",
+    "Ispravljeno: preimenovanje fajla u oknu sortiranom po Izmenjeno (opadajuće) slalo ga je na dno liste do sledećeg ponovnog učitavanja. Sada se pojavljuje na ispravnom mestu u sortiranom redosledu.",
+    "Ispravljeno: fajl koji je prepisao postojeći nastavljao je da prikazuje staru veličinu, datum i ikonu.",
+    "Uputstvo pri prvom pokretanju sada se završava tako što vam pokazuje gde se nalaze teme, setovi ikona i fontovi, tako da fman ne mora da ostane sa podrazumevanim izgledom."
+  ]
+}

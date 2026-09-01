@@ -1,0 +1,16 @@
+{
+  "version": "1.7.12",
+  "build": 1,
+  "date": "2026-09-01",
+  "title": "Delete and rename without leaving the viewer, F2 renames, and every viewer action now says what it did",
+  "notes": [
+    "The image, text and video viewers can now delete and rename the file you are looking at. \"Delete file\" moves it to the Recycle Bin after the usual confirmation, and \"Rename file...\" keeps the viewer open on the renamed file. A \"Close viewer after deleting\" toggle decides whether a delete drops you back to the file list or walks on to the next file - so a folder of photos can be culled without ever leaving the viewer.",
+    "Every viewer action now confirms itself in the status bar: \"Reloaded from disk\", \"Edit mode\", \"Saved\", \"Font size 12\", \"Zoom 125%\", \"Paused\", or the name of the file Next/Previous landed on. It matters most where the pane looks unchanged afterwards - reloading a file that has not changed on disk was previously invisible.",
+    "A failed save no longer disappears silently. The status bar reports \"Could not save: <reason>\" and the buffer stays modified, so you can retry with \"Save file as...\" instead of losing the edit.",
+    "F2 now renames the file under the cursor. It works alongside Shift+F6, which stays as the dual-pane convention.",
+    "Ctrl+J and Ctrl+K move the cursor down and up, for vim-trained fingers. The bare letters j and k stay unbound on purpose - they still type into the live filter.",
+    "Fixed: renaming a file in a pane sorted by Modified (descending) sent it to the bottom of the list until the next reload. It now lands in its correct sorted position.",
+    "Fixed: a file that overwrote an existing one kept showing the old file's size, date and icon.",
+    "The first-run tutorial now ends by showing you where the themes, icon sets and fonts live, so fman does not have to keep its default look."
+  ]
+}

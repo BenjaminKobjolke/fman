@@ -1,0 +1,16 @@
+{
+  "version": "1.7.12",
+  "build": 1,
+  "date": "2026-09-01",
+  "title": "Mazanie a premenovanie bez opustenia prehliadača, F2 premenúva a každá akcia prehliadača teraz povie, čo urobila",
+  "notes": [
+    "Prehliadače obrázkov, textu a videa teraz dokážu zmazať a premenovať súbor, ktorý si práve pozeráte. „Zmazať súbor“ ho po bežnom potvrdení presunie do Koša a „Premenovať súbor...“ ponechá prehliadač otvorený na premenovanom súbore. Prepínač „Zatvoriť prehliadač po zmazaní“ určuje, či vás zmazanie vráti späť do zoznamu súborov, alebo prejde na ďalší súbor – takže priečinok s fotkami môžete pretriediť bez toho, aby ste prehliadač vôbec opustili.",
+    "Každá akcia prehliadača sa teraz potvrdí v stavovom riadku: „Znovu načítané z disku“, „Režim úprav“, „Uložené“, „Veľkosť písma 12“, „Priblíženie 125 %“, „Pozastavené“ alebo názov súboru, na ktorý prešli akcie Ďalej/Predchádzajúci. Najviac to pomáha tam, kde panel následne vyzerá nezmenený – opätovné načítanie súboru, ktorý sa na disku nezmenil, bolo predtým neviditeľné.",
+    "Neúspešné uloženie už nezmizne potichu. Stavový riadok hlási „Nepodarilo sa uložiť: <dôvod>“ a buffer zostane zmenený, takže môžete skúsiť znova cez „Uložiť súbor ako...“ namiesto toho, aby ste o úpravy prišli.",
+    "F2 teraz premenúva súbor pod kurzorom. Funguje to popri Shift+F6, ktorý zostáva ako konvencia pre dvojpanelové rozhranie.",
+    "Ctrl+J a Ctrl+K posúvajú kurzor dole a hore, pre prsty vycvičené na vim. Samotné písmená j a k sú zámerne bez priradenia – stále sa píšu do živého filtra.",
+    "Opravené: premenovanie súboru v paneli zoradenom podľa Zmenené (zostupne) ho posielalo na koniec zoznamu až do ďalšieho znovunačítania. Teraz sa umiestni na správnu pozíciu podľa zoradenia.",
+    "Opravené: súbor, ktorý prepísal existujúci, naďalej zobrazoval veľkosť, dátum a ikonu starého súboru.",
+    "Úvodný návod pri prvom spustení teraz končí tým, že vám ukáže, kde sa nachádzajú témy, sady ikon a písma, takže fman nemusí zostať pri svojom predvolenom vzhľade."
+  ]
+}

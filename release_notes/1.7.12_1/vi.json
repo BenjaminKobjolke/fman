@@ -1,0 +1,16 @@
+{
+  "version": "1.7.12",
+  "build": 1,
+  "date": "2026-09-01",
+  "title": "Xóa và đổi tên mà không cần rời khỏi trình xem; F2 để đổi tên; và mọi thao tác trong trình xem giờ đều nói rõ nó đã làm gì",
+  "notes": [
+    "Trình xem ảnh, văn bản và video giờ có thể xóa và đổi tên tệp bạn đang xem. \"Xóa tệp\" sẽ chuyển tệp vào Thùng rác sau bước xác nhận như thường lệ, và \"Đổi tên tệp...\" giữ trình xem mở với tệp đã được đổi tên. Một công tắc \"Đóng trình xem sau khi xóa\" quyết định việc xóa sẽ đưa bạn trở lại danh sách tệp hay chuyển sang tệp tiếp theo — vì vậy có thể loại bớt ảnh trong một thư mục mà không cần rời khỏi trình xem.",
+    "Mọi thao tác trong trình xem giờ đều tự xác nhận trên thanh trạng thái: \"Đã tải lại từ đĩa\", \"Chế độ chỉnh sửa\", \"Đã lưu\", \"Cỡ chữ 12\", \"Thu phóng 125%\", \"Tạm dừng\", hoặc tên của tệp mà Next/Previous đã chuyển tới. Điều này quan trọng nhất khi khung nhìn trông như không đổi sau đó — trước đây việc tải lại một tệp không thay đổi trên đĩa là không thể nhận ra.",
+    "Việc lưu thất bại không còn biến mất một cách im lặng. Thanh trạng thái sẽ báo \"Không thể lưu: <lý do>\" và bộ đệm vẫn ở trạng thái đã chỉnh sửa, để bạn có thể thử lại bằng \"Lưu tệp dưới dạng...\" thay vì mất chỉnh sửa.",
+    "F2 giờ đổi tên tệp dưới con trỏ. Nó hoạt động song song với Shift+F6, vốn vẫn là quy ước của chế độ hai ngăn.",
+    "Ctrl+J và Ctrl+K di chuyển con trỏ xuống và lên, dành cho những ngón tay đã quen vim. Hai chữ j và k đơn lẻ được cố ý để trống — chúng vẫn dùng để gõ vào bộ lọc trực tiếp.",
+    "Đã sửa: đổi tên một tệp trong ngăn đang sắp xếp theo Đã sửa đổi (giảm dần) khiến nó bị đẩy xuống cuối danh sách cho tới lần tải lại tiếp theo. Giờ nó sẽ nằm đúng vị trí theo thứ tự sắp xếp.",
+    "Đã sửa: một tệp ghi đè lên tệp hiện có vẫn hiển thị kích thước, ngày và biểu tượng của tệp cũ.",
+    "Hướng dẫn lần chạy đầu giờ kết thúc bằng việc chỉ cho bạn nơi đặt các chủ đề, bộ biểu tượng và phông chữ, để fman không phải mãi giữ giao diện mặc định."
+  ]
+}
