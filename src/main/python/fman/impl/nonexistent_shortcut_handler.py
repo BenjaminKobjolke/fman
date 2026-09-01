@@ -31,8 +31,6 @@ class NonexistentShortcutHandler:
 			self._handle_key_left(pane)
 		elif key_event.matches('Right'):
 			self._handle_key_right(pane)
-		elif key_event.matches('F2'):
-			self._handle_f2(pane)
 		elif key_event.matches(('Cmd' if is_mac() else 'Ctrl') + '+T'):
 			self._handle_ctrl_cmd_t()
 		else:
@@ -170,26 +168,6 @@ class NonexistentShortcutHandler:
 				% highlight('End'),
 				'Right', 'move_cursor_end'
 			)
-	def _handle_f2(self, pane):
-		dialog_id = 'NonExistentShortcutPromptF2'
-		if not self._should_show_suggestions(dialog_id):
-			return
-		title = 'The shortcut %s is not defined. ' \
-				'What do you want to do?' % highlight('F2')
-		options = []
-		fuc = pane.get_file_under_cursor()
-		if fuc:
-			options.append(('Rename', 'Rename "%s"' % basename(fuc)))
-		if not options:
-			return
-		choice = self._show_suggestions(dialog_id, title, options)
-		if choice != 'Rename':
-			return
-		self._offer_to_customize_keybindings(
-			'The shortcut for renaming files is %s. (This is a convention of '
-			'most dual-pane file managers.) ' % highlight('Shift+F6'),
-			'F2', 'rename'
-		)
 	def _handle_ctrl_cmd_t(self):
 		key = lambda mod, k: highlight(('Cmd' if is_mac() else mod) + '+' + k)
 		show_alert(

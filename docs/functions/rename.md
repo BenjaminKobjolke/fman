@@ -12,7 +12,7 @@ paths.
 ## Usage
 
 1. Put the cursor on a file or folder.
-2. Press `Shift+F6` (or run **Rename** from the command palette, or pick
+2. Press `F2` or `Shift+F6` (or run **Rename** from the command palette, or pick
    **Rename** from the file context menu).
 3. The name becomes an editable field in place, with part of it
    preselected — see *Notes*.
@@ -24,7 +24,7 @@ After a successful rename the cursor follows the item to its new name.
 
 | Command name | Palette label | Default key binding | Shown when                 |
 |--------------|---------------|---------------------|----------------------------|
-| `rename`     | Rename        | `Shift+F6`          | something is under cursor  |
+| `rename`     | Rename        | `F2`, `Shift+F6`    | something is under cursor  |
 
 Also in the right-click menu of any item, file or folder — `File Context
 Menu (<OS>).json`, captioned `Rena&me` on Windows and Linux. It is

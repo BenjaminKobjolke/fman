@@ -77,6 +77,7 @@ command palette — see
 | `Backspace` | `go_up` |
 | `Enter` | `open` (navigate into folders, OS-open files) |
 | `F1` | `help` |
+| `F2` | `rename` |
 | `F4` | `open_with_editor` |
 | `Shift+F4` | `create_and_edit_file` |
 | `F5` | `copy` |
@@ -95,7 +96,7 @@ command palette — see
 | `Alt+Up` | `increase_pane_font_size` |
 | `Alt+Down` | `decrease_pane_font_size` |
 
-`Shift+F6` edits the name in place rather than opening a dialog, and offers
+`F2` (and `Shift+F6`, the dual-pane convention) edits the name in place rather than opening a dialog, and offers
 *Retry* when the rename fails — see
 [`docs/functions/rename.md`](functions/rename.md).
 

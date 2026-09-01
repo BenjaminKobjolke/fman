@@ -24,7 +24,7 @@ The whole tour is driven from the keyboard. The mouse is never touched.
 | | |
 |---|---|
 | Two panes, one keyboard | select with `Ins`/`Ctrl+A`, copy across with `F5`, type to filter, `Ctrl+F1`/`Ctrl+F2` to sort |
-| Organize in place | `F7` new folder, `F6` move into it, `Shift+F6` rename |
+| Organize in place | `F7` new folder, `F6` move into it, `F2` rename |
 | Preview inside the pane | images with zoom, text you can edit and save, each viewer with its own command palette |
 | Video that actually plays | pause, seek and volume in-pane - and previewing into the *other* pane while you keep browsing |
 | Archives are just folders | pack with `Alt+F5`, `Enter` to step inside the zip, `F5` to copy back out |
@@ -44,7 +44,7 @@ when files change on disk. → [KEYBINDINGS.md](docs/KEYBINDINGS.md)
 ![Go to: press Ctrl+P, type a fragment, tab-complete, jump](media/demos/features/goto.gif)
 
 **Move files.** `F5` copy and `F6` move across panes, with progress, conflict
-prompts and cancel. `F7` new folder, `Shift+F6` rename, `Shift+F5` symlink.
+prompts and cancel. `F7` new folder, `F2` rename, `Shift+F5` symlink.
 `F8` goes to the recycle bin, `Shift+Del` doesn't. Explorer's clipboard works
 (`Ctrl+C`/`X`/`V`), so does drag & drop. `F11` copies paths, `Ctrl+.` toggles
 hidden files, and *Compare directories* selects whatever the other pane is
@@ -167,7 +167,7 @@ These are the ones maintained on this account.
 |---|---|
 | Sync the selected files to the other pane using robocopy. Windows only. |  |
 
-### [fman-favorites-windows](https://github.com/BenjaminKobjolke/fman-favorites-windows)
+### [FMAN-Favorites](https://github.com/BenjaminKobjolke/FMAN-Favorites)
 
 | | |
 |---|---|
