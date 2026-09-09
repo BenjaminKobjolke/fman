@@ -12,6 +12,7 @@ core/commands/release_notes.py and docs/views/RELEASE_NOTES.md.
 from core.key_bindings import (
 	dispatch_bindable_command, KEY_BINDINGS_FILE, VIEWER_KEY_BINDINGS_FILE,
 )
+from core.textviewer_cursor import ViewerCursor
 from core.textviewer_io import MAX_VIEW_BYTES as _MAX_VIEW_BYTES, load_for_view
 from core.textviewer_pane import (
 	caret_fix_css, confirm_close, begin_new_view, mount_view,
@@ -41,6 +42,7 @@ class PaneTextView(QPlainTextEdit):
 		self._on_switch = on_switch
 		self._nav = ViewerNavigator(pane, 'text', on_close, self._on_renamed)
 		self._search = ViewerSearch(self)
+		self._cursor_keys = ViewerCursor(self)
 		self._bg = bg
 		self._fg = fg
 		self._path = path
@@ -90,6 +92,9 @@ class PaneTextView(QPlainTextEdit):
 			# "/", n/N and - only while searching - Escape. Before the close
 			# keys below, so Escape leaves search mode before it closes.
 			return
+		if self._cursor_keys.handle_key(key_event):
+			# Home/End/PgUp/PgDown defaults (core/textviewer_cursor.py).
+			return
 		if event.key() in (
 			Qt.Key_Escape, Qt.Key_Return, Qt.Key_Enter, Qt.Key_Backspace
 		):
@@ -133,10 +138,12 @@ class PaneTextView(QPlainTextEdit):
 			if self._url is not None:
 				commands.update(self._nav.commands())
 		# Both modes: a bound key is dispatched before the edit-mode
-		# passthrough, so e.g. Ctrl+F keeps searching while typing. Zoom
-		# in/out need no entry here - they follow the pane font-size shortcut,
-		# matched earlier by zoom_delta_for; only Reset ships no key at all.
+		# passthrough, so e.g. Ctrl+F keeps searching while typing, and a
+		# Ctrl+Home of your own still jumps to the top. Zoom in/out need no
+		# entry here - they follow the pane font-size shortcut, matched
+		# earlier by zoom_delta_for; only Reset ships no key at all.
 		commands.update(self._search.commands())
+		commands.update(self._cursor_keys.commands())
 		commands[RESET_COMMAND] = \
 			lambda: reset_view_font_size(self._apply_font_size)
 		return commands
@@ -210,8 +217,9 @@ class PaneTextView(QPlainTextEdit):
 				('Edit file', self._enter_edit_mode, '', 'text_edit'),
 				('Reload from disk', self._revert, '', 'text_reload'),
 			] + reload_actions + zoom + nav_actions
-		# Listed in both modes (core/textviewer_search.py).
-		return mode_actions + self._search.actions()
+		# Listed in both modes (core/textviewer_cursor.py, _search.py).
+		return mode_actions + self._cursor_keys.actions() \
+			+ self._search.actions()
 
 	def _enter_edit_mode(self):
 		if not self._editable:

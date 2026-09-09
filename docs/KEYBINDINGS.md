@@ -230,6 +230,8 @@ themselves — bind your own if you want search while editing):
 | `/` | Prompt for a search query, jump to the first match |
 | `n` / `N` | Next / previous match (wraps) |
 | `Escape` | Leave search mode — only while searching; otherwise it closes the viewer as usual |
+| `Home` / `End` | Jump to the top / bottom of the file (`Shift+Home` etc. still select, as in Qt) |
+| `PgUp` / `PgDown` | Page up / down |
 
 **Video-only defaults** (no equivalent in the other two viewers):
 
@@ -281,6 +283,8 @@ do anything while the matching viewer has focus.
 | `text_find` | text (both modes) | `/` (view mode) | Prompt for a search query, jump to the first match |
 | `text_find_next` / `text_find_previous` | text (both modes) | `n` / `N` (view mode) | Next / previous match (wraps) |
 | `text_search_exit` | text (both modes) | Escape (view mode, while searching) | Leave search mode |
+| `text_go_to_top` / `text_go_to_bottom` | text (both modes) | `Home` / `End` (view mode) | Jump to the top / bottom of the file |
+| `text_page_up` / `text_page_down` | text (both modes) | `PgUp` / `PgDown` (view mode) | Page up / down |
 
 See each viewer's own docs
 ([video](views/VIDEO_VIEWER.md#bindable-commands),

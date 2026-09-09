@@ -95,6 +95,10 @@
 	],
 	"text_find_next": ["next match", "search forwards"],
 	"text_find_previous": ["previous match", "prior match", "search backwards"],
+	"text_go_to_bottom": ["end of file", "last line", "scroll to bottom", "end"],
+	"text_go_to_top": ["start of file", "first line", "scroll to top", "home", "pos1"],
+	"text_page_down": ["scroll down", "next page", "pgdn", "bild runter"],
+	"text_page_up": ["scroll up", "previous page", "pgup", "bild hoch"],
 	"text_search_exit": [
 		"cancel search", "leave search", "stop searching", "clear search"
 	],

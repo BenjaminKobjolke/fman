@@ -14,7 +14,9 @@ can switch eligible files to editable — see [Editing](#editing) below.
 2. The file's contents fill the active pane, in place of the file list.
 3. Navigate with the mouse or keyboard: arrow keys move the cursor,
    **Shift+arrow** selects text, the mouse selects too, and long lines wrap
-   to the pane width.
+   to the pane width. **Home**/**End** jump to the top/bottom of the file and
+   **PgUp**/**PgDown** page through it (view mode; while editing, Home/End go
+   to the line start/end as usual — see [Editing](#editing)).
 4. Press **Escape**, **Enter**, or **Backspace** to close the viewer and
    return to the file list, with the cursor back on the same file.
 5. Press **Tab** to switch to the other pane — same as the normal file list.
@@ -186,6 +188,10 @@ mode (see [Editing](#editing)).
 | `text_find`                   | `/` (view mode)          | both | Prompt for a search query, jump to the first match |
 | `text_find_next`              | `n` (view mode)          | both | Next match (wraps)      |
 | `text_find_previous`          | `N` (view mode)          | both | Previous match (wraps)  |
+| `text_go_to_top`              | `Home` (view mode)       | both | Jump to the top of the file |
+| `text_go_to_bottom`           | `End` (view mode)        | both | Jump to the bottom of the file |
+| `text_page_up`                | `PgUp` (view mode)       | both | Page up                 |
+| `text_page_down`              | `PgDown` (view mode)     | both | Page down               |
 | `text_reset_font_size`        | *(none — palette only)*  | both | Reset the viewer's own zoom (leaves the pane's alone) |
 | `text_search_exit`            | Escape (view mode, while searching) | both | Leave search mode |
 | `viewer_close`                | Escape/Enter/Backspace   | both | Close viewer (edit mode: with unsaved-changes prompt) |
@@ -434,6 +440,26 @@ genuinely separate concerns (reading a file vs. the Qt widget vs. zoom):
     (including both wrap directions and a rebound hint); the Qt half
     (selection, scrolling, the modal prompt) is verified interactively, like
     the rest of the viewer's Qt behaviour.
+- `src/main/resources/base/Plugins/Core/core/textviewer_cursor.py` — the
+  Home/End/PgUp/PgDown cursor keys, injected as a `ViewerCursor` collaborator
+  with the same `handle_key`/`actions`/`commands` shape as `ViewerSearch`
+  above, and reusing its `key_hint` for the palette hints:
+  - `COMMANDS` — one row per pseudo-command (name, hardcoded default key,
+    palette title, what it does to the view), so the palette order, the
+    defaults and the bindable dict all come from a single table.
+  - `ViewerCursor.handle_key(key_event)` — the view-mode defaults, called from
+    `keyPressEvent` after the viewer-bindings dispatch (a rebind wins) and
+    after search. Takes the `QtKeyEvent` that method already built, so
+    matching is `QKeySequence` exact-match and `Shift+Home`, `Ctrl+Home` and
+    `Num+Home` keep falling through to Qt's own handling.
+  - Top uses `moveCursor(QTextCursor.Start)` and bottom reuses
+    `scroll_to_end` from `core/textviewer_reload.py`. Paging hands a
+    synthesized `PgUp`/`PgDown` event to `QPlainTextEdit.keyPressEvent`:
+    `QTextCursor` has no page-move operation, so Qt's own paging is only
+    reachable through that method.
+  - `core/tests/test_textviewer_cursor.py` covers all of it against a fake
+    view (no `QApplication`), including the modified-key fallthrough and the
+    rebound hint.
 - `src/main/resources/base/Plugins/Core/core/textviewer_watch.py` — auto-reload
   and tail mode, also split out to stay under the 300-line cap:
   - `start_watch(path, on_changed, parent)` — wraps `QFileSystemWatcher`,
