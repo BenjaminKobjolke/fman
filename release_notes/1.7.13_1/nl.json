@@ -1,0 +1,11 @@
+{
+  "version": "1.7.13",
+  "build": 1,
+  "date": "2026-09-09",
+  "title": "Home, End, PgUp en PgDown in de tekstviewer, en berichtvensters die niet langer zichzelf opnieuw afbreken tot een kolom",
+  "notes": [
+    "De tekstviewer reageert nu op Home en End met een sprong naar respectievelijk het begin en het einde van het bestand, en met PgUp en PgDown blader je er pagina voor pagina doorheen. Dit geldt alleen in de weergavemodus — tijdens het bewerken gaan Home en End nog steeds naar het begin en het einde van de regel, zoals altijd. Shift+Home, Ctrl+Home en de numpad-varianten behouden ook hun gebruikelijke selecteergedrag.",
+    "Alle vier zijn te binden zoals elke andere viewer-opdracht: text_go_to_top, text_go_to_bottom, text_page_up en text_page_down, te vinden in het opdrachtenpalet en opnieuw toe te wijzen in je toetsbindingen.",
+    "Opgelost: berichtvensters konden zichzelf opnieuw afbreken tot een hoge, smalle kolom — tekst die al regeleinden bevatte werd opnieuw opgebroken, en onder een thema met een groot lettertype kon het venster onderaan buiten het scherm vallen. Dialoogvensters hebben nu een minimale tekstbreedte, begrensd op de helft van het scherm, en een meerregelig bericht wordt links uitgelijnd in plaats van gecentreerd."
+  ]
+}

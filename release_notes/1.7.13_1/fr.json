@@ -1,0 +1,11 @@
+{
+  "version": "1.7.13",
+  "build": 1,
+  "date": "2026-09-09",
+  "title": "Home, End, PgUp et PgDown dans le visualiseur de texte, et des boîtes de dialogue qui cessent de se réorganiser en une colonne",
+  "notes": [
+    "Le visualiseur de texte réagit désormais à Home et End en sautant respectivement au début et à la fin du fichier, et PgUp et PgDown permettent de le parcourir page par page. Cela ne concerne que le mode d’affichage : pendant l’édition, Home et End vont toujours au début et à la fin de la ligne, comme auparavant. Shift+Home, Ctrl+Home ainsi que les variantes du pavé numérique conservent également leur comportement de sélection habituel.",
+    "Les quatre commandes peuvent être assignées comme toutes les autres commandes du visualiseur : text_go_to_top, text_go_to_bottom, text_page_up et text_page_down, disponibles dans la palette de commandes et reconfigurables dans vos raccourcis clavier.",
+    "Corrigé : les boîtes de dialogue pouvaient se réorganiser à nouveau en une colonne haute et étroite — le texte contenant déjà des retours à la ligne était de nouveau découpé, et avec un thème utilisant une grande police, la boîte pouvait dépasser le bas de l’écran. Les boîtes de dialogue ont désormais une largeur minimale de texte, plafonnée à la moitié de l’écran, et un message multiligne est aligné à gauche au lieu d’être centré."
+  ]
+}

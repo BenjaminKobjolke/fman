@@ -1,0 +1,11 @@
+{
+  "version": "1.7.13",
+  "build": 1,
+  "date": "2026-09-09",
+  "title": "Home, End, PgUp og PgDown i tekstvisningen, og meldingsbokser som slutter å pakke seg selv inn i en kolonne",
+  "notes": [
+    "Tekstvisningen reagerer nå på Home og End ved å hoppe til toppen og bunnen av filen, og PgUp og PgDown blar sidevis gjennom den. Dette gjelder kun visningsmodus – under redigering går Home og End fortsatt til starten og slutten av linjen, slik de alltid har gjort. Shift+Home, Ctrl+Home og variantene på numerisk tastatur beholder også sin vanlige markeringsoppførsel.",
+    "Alle fire kan bindes, som alle andre visningskommandoer: text_go_to_top, text_go_to_bottom, text_page_up og text_page_down, som kan finnes i kommandopaletten og tilordnes på nytt i tastebindingene dine.",
+    "Fikset: meldingsbokser kunne pakke seg selv på nytt til en høy, smal kolonne – tekst som allerede inneholdt linjeskift ble brutt opp igjen, og under et tema med stor skrift kunne boksen gå nedenfor bunnen av skjermen. Dialoger har nå en minimumstekstbredde, begrenset til halvparten av skjermen, og en melding med flere linjer venstrejusteres i stedet for å sentreres."
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "version": "1.7.13",
+  "build": 1,
+  "date": "2026-09-09",
+  "title": "Home, End, PgUp ja PgDown tekstivaaturis ning teatekastid, mis lõpetavad end veeruks ümbermurdmise",
+  "notes": [
+    "Tekstivaatur reageerib nüüd klahvidele Home ja End hüppega faili algusesse ja lõppu ning PgUp ja PgDown lehitsevad seda lehekülgede kaupa. See kehtib ainult vaaterežiimis — redigeerimise ajal viivad Home ja End endiselt rea algusesse ja lõppu, nagu alati. Ka Shift+Home, Ctrl+Home ning numbriklahvistiku variandid säilitavad oma tavapärase valiku-käitumise.",
+    "Kõik neli klahvifunktsiooni on seostatavad (binditavad) nagu iga teinegi vaaturi käsk: text_go_to_top, text_go_to_bottom, text_page_up ja text_page_down, mis on leitavad käsupaletist ning ümberseostatavad sinu klahviseadistustes.",
+    "Parandatud: teatekastid võisid end uuesti ümber murda kõrgeks kitsaks veeruks — tekst, mis juba sisaldas reavahetusi, lõhuti taas ning suure kirjaga teema korral võis kast ekraani alaosast välja ulatuda. Dialoogidel on nüüd minimaalne teksti laius, mis on piiratud poole ekraani laiusega, ning mitmerealine sõnum on vasakjoondatud, mitte keskele joondatud."
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "version": "1.7.13",
+  "build": 1,
+  "date": "2026-09-09",
+  "title": "Home, End, RePág y AvPág en el visor de texto, y cuadros de mensaje que dejan de replegarse en una columna",
+  "notes": [
+    "El visor de texto ahora responde a Home y End saltando al principio y al final del archivo, y RePág y AvPág lo recorren por páginas. Esto es solo en modo de visualización: mientras se edita, Home y End siguen yendo al inicio y al final de la línea, como siempre. Shift+Home, Ctrl+Home y las variantes del teclado numérico también mantienen su comportamiento habitual de selección.",
+    "Los cuatro se pueden asignar como cualquier otro comando del visor: text_go_to_top, text_go_to_bottom, text_page_up y text_page_down, disponibles en la paleta de comandos y reasignables en tus atajos de teclado.",
+    "Corregido: los cuadros de mensaje podían volver a replegarse en una columna alta y estrecha: el texto que ya contenía saltos de línea se volvía a partir, y con un tema con una fuente grande el cuadro podía salirse por la parte inferior de la pantalla. Los diálogos ahora tienen un ancho mínimo de texto, limitado a la mitad de la pantalla, y un mensaje multilínea se alinea a la izquierda en lugar de centrarse."
+  ]
+}

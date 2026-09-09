@@ -1,0 +1,11 @@
+{
+  "version": "1.7.13",
+  "build": 1,
+  "date": "2026-09-09",
+  "title": "Home, End, PgUp a PgDown v prehliadači textu a dialógové okná so správami, ktoré sa prestanú prelamovať do stĺpca",
+  "notes": [
+    "Prehliadač textu teraz reaguje na Home a End skokom na začiatok a koniec súboru a PgUp a PgDown v ňom listujú po stránkach. Platí to iba v režime zobrazenia – pri úpravách Home a End naďalej prechádzajú na začiatok a koniec riadku, ako vždy. Shift+Home, Ctrl+Home a varianty na numerickej klávesnici si tiež zachovávajú svoje obvyklé správanie výberu.",
+    "Všetky štyri je možné naviazať ako každý iný príkaz prehliadača: text_go_to_top, text_go_to_bottom, text_page_up a text_page_down; nájdete ich v palete príkazov a môžete ich znovu priradiť vo svojich klávesových skratkách.",
+    "Opravené: dialógové okná so správami sa mohli znovu prelamať do vysokého, úzkeho stĺpca – text, ktorý už obsahoval zalomenia riadkov, sa rozdelil znova a pri téme s veľkým písmom mohlo okno zísť mimo spodný okraj obrazovky. Dialógy teraz majú minimálnu šírku textu, obmedzenú na polovicu obrazovky, a viacriadková správa je zarovnaná doľava namiesto na stred."
+  ]
+}

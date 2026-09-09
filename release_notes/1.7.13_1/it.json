@@ -1,0 +1,11 @@
+{
+  "version": "1.7.13",
+  "build": 1,
+  "date": "2026-09-09",
+  "title": "Home, Fine, PagSu e PagGiù nel visualizzatore di testo e finestre di messaggio che smettono di riavvolgersi in una colonna",
+  "notes": [
+    "Il visualizzatore di testo ora risponde a Home e Fine con un salto all’inizio e alla fine del file, e PagSu e PagGiù lo scorrono di pagina in pagina. Questo vale solo in modalità visualizzazione: durante la modifica, Home e Fine continuano ad andare all’inizio e alla fine della riga, come hanno sempre fatto. Anche Shift+Home, Ctrl+Home e le varianti del tastierino numerico mantengono il loro normale comportamento di selezione.",
+    "Tutti e quattro sono associabili come qualsiasi altro comando del visualizzatore: text_go_to_top, text_go_to_bottom, text_page_up e text_page_down, individuabili nella tavolozza dei comandi e riassegnabili nelle combinazioni di tasti.",
+    "Corretto: le finestre di messaggio potevano riavvolgersi nuovamente in una colonna alta e stretta: il testo che conteneva già interruzioni di riga veniva spezzato di nuovo e, con un tema dal carattere grande, la finestra poteva uscire dal bordo inferiore dello schermo. Ora le finestre di dialogo hanno una larghezza minima del testo, limitata a metà schermo, e un messaggio su più righe è allineato a sinistra invece che centrato."
+  ]
+}

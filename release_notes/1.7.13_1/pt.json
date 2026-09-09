@@ -1,0 +1,11 @@
+{
+  "version": "1.7.13",
+  "build": 1,
+  "date": "2026-09-09",
+  "title": "Home, End, PgUp e PgDown no visualizador de texto, e caixas de mensagem que deixam de se reformatar para uma coluna",
+  "notes": [
+    "O visualizador de texto agora responde a Home e End com um salto para o topo e o fundo do ficheiro, e PgUp e PgDown percorrem-no por páginas. Isto é apenas no modo de visualização — ao editar, Home e End continuam a ir para o início e o fim da linha, como sempre. Shift+Home, Ctrl+Home e as variantes do teclado numérico também mantêm o seu comportamento habitual de seleção.",
+    "Os quatro podem ser associados (bindable) como qualquer outro comando do visualizador: text_go_to_top, text_go_to_bottom, text_page_up e text_page_down, encontráveis na paleta de comandos e reatribuíveis nas suas teclas de atalho.",
+    "Correção: as caixas de mensagem podiam voltar a reformatar-se para uma coluna alta e estreita — texto que já continha quebras de linha era novamente repartido e, sob um tema com um tipo de letra grande, a caixa podia sair pela parte inferior do ecrã. Os diálogos têm agora uma largura mínima de texto, limitada a metade do ecrã, e uma mensagem multi-linha fica alinhada à esquerda em vez de centrada."
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "version": "1.7.13",
+  "build": 1,
+  "date": "2026-09-09",
+  "title": "Home, End, PgUp un PgDown teksta skatītājā un ziņojumu lodziņi, kas vairs nepārlauž tekstu šaurā kolonnā",
+  "notes": [
+    "Teksta skatītājs tagad reaģē uz Home un End ar lēcienu uz faila sākumu un beigām, bet PgUp un PgDown ļauj tajā pārlapot pa lapām. Tas attiecas tikai uz skatīšanas režīmu — rediģējot, Home un End joprojām pārvieto uz rindas sākumu un beigām, kā vienmēr. Shift+Home, Ctrl+Home un cipartastatūras varianti arī saglabā savu ierasto atlases uzvedību.",
+    "Visas četras darbības ir piesaistāmas taustiņiem tāpat kā jebkura cita skatītāja komanda: text_go_to_top, text_go_to_bottom, text_page_up un text_page_down; tās ir atrodamas komandu paletē un pārpiesienamas taustiņu sasaistēs.",
+    "Labots: ziņojumu lodziņi varēja atkārtoti pārlauzt tekstu garā, šaurā kolonnā — teksts, kurā jau bija rindu pārtraukumi, tika pārrauts vēlreiz, un, izmantojot motīvu ar lielu fontu, lodziņš varēja iziet ārpus ekrāna apakšējās malas. Dialogiem tagad ir minimālais teksta platums, ierobežots līdz pusei ekrāna, un daudzrindu ziņojums ir līdzināts pa kreisi, nevis centrēts."
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "version": "1.7.13",
+  "build": 1,
+  "date": "2026-09-09",
+  "title": "Home, End, PgUp and PgDown in the text viewer, and message boxes that stop wrapping themselves into a column",
+  "notes": [
+    "The text viewer now answers Home and End with a jump to the top and the bottom of the file, and PgUp and PgDown page through it. This is view mode only - while editing, Home and End still go to the start and end of the line, as they always did. Shift+Home, Ctrl+Home and the numpad variants keep their usual selection behaviour too.",
+    "All four are bindable like every other viewer command: text_go_to_top, text_go_to_bottom, text_page_up and text_page_down, findable in the command palette and rebindable in your key bindings.",
+    "Fixed: message boxes could re-wrap themselves into a tall, narrow column - text that already contained line breaks was broken up again, and under a theme with a large font the box could run off the bottom of the screen. Dialogs now have a minimum text width, capped at half the screen, and a multi-line message is left-aligned instead of centred."
+  ]
+}

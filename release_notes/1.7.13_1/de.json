@@ -1,0 +1,11 @@
+{
+  "version": "1.7.13",
+  "build": 1,
+  "date": "2026-09-09",
+  "title": "Pos1, Ende, Bild↑ und Bild↓ im Textbetrachter sowie Meldungsfenster, die sich nicht mehr zu einer Spalte umbrechen",
+  "notes": [
+    "Der Textbetrachter reagiert nun auf Pos1 und Ende mit einem Sprung an den Anfang bzw. das Ende der Datei, und Bild↑ und Bild↓ blättern seitenweise. Das gilt nur im Ansichtsmodus – beim Bearbeiten springen Pos1 und Ende weiterhin zum Zeilenanfang bzw. -ende, wie bisher. Umschalt+Pos1, Strg+Pos1 und die Varianten auf dem Ziffernblock behalten ebenfalls ihr gewohntes Auswahlverhalten.",
+    "Alle vier lassen sich wie jeder andere Viewer-Befehl binden: text_go_to_top, text_go_to_bottom, text_page_up und text_page_down; in der Befehlspalette auffindbar und in den Tastenzuordnungen neu belegbar.",
+    "Behoben: Meldungsfenster konnten sich selbst erneut in eine hohe, schmale Spalte umbrechen – Text, der bereits Zeilenumbrüche enthielt, wurde erneut aufgebrochen, und unter einem Theme mit großer Schrift konnte das Fenster unten aus dem Bildschirm herauslaufen. Dialoge haben nun eine Mindestbreite für den Text, begrenzt auf die halbe Bildschirmbreite, und eine mehrzeilige Nachricht wird linksbündig statt zentriert dargestellt."
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "version": "1.7.13",
+  "build": 1,
+  "date": "2026-09-09",
+  "title": "Home, End, PgUp và PgDown trong trình xem văn bản, và các hộp thoại thông báo không còn tự bọc lại thành một cột",
+  "notes": [
+    "Trình xem văn bản giờ phản hồi phím Home và End bằng cách nhảy lên đầu và xuống cuối tệp, còn PgUp và PgDown để lật trang. Đây chỉ áp dụng cho chế độ xem — khi chỉnh sửa, Home và End vẫn đưa con trỏ về đầu và cuối dòng như trước nay. Shift+Home, Ctrl+Home và các biến thể trên bàn phím số cũng vẫn giữ hành vi chọn vùng như thường lệ.",
+    "Cả bốn phím đều có thể gán như mọi lệnh khác của trình xem: text_go_to_top, text_go_to_bottom, text_page_up và text_page_down; có thể tìm trong bảng lệnh và gán lại trong phần phím tắt của bạn.",
+    "Đã sửa: các hộp thoại thông báo có thể tự bọc lại thành một cột cao và hẹp — văn bản đã có ngắt dòng lại bị chia nhỏ lần nữa, và dưới một chủ đề với phông chữ lớn thì hộp thoại có thể tràn xuống dưới màn hình. Hộp thoại giờ có độ rộng văn bản tối thiểu, giới hạn tối đa ở nửa màn hình, và thông điệp nhiều dòng được căn trái thay vì căn giữa."
+  ]
+}

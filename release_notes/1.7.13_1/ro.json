@@ -1,0 +1,11 @@
+{
+  "version": "1.7.13",
+  "build": 1,
+  "date": "2026-09-09",
+  "title": "Home, End, PgUp și PgDown în vizualizatorul de text și casete de mesaj care nu se mai rearanjează într-o coloană",
+  "notes": [
+    "Vizualizatorul de text răspunde acum la Home și End printr-un salt la începutul și la sfârșitul fișierului, iar PgUp și PgDown derulează pe pagini. Acest lucru este valabil doar în modul de vizualizare — în timpul editării, Home și End merg în continuare la începutul și la sfârșitul liniei, așa cum au făcut întotdeauna. Shift+Home, Ctrl+Home și variantele de pe tastatura numerică își păstrează și ele comportamentul obișnuit de selecție.",
+    "Toate patru pot fi asociate la taste, ca orice altă comandă a vizualizatorului: text_go_to_top, text_go_to_bottom, text_page_up și text_page_down, găsibile în paleta de comenzi și reasociabile în configurația de taste.",
+    "Remediat: casetele de mesaj se puteau rearanja din nou într-o coloană înaltă și îngustă — textul care conținea deja întreruperi de linie era fragmentat din nou, iar sub o temă cu font mare caseta putea ieși din partea de jos a ecranului. Dialogurile au acum o lățime minimă a textului, limitată la jumătate din ecran, iar un mesaj pe mai multe linii este aliniat la stânga în loc să fie centrat."
+  ]
+}

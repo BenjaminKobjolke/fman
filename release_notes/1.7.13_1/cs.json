@@ -1,0 +1,11 @@
+{
+  "version": "1.7.13",
+  "build": 1,
+  "date": "2026-09-09",
+  "title": "Home, End, PgUp a PgDown v prohlížeči textu a dialogová okna, která se přestanou sama zalamovat do úzkého sloupce",
+  "notes": [
+    "Prohlížeč textu nyní na Home a End reaguje skokem na začátek a na konec souboru a PgUp a PgDown v něm stránkují. Platí to pouze v režimu prohlížení – při úpravách Home a End stále přecházejí na začátek a konec řádku, jako vždy. Shift+Home, Ctrl+Home i varianty na numerické klávesnici si také ponechávají své obvyklé chování výběru.",
+    "Všechny čtyři příkazy lze přiřadit jako každý jiný příkaz prohlížeče: text_go_to_top, text_go_to_bottom, text_page_up a text_page_down; najdete je v paletě příkazů a můžete je znovu namapovat ve svých klávesových zkratkách.",
+    "Opraveno: dialogová okna se mohla znovu zalomit do vysokého, úzkého sloupce – text, který už obsahoval zalomení řádků, se znovu rozděloval, a při motivu s velkým písmem mohlo okno zajet mimo spodní okraj obrazovky. Dialogy nyní mají minimální šířku textu, omezenou na polovinu obrazovky, a víceřádková zpráva je zarovnaná vlevo místo na střed."
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "version": "1.7.13",
+  "build": 1,
+  "date": "2026-09-09",
+  "title": "Home, End, PgUp és PgDown a szövegmegjelenítőben, valamint az üzenetablakok, amelyek nem tördelik többé magukat egy oszloppá",
+  "notes": [
+    "A szövegmegjelenítő mostantól a Home és End billentyűkre a fájl tetejére, illetve aljára ugrással válaszol, a PgUp és PgDown pedig lapoz benne. Ez csak megtekintési módban érvényes – szerkesztés közben a Home és End továbbra is a sor elejére és végére visz, ahogy eddig is. A Shift+Home, Ctrl+Home és a numerikus billentyűzetes változatok is megtartják a szokásos kijelölési viselkedésüket.",
+    "Mind a négy ugyanúgy hozzárendelhető, mint bármely más megjelenítő parancs: text_go_to_top, text_go_to_bottom, text_page_up és text_page_down; megtalálhatók a parancspalettában, és át is köthetők a billentyűkiosztásaidban.",
+    "Javítva: az üzenetablakok néha újratördelték magukat egy magas, keskeny oszloppá – a már sortöréseket tartalmazó szöveg ismét feldarabolódott, és nagy betűméretű témánál az ablak akár a képernyő alján túlra is lóghatott. A párbeszédablakok most minimális szövegszélességet kapnak, legfeljebb a képernyő feléig, és a több soros üzenet középre igazítás helyett balra igazított."
+  ]
+}

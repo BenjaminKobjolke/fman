@@ -1,0 +1,11 @@
+{
+  "version": "1.7.13",
+  "build": 1,
+  "date": "2026-09-09",
+  "title": "Home, End, PgUp och PgDown i textvisaren, och meddelanderutor som slutar att bryta om sig själva till en kolumn",
+  "notes": [
+    "Textvisaren reagerar nu på Home och End genom att hoppa till början respektive slutet av filen, och PgUp och PgDown bläddrar sida för sida. Detta gäller endast visningsläge – vid redigering går Home och End fortfarande till början och slutet av raden, som de alltid har gjort. Shift+Home, Ctrl+Home och varianterna på numeriska tangentbordet behåller också sitt vanliga markeringsbeteende.",
+    "Alla fyra kan bindas som alla andra visarkommandon: text_go_to_top, text_go_to_bottom, text_page_up och text_page_down, som finns i kommandopaletten och kan ombindas i dina tangentbindningar.",
+    "Åtgärdat: meddelanderutor kunde bryta om sig själva igen till en hög, smal kolumn – text som redan innehöll radbrytningar bröts upp igen, och under ett tema med stor font kunde rutan hamna utanför nederkanten av skärmen. Dialogrutor har nu en minsta textbredd, begränsad till halva skärmen, och ett flerradigt meddelande är vänsterjusterat i stället för centrerat."
+  ]
+}

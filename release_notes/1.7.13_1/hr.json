@@ -1,0 +1,11 @@
+{
+  "version": "1.7.13",
+  "build": 1,
+  "date": "2026-09-09",
+  "title": "Home, End, PgUp i PgDown u pregledniku teksta te poruke koje se više ne prelamaju u uski stupac",
+  "notes": [
+    "Preglednik teksta sada reagira na tipke Home i End skokom na početak i kraj datoteke, a PgUp i PgDown listaju kroz nju po stranicama. Ovo vrijedi samo u načinu pregleda – tijekom uređivanja Home i End i dalje idu na početak i kraj retka, kao i dosad. Shift+Home, Ctrl+Home i varijante na numeričkoj tipkovnici također zadržavaju svoje uobičajeno ponašanje odabira.",
+    "Sve četiri funkcije mogu se vezati kao i svaka druga naredba preglednika: text_go_to_top, text_go_to_bottom, text_page_up i text_page_down; dostupne su u paleti naredbi i mogu se ponovno mapirati u vašim prečacima tipkovnice.",
+    "Ispravljeno: dijaloški okviri s porukama mogli su se ponovno prelomiti u visok, uski stupac – tekst koji je već sadržavao prijelome redaka ponovno se lomio, a pod temom s velikim fontom okvir je mogao otići ispod donjeg ruba zaslona. Dijalozi sada imaju minimalnu širinu teksta, ograničenu na polovicu zaslona, a višeredna poruka poravnata je ulijevo umjesto centrirano."
+  ]
+}

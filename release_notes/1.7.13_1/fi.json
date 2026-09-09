@@ -1,0 +1,11 @@
+{
+  "version": "1.7.13",
+  "build": 1,
+  "date": "2026-09-09",
+  "title": "Home-, End-, PgUp- ja PgDown-näppäimet tekstikatselimessa sekä viesti-ikkunat, jotka eivät enää rivitä itseään kapeaksi palstaksi",
+  "notes": [
+    "Tekstikatselin reagoi nyt Home- ja End-näppäimiin hyppäämällä tiedoston alkuun ja loppuun, ja PgUp sekä PgDown selaavat sitä sivuittain. Tämä koskee vain katselutilaa – muokatessa Home ja End siirtyvät edelleen rivin alkuun ja loppuun, kuten aina ennenkin. Shift+Home, Ctrl+Home sekä numeronäppäimistön vastaavat yhdistelmät säilyttävät myös tavanomaisen valintakäyttäytymisensä.",
+    "Kaikki neljä ovat sidottavissa kuten muutkin katselimen komennot: text_go_to_top, text_go_to_bottom, text_page_up ja text_page_down. Ne löytyvät komentopalettista ja ne voi määrittää uudelleen näppäinsidoksissa.",
+    "Korjattu: viesti-ikkunat saattoivat rivittää itsensä uudelleen korkeaksi, kapeaksi palstaksi – teksti, jossa oli jo rivinvaihtoja, pilkottiin uudelleen, ja suurta fonttia käyttävällä teemalla laatikko saattoi valua näytön alareunan yli. Valintaikkunoilla on nyt tekstille vähimmäisleveys, joka on rajattu puoleen näytön leveydestä, ja monirivinen viesti tasataan vasemmalle keskittämisen sijaan."
+  ]
+}

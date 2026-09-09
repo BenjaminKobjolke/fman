@@ -1,0 +1,11 @@
+{
+  "version": "1.7.13",
+  "build": 1,
+  "date": "2026-09-09",
+  "title": "Home, End, PgUp i PgDown w przeglądarce tekstu oraz okna komunikatów, które przestają zawijać się w wąską kolumnę",
+  "notes": [
+    "Przeglądarka tekstu reaguje teraz na Home i End skokiem odpowiednio na początek i koniec pliku, a PgUp i PgDown przewijają go stronami. Dotyczy to tylko trybu podglądu — podczas edycji Home i End nadal przechodzą na początek i koniec wiersza, jak zawsze. Shift+Home, Ctrl+Home oraz warianty z klawiatury numerycznej również zachowują swoje zwykłe zachowanie związane z zaznaczaniem.",
+    "Wszystkie cztery można przypisać do skrótów tak jak każde inne polecenie przeglądarki: text_go_to_top, text_go_to_bottom, text_page_up i text_page_down — dostępne w palecie poleceń i możliwe do zmiany w ustawieniach skrótów klawiszowych.",
+    "Naprawiono: okna komunikatów mogły ponownie zawijać tekst do wysokiej, wąskiej kolumny — tekst, który już zawierał podziały wierszy, był ponownie łamany, a przy motywie z dużą czcionką okno mogło schodzić poza dolną krawędź ekranu. Okna dialogowe mają teraz minimalną szerokość tekstu (nie większą niż połowa szerokości ekranu), a komunikat wielowierszowy jest wyrównany do lewej zamiast wyśrodkowany."
+  ]
+}

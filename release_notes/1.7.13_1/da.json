@@ -1,0 +1,11 @@
+{
+  "version": "1.7.13",
+  "build": 1,
+  "date": "2026-09-09",
+  "title": "Home, End, PgUp og PgDown i tekstfremviseren samt meddelelsesbokse, der holder op med at ombryde sig selv til en kolonne",
+  "notes": [
+    "Tekstfremviseren reagerer nu på Home og End ved at hoppe til toppen og bunden af filen, og PgUp og PgDown bladrer sidevis igennem den. Dette gælder kun visningstilstand – under redigering går Home og End stadig til starten og slutningen af linjen, som de altid har gjort. Shift+Home, Ctrl+Home og varianterne på det numeriske tastatur bevarer også deres sædvanlige markeringsadfærd.",
+    "Alle fire kan bindes ligesom enhver anden fremviserkommando: text_go_to_top, text_go_to_bottom, text_page_up og text_page_down, som kan findes i kommandopaletten og ombindes i dine tastaturbindinger.",
+    "Rettet: meddelelsesbokse kunne ombryde sig selv igen til en høj, smal kolonne – tekst, der allerede indeholdt linjeskift, blev brudt op igen, og under et tema med stor skrifttype kunne boksen løbe ud over bunden af skærmen. Dialoger har nu en minimumsbredde for tekst, begrænset til halvdelen af skærmen, og en meddelelse med flere linjer venstrestilles i stedet for at blive centreret."
+  ]
+}

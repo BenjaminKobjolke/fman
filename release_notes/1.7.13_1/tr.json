@@ -1,0 +1,11 @@
+{
+  "version": "1.7.13",
+  "build": 1,
+  "date": "2026-09-09",
+  "title": "Metin görüntüleyicide Home, End, PgUp ve PgDown; ayrıca kendini dar bir sütuna sarıp duran mesaj kutuları",
+  "notes": [
+    "Metin görüntüleyici artık Home ve End tuşlarına dosyanın en üstüne ve en altına atlayarak, PgUp ve PgDown tuşlarına ise sayfa sayfa ilerleyerek yanıt veriyor. Bu yalnızca görüntüleme modu içindir — düzenleme sırasında Home ve End her zamanki gibi satırın başına ve sonuna gider. Shift+Home, Ctrl+Home ve sayısal tuş takımı varyantları da alışıldık seçim davranışlarını korur.",
+    "Dördü de diğer tüm görüntüleyici komutları gibi atanabilir: text_go_to_top, text_go_to_bottom, text_page_up ve text_page_down; komut paletinde bulunabilir ve tuş atamalarınızda yeniden bağlanabilir.",
+    "Düzeltildi: mesaj kutuları kendilerini uzun, dar bir sütun hâline yeniden sarabiliyordu — satır sonları içeren metin yeniden bölünüyordu ve büyük yazı tipli bir tema altında kutu ekranın altından taşabiliyordu. İletişim kutuları artık ekranın yarısı ile sınırlandırılmış bir minimum metin genişliğine sahip ve çok satırlı bir mesaj ortalanmak yerine sola hizalanıyor."
+  ]
+}

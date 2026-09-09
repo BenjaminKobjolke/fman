@@ -1,0 +1,11 @@
+{
+  "version": "1.7.13",
+  "build": 1,
+  "date": "2026-09-09",
+  "title": "Home, End, PgUp ir PgDown teksto peržiūros lange, ir pranešimų langai, kurie nustoja persilaužinėti į stulpelį",
+  "notes": [
+    "Teksto peržiūros langas dabar reaguoja į Home ir End – peršoka į failo pradžią ir pabaigą, o PgUp ir PgDown perverčia puslapius. Tai galioja tik peržiūros režimui – redaguojant Home ir End vis dar keliauja į eilutės pradžią ir pabaigą, kaip visada. Shift+Home, Ctrl+Home ir skaitmeninės klaviatūros (numpad) variantai taip pat išlaiko įprastą žymėjimo elgseną.",
+    "Visus keturis, kaip ir kiekvieną kitą peržiūros komanda, galima priskirti klavišams: text_go_to_top, text_go_to_bottom, text_page_up ir text_page_down; juos galima rasti komandų paletėje ir perpriskirti klavišų susiejimuose.",
+    "Pataisyta: pranešimų langai galėjo iš naujo persilaužinėti į aukštą, siaurą stulpelį – tekstas, kuriame jau buvo eilučių lūžių, būdavo vėl suskaidomas, o naudojant temą su dideliu šriftu langas galėdavo nusitęsti už ekrano apačios. Dabar dialogų langai turi minimalų teksto plotį, apribotą puse ekrano, o kelių eilučių pranešimas lygiuojamas kairėje vietoje centravimo."
+  ]
+}

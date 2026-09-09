@@ -1,0 +1,11 @@
+{
+  "version": "1.7.13",
+  "build": 1,
+  "date": "2026-09-09",
+  "title": "Home, End, PgUp in PgDown v pregledovalniku besedila ter pogovorna okna s sporočili, ki se nehajo ponovno prelamljati v stolpec",
+  "notes": [
+    "Pregledovalnik besedila se zdaj odziva na Home in End s skokom na vrh oziroma dno datoteke, PgUp in PgDown pa po njej listata po straneh. To velja samo v načinu ogledovanja – med urejanjem Home in End še vedno skočita na začetek in konec vrstice, kot vedno. Tudi Shift+Home, Ctrl+Home in različice na numerični tipkovnici ohranijo svoje običajno vedenje izbire.",
+    "Vse štiri je mogoče vezati kot kateri koli drug ukaz pregledovalnika: text_go_to_top, text_go_to_bottom, text_page_up in text_page_down; najdete jih v paleti ukazov in jih lahko ponovno vežete v svojih tipkovnih bližnjicah.",
+    "Popravljeno: pogovorna okna s sporočili so se lahko ponovno prelomila v visok, ozek stolpec – besedilo, ki je že vsebovalo prelome vrstic, se je znova razbilo, pri temi z veliko pisavo pa je okno lahko seglo čez spodnji rob zaslona. Pogovorna okna imajo zdaj minimalno širino besedila, omejeno na polovico zaslona, večvrstično sporočilo pa je poravnano levo namesto na sredino."
+  ]
+}
