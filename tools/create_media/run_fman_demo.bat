@@ -1,5 +1,6 @@
 @echo off
 REM Launch fman in demo mode for the automated-application-screenshots tool.
+REM Not a Tickets Watcher command: started by the recording tool with 4 arguments; the demo 9 log writer uses start without /wait on purpose.
 REM `python build.py run` (fbs) does not forward CLI args, so we launch the
 REM main module directly the way fbs run does: PYTHONPATH=src\main\python.
 REM

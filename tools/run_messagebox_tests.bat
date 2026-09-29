@@ -9,4 +9,4 @@ set ROOT=%~dp0..
 set PYTHONPATH=%ROOT%\src\main\python;%ROOT%\src\unittest\python
 set QT_QPA_PLATFORM=offscreen
 python -m unittest -v fman_unittest.impl.messagebox_layout_test
-endlocal
+exit /b %ERRORLEVEL%

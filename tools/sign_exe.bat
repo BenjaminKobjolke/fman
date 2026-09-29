@@ -1,6 +1,7 @@
 @echo off
 REM Sign a single exe via the XIDA network-share handshake (reuses release-tool PreSigner).
 REM Usage: sign_exe.bat <path-to-exe>
+REM Not usable as a Tickets Watcher command: needs the exe path argument, and the signing wait (1800s) equals the watcher timeout.
 REM ponytail: signing params hardcoded here, mirror publish_settings.ini [PreSigning]
 REM           (the source of truth). Read from the ini only if the paths ever diverge.
 REM PreSigner's default timeout of 300s is too short: the signing service has

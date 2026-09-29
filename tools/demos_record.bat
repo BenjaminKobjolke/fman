@@ -1,6 +1,7 @@
 @echo off
 REM Drive the automated-application-screenshots tool against fman's config.
-REM Runs the tool from its own repo; output lands in fman's own media\demosREM (see output_dir in tools\create_mediaman.json).
+REM Runs the tool from its own repo; output lands in fman's own media\demos\
+REM (see output_dir in tools\create_media\fman.json).
 REM
 REM Every argument passes straight through to the tool, so this one file covers
 REM recording, composing and inspecting.
@@ -20,6 +21,8 @@ set "CONFIG=%~dp0create_media\fman.json"
 if "%~1"=="" (set "DEMO_ARGS=--demo all") else (set "DEMO_ARGS=%*")
 cd /d "%TOOL_DIR%" || (echo Tool repo not found: %TOOL_DIR% & exit /b 1)
 uv run screenshot-tool --config "%CONFIG%" %DEMO_ARGS%
-REM The pause is for double-clicking this file. Set FMAN_NO_PAUSE to run it
-REM unattended (from another script, or a scheduled rebuild).
-if not defined FMAN_NO_PAUSE pause
+set "RESULT=%ERRORLEVEL%"
+REM The pause is for double-clicking this file. FMAN_NO_PAUSE or a Tickets
+REM Watcher command run skips it, including when reached through call.
+if not defined FMAN_NO_PAUSE if not "%TICKETS_WATCHER_COMMAND_RUN%"=="1" pause
+exit /b %RESULT%

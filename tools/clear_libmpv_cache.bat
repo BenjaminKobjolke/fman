@@ -5,9 +5,9 @@ REM first-use download path (progress dialog, hash check, extraction).
 setlocal
 set CACHE_DIR=%APPDATA%\fman\Local\libmpv
 if exist "%CACHE_DIR%" (
-	rmdir /s /q "%CACHE_DIR%"
+	rmdir /s /q "%CACHE_DIR%" || exit /b 1
 	echo Deleted %CACHE_DIR%
 ) else (
 	echo %CACHE_DIR% does not exist - nothing to delete.
 )
-endlocal
+exit /b 0

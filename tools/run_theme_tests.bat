@@ -11,4 +11,4 @@ set PYTHONPATH=%ROOT%\src\main\python;%ROOT%\src\unittest\python
 python -m unittest -v ^
 	fman_unittest.impl.test_themes fman_unittest.impl.test_theme ^
 	fman_unittest.impl.test_fonts fman_unittest.impl.test_background
-endlocal
+exit /b %ERRORLEVEL%

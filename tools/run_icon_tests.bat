@@ -15,4 +15,4 @@ python -m unittest -v ^
 	fman_unittest.impl.model.test_icon_provider ^
 	fman_unittest.impl.model.test_icon_tint ^
 	fman_unittest.impl.model.test_table
-endlocal
+exit /b %ERRORLEVEL%

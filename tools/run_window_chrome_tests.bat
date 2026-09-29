@@ -10,4 +10,4 @@ set PYTHONPATH=%ROOT%\src\main\python;%ROOT%\src\unittest\python
 python -m unittest -v ^
 	fman_unittest.impl.test_window_chrome ^
 	fman_unittest.impl.test_widgets
-endlocal
+exit /b %ERRORLEVEL%

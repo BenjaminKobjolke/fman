@@ -9,4 +9,4 @@ set PYTHONPATH=%ROOT%\src\main\python
 python -m unittest discover -v ^
 	-s "%ROOT%\src\main\resources\base\Plugins\Core\core" ^
 	-t "%ROOT%\src\main\resources\base\Plugins\Core"
-endlocal
+exit /b %ERRORLEVEL%

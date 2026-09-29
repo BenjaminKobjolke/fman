@@ -8,4 +8,4 @@ set PYTHONPATH=%ROOT%\src\main\python
 python -m unittest discover -v -p "zip_test.py" ^
 	-s "%ROOT%\src\main\resources\base\Plugins\Core\core\tests\fs" ^
 	-t "%ROOT%\src\main\resources\base\Plugins\Core"
-endlocal
+exit /b %ERRORLEVEL%

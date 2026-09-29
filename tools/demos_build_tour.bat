@@ -8,3 +8,4 @@ REM     tools\demos_record.bat --demo 3     (and 4, 5, 6, 7)
 REM
 REM Prereq (once): npm install in <tool-repo>\composer - see docs\DEMOS.md
 call "%~dp0demos_record.bat" --compose tour
+exit /b %ERRORLEVEL%
