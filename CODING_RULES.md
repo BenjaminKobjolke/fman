@@ -1,9 +1,7 @@
 <!-- Managed by /coding-rules:apply — do not edit rule blocks by hand -->
-<!-- codex: disabled -->
-<!-- deepseek: enabled -->
 
 # Version
-3
+6
 
 Increase this version number whenever this rule file changes.
 
@@ -21,7 +19,9 @@ When working on a project, copy all relevant rules into the project's `CODING_RU
 mandates reading `CODING_RULES.md` before code work — never the full rules, and never an
 `@import` of `CODING_RULES.md` (imports auto-expand into context every turn).
 
-- Always include all rules from `COMMON_RULES.md` and `AI_RULES.md`
+- Always include all rules from `COMMON_RULES.md` and `IMPLEMENTATION_FLOW.md`.
+  `COMMON_RULES.md` is copied into the project's `CODING_RULES.md`;
+  `IMPLEMENTATION_FLOW.md` is copied into the project's own `IMPLEMENTATION_FLOW.md`
 - Also include applicable language-specific, project-type, and supplemental rule files
   (see `PROJECT_TYPES.md` for the project-type overview)
 - Include optional addon rule files only when the user has opted in to that addon
@@ -124,6 +124,20 @@ Every project must provide the following batch files in the `tools/` directory:
 - `tools/run_integration_tests.bat` — runs integration tests
 
 These scripts ensure a consistent way to execute tests across environments.
+
+Both must **exit with the test runner's own exit code** — capture it right after the run
+(`set TESTRESULT=%ERRORLEVEL%`) and end with `exit /b %TESTRESULT%`. A bat that prints
+"Some tests failed!" but exits 0 reports green to CI, to callers and to AI agents. Never pipe the
+test command into a filter — the pipe's exit code is the *filter's*, not the runner's; write to a
+temp file and filter that instead.
+
+---
+
+## No `pause` in Batch Files
+
+Batch files must never contain a `pause` line. `pause` waits for a keypress, so any bat that has one
+hangs forever when run by CI, another bat, or an AI agent. End with an explicit `exit /b <code>`
+instead, and let the caller decide whether to keep the window open (`cmd /k`).
 
 ---
 
@@ -422,227 +436,7 @@ the wrong side of **No God Classes**.
   fields.
 
 # Version
-18
-
-Increase this version number whenever this rule file changes.
-
-# AI Workflow Rules (All Languages)
-
-See `COMMON_RULES.md` for rules that apply to all languages.
-
-Unlike the per-language `*_RULES.md` files, these rules are **language-independent** and
-**always apply**. They are not subject to the "some rules may not apply to this project"
-filtering — include them in every project's `CODING_RULES.md`.
-
-These rules define the end-to-end workflow an AI agent must follow when planning and
-implementing changes. Each step is an existing skill referenced by its slash name; run the
-skill rather than reimplementing its behavior.
-
----
-
-## Delegation backends (Codex / DeepSeek)
-
-Some of the workflow steps below can be delegated to an external CLI instead
-of being performed by the agent itself. Two backends are supported, and they
-are **mutually exclusive** — at most one is enabled at a time:
-
-- `<!-- codex: enabled -->` — delegate to Codex, running:
-  `codex exec --dangerously-bypass-approvals-and-sandbox "<PROMPT>"`
-- `<!-- deepseek: enabled -->` — delegate to DeepSeek, running:
-  `reasonix run --auto "<PROMPT>"`
-- Neither marker `enabled` (or no marker) — do NOT delegate; perform the same
-  checks yourself via the listed fallback skills.
-
-Read precedence if both markers somehow end up `enabled`: Codex wins, then
-DeepSeek, then the self-fallback.
-
-**Self-fallback in a subagent.** When neither backend is enabled, prefer
-running each fallback skill in a subagent (Agent/Task tool, `general-purpose`
-type) rather than inline — the skill's file reads and reasoning stay out of
-the main context window. The subagent runs the skill and returns **only**
-its summary (and the list of files it changed). Any file edits the skill
-makes (plan file, code) persist, so the main agent picks them up.
-
-Exceptions that MUST stay in the main context: `/plan:dry-checked` (it
-reloads the adjusted plan INTO context) and restating the
-Definition-of-Done / DRY gate aloud.
-
-**Graphify preamble (optional).** If this project's `CODING_RULES.md` includes
-the graphify addon, prepend its graphify delegate preamble to every `<PROMPT>`
-below before invoking the backend CLI (see the graphify addon's "Delegated
-checks" section). If the addon is not present, send `<PROMPT>` unchanged.
-
-The markers are managed by `/coding-rules:codex on|off|status|test` and
-`/coding-rules:deepseek on|off|status|test` (or set during
-`/coding-rules:apply`). Do not flip them yourself without the user asking.
-
-### Delegation contract (never let a delegate hang)
-
-Applies to EVERY delegated `<PROMPT>` below, both backends. A delegate that
-stops to ask a question blocks forever on stdin nobody can answer — these four
-rules make that impossible and leave a debug trail when it happens anyway.
-
-- **No questions.** Append this suffix to every `<PROMPT>` before sending it:
-
-  > "Run fully non-interactively. NEVER ask a question and NEVER wait for
-  > input. If anything is ambiguous, blocked, or you cannot complete the task,
-  > do NOT stop to ask — write your questions and what blocked you into your
-  > output file (the plan file, or the check file for steps that write one)
-  > under a heading `## DELEGATE QUESTIONS`, then exit immediately. Always
-  > write the required SUMMARY block, even on failure."
-
-- **Timeout.** Run every delegate call with `timeout: 600000` (10 min, the
-  Bash tool maximum). Never make an untimed delegate call.
-
-- **Log.** Capture stdout+stderr to a log next to the plan file, named
-  `<plan-file-path-without-.md>-<step>-delegate.log` where `<step>` is
-  `plan-dry`, `convention`, `post-impl` or `graphify`; close stdin so a
-  delegate that ignores the contract dies instead of blocking:
-
-  ```
-  codex exec --dangerously-bypass-approvals-and-sandbox "<PROMPT>" > "<log>" 2>&1 < /dev/null
-  ```
-
-  Overwrite the log per run. On any failure, report the log path to the user
-  in one line — that is the debug handle.
-
-- **Success check + fallback.** A delegated step counts as done only if its
-  required SUMMARY block is present (`SUMMARY DRY`, `SUMMARY CONVENTION
-  CHECK`, `SUMMARY GRAPHIFY`, or the post-implementation check file). Timeout,
-  non-zero exit, missing SUMMARY, or a `## DELEGATE QUESTIONS` heading all
-  count as failure. On failure: do NOT retry — report one line plus the log
-  path, then run that step's `delegate disabled` branch (subagent). If the
-  delegate wrote `## DELEGATE QUESTIONS`, answer those questions yourself in
-  the fallback run, or surface them to the user if they need a decision.
-
-## Feature / Change Workflow
-
-After a plan is proposed and the user approves it, follow this chain. The DRY
-gate is a precondition for implementing — not just an earlier step.
-
-The approved plan must first exist as an explicit Markdown file. Pass that same
-path to both plan-DRY commands.
-
-```
-plan approved
-
-plan DRY check
-  delegate enabled (codex or deepseek — run <PROMPT> via that backend's CLI, see Delegation backends above; prepend graphify preamble if applicable; obey the Delegation contract — no-questions suffix, timeout, log, SUMMARY check):
-    <PROMPT> = "FULL PATH TO PLAN - Can you check the plan for DRY opportunities and if you find any, apply them to the original plan file. Only edit the plan file — do NOT modify any source code or implement the plan. Always add a summary at the end called SUMMARY DRY — if you made changes, describe what and why; if you found nothing, write 'No DRY opportunities found.'"
-  delegate disabled:
-    run /plan:dry <plan-file> in a subagent (see "Self-fallback in a
-    subagent"); inline only if a subagent isn't available.
-
-plan convention check
-  delegate enabled (codex or deepseek — run <PROMPT> via that backend's CLI, see Delegation backends above; prepend graphify preamble if applicable; obey the Delegation contract — no-questions suffix, timeout, log, SUMMARY check):
-    <PROMPT> = "FULL PATH TO PLAN $convention-check - If you want to make any changes, apply them to the original plan file. Only edit the plan file — do NOT modify any source code or implement the plan. Always add a summary at the end called SUMMARY CONVENTION CHECK — if you made changes, describe what and why; if you found nothing, write 'No convention issues found.'"
-  delegate disabled:
-    run /convention:check in a subagent (see note) — apply findings to the
-    plan file
-
-/plan:dry-checked    reload the DRY and convention adjusted plan
-
-restate Definition-of-Done aloud
-
-implement
-  While implementing, keep the list of every file you created or modified in THIS
-  session — you know it from your own edits; do NOT derive it from git (other
-  sessions may have concurrent uncommitted changes). After implementing, write the
-  list (one path per line) to a changed-files file next to the plan, named after it:
-  <plan-file-path-without-.md>-changed-files.md
-  (e.g. claude-plans/my-feature-changed-files.md). The plan file is unique per
-  session, so concurrent sessions never collide.
-  Include only source-code files. Exclude documentation and other non-code
-  files (`.md`, plain-text docs, the plan file itself) — the DRY audit only
-  looks at code.
-
-post-implementation DRY audit — scope is ONLY the changed-files file above
-  delegate enabled (codex or deepseek — run <PROMPT> via that backend's CLI, see Delegation backends above; prepend graphify preamble if applicable; obey the Delegation contract — no-questions suffix, timeout, log, SUMMARY check):
-    <PROMPT> = "Read FULL PATH TO CHANGED-FILES FILE and check ONLY the files listed there for DRY opportunities. Do not use git status or git diff to widen the scope — other sessions may have concurrent uncommitted changes. Do NOT modify any code. Write your suggestions to <plan-file-path-without-.md>-post-implementation-check.md (next to the plan, same naming as the changed-files file), overwriting the file if it already exists. Include for each finding the affected files and a short rationale. Always write the file, even if you found nothing — in that case write a SUMMARY block stating 'No DRY opportunities found.'"
-    then read that post-implementation-check file, validate each finding, and apply the valid ones. Bring a finding to the user only if a question arises — otherwise apply silently.
-  delegate disabled:
-    run /dry:check <files from the changed-files file, as pathspec> in a
-    subagent (see note)
-
-Post-Feature Verification + Post-Implementation Code Analysis (project-specific, below)
-
-refresh graphify graph — only if the graphify addon is present in this project's CODING_RULES.md
-  NEVER run this rebuild yourself in the main context: the graphify skill loads a
-  large instruction file and its build output into the window. Delegate it — the
-  rules it must follow live in the graphify addon's "Refreshing after a code
-  change" section, already copied into this project's CODING_RULES.md.
-  delegate enabled (codex or deepseek — run <PROMPT> via that backend's CLI, see Delegation backends above; prepend graphify preamble if applicable; obey the Delegation contract — no-questions suffix, timeout, log, SUMMARY check):
-    <PROMPT> = "Rebuild this project's graphify knowledge graph. Read the graphify section of CODING_RULES.md and follow its 'Refreshing after a code change' rules exactly, including the scope rules — rebuild at the scope the existing graph already has, never narrower. Run the graphify skill's directed rebuild from the repo root (/graphify <code-dir> --directed), writing to the root graphify-out/. Do NOT run a bare `graphify update`. If the graphify skill is not available to you, change nothing and reply exactly GRAPHIFY SKILL UNAVAILABLE. Otherwise end with a summary called SUMMARY GRAPHIFY stating the scan root built, whether graph.json has directed: true, and the node count before and after."
-  delegate disabled:
-    run the same rebuild in a subagent (see "Self-fallback in a subagent") with the
-    same instructions; it returns only the SUMMARY GRAPHIFY block.
-  then verify yourself — cheap, no skill load: root `graphify-out/graph.json` has
-  `directed: true`, and `graphify-out/.graphify_root` matches the scope that was
-  built. If the delegate replied GRAPHIFY SKILL UNAVAILABLE, or either check fails,
-  redo the rebuild via the subagent branch.
-```
-
-### DRY gate (precondition for implementing)
-
-Do not write a single line until ALL are true. Restate this gate aloud at the
-moment you start implementing — if you cannot, the gate is not cleared:
-
-- [ ] `/plan:dry <plan-file>` adjusted that file and completed its Ponytail pass.
-- [ ] `/plan:dry-checked <plan-file>` reloaded the same adjusted plan.
-- [ ] `/convention:check` found the existing utilities/patterns to reuse.
-
-The gate survives the `implement` step: if mid-implementation you add a new
-helper, type, or pattern the gate would have caught, stop and re-clear it
-before continuing.
-
-### Definition of Done — restate aloud before implementing
-
-Before the first edit, state in chat what "done" means for THIS change:
-
-- [ ] Scope: <one line — what changes, what does not>
-- [ ] Reuse: <existing function/component this builds on, with path>
-- [ ] DRY gate cleared (above)
-- [ ] `/dry:check <session changed-files>` clean (scoped to the changed-files file, never bare; may run via subagent)
-- [ ] `/verify:after-change` green (tests + analysis; may run via subagent)
-
-### Post-implementation DRY audit — paste-in template
-
-Run `/dry:check` scoped to the session's changed-files file, then paste and fill:
-
-```
-DRY audit — <change name>
-Changed files:     <list from the changed-files file, not git>
-Duplication found: <none | describe>
-Consolidated into: <shared fn/module + path | n/a>
-Convention reused: <name + path>
-Verdict:           <clean | needs rework>
-```
-
----
-
-## Bug-Fix Workflow
-
-Bug fixes use a shorter variant (no plan-DRY phase):
-
-```
-bugs:fix
-  → /verify:after-change  (run in a subagent — see "Self-fallback in a
-    subagent")
-```
-
----
-
-## Optional Addons
-
-These live in `ai_rules_addons/` and are **not** always-on. Each is opt-in per project — ASK
-the user whether they want it before wiring it into that project's `CODING_RULES.md`.
-
-- [`ai_rules_addons/graphify.md`](ai_rules_addons/graphify.md) — graphify knowledge graph:
-  scoped + directed AST build, folder layout, gitignore, and the query/refresh rules to paste
-  into a project's `CODING_RULES.md`.
-
-# Version
-1
+6
 
 Increase this version number whenever this rule file changes.
 
@@ -703,6 +497,109 @@ uv add pyside6
 
 This is separate from the web template engine above: Jinja2 renders web HTML,
 PySide6 builds native desktop windows. Pick by app type.
+
+### Make it look modern
+
+Default Qt reads as a debug tool: gradient buttons, boxed tabs, a caption bar in the
+user's OS accent color, no type hierarchy. Follow
+[`python_setup_files/MODERN_GUI.md`](python_setup_files/MODERN_GUI.md) — the palette /
+stylesheet / icons / window-chrome module split, the vendored-and-tinted icon recipe,
+the Qt gotchas that break a restyle (size policies, per-widget fonts, minimum-size
+floors, focus rings), and how to screenshot pages offscreen to verify it.
+
+The design decisions behind it — tokens, one accent, hierarchy, focus states, empty and
+error states — are language-independent and live in `DESIGN_RULES.md`.
+
+---
+
+## CLI Menus
+
+For **interactive command-line** applications, never hand-roll a menu out of `input()`
+and printed option lists. Use **`pick`** — an arrow-key menu with a selection
+indicator, scrolling for long lists, and optional multiselect — on its **blessed**
+backend:
+
+```bash
+uv add "pick[blessed]"
+```
+
+**Always pass `backend="blessed"`.** `pick`'s default curses backend breaks on Windows
+the moment the program runs a child that inherits the console — a `git` call, a build
+step, anything streaming its output live. From then on curses stops translating the
+arrow keys for the rest of the process: the keys still arrive, but as raw `ESC [ A`
+sequences that `pick` ignores, so every later menu draws and then accepts nothing. It
+looks like a hang and it is sticky — re-initialising curses does not recover it, and
+neither does restoring the console mode. Only never letting the child touch the console
+(capturing its output, which costs live streaming) or decoding the sequences avoids it.
+blessed decodes them, so subprocesses keep the console and their live output.
+
+### Wrap it — one menu helper per project
+
+Never import `pick` at more than one call site. Wrap it in a single helper class
+(e.g. `menu.py` / `UserChoicesHandler`) so keyboard handling, the indicator style,
+and Ctrl-C behavior are defined once:
+
+```py
+# src/<pkg>/menu.py
+import sys
+from pick import pick
+
+
+def show_menu(
+    options: list[str],
+    title: str,
+    indicator: str = "*",
+    default_index: int = 0,
+) -> int:
+    """Show an arrow-key menu; return the selected index. Ctrl-C exits."""
+    try:
+        _, index = pick(
+            options=options,
+            title=title,
+            indicator=indicator,
+            default_index=default_index,
+            backend="blessed",  # never the curses default: see above
+        )
+        return index
+    except KeyboardInterrupt:
+        sys.exit(1)
+```
+
+### Keep option labels and actions in step
+
+The menu returns an **index**, not a parsed letter. Build the label list and a parallel
+list of typed action values (enum members — see "Prefer Type-Safe Values") in the same
+place, so an option can never be shown without a handler:
+
+```py
+options: list[str] = []
+actions: list[MenuAction] = []
+options.append("Commit"); actions.append(MenuAction.COMMIT)
+if repo.has_untracked:
+    options.append("Add all"); actions.append(MenuAction.ADD_ALL)
+options.append("Cancel"); actions.append(MenuAction.CANCEL)
+
+action = actions[show_menu(options, title)]
+```
+
+### Testing
+
+`pick` needs a real terminal, so tests must not call it. Patch the project's wrapper
+(`show_menu`) — not `pick` itself — and assert on the option labels it was handed:
+
+```py
+monkeypatch.setattr("<pkg>.menu.show_menu", lambda options, title, **kw: 0)
+```
+
+Keep a non-interactive path for every menu (a CLI flag, or auto-select when there is a
+single option) so the program stays scriptable and testable without a TTY. Have the
+wrapper refuse outright when `sys.stdin`/`sys.stdout` is not a TTY: without a console the
+menu blocks on a key that can never arrive, which reads as a freeze rather than an error.
+
+Because the tests patch the wrapper, nothing in the suite ever drives a real menu — so
+also keep a small manual script (`tools/menu_smoke.py` + a `.bat`) that opens a menu, runs
+a subprocess inheriting the console, then opens another menu. That second menu is exactly
+what the curses backend breaks, and only a human at a terminal can see it.
 
 ---
 
@@ -1074,6 +971,65 @@ Conventions:
 
 ---
 
+## Windows Installer (NSIS)
+
+Ship a single `…Setup.exe`, not a zipped folder. Use **NSIS** (`makensis`) — it is
+the tool already in use across these projects, and a hand-written `.nsi` is ~100
+lines. Do not reach for Inno Setup, WiX, or fbs: fbs generates its NSIS script for
+you but drags in a whole build system, and a plain `uv run pyinstaller` project does
+not need one.
+
+Reusable pieces in `python_setup_files/`:
+
+- `installer/setup.nsi.template` — the script; fill in app name, exe name, company.
+- `tools/build_installer.bat` — packages an existing `dist/<App>/` into the setup exe.
+- `tools/sign_exe.bat` — code-signs one exe via the XIDA network-share handshake.
+
+Conventions:
+
+- **Two separate bats, no chaining.** `tools/compile_exe.bat` freezes;
+  `tools/build_installer.bat` packages and fails with "run compile_exe.bat first" if
+  `dist/` is missing. Neither bat calls the other.
+- **Version and build reach the installer as `/D` defines** from the bat
+  (`/DVERSION= /DBUILD= /DSRCDIR= /DOUTFILE=`), never via the exe's version resource.
+  A bare PyInstaller CLI build has no `--version-file`, so there is no resource to
+  read — the bat owns the label. `tools/version_get.bat` already prints the full
+  `<version>_<build>` label, so read it once and split on `_` rather than also
+  calling `build_get.bat`.
+- **Output** = `dist/<App>Setup_<version>_<build>.exe`, so the filename carries the
+  release label (see **Release Workflow** above).
+- **Exclude the app's own runtime files from the payload**:
+  `File /r /x settings.json /x sessions.db "${SRCDIR}\*.*"`. PyInstaller builds into
+  `dist/`, and every local test run of that exe drops its config and database right
+  beside it. Without the exclusions the installer ships the developer's machine
+  config and personal data to every user. Verify by listing the install directory
+  after a test install — this is not theoretical, it happened.
+- **Per-user install into `$LOCALAPPDATA` with `RequestExecutionLevel user`** whenever
+  the app writes its data next to its own exe (the
+  `DATA_ROOT = Path(sys.executable).parent` pattern). A `C:\Program Files` install
+  cannot write there unelevated. Bonus: no UAC prompt at all.
+- **Kill the running instance before install and uninstall**:
+  `nsExec::Exec 'taskkill /F /IM "${EXENAME}"'`. Ships with Windows, needs no NSIS
+  plugin, and a non-zero exit just means it was not running. Without it, upgrading
+  while the app is open fails on a locked file.
+- **Never delete user data on uninstall.** Remove the program files, shortcuts and
+  the `HKCU\...\Uninstall\<App>` key; leave `settings.json` and the database. Use
+  plain `RMDir` (not `/r`) on the install root so the folder survives when they do.
+- **Registry** goes under `HKCU` (per-user install) with `DisplayName`,
+  `DisplayVersion` = the full label, `Publisher`, `DisplayIcon`, `InstallLocation`,
+  `UninstallString`, `EstimatedSize`.
+- **Signing is opt-in** via `build_installer.bat --sign`, off by default: the XIDA
+  handshake needs the `//XIDA-SERVER` share and takes ~5 minutes per binary, so local
+  test builds stay unsigned. When on, sign the app exe **before** packaging (the
+  signed binary must be the one inside) and the setup exe after. `sign_exe.bat` `cd`s
+  into the release-tool checkout, so it must be handed an **absolute** path.
+- **Test the installer silently**, no clicking: `Setup.exe /S`, then
+  `Uninstall.exe /S`. Check the install dir contents, the Start Menu shortcut, the
+  `HKCU` key, that the installed app can write its database, and that a reinstall
+  over a running instance succeeds.
+
+---
+
 # 8 Essential Additional Rules (must-have)
 
 ## 1) Use `pyproject.toml` as the single source of truth
@@ -1305,7 +1261,7 @@ Prefer the Protocol approach for simple cases. Use dataclass metadata when you n
 per-field control without writing boilerplate methods.
 
 # Version
-11
+13
 
 Increase this version number whenever this rule file changes.
 
@@ -1383,18 +1339,22 @@ assets — forcing the LLM pass. **Always scope to the code dir; never build the
    graphify-out/
    <code-dir>/graphify-out/
    ```
-6. **Copy the manual-test bat.** Copy `graphify_update.bat` (ships beside this file in
-   `ai_rules_addons/`) into the project's `tools/` folder and set its `CODE_DIR` to the real
-   code dir. It is a no-AI convenience for manually checking graphify works — it runs a
-   code-only AST refresh (`graphify update`, no LLM) then smoke-tests the live root graph
-   (`god-nodes` + a sample `query`). See "Manual test bat" below for what it does and does not do.
+6. **Copy the refresh bat.** Copy `graphify_update.bat` (ships beside this file in
+   `implementation_flow_addons/`) into the project's `tools/` folder and set its `CODE_DIR` to the real
+   code dir. It runs the no-AI live-graph refresh (see "Refreshing after a code change" in
+   `IMPLEMENTATION_FLOW.md`)
+   and then smoke-tests the root graph (`god-nodes` + a sample `query`). See "Manual
+   refresh bat" below.
 
 ## Folder layout (know which is which)
 
 - `graphify-out/` at the **project root** = the **live graph** (`graph.json`, `GRAPH_REPORT.md`,
   `graph.html`). The only one queries read. Keep it `directed=True`.
-- `<code-dir>/graphify-out/` = **AST cache only** (`cache/`). Scratch that speeds re-extraction.
-  Never the live graph under the documented flow. Do not query it.
+- `graphify-out/cache/` at the project root = AST cache written by the CLI refresh (it runs
+  with `GRAPHIFY_OUT` pointing at the root folder, see "Refreshing"). Scratch only.
+- `<code-dir>/graphify-out/` = legacy AST cache from the skill build. Never the live graph
+  under the documented flow; safe to delete. If a `graph.json` ever appears in there, a bare
+  `graphify update` ran without `GRAPHIFY_OUT` — delete that `graph.json`, keep `cache/`.
 
 ## What the graph knows (and does not)
 
@@ -1409,7 +1369,9 @@ assets — forcing the LLM pass. **Always scope to the code dir; never build the
 ## Rules to paste into the project's CODING_RULES.md (only if the user opted in)
 
 Prepend this file's `# Version` block and `# graphify Knowledge Graph (Optional Addon)` title
-when copying the following sections.
+when copying the following sections. The flow-side sections (the delegate preamble and the
+post-change refresh) live in `graphify_flow.md` and land in `IMPLEMENTATION_FLOW.md` instead —
+opt into both files together.
 
 ### Using the graph
 
@@ -1421,70 +1383,19 @@ when copying the following sections.
 - Read `graphify-out/GRAPH_REPORT.md` only for broad architecture review, or when
   query/path/explain do not surface enough context.
 
-### Delegated checks (Codex / DeepSeek)
+### Manual refresh bat (`tools/graphify_update.bat`)
 
-When this project delegates the plan/DRY/convention checks to an external CLI
-(see `AI_RULES.md` "Delegation backends"), prepend this **graphify delegate
-preamble** to the `<PROMPT>` before sending it to that backend:
-
-```
-Graphify: this project has a graphify knowledge graph, built at the repo-root
-`graphify-out/graph.json`. Run all graphify commands FROM THE REPO ROOT (the
-graph is resolved relative to the current directory). For any codebase question,
-run `graphify query "<question>"` first (also `graphify path "<A>" "<B>"`,
-`graphify explain "<concept>"`) instead of raw grep.
-```
-
-Prepend only — do not otherwise change the `<PROMPT>`. The cwd line matters:
-`codex exec` / `reasonix run` inherit the caller's directory, and `graphify
-query` reads `graphify-out/` relative to cwd — run from a subdir and it finds
-nothing, silently degrading to grep. Harmless if the graph is not built yet:
-`graphify query` returns nothing and the CLI falls back to reading files.
-
-### Refreshing after a code change
-
-- After a feature or any code change, rebuild via the **directed skill flow**: re-run
-  `/graphify <code-dir> --directed`, writing to the project-root `graphify-out/`.
-- Do NOT use the bare `graphify update <code-dir>` CLI — it has no `--directed` flag and writes a
-  full UNDIRECTED graph into `<code-dir>/graphify-out/` (wrong location), desyncing the live
-  graph. If that stray graph appears, delete `<code-dir>/graphify-out/graph.json` (keep `cache/`).
-- **Rebuild at the scope the existing graph already has**, not at whatever `<code-dir>` suggests.
-  Check it first: group `graphify-out/graph.json` nodes by the first path segment of their
-  `source_file`. A graph built from the repo root typically holds `docs/`, `tools/` and root
-  `*.md` nodes — often the ones that answer "how does X work" rather than "where is X defined" —
-  and a narrower rebuild deletes every one of them. graphify's shrink guard catches that and
-  refuses the write: re-run at the original scope, never force past it.
-- **Keep `docs/` in.** Excluding it via `.graphifyignore` is the same mistake wearing a different
-  hat: it is the prose that answers "how does X work", and a code-only graph answers symbol
-  lookups a grep would have found anyway.
-- **Confirm `.graphify_root` after every rebuild.** The scan root lives in
-  `graphify-out/.graphify_root`, and EVERY `/graphify <path>` run overwrites it. So one
-  wrong-path invocation leaves it pointing at a subtree the graph was not built from, and a later
-  bare `graphify update` rescans only that subtree and reads every file outside it as deleted.
-  It cannot be committed to carry the scope across clones — it stores an absolute path, and
-  `graphify-out/` is gitignored. Record the intended scan root in the project's `CLAUDE.md`
-  instead (that file also survives `/coding-rules:apply`, which rewrites `CODING_RULES.md`).
-- Verify after rebuild: `graph.json` has `directed: true` and lives in root `graphify-out/`.
-  For a **multi-path merge**, also grep `graph.json` for a node-ID prefix belonging to a second
-  scanned dir (e.g. `framework_`) to prove that dir actually landed — `directed: true` passes even
-  if one dir silently dropped out of the merge.
-
-### Manual test bat (`tools/graphify_update.bat`)
-
-A no-AI convenience for manually checking graphify works, copied from the
-`graphify_update.bat` template beside this addon and adjusted (`CODE_DIR`).
+Copied from the `graphify_update.bat` template beside this addon, adjusted (`CODE_DIR`).
 Run it from anywhere — it `pushd`es to the repo root itself.
 
-- **Does:** (1) code-only AST refresh (`graphify update`, no LLM/API cost);
-  (2) smoke-tests the live root graph — `god-nodes` + a sample `query`. Proves
-  the interpreter resolves, the graph is present and directed, and queries answer.
-- **Does NOT:** rebuild the live root `graphify-out/graph.json`. `graphify update`
-  writes only the AST cache under `<code-dir>/graphify-out/` (it does not touch
-  the root live graph). The authoritative **directed** rebuild is the agent skill
-  flow (`/graphify <code-dir> --directed`) — a `.bat` cannot run it.
-- **When to use:** quick "is graphify still wired up?" check after cloning, a
-  dependency change, or a graphify upgrade. For an actual refresh of the graph
-  the queries read, use the skill flow (see "Refreshing after a code change").
+- **Does:** (1) the live-graph CLI refresh from "Refreshing after a code change" in
+  `IMPLEMENTATION_FLOW.md` (sets `GRAPHIFY_OUT` to the root
+  `graphify-out\`, passes the absolute code dir); (2) smoke test — prints the root
+  graph's `directed` flag + node count, `god-nodes`, a sample `query`.
+- **Does NOT:** re-extract docs (see "Doc changes" in `IMPLEMENTATION_FLOW.md`) or build a first graph — that is the
+  skill flow (`/graphify <code-dir> --directed`).
+- **When to use:** after a code change outside an AI session, or as a "is graphify still
+  wired up?" check after cloning, a dependency change, or a graphify upgrade.
 
 ### In-tree vendored code — exclude it, scoping alone won't
 
@@ -1506,9 +1417,12 @@ Fix once per project:
    # Vendored / third-party code + bundled assets — not our architecture, noise in the graph
    libs/
    ```
-3. Rebuild. A narrower corpus is a *smaller* graph, which trips the shrink guard (#479) — delete
-   the stale `graphify-out/graph.json` first (keep `graphify-out/cache/`), then re-run
-   `/graphify <code-dir> --directed`.
+3. Rebuild with the CLI refresh plus `--force` — a narrower corpus is a *smaller* graph,
+   which trips the shrink guard (#479):
+   `GRAPHIFY_OUT="$PWD/graphify-out" graphify update --force "$PWD/<code-dir>"`.
+   Do NOT delete `graphify-out/graph.json` first (see "Refreshing after a code change" in
+   `IMPLEMENTATION_FLOW.md`: the CLI would rebuild
+   it undirected and drop the doc nodes).
 4. Verify: grep the vendored library's distinctive class name in the new `graph.json` — it
    should return only first-party code that *uses* the library (e.g. your own `FacebookManager`),
    never the library's own classes.
