@@ -9,6 +9,7 @@ import re
 class ShowExplorerProperties(DirectoryPaneCommand):
 
 	aliases = 'Properties',
+	usable_in_viewer = True
 
 	def __call__(self):
 		scheme = splitscheme(self.pane.get_path())[0]

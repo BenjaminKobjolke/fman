@@ -17,10 +17,33 @@ class StubPane:
 	fman/impl/view/cursor_movement.py). run_command just records the call so
 	tests can assert view_file was (or wasn't) re-run.
 	"""
-	def __init__(self, urls, cursor=0):
+	def __init__(self, urls, cursor=0, aliases=None, viewer_commands=(), on_run=None):
 		self._urls = urls
 		self._cursor = cursor
 		self.commands = []
+		self.selected = []
+		self.selection_during_command = []
+		self._aliases = aliases or {}
+		self._viewer_commands = set(viewer_commands)
+		self.on_run = on_run
+
+	def get_selected_files(self):
+		return list(self.selected)
+
+	def clear_selection(self):
+		self.selected.clear()
+
+	def select(self, urls):
+		self.selected.extend(urls)
+
+	def get_viewer_commands(self):
+		return self._viewer_commands
+
+	def get_command_aliases(self, name):
+		return (self._aliases[name],)
+
+	def is_command_visible(self, name):
+		return name in self._aliases
 
 	def get_file_under_cursor(self):
 		if 0 <= self._cursor < len(self._urls):
@@ -40,6 +63,9 @@ class StubPane:
 
 	def run_command(self, name):
 		self.commands.append(name)
+		self.selection_during_command.append(list(self.selected))
+		if self.on_run:
+			self.on_run(name)
 
 class FakeSettings:
 	"""

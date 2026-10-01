@@ -15,6 +15,8 @@ __all__ = [
 ]
 
 class CopyPathsToClipboard(DirectoryPaneCommand):
+	usable_in_viewer = True
+
 	def __call__(self):
 		to_copy = self.get_chosen_files() or [self.pane.get_path()]
 		files = '\n'.join(to_copy)

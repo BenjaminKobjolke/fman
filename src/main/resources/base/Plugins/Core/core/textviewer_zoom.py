@@ -11,8 +11,7 @@ touching stylesheets itself.
 """
 from core.font_size import change_font_size, effective_font_size, \
 	get_saved_font_size, reset_font_size, save_font_size
-from core.key_bindings import format_shortcut_hint, get_shortcuts_for_command, \
-	KEY_BINDINGS_FILE
+from core.key_bindings import get_shortcuts_for_command, global_command_row
 from core.viewer_status import viewer_status
 
 _SETTING_KEY = 'text_viewer_font_size'
@@ -56,11 +55,7 @@ def zoom_step(title, command, key_bindings, run):
 	zoom_delta_for matches against that file, so a Shift+Enter rebind has to
 	land there or the viewer would never see it.
 	"""
-	return (
-		title, run,
-		format_shortcut_hint(get_shortcuts_for_command(key_bindings, command)),
-		command, KEY_BINDINGS_FILE,
-	)
+	return global_command_row(title, command, key_bindings, run)
 
 def zoom_actions(view, apply_size, key_bindings):
 	"""

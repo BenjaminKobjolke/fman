@@ -173,7 +173,8 @@ class PaneVideoView(QWidget):
 		if event.key() in (Qt.Key_Tab, Qt.Key_Backtab):
 			self._on_switch()
 			return
-		super().keyPressEvent(event)
+		if not self._nav.run_pane_shortcut(key_event):
+			super().keyPressEvent(event)
 
 	def _update_time_label(self):
 		# Polled on this Qt timer rather than an mpv property-observer,

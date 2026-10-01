@@ -1,6 +1,6 @@
 from core.tests.viewer_stubs import FakeSettings, StubPane
 from core.viewer_file_ops import (
-	after_delete_label, delete_current, get_close_after_delete,
+	after_delete_label, after_file_gone, delete_current, get_close_after_delete,
 	rename_current, toggle_close_after_delete,
 )
 from core.viewer_navigation import ViewerNavigator
@@ -137,6 +137,46 @@ class RenameCurrentTest(_SettingsTestCase):
 		rename_to = self._rename(('b.png', True))
 		rename_to.assert_called_once()
 
+class AfterFileGoneTest(_SettingsTestCase):
+	def setUp(self):
+		super().setUp()
+		for target, replacement in (
+			('core.viewer_navigation._category', lambda url: 'image' if url.endswith('.png') else None),
+			('core.viewer_navigation.get_same_type_only', lambda category: True),
+		):
+			patcher = patch(target, replacement)
+			patcher.start()
+			self.addCleanup(patcher.stop)
+
+	def test_close_mode_and_empty_folder_close(self):
+		closed = []
+		pane = StubPane(['file:///b.png'])
+		after_file_gone(pane, 'image', lambda: closed.append(True))
+		self.assertEqual([True], closed)
+		self.assertEqual([], pane.commands)
+		toggle_close_after_delete()
+		after_file_gone(StubPane([]), 'image', lambda: closed.append(True))
+		self.assertEqual([True, True], closed)
+
+	def test_next_mode_uses_cursor_or_advances(self):
+		toggle_close_after_delete()
+		closed = []
+		pane = StubPane(['file:///b.png'])
+		after_file_gone(pane, 'image', lambda: closed.append(True))
+		self.assertEqual(['view_file'], pane.commands)
+		pane = StubPane(['file:///sub', 'file:///c.png'])
+		after_file_gone(pane, 'image', lambda: closed.append(True))
+		self.assertEqual(['view_file'], pane.commands)
+		self.assertEqual('file:///c.png', pane.get_file_under_cursor())
+		self.assertEqual([], closed)
+
+	def test_next_mode_closes_if_no_viewable_file(self):
+		toggle_close_after_delete()
+		closed = []
+		pane = StubPane(['file:///sub'])
+		after_file_gone(pane, 'image', lambda: closed.append(True))
+		self.assertEqual([True], closed)
+
 class BackgroundHopTest(_SettingsTestCase):
 	# The pane model's notify_file_added/_removed assert they are not on the
 	# main thread, and submit_task runs its task on the calling thread - so a
@@ -175,18 +215,22 @@ class NavigatorEntryTest(TestCase):
 	def test_delete_and_rename_are_offered_only_with_an_on_close(self):
 		with patch('core.viewer_navigation.get_same_type_only', lambda c: True), \
 				patch('core.viewer_file_ops.get_setting', lambda *_a: True):
-			without = ViewerNavigator(pane='p', category='image')
+			pane = StubPane([], aliases={'copy': 'Copy', 'move': 'Move'},
+				viewer_commands={'copy', 'move'})
+			without = ViewerNavigator(pane=pane, category='image')
 			with_close = ViewerNavigator(
-				pane='p', category='image', on_close=lambda: None
+				pane=pane, category='image', on_close=lambda: None
 			)
 			self.assertEqual(
 				['Next file', 'Previous file', 'Advance across all file types'],
 				[entry[0] for entry in without.actions()]
 			)
-			self.assertEqual(
-				['Delete file', 'Rename file…', 'Go to next file after deleting'],
-				[entry[0] for entry in with_close.actions()[3:]]
-			)
+			with patch('core.viewer_pane_commands.load_json', return_value=[]):
+				self.assertEqual(
+					['Delete file', 'Rename file…', 'Go to next file after deleting', 'Copy', 'Move'],
+					[entry[0] for entry in with_close.actions()[3:]]
+				)
+			self.assertFalse(without.run_pane_shortcut(None))
 			self.assertEqual(
 				{
 					'viewer_next_file', 'viewer_previous_file',

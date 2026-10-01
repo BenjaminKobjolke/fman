@@ -168,6 +168,9 @@ the viewer file like every other row here.
 
 ## Bindable commands
 
+In view mode for a file, suitable file-list shortcuts such as F5 (Copy) also
+work; see [shared viewer shortcuts](../KEYBINDINGS.md#file-list-shortcuts-that-also-work-in-a-viewer).
+
 Beyond zoom (already bindable via the pane font-size shortcut, above, and
 still read from `Key Bindings (<OS>).json`), the palette actions are
 viewer-only pseudo-commands you can bind your own key to in your own

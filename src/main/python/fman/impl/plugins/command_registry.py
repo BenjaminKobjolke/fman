@@ -98,6 +98,11 @@ class PaneCommandRegistry(CommandRegistry):
 				pass
 	def get_commands(self):
 		return set(self._command_classes)
+	def get_viewer_commands(self):
+		return {
+			name for name, cls in self._command_classes.items()
+			if cls.usable_in_viewer
+		}
 	def execute_command(self, name, args, pane, file_under_cursor=_DEFAULT):
 		command = self._get_command(pane, name)
 		if command is None:

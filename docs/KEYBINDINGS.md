@@ -241,6 +241,31 @@ themselves — bind your own if you want search while editing):
 | `Left` / `Right` | Seek −5s / +5s |
 | `Up` / `Down` | Volume −5 / +5, flashing `Volume: N` on screen |
 
+### File-list shortcuts that also work in a viewer
+
+Commands marked `usable_in_viewer` keep their shortcuts from global
+`Key Bindings.json` while a file is open. Rebinding one there also changes its
+viewer shortcut. These commands appear in the viewer palette with the same
+shortcut hint, and Shift+Enter edits their global binding.
+
+| Command | Default key |
+|---------|-------------|
+| Copy / Move / Symlink | F5 / F6 / Shift+F5 |
+| Copy paths to clipboard | F11 |
+| Edit / Terminal / Open native file manager | F4 / F9 / F10 |
+| Properties | Alt+Enter (Windows) |
+| Pack to archive | Alt+F5 |
+| Open with… / Show only active pane / Show all panes | Palette only |
+
+Viewer bindings, then the viewer's built-in keys, then these pane commands,
+then Qt handling take precedence in that order. Other global bindings stay
+out because they would change the hidden file list or take over viewer/Qt
+keys. A hidden file-list selection is set aside while the command runs, so
+Copy and Move act on the file on screen. If a command moves that file away,
+the **Close viewer after deleting** setting controls whether the viewer closes
+or shows the next file. The text viewer offers these in view mode for a real
+file, but not while editing or showing content without a backing file.
+
 ### Bindable viewer commands
 
 Every viewer action above — plus several that ship with **no** default key
@@ -255,8 +280,9 @@ pseudo-commands are matched by the focused viewer widget itself
 hardcoded fallback keys — a rebind always wins) — they are **not** registered
 `DirectoryPaneCommand`s and are **not** present in Core's own
 `Key Bindings.json`, so putting one there instead of `Viewer Key Bindings.json`
-triggers a "Command does not exist" startup alert and does nothing. They only
-do anything while the matching viewer has focus.
+triggers a "Command does not exist" startup alert and does nothing. These
+viewer-only commands act while the matching viewer has focus; some ordinary
+file-list commands also work there, as described below.
 
 | Command | Viewer | Default key | Action |
 |---------|--------|--------------|--------|

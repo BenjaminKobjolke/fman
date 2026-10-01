@@ -1,6 +1,6 @@
 from core.tests.viewer_stubs import FakeSettings, StubPane
 from core.viewer_navigation import (
-	advance, get_same_type_only, open_viewer_palette, toggle_same_type_only,
+	accepts, advance, get_same_type_only, open_viewer_palette, toggle_same_type_only,
 	ViewerAction, ViewerNavigator,
 )
 from unittest import TestCase
@@ -88,6 +88,14 @@ class AdvanceTest(TestCase):
 			advance(pane, +1, 'image')
 		self.assertEqual(['view_file'], pane.commands)
 		self.assertEqual('c.png', status.call_args[0][0])
+
+class AcceptsTest(TestCase):
+	def test_viewability_and_same_type(self):
+		with patch('core.viewer_navigation._category', _fake_category):
+			self.assertFalse(accepts('file:///sub', 'image', False))
+			self.assertFalse(accepts('file:///a.mp4', 'image', True))
+			self.assertTrue(accepts('file:///a.mp4', 'image', False))
+			self.assertTrue(accepts('file:///a.png', 'image', True))
 
 class SameTypePersistenceTest(TestCase):
 	def setUp(self):

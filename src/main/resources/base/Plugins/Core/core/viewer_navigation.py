@@ -14,8 +14,8 @@ name (see _same_type_key), defaulting to on.
 Also home to the small viewer-scoped command-palette plumbing
 (open_viewer_palette) that all three viewers share, so the quicksearch handling
 lives in one place rather than being copied into each viewer widget, and to the
-ViewerNavigator rows for core/viewer_file_ops.py's Delete/Rename entries - they
-ride along here because this is already the collaborator every viewer holds.
+ViewerNavigator rows for Delete/Rename and opted-in global pane commands -
+they ride along here because this is already the collaborator every viewer holds.
 """
 from collections import namedtuple
 from core.command_keywords import get_keywords
@@ -27,6 +27,8 @@ from core.quicksearch_matchers import bucket_count, contains_chars, \
 from core.settings import get_setting, save_setting, SETTINGS_FILE
 from core.viewer_file_ops import after_delete_label, delete_current, \
 	rename_current, toggle_close_after_delete
+from core.viewer_pane_commands import pane_command_actions, pane_command_for, \
+	run_pane_command
 from core.viewer_status import viewer_status
 from fman import show_quicksearch, QuicksearchItem
 from fman.url import basename
@@ -68,6 +70,10 @@ def _category(url):
 	# fine for normal directories; add a cache only if it ever measurably drags.
 	viewer = viewer_for(url)
 	return viewer.name if viewer else None
+
+def accepts(url, category, same_type_only):
+	found = _category(url)
+	return found is not None and not (same_type_only and found != category)
 
 class ViewerNavigator:
 	"""
@@ -111,6 +117,15 @@ class ViewerNavigator:
 	def toggle_after_delete(self):
 		toggle_close_after_delete()
 
+	def run_pane_shortcut(self, key_event):
+		if self._on_close is None:
+			return False
+		name = pane_command_for(self._pane, key_event)
+		if name is None:
+			return False
+		run_pane_command(self._pane, name, self._category, self._on_close)
+		return True
+
 	def same_type_label(self):
 		# Label reflects the action the entry performs, like the text viewer's
 		# auto-reload label: when the restriction is on, the entry lifts it.
@@ -142,6 +157,12 @@ class ViewerNavigator:
 					'viewer_toggle_close_after_delete'
 				),
 			]
+			actions += pane_command_actions(
+				self._pane,
+				lambda name: run_pane_command(
+					self._pane, name, self._category, self._on_close
+				)
+			)
 		return actions
 
 	def commands(self):
@@ -254,10 +275,7 @@ def advance(pane, direction, category):
 			pane.place_cursor_at(start)
 			viewer_status('No further file to view')
 			return
-		found = _category(after)
-		if found is None:
-			continue
-		if same_type_only and found != category:
+		if not accepts(after, category, same_type_only):
 			continue
 		pane.run_command('view_file')
 		# Named, not silent: the pane looks the same after a successful step

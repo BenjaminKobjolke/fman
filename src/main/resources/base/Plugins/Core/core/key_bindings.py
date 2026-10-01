@@ -112,6 +112,14 @@ def format_shortcut_hint(shortcuts):
 		shortcuts = map(_insert_mac_key_symbols, shortcuts)
 	return ', '.join(shortcuts)
 
+def global_command_row(title, command, key_bindings, run):
+	# This viewer row follows its current shortcut in the global bindings file.
+	return (
+		title, run,
+		format_shortcut_hint(get_shortcuts_for_command(key_bindings, command)),
+		command, KEY_BINDINGS_FILE,
+	)
+
 def _insert_mac_key_symbols(shortcut):
 	keys = shortcut.split('+')
 	return ''.join(_KEY_SYMBOLS_MAC.get(key, key) for key in keys)

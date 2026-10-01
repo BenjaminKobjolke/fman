@@ -41,7 +41,11 @@ All three viewers work the same way where it counts:
   mode `Tab` types a tab.)
 - **Own command palette:** `Ctrl+Shift+P` opens a **viewer-scoped** palette,
   separate from the global one (which can't reach a viewer while the file list
-  is hidden) — see [`docs/COMMAND_PALLETTE.md`](../COMMAND_PALLETTE.md).
+  is hidden). It also offers pane commands marked for viewer use — see
+  [`docs/COMMAND_PALLETTE.md`](../COMMAND_PALLETTE.md).
+- **Shared file shortcuts:** F5 copies the viewed file to the other pane, F6
+  moves it, and other suitable file-list shortcuts work too. Viewer-specific
+  keys win; see [key bindings](../KEYBINDINGS.md#file-list-shortcuts-that-also-work-in-a-viewer).
 - **Next / previous file:** **"Next file"** / **"Previous file"** in the viewer
   palette advance to the neighbouring file in the directory (following the
   pane's own sort order) without closing the viewer. A per-viewer

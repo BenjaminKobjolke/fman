@@ -123,7 +123,8 @@ class PaneImageView(QScrollArea):
 		# Anything else (notably arrow keys) falls through to QScrollArea's
 		# own handling, which pans via the scrollbars once zoomed in past
 		# the viewport size.
-		super().keyPressEvent(event)
+		if not self._nav.run_pane_shortcut(key_event):
+			super().keyPressEvent(event)
 
 	def _bindable_commands(self):
 		# Viewer-only pseudo-commands this focused view matches against

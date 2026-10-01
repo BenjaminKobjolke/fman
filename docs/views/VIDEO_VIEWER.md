@@ -31,6 +31,9 @@ sliders.
 
 ## Controls
 
+Suitable file-list shortcuts such as F5 (Copy) also work while viewing a
+video; see [shared viewer shortcuts](../KEYBINDINGS.md#file-list-shortcuts-that-also-work-in-a-viewer).
+
 | Key                | Action                        |
 |--------------------|-------------------------------|
 | Space              | Play / pause                  |

@@ -18,6 +18,8 @@ elif PLATFORM == 'Windows':
 
 if PLATFORM == 'Mac':
 	class GetInfo(DirectoryPaneCommand):
+		usable_in_viewer = True
+
 		def __call__(self):
 			files = self.get_chosen_files() or [self.pane.get_path()]
 			self._run_applescript(
@@ -50,6 +52,8 @@ elif PLATFORM == 'Windows':
 		# variable that does not go out of scope:
 		error = e
 		class ShowExplorerProperties(DirectoryPaneCommand):
+			usable_in_viewer = True
+
 			def __call__(self):
 				show_alert(
 					'Sorry, the module for displaying file properties %r could '

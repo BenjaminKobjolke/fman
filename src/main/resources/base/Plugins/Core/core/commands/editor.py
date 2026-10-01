@@ -26,6 +26,7 @@ __all__ = ['CreateAndEditFile', 'OpenWithEditor']
 class OpenWithEditor(DirectoryPaneCommand):
 
 	aliases = ('Edit',)
+	usable_in_viewer = True
 
 	def __call__(self, url=None):
 		if url is None:
@@ -94,6 +95,8 @@ def _get_applications_directory():
 class CreateAndEditFile(OpenWithEditor):
 
 	aliases = ('New file',)
+	# It creates a file in the hidden list, so it must not inherit the flag.
+	usable_in_viewer = False
 
 	def __call__(self, url=None):
 		file_under_cursor = self.pane.get_file_under_cursor()

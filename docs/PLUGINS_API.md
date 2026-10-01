@@ -74,6 +74,14 @@ Two consequences worth knowing:
 A command's name is its class name in snake_case: `CenterWindow` →
 `center_window`. That is the name `Key Bindings.json` and `run_command()` use.
 
+Set `usable_in_viewer = True` on a `DirectoryPaneCommand` to offer it in a
+file viewer's palette and let its global shortcut work there. Set it only
+when it acts on the viewed file, its folder, or the window layout; its result
+is understandable while the file list is hidden; its key leaves viewer and
+Qt keys free; and the viewer has no version of its own. The flag is inherited,
+so subclasses that do not fit must set it back to `False`. A pane exposes the
+registered opted-in names through `pane.get_viewer_commands()`.
+
 ## Commands run off the main thread
 
 Commands and listeners run on a worker thread
@@ -168,6 +176,11 @@ user runs "View file". Subclass it and your viewer joins the built-in text,
 image and video ones on equal footing — the viewer palette, next/previous-file
 navigation and the per-viewer "advance only for same type" toggle all work
 without further wiring.
+
+For a custom viewer using `ViewerNavigator`, `actions()` supplies the opted-in
+pane command palette rows. Call `run_pane_shortcut(key_event)` after your
+viewer's own key handling and before `super().keyPressEvent(event)` so viewer
+keys take priority.
 
 ```python
 from fman import Viewer

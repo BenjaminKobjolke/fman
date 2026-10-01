@@ -107,7 +107,9 @@ class PaneTextView(QPlainTextEdit):
 			# focus proxy at us, so tabbing back re-focuses this view.
 			self._on_switch()
 			return
-		super().keyPressEvent(event)
+		# Viewer keys above win; only unclaimed keys reach pane commands.
+		if self._url is None or not self._nav.run_pane_shortcut(key_event):
+			super().keyPressEvent(event)
 
 	def _bindable_commands(self):
 		# Viewer-only pseudo-commands this focused view matches against

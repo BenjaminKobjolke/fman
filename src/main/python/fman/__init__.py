@@ -85,6 +85,8 @@ class DirectoryPane:
 
 	def get_commands(self):
 		return self._command_registry.get_commands()
+	def get_viewer_commands(self):
+		return self._command_registry.get_viewer_commands()
 	def run_command(self, name, args=None):
 		if args is None:
 			args = {}
@@ -210,6 +212,11 @@ class Window:
 		return pane
 
 class DirectoryPaneCommand:
+	# True promises the command acts on the viewed file, its folder, or layout;
+	# stays understandable with the list hidden; leaves viewer and Qt keys free;
+	# and has no viewer-specific equivalent. Subclasses inherit this flag.
+	usable_in_viewer = False
+
 	def __init__(self, pane):
 		self.pane = pane
 	def __call__(self, *args, **kwargs):

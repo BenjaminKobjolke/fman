@@ -22,6 +22,7 @@ __all__ = ['Pack']
 class Pack(DirectoryPaneCommand):
 
 	aliases = ('Pack to archive (.zip, .7z, .tar)',)
+	usable_in_viewer = True
 
 	def __call__(self):
 		files = chosen_files(self)

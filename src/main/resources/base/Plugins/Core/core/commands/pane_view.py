@@ -43,6 +43,7 @@ def _any_pane_hidden(panes):
 	return any(not pane._widget.isVisible() for pane in panes)
 
 class ShowOnlyActivePane(DirectoryPaneCommand):
+	usable_in_viewer = True
 
 	def is_visible(self):
 		panes = self.pane.window.get_panes()
@@ -54,6 +55,7 @@ class ShowOnlyActivePane(DirectoryPaneCommand):
 		self.pane.focus()
 
 class ShowAllPanes(DirectoryPaneCommand):
+	usable_in_viewer = True
 
 	def is_visible(self):
 		return _any_pane_hidden(self.pane.window.get_panes())

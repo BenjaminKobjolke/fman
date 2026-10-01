@@ -23,6 +23,9 @@ launch. Always read-only.
 5. Press **Ctrl+Shift+P** to open the viewer's own command palette (see
    below) instead of closing with Escape/Enter/Backspace.
 
+Suitable file-list shortcuts such as F5 (Copy) also work here; see
+[shared viewer shortcuts](../KEYBINDINGS.md#file-list-shortcuts-that-also-work-in-a-viewer).
+
 ## Zoom
 
 The viewer has its own scale zoom, independent of the

@@ -126,9 +126,9 @@ different commands — the ones that make sense for what you're viewing:
 
 | Viewer | Palette entries (summary) |
 |--------|----------------------------|
-| [Text viewer](views/TEXT_VIEWER.md#editing) | Exit, Edit file, Save / Save as…, Reload / Revert, auto-reload & tail toggles, font-size zoom, Next/Previous file, Advance-same-type toggle, Delete file, Rename file…, Close-after-delete toggle, Find… / Find next / Find previous / Exit search mode |
-| [Image viewer](views/IMAGE_VIEWER.md#zoom) | Zoom in/out, Fit to window, Actual size (100%), Next/Previous file, Advance-same-type toggle, Delete file, Rename file…, Close-after-delete toggle, Exit |
-| [Video viewer](views/VIDEO_VIEWER.md#controls) | Play/Pause, Restart, Mute/Unmute, Reset volume, Next/Previous file, Advance-same-type toggle, Delete file, Rename file…, Close-after-delete toggle, Exit |
+| [Text viewer](views/TEXT_VIEWER.md#editing) | Exit, Edit file, Save / Save as…, Reload / Revert, auto-reload & tail toggles, font-size zoom, Next/Previous file, Advance-same-type toggle, Delete file, Rename file…, Close-after-delete toggle, Copy / Move and other opted-in pane commands (view mode with a file), Find… / Find next / Find previous / Exit search mode |
+| [Image viewer](views/IMAGE_VIEWER.md#zoom) | Zoom in/out, Fit to window, Actual size (100%), Next/Previous file, Advance-same-type toggle, Delete file, Rename file…, Close-after-delete toggle, Copy / Move and other opted-in pane commands, Exit |
+| [Video viewer](views/VIDEO_VIEWER.md#controls) | Play/Pause, Restart, Mute/Unmute, Reset volume, Next/Previous file, Advance-same-type toggle, Delete file, Rename file…, Close-after-delete toggle, Copy / Move and other opted-in pane commands, Exit |
 
 Notes:
 
@@ -137,6 +137,7 @@ Notes:
 - The entry set changes with context — e.g. the text viewer shows different
   entries in view mode vs. edit mode, and *Exit search mode* only while its
   [search](views/TEXT_VIEWER.md#search) is on.
-- These are **viewer-only pseudo-commands**, not global `DirectoryPaneCommand`s.
-  Bind your own keys to them in a **separate** `Viewer Key Bindings (<OS>).json`
-  file — see [`docs/KEYBINDINGS.md`](KEYBINDINGS.md#viewer-specific-bindings).
+- Viewer-only rows are pseudo-commands bound in `Viewer Key Bindings (<OS>).json`.
+  Opted-in pane command rows are real global commands whose shortcuts and
+  Shift+Enter edits use `Key Bindings.json`. See
+  [`docs/KEYBINDINGS.md`](KEYBINDINGS.md#viewer-specific-bindings).

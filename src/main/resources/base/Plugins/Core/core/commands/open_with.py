@@ -27,6 +27,7 @@ __all__ = [
 class OpenWith(DirectoryPaneCommand):
 
 	aliases = 'Open with...',
+	usable_in_viewer = True
 
 	_OTHER = 'Other...'
 

@@ -20,6 +20,7 @@ if PLATFORM == 'Mac':
 class OpenTerminal(DirectoryPaneCommand):
 
 	aliases = ('Terminal',)
+	usable_in_viewer = True
 
 	def __call__(self):
 		scheme, path = splitscheme(self.pane.get_path())
@@ -31,6 +32,8 @@ class OpenTerminal(DirectoryPaneCommand):
 		open_terminal_in_directory(path)
 
 class OpenNativeFileManager(DirectoryPaneCommand):
+	usable_in_viewer = True
+
 	def __call__(self):
 		url = self.pane.get_path()
 		scheme = splitscheme(url)[0]

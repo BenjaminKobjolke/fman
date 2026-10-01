@@ -60,6 +60,21 @@ def after_delete_label():
 		return 'Go to next file after deleting'
 	return 'Close viewer after deleting'
 
+def after_file_gone(pane, category, on_close):
+	"""Show the cursor's next viewable file after a pane command moved this one."""
+	# viewer_navigation imports this module for its palette rows.
+	from core.viewer_navigation import accepts, advance, get_same_type_only
+	cursor_file = pane.get_file_under_cursor()
+	if get_close_after_delete() or not cursor_file:
+		on_close()
+	elif accepts(cursor_file, category, get_same_type_only(category)):
+		pane.run_command('view_file')
+		viewer_status(basename(cursor_file))
+	else:
+		advance(pane, +1, category)
+		if pane.get_file_under_cursor() == cursor_file:
+			on_close()
+
 def delete_current(pane, url, category, on_close):
 	"""
 	Moves `url` to the trash after the file list's own confirmation, then

@@ -32,6 +32,9 @@ __all__ = ['Copy', 'DragAndDropListener', 'Move', 'Symlink',
            'get_dest_suggestion']
 
 class _TreeCommand(DirectoryPaneCommand):
+	# Copy, Move and Symlink all operate on the viewed file.
+	usable_in_viewer = True
+
 	def __call__(self, files=None, dest_dir=None):
 		if files is None:
 			files = self.get_chosen_files()
