@@ -34,6 +34,12 @@ IMAGE_EXTENSIONS = ('.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp', '.ico', '.
 def is_image(url):
 	return url.lower().endswith(IMAGE_EXTENSIONS)
 
+def load_oriented_image(path):
+	# QPixmap(path) ignores EXIF Orientation; the reader applies it.
+	reader = QImageReader(path)
+	reader.setAutoTransform(True)
+	return reader.read()
+
 class PaneImageView(QScrollArea):
 	def __init__(self, on_close, on_switch, pane, bg, path):
 		super().__init__()
@@ -55,15 +61,16 @@ class PaneImageView(QScrollArea):
 		# letterboxing the pane in the live file-view background color
 		# (bg, from begin_new_view's palette) instead of a hardcoded one.
 		self.setStyleSheet('QScrollArea, QLabel { background-color: %s; }' % bg)
-		self._original_size = QImageReader(path).size()
 		if path.lower().endswith('.gif'):
+			self._original_size = QImageReader(path).size()
 			self._movie = QMovie(path)
 			self._label.setMovie(self._movie)
 			self._movie.start()
 		else:
-			self._pixmap = QPixmap(path)
-			if self._original_size.isEmpty():
-				self._original_size = self._pixmap.size()
+			image = load_oriented_image(path)
+			self._pixmap = QPixmap.fromImage(image)
+			# Reader.size() reports the stored size before EXIF rotation.
+			self._original_size = image.size()
 
 	def effective_scale(self):
 		# The scale actually on screen right now: the explicit override if

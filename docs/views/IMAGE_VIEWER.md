@@ -60,6 +60,9 @@ whole image is always visible.
 - **Animated GIFs play.** A `.gif` animates automatically while open;
   scaling (fit or explicit) applies to the animation, not just a static
   frame.
+- **Photo orientation is respected.** JPEG photos follow their EXIF
+  orientation. Qt does not read orientation from the other supported formats,
+  including WebP, so they display as before.
 - **Per-pane, one at a time.** Opening an image while a text viewer (or
   another image) is open in that pane replaces it, and vice versa — both
   share the same pane mount slot; the other pane is unaffected.
@@ -112,11 +115,13 @@ pane's focus proxy/Tab handling are re-pointed at it the same way.
   - `IMAGE_EXTENSIONS` / `is_image(url)` — the extension check that routes
     "View file" to this viewer instead of the text viewer (pure, unit
     tested).
+  - `load_oriented_image(path)` — reads a static image with Qt's automatic
+    EXIF orientation transform.
   - `PaneImageView(QScrollArea)` — the viewer widget: a `QLabel` inside a
-    `QScrollArea` (for panning when zoomed in). Loads a static image via
-    `QPixmap`, or a `.gif` via `QMovie` (started immediately so it
-    animates). `keyPressEvent` mirrors `PaneTextView`'s: Ctrl+Shift+P opens
-    its own palette, a zoom-shortcut match (via
+    `QScrollArea` (for panning when zoomed in). Loads a static image through
+    `load_oriented_image` and sizes it from the loaded image, or a `.gif` via
+    `QMovie` (started immediately so it animates). `keyPressEvent` mirrors
+    `PaneTextView`'s: Ctrl+Shift+P opens its own palette, a zoom-shortcut match (via
     `core.textviewer_zoom.zoom_delta_for`, reused rather than duplicated)
     rescales, then a `_bindable_commands()` lookup (via
     `core.key_bindings.command_for_key_event` — see "Bindable commands"
@@ -175,7 +180,8 @@ pane's focus proxy/Tab handling are re-pointed at it the same way.
   [`docs/functions/view-file.md`](../functions/view-file.md).
 - Tests:
   - `core/tests/test_imageviewer.py` — `is_image()`'s extension matching
-    (case-insensitive, non-image rejected, no-extension rejected).
+    (case-insensitive, non-image rejected, no-extension rejected) and static
+    image loading with EXIF rotation, normal orientation and missing files.
   - `core/tests/test_imageviewer_zoom.py` — `clamp_scale`'s bounds, and
     `change_image_scale`/`reset_image_scale`'s step/clamp/clear behaviour
     via injected `get_saved`/`save` fakes (so the math is tested without
