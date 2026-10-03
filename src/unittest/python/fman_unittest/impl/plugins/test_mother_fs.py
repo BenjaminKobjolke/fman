@@ -72,6 +72,25 @@ class MotherFileSystemTest(TestCase):
 		self.assertEqual(2, mother_fs.query('stub://a/c', 'size_bytes'))
 		mother_fs.move('stub://a/b', 'stub://a/c')
 		self.assertEqual(1, mother_fs.query('stub://a/c', 'size_bytes'))
+	def test_move_over_existing_does_not_duplicate_pardir_cache(self):
+		fs = StubFileSystem({
+			'a': { 'is_dir': True, 'files': ['b', 'c'] },
+			'a/b': {},
+			'a/c': {}
+		})
+		mother_fs = self._create_mother_fs(fs)
+		self.assertEqual(['b', 'c'], list(mother_fs.iterdir('stub://a')))
+		mother_fs.move('stub://a/b', 'stub://a/c')
+		self.assertEqual(['c'], list(mother_fs.iterdir('stub://a')))
+	def test_add_existing_file_does_not_drain_lazy_pardir_cache(self):
+		fs = LazyFileSystem({'a': ['b', 'c']})
+		mother_fs = self._create_mother_fs(fs)
+		self.assertIsInstance(mother_fs.iterdir('lazy://a'), CachedIterator)
+		mother_fs.notify_file_added('lazy://a/b')
+		self.assertEqual(0, fs.num_yielded)
+		self.assertEqual(
+			Counter(['b', 'c']), Counter(mother_fs.iterdir('lazy://a'))
+		)
 	def test_touch(self):
 		fs = StubFileSystem({
 			'a': { 'is_dir': True }
@@ -189,6 +208,19 @@ class FileSystemRaisingError(FileSystem):
 	def iterdir(self, path):
 		raise PermissionError(path)
 
+class LazyFileSystem(FileSystem):
+
+	scheme = 'lazy://'
+
+	def __init__(self, dirs):
+		super().__init__()
+		self._dirs = dirs
+		self.num_yielded = 0
+	def iterdir(self, path):
+		for name in self._dirs[path]:
+			self.num_yielded += 1
+			yield name
+
 class CachedIteratorTest(TestCase):
 	def test_simple(self):
 		# For the sake of illustration, see what happens normally:
@@ -241,6 +273,12 @@ class CachedIteratorTest(TestCase):
 		# only be returned once:
 		self.assertEqual(Counter([1, 2]), Counter(iterable))
 		self.assertEqual(Counter([1, 2]), Counter(iterable))
+	def test_remove_duplicate_added_before_source_is_consumed(self):
+		iterable = CachedIterator(self._generate(1, 2))
+		iterable.append(2)
+		self.assertEqual(Counter([1, 2]), Counter(iterable))
+		iterable.remove(2)
+		self.assertEqual([1], list(iterable))
 	def test_add_duplicate_after_exhausted(self):
 		iterable = CachedIterator(self._generate(1, 2))
 		self.assertEqual([1, 2], list(iterable))

@@ -219,7 +219,13 @@ class MotherFileSystem:
 		except KeyError:
 			pass
 		else:
-			parent_files.append(basename(url))
+			name = basename(url)
+			# A move over an existing file adds a name that is already listed.
+			# CachedIterator#append(...) is set-like, and `in` would drain its
+			# source iterator - so only a plain list needs the check.
+			if isinstance(parent_files, CachedIterator) \
+				or name not in parent_files:
+				parent_files.append(name)
 
 class CachedIterator:
 	def __init__(self, source):
@@ -248,12 +254,17 @@ class CachedIterator:
 					return len(self._items), value
 	def _record(self, value, delta=1):
 		try:
-			self._item_counts[value] += delta
-			return False
+			count = self._item_counts[value]
 		except KeyError:
 			self._items.append(value)
 			self._item_counts[value] = delta
 			return True
+		# Adding an item that is already present must not raise its count: the
+		# source yielding a name #append(...) already added would otherwise
+		# leave it at 2, and a single #remove(...) could no longer hide it.
+		if delta < 0 or count <= 0:
+			self._item_counts[value] = count + delta
+		return False
 
 class _CachedIterator:
 	def __init__(self, parent):
