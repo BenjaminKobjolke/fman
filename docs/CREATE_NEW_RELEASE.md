@@ -12,6 +12,61 @@ A release is identified by the label **`<version>_<build>`**, e.g. `1.7.5_3`:
   shipped** build; `0` = nothing shipped yet under this system (bump-first,
   ship-next).
 
+## One-command release
+
+```bat
+tools\release_create.bat             :: the whole release
+tools\release_create.bat --internal  :: internal test build: no release notes, INTERNAL commit
+tools\release_create.bat --dry-run   :: print the label and every command, run nothing
+```
+
+Runs the shared `release-tool create`
+([`CREATE_RELEASE_COMMAND.md`](https://github.com/BenjaminKobjolke/release-tool/blob/main/docs/CREATE_RELEASE_COMMAND.md)),
+configured by `tools/release_create.ini`. Close any running fman.exe first (step 4).
+For a new version, bump `version` and reset `build_version.txt` to `0` beforehand
+("Bumping the version" below) — the script only ever bumps the build.
+
+What it does, in order — the numbered steps below describe each part in detail and
+remain the manual path:
+
+1. Computes the label `<version>_<build + 1>`.
+2. Has Codex author `release_notes/<label>/en.json` if it is missing (step 2).
+3. Runs `tools\build_increment.bat` — **the one and only bump of the release**. If
+   the build fails, it runs `tools\build_decrement.bat` to roll it back.
+4. Runs `tools\translate_release_notes.bat` (step 3).
+5. Runs `tools\build_release.bat`: `python build.py release_build`, i.e. clean +
+   release profile + freeze, sign, installer, sign the installer. On success it
+   records the label in `target\release_version.txt`, next to the installer.
+6. **Asks** `Commit, tag and push <label>?` — `git add -A`, commit
+   `RELEASE (fman): <label>`, tag `<label>`, push both.
+7. **Asks** `Create GitHub Release <label>?` — only offered if 6 ran. Uploads
+   `target\fmanSetup.exe` with the notes from `en.json`, titled `fman <label>`.
+
+Both questions default to no; declining leaves a finished, signed build in `target\`.
+
+**The tag is the full label** (`1.7.13_2`), not `v<version>` as in the releases up to
+`v1.7.13`. Every build therefore gets its own tag and its own GitHub Release.
+
+### Publishing an existing build again
+
+```bat
+tools\github_release.bat
+```
+
+Publishes the installer that is in `target\` under the label recorded in
+`target\release_version.txt` — no rebuild, no bump. Use it when question 7 was
+declined or the upload failed. It reads the recorded label rather than
+`build_version.txt`, so it still publishes the right release after the counter has
+moved on. It refuses to run without a record, installer, release notes, or a
+`<label>` tag on `origin` (commit, tag and push first — step 6 by hand:
+`git tag <label>`, `git push`, `git push origin <label>`).
+
+For an installer built before the record existed, name the label:
+`tools\github_release.bat 1.7.13_1`.
+
+`python tools/test_release_version.py` checks this handoff with a fake build and a
+fake uploader; run it after changing `build_release.bat` or `github_release.bat`.
+
 ## 1. Version & build number
 
 ```bat
@@ -78,6 +133,11 @@ ones) for that release.
 
 ## 4. Build the release
 
+`tools\release_create.bat` does this step for you through `tools\build_release.bat`
+(`python build.py release_build`), which builds on the dirty tree the script leaves
+behind — do **not** also increment or run `python build.py release` then. What
+follows is the manual path.
+
 **First: close any running fman.exe.** `freeze()` (via PyInstaller) deletes and
 recreates `target/fman/` — if fman is running from that folder (e.g. you were
 just testing it), cleanup fails with `PermissionError: Access is denied` on a
@@ -120,12 +180,15 @@ in `-SNAPSHOT`:
 - **Plain version, e.g. `1.7.5`** (this fork's actual convention — see step 1,
   version is bumped by hand and never carries a `-SNAPSHOT` suffix): `release()`
   just calls `publish()` directly. **No tag, no push happens automatically.**
-  After a successful build you must do it yourself before step 4.5:
+  After a successful build you must do it yourself before step 4.5 — the tag is
+  the full label:
   ```bat
-  git tag v<version>
+  git tag <version>_<build>
   git push origin main
-  git push origin v<version>
+  git push origin <version>_<build>
   ```
+  `python build.py release` does not write `target\release_version.txt` (only
+  `tools\build_release.bat` does), so pass the label to step 4.5 explicitly.
 
 `publish()` on Windows runs `freeze` → `sign` → `installer` → `sign_installer` →
 `upload`. `installer()` still comes from fbs itself (fbs's built-in
@@ -181,37 +244,32 @@ purging history if this repo is or was ever public.
 Prereq (one-time): [`gh` CLI](https://cli.github.com/) installed and on `PATH`,
 authenticated via `gh auth login` (scope: `repo`).
 
-After `python build.py release` (or a signed `python build.py publish`) has
-produced and signed `target\fmanSetup.exe` and pushed the `v<version>` tag, run:
+`tools\release_create.bat` offers this as its last question. By hand — after a
+signed `target\fmanSetup.exe` exists and the `<label>` tag is pushed — run:
 
 ```bat
-tools\github_release.bat
+tools\github_release.bat            :: label from target\release_version.txt
+tools\github_release.bat <label>    :: explicit, for a build without that record
 ```
 
 This calls the shared `release-tool`'s `github-release` command (same
 signing-handshake repo as `sign_exe.bat`, see
 [`GITHUB_RELEASE_COMMAND.md`](https://github.com/BenjaminKobjolke/release-tool/blob/main/docs/GITHUB_RELEASE_COMMAND.md))
-to create a GitHub Release tagged `v<version>` at
+to create a GitHub Release tagged `<label>` at
 [github.com/BenjaminKobjolke/fman/releases](https://github.com/BenjaminKobjolke/fman/releases),
 attach `target\fmanSetup.exe`, and set the body from
-`release_notes\<label>\en.json`. Idempotent — re-running re-uploads the asset
-(`--clobber`) instead of failing.
+`release_notes\<label>\en.json`. See "Publishing an existing build again" above
+for what it checks first.
 
-**Caveat: the GitHub tag is `v<version>` only — the build number is stripped**
-(see `TAG=v%VERSION%` in the bat). Every build under the *same* version maps to
-the *same* tag/release. Shipping a second build of an unchanged version
-therefore reuses the existing GitHub Release: the asset gets re-uploaded
-(`--clobber`), but the release-tool's "already exists" path does **not**
-update the title or body — it only uploads the asset (see
-`release-tool/src/release_tool/github_publisher.py`, `_ALREADY_EXISTS_MARKER`
-branch). If you ship a same-version rebuild, fix the notes by hand afterward:
+Idempotent — re-running re-uploads the asset (`--clobber`) instead of failing. On
+that "already exists" path the release-tool does **not** update the title or
+body (see `release-tool/src/release_tool/github_publisher.py`,
+`_ALREADY_EXISTS_MARKER` branch). To change the notes of a published release:
 ```bat
-gh release edit v<version> --repo BenjaminKobjolke/fman --title "fman <version>" --notes-file release_notes\<label>\en.json
+gh release edit <label> --repo BenjaminKobjolke/fman --notes-file notes.md
 ```
 (the `en.json` isn't directly Markdown, so render its `title`/`notes` into a
-`# title` + bullet-list `.md` file first). A **version bump** avoids this
-entirely — a new tag means a brand-new release with no reuse. See "Bumping the
-version" in step 1.
+`# title` + bullet-list `.md` file first).
 
 **`release_notes/` is bundled into the frozen app.** fbs auto-bundles
 everything under `src/main/resources/base/` into the frozen output
