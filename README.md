@@ -11,7 +11,7 @@ a folder. Run any command from a fuzzy palette. Extend it in Python.
 
 ### [⬇ Download for Windows](https://github.com/BenjaminKobjolke/fman/releases/latest)
 
-v1.7.8 · signed installer, 75 MB · no license key, no trial, no nag screen
+no license key, no trial, no nag screen
 
 *macOS and Linux: fman runs on both — [build from source](#build-from-source).*
 
