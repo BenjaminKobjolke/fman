@@ -61,6 +61,25 @@ class LoadJsonTest(TestCase):
 		json1 = self._save_to_json(d1)
 		json2 = self._save_to_json(d2)
 		self.assertEqual({'a': 1, 'b': 2, 'c': 2}, load_json([json1, json2]))
+	def test_nested_dict_multiple_files(self):
+		d1 = {'archive_handlers': {'.zip': 'zip://', '.tar': 'tar://'}}
+		d2 = {'archive_handlers': {'.crx': 'crx://', '.tar': 'tar2://'}}
+		json1 = self._save_to_json(d1)
+		json2 = self._save_to_json(d2)
+		self.assertEqual(
+			{
+				'archive_handlers': {
+					'.zip': 'zip://', '.tar': 'tar2://', '.crx': 'crx://'
+				}
+			},
+			load_json([json1, json2])
+		)
+	def test_nested_list_multiple_files(self):
+		d1 = {'editor': {'args': ['vim', '{file}']}}
+		d2 = {'editor': {'args': ['emacs', '{file}']}}
+		json1 = self._save_to_json(d1)
+		json2 = self._save_to_json(d2)
+		self.assertEqual(d2, load_json([json1, json2]))
 	def test_list(self):
 		values = [1, 2]
 		json_path = self._save_to_json(values)
@@ -173,6 +192,31 @@ class WriteDifferentialJsonTest(TestCase):
 		write_differential_json({'a': 1, 'b': 2}, [json1], json2)
 		with self.assertRaises(ValueError):
 			write_differential_json({'b': 2}, [json1], json2)
+	def test_nested_dict_incremental_update(self):
+		json1 = self._json_file(0)
+		json2 = self._json_file(1)
+		with open(json1, 'w') as f:
+			json.dump({'a': {'x': 1, 'y': 1}}, f)
+		write_differential_json({'a': {'x': 1, 'y': 2, 'z': 3}}, [json1], json2)
+		with open(json2, 'r') as f:
+			self.assertEqual({'a': {'y': 2, 'z': 3}}, json.load(f))
+		self.assertEqual(
+			{'a': {'x': 1, 'y': 2, 'z': 3}}, load_json([json1, json2])
+		)
+	def test_delete_nested_dict_key_same_file_ok(self):
+		json1 = self._json_file(0)
+		json2 = self._json_file(1)
+		write_differential_json({'a': {'x': 1}}, [], json1)
+		write_differential_json({'a': {'x': 1, 'y': 2}}, [json1], json2)
+		write_differential_json({'a': {'x': 1}}, [json1], json2)
+		self.assertEqual({'a': {'x': 1}}, load_json([json1, json2]))
+	def test_delete_nested_dict_key_different_file_raises(self):
+		json1 = self._json_file(0)
+		json2 = self._json_file(1)
+		write_differential_json({'a': {'x': 1}}, [], json1)
+		write_differential_json({'a': {'x': 1, 'y': 2}}, [json1], json2)
+		with self.assertRaises(ValueError):
+			write_differential_json({'a': {'y': 2}}, [json1], json2)
 	def setUp(self):
 		self.temp_dir = mkdtemp()
 	def tearDown(self):
