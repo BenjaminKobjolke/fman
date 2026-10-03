@@ -4,6 +4,12 @@ REM Called by release_create.bat (release-tool create), which owns the build bum
 REM translation and rollback - this bat only builds the version that is already set.
 REM Close any running fman.exe first: freeze() cannot replace target\fman\ under it.
 setlocal
+
+REM release-tool starts this bat through "uv run", whose venv comes first on PATH.
+REM fman has no venv: fbs lives in the system python, so drop the inherited one.
+if defined VIRTUAL_ENV call set "PATH=%%PATH:%VIRTUAL_ENV%\Scripts;=%%"
+set "VIRTUAL_ENV="
+
 set "ROOT=%~dp0.."
 set "RECORD=%ROOT%\target\release_version.txt"
 
