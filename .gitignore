@@ -40,3 +40,7 @@ media/demos/plugin-*/
 media/demos/themes/*.png
 tmp
 tickets/
+# Written by tools\release_create.bat (release-tool create) - transient local state
+tools/previous_version.txt
+# Snapshot of the shared release-notes recipe; re-copied by /release:setup-automated-script
+tools/CREATE_RELEASE_NOTES.md
