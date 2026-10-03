@@ -17,6 +17,21 @@ class WorkerTest(TestCase):
 		self.assertTrue(done.wait(1))
 		self.assertEqual(('a',), received['args'])
 		self.assertEqual({'key': 'value'}, received['kwargs'])
+	def test_shutdown_from_worker_thread(self):
+		# Model#_shutdown_async() runs *on* the worker. A thread can't join
+		# itself, so this used to raise RuntimeError.
+		errors = []
+		def shutdown():
+			try:
+				worker.shutdown()
+			except RuntimeError as e:
+				errors.append(e)
+		worker = Worker()
+		worker.start()
+		worker.submit(1, shutdown)
+		worker._thread.join(2)
+		self.assertFalse(worker._thread.is_alive())
+		self.assertEqual([], errors)
 
 class WorkItemTest(TestCase):
 	def test_equal(self):

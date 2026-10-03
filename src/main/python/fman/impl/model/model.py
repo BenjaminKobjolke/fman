@@ -140,6 +140,10 @@ class Model(SortFilterTableModel, DragAndDrop):
 		#     thread,
 		# then _remove_... is waiting for the main thread and _add_... is
 		# waiting for the lock. Deadlock.
+		if self._shutdown:
+			# #_shutdown_async() is queued right behind us. Don't register
+			# callbacks that could still fire before it removes them.
+			return
 		self._file_watcher.start()
 		self._load_remaining_files()
 	def _init_file(self, url):
@@ -400,12 +404,14 @@ class Model(SortFilterTableModel, DragAndDrop):
 		if not all_loaded:
 			self._load_remaining_files()
 	def shutdown(self):
+		if self._shutdown:
+			return
 		self._shutdown = True
 		# Similarly to why we don't want to call FileWatcher#start() from the
 		# main thread, we also don't want to call #shutdown() from it to avoid
-		# potential deadlocks. So do it asynchronously:
-		self._shutdown_async()
-	@transaction(priority=1)
+		# potential deadlocks. So do it asynchronously. Not a @transaction:
+		# those return early once ._shutdown is set, so this never ran.
+		self._worker.submit(1, self._shutdown_async)
 	def _shutdown_async(self):
 		self._file_watcher.shutdown()
 		self._worker.shutdown()

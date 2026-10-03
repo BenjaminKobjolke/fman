@@ -293,6 +293,31 @@ class InitStreamsFilesTest(ExecutorTestCase):
 		# The real one builds a QPixmap, which aborts without a QApplication:
 		self._patch('_get_empty_icon', lambda *_: None)
 
+class ModelShutdownTest(ExecutorTestCase):
+
+	"""
+	#shutdown() sets ._shutdown and then used to go through @transaction - which
+	returns early when ._shutdown is set. So the file watcher was never
+	unregistered and the worker thread never ended.
+	"""
+
+	def test_shutdown_stops_watcher_and_worker(self):
+		model = Model(StubFileSystem({}), 'null://', [Column()])
+		model._file_watcher = MagicMock(spec=FileWatcher)
+		model._worker.start()
+		model.shutdown()
+		model._worker._thread.join(2)
+		self.assertFalse(model._worker._thread.is_alive())
+		model._file_watcher.shutdown.assert_called_once_with()
+	def test_shutdown_twice(self):
+		model = Model(StubFileSystem({}), 'null://', [Column()])
+		model._file_watcher = MagicMock(spec=FileWatcher)
+		model._worker.start()
+		model.shutdown()
+		model.shutdown()
+		model._worker._thread.join(2)
+		model._file_watcher.shutdown.assert_called_once_with()
+
 class NameColumn(Column):
 	def get_str(self, url):
 		return basename(url)

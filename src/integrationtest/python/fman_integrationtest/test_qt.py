@@ -67,10 +67,15 @@ class _QtApp:
 		cls._executor.shutdown(wait=True)
 	@classmethod
 	def _start_app(cls, callback):
-		cls._app = _Application([])
-		cls._app.running.connect(callback, Qt.QueuedConnection)
-		cls._app.running.emit()
-		cls._app.exec_()
+		app = _Application([])
+		cls._app = app
+		app.running.connect(callback, Qt.QueuedConnection)
+		app.running.emit()
+		app.exec_()
+		# Destroy the QApplication here, in the thread that created it - not
+		# whenever the interpreter gets around to it, in another thread.
+		cls._app = None
+		del app
 	@classmethod
 	def _qt_message_handler(cls, msg_type, context, msg):
 		if msg == 'WARNING: QApplication was not created in the main() thread.':

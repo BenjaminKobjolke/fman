@@ -21,7 +21,9 @@ class FileWatcher:
 				)
 				self._fs.file_removed.remove_callback(self._on_file_removed)
 				self._fs.file_added.remove_callback(self._on_file_added)
-			except ValueError:
+			except (ValueError, FileNotFoundError):
+				# FileNotFoundError: the location's scheme is no longer
+				# registered - see MotherFileSystem#_split(...).
 				pass
 	def _on_file_added(self, url):
 		if self._is_in_root(url):

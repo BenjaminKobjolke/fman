@@ -232,7 +232,11 @@ class SortedFileSystemModelAT: # Instantiated in fman_integrationtest.test_qt
 		)
 		self._timeout = None if _is_debugger_attached() else .2
 	def tearDown(self):
-		self._model.sourceModel().shutdown()
+		model = self._model.sourceModel()
+		model.shutdown()
+		# Don't let this test's worker run into the next one's:
+		model._worker._thread.join(2)
+		self.assertFalse(model._worker._thread.is_alive())
 		super().tearDown()
 	def _register_column(self, instance):
 		self._fs.register_column(instance.get_qualified_name(), instance)
