@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 2,
+  "date": "2026-10-01",
+  "title": "Visores más útiles y fotos rotadas correctamente",
+  "notes": [
+    "Ahora los visores pueden ejecutar comandos de archivo compatibles directamente desde la paleta de comandos o mediante sus atajos habituales, incluida la copia, el movimiento y la eliminación del archivo que estás viendo. Después de eliminar un archivo, fman puede mostrar automáticamente el siguiente archivo visualizable según tu configuración.",
+    "Ahora las fotos respetan la información de rotación de la cámara, por lo que las imágenes tomadas en orientación vertical aparecen en posición correcta en el visor de imágenes."
+  ]
+}

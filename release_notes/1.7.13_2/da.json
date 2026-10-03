@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 2,
+  "date": "2026-10-01",
+  "title": "Mere nyttige visere og korrekt roterede fotos",
+  "notes": [
+    "Visere kan nu køre understøttede filkommandoer direkte fra kommandopaletten eller via deres sædvanlige genveje, herunder kopiering, flytning og sletning af den fil, du ser på. Når en fil er blevet slettet, kan fman automatisk vise den næste visbare fil i henhold til dine indstillinger.",
+    "Fotos respekterer nu kameraets rotationsoplysninger, så billeder taget i portrætorientering vises korrekt i billedviseren."
+  ]
+}

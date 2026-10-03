@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 2,
+  "date": "2026-10-01",
+  "title": "Visualizzatori più utili e foto ruotate correttamente",
+  "notes": [
+    "Ora i visualizzatori possono eseguire i comandi file supportati direttamente dalla palette dei comandi o tramite le solite scorciatoie, inclusi copiare, spostare ed eliminare il file che stai visualizzando. Dopo l'eliminazione di un file, fman può mostrare automaticamente il successivo file visualizzabile in base alle tue impostazioni.",
+    "Ora le foto rispettano le informazioni di rotazione della fotocamera, così le immagini scattate in orientamento verticale vengono visualizzate correttamente nel visualizzatore di immagini."
+  ]
+}

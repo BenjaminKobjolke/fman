@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 2,
+  "date": "2026-10-01",
+  "title": "Visionneuses plus utiles et photos correctement orientées",
+  "notes": [
+    "Les visionneuses peuvent désormais exécuter les commandes de fichiers prises en charge directement depuis la palette de commandes ou via leurs raccourcis habituels, notamment copier, déplacer et supprimer le fichier que vous consultez. Après la suppression d’un fichier, fman peut automatiquement afficher le fichier consultable suivant selon vos paramètres.",
+    "Les photos respectent désormais les informations de rotation de l’appareil photo, de sorte que les images prises en orientation portrait apparaissent à l’endroit dans la visionneuse d’images."
+  ]
+}

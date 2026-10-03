@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 2,
+  "date": "2026-10-01",
+  "title": "Hasznosabb megjelenítők és helyesen elforgatott fényképek",
+  "notes": [
+    "A megjelenítők mostantól közvetlenül a parancspalettáról vagy a szokásos gyorsbillentyűikkel is futtathatják a támogatott fájlparancsokat, beleértve a megtekintett fájl másolását, áthelyezését és törlését. A fájl törlése után az fman a beállításaid szerint automatikusan megjelenítheti a következő megtekinthető fájlt.",
+    "A fényképek mostantól figyelembe veszik a kamera elforgatási információit, így az álló tájolásban készült képek függőlegesen, helyes irányban jelennek meg a képmegjelenítőben."
+  ]
+}

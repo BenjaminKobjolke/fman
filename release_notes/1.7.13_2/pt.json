@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 2,
+  "date": "2026-10-01",
+  "title": "Visualizadores mais úteis e fotos rotacionadas corretamente",
+  "notes": [
+    "Agora, os visualizadores podem executar comandos de arquivo compatíveis diretamente pela paleta de comandos ou pelos atalhos habituais, incluindo copiar, mover e excluir o arquivo que você está visualizando. Depois que um arquivo é excluído, o fman pode mostrar automaticamente o próximo arquivo visualizável de acordo com suas configurações.",
+    "As fotos agora respeitam as informações de rotação da câmera, para que imagens tiradas na orientação retrato apareçam na posição correta no visualizador de imagens."
+  ]
+}

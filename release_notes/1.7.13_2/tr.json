@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 2,
+  "date": "2026-10-01",
+  "title": "Daha kullanışlı görüntüleyiciler ve doğru şekilde döndürülmüş fotoğraflar",
+  "notes": [
+    "Görüntüleyiciler artık desteklenen dosya komutlarını doğrudan komut paletinden veya her zamanki kısayollarından çalıştırabilir; buna görüntülediğiniz dosyayı kopyalama, taşıma ve silme de dahildir. Bir dosya silindikten sonra, fman ayarlarınıza göre otomatik olarak görüntülenebilir bir sonraki dosyayı gösterebilir.",
+    "Fotoğraflar artık kameranın döndürme bilgilerini dikkate alır; böylece portre yönünde çekilen görüntüler, görüntüleyicide dik şekilde görünür."
+  ]
+}

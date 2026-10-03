@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 2,
+  "date": "2026-10-01",
+  "title": "Trình xem hữu ích hơn và ảnh được xoay đúng",
+  "notes": [
+    "Trình xem giờ đây có thể chạy trực tiếp các lệnh tệp được hỗ trợ từ bảng lệnh hoặc bằng các phím tắt quen thuộc của bạn, bao gồm sao chép, di chuyển và xóa tệp bạn đang xem. Sau khi một tệp bị xóa, fman có thể tự động hiển thị tệp có thể xem tiếp theo theo cài đặt của bạn.",
+    "Ảnh giờ đây tôn trọng thông tin xoay của máy ảnh, vì vậy các hình ảnh chụp theo hướng dọc sẽ hiển thị thẳng đứng trong trình xem ảnh."
+  ]
+}

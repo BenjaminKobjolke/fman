@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 2,
+  "date": "2026-10-01",
+  "title": "Mer användbara visare och korrekt roterade foton",
+  "notes": [
+    "Visare kan nu köra filkommandon som stöds direkt från kommandopaletten eller via sina vanliga kortkommandon, inklusive att kopiera, flytta och ta bort filen du visar. När en fil har tagits bort kan fman automatiskt visa nästa visningsbara fil enligt dina inställningar.",
+    "Foton respekterar nu kamerans rotationsinformation, så att bilder som tagits i stående orientering visas upprätt i bildvisaren."
+  ]
+}

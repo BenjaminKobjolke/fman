@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 2,
+  "date": "2026-10-01",
+  "title": "More useful viewers and correctly rotated photos",
+  "notes": [
+    "Viewers can now run supported file commands directly from the command palette or their usual shortcuts, including copying, moving and deleting the file you are viewing. After a file is deleted, fman can automatically show the next viewable file according to your settings.",
+    "Photos now respect their camera's rotation information, so images taken in portrait orientation appear upright in the image viewer."
+  ]
+}

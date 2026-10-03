@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 2,
+  "date": "2026-10-01",
+  "title": "Korisniji preglednici i ispravno rotirane fotografije",
+  "notes": [
+    "Preglednici sada mogu pokretati podržane naredbe nad datotekama izravno iz palete naredbi ili putem uobičajenih prečaca, uključujući kopiranje, premještanje i brisanje datoteke koju pregledavate. Nakon brisanja datoteke, fman može automatski prikazati sljedeću datoteku koju je moguće pregledati, prema vašim postavkama.",
+    "Fotografije sada poštuju informacije o rotaciji iz kamere, pa se slike snimljene u portretnom načinu prikazuju uspravno u pregledniku slika."
+  ]
+}

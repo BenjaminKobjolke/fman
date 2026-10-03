@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 2,
+  "date": "2026-10-01",
+  "title": "Kasulikumad vaaturid ja õigesti pööratud fotod",
+  "notes": [
+    "Vaaturid saavad nüüd käivitada toetatud failikäske otse käsupaletist või oma tavapäraste kiirklahvidega, sealhulgas vaadatava faili kopeerimine, teisaldamine ja kustutamine. Pärast faili kustutamist saab fman teie seadete järgi automaatselt näidata järgmist vaadatavat faili.",
+    "Fotod arvestavad nüüd kaamera pööramisteabega, nii et püstises asendis tehtud pildid kuvatakse pildivaaturis õigesti."
+  ]
+}

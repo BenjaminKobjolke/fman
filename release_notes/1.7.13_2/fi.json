@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 2,
+  "date": "2026-10-01",
+  "title": "Hyödyllisemmät katselimet ja oikein käännetyt valokuvat",
+  "notes": [
+    "Katselimet voivat nyt suorittaa tuettuja tiedostokomentoja suoraan komentopaletista tai tavallisilla pikanäppäimillään, mukaan lukien katsottavana olevan tiedoston kopioiminen, siirtäminen ja poistaminen. Tiedoston poistamisen jälkeen fman voi asetustesi mukaan näyttää automaattisesti seuraavan katseltavissa olevan tiedoston.",
+    "Valokuvat huomioivat nyt kameran kääntötiedot, joten pystysuunnassa otetut kuvat näkyvät kuvakatselimessa oikein päin."
+  ]
+}

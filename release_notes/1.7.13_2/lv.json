@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 2,
+  "date": "2026-10-01",
+  "title": "Noderīgāki skatītāji un pareizi pagrieztas fotogrāfijas",
+  "notes": [
+    "Skatītāji tagad var palaist atbalstītās failu komandas tieši no komandu paletes vai ar ierastajiem īsinājumtaustiņiem, tostarp kopēt, pārvietot un dzēst pašlaik skatīto failu. Pēc faila dzēšanas fman var automātiski parādīt nākamo skatāmo failu atbilstoši jūsu iestatījumiem.",
+    "Fotogrāfijas tagad ievēro kameras rotācijas informāciju, tāpēc attēli, kas uzņemti portreta orientācijā, attēlu skatītājā tiek rādīti pareizi."
+  ]
+}

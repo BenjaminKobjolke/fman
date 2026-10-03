@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 2,
+  "date": "2026-10-01",
+  "title": "Bolj uporabni pregledovalniki in pravilno zasukane fotografije",
+  "notes": [
+    "Pregledovalniki lahko zdaj poganjajo podprte ukaze za datoteke neposredno iz palete ukazov ali z običajnimi bližnjicami, vključno s kopiranjem, premikanjem in brisanjem datoteke, ki jo trenutno pregledujete. Ko je datoteka izbrisana, lahko fman samodejno prikaže naslednjo datoteko, ki jo je mogoče pregledati, glede na vaše nastavitve.",
+    "Fotografije zdaj upoštevajo podatke o zasuku kamere, zato se slike, posnete v pokončni usmerjenosti, v pregledovalniku slik prikažejo pravilno."
+  ]
+}

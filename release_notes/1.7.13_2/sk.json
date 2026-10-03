@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 2,
+  "date": "2026-10-01",
+  "title": "Užitočnejšie prehliadače a správne otočené fotografie",
+  "notes": [
+    "Prehliadače teraz môžu spúšťať podporované príkazy pre súbory priamo z príkazovej palety alebo pomocou bežných klávesových skratiek, vrátane kopírovania, presúvania a odstránenia súboru, ktorý si prezeráte. Po odstránení súboru môže fman automaticky zobraziť ďalší prezerateľný súbor podľa vašich nastavení.",
+    "Fotografie teraz rešpektujú informácie o otočení z fotoaparátu, takže snímky urobené na výšku sa v prehliadači obrázkov zobrazujú správne."
+  ]
+}

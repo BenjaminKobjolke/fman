@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 2,
+  "date": "2026-10-01",
+  "title": "Naudingesnės peržiūros priemonės ir teisingai pasuktos nuotraukos",
+  "notes": [
+    "Peržiūros priemonėse dabar galima vykdyti palaikomas failų komandas tiesiai iš komandų paletės arba naudojant įprastus sparčiuosius klavišus, įskaitant peržiūrimo failo kopijavimą, perkėlimą ir ištrynimą. Ištrynus failą, „fman“ gali automatiškai rodyti kitą peržiūrimą failą pagal jūsų nustatymus.",
+    "Nuotraukos dabar atsižvelgia į fotoaparato pasukimo informaciją, todėl portretine orientacija darytos nuotraukos vaizdų peržiūros priemonėje rodomos stačiai."
+  ]
+}

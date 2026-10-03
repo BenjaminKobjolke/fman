@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 2,
+  "date": "2026-10-01",
+  "title": "Bardziej użyteczne przeglądarki i poprawnie obrócone zdjęcia",
+  "notes": [
+    "Przeglądarki mogą teraz uruchamiać obsługiwane polecenia na plikach bezpośrednio z palety poleceń lub za pomocą zwykłych skrótów, w tym kopiowanie, przenoszenie i usuwanie aktualnie przeglądanego pliku. Po usunięciu pliku fman może automatycznie wyświetlić następny plik możliwy do wyświetlenia zgodnie z Twoimi ustawieniami.",
+    "Zdjęcia teraz uwzględniają informacje o obrocie z aparatu, dzięki czemu obrazy wykonane w orientacji pionowej są wyświetlane prawidłowo w przeglądarce obrazów."
+  ]
+}

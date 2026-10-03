@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 2,
+  "date": "2026-10-01",
+  "title": "Vizualizatoare mai utile și fotografii rotite corect",
+  "notes": [
+    "Vizualizatoarele pot acum rula comenzi de fișiere acceptate direct din paleta de comenzi sau prin scurtăturile obișnuite, inclusiv copierea, mutarea și ștergerea fișierului pe care îl vizualizați. După ce un fișier este șters, fman poate afișa automat următorul fișier vizualizabil, în funcție de setările dvs.",
+    "Fotografiile respectă acum informațiile de rotație ale camerei, astfel încât imaginile realizate în orientare portret apar corect orientate în vizualizatorul de imagini."
+  ]
+}

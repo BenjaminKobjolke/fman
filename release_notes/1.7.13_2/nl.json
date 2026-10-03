@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 2,
+  "date": "2026-10-01",
+  "title": "Nuttigere viewers en correct gedraaide foto’s",
+  "notes": [
+    "Viewers kunnen nu ondersteunde bestandsopdrachten rechtstreeks vanuit het opdrachtenpalet of via hun gebruikelijke sneltoetsen uitvoeren, waaronder het kopiëren, verplaatsen en verwijderen van het bestand dat je bekijkt. Nadat een bestand is verwijderd, kan fman automatisch het volgende bekijkbare bestand tonen volgens je instellingen.",
+    "Foto’s houden nu rekening met de rotatie-informatie van de camera, zodat afbeeldingen die in portretstand zijn gemaakt rechtop worden weergegeven in de afbeeldingsviewer."
+  ]
+}

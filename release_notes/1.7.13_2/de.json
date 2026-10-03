@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 2,
+  "date": "2026-10-01",
+  "title": "Nützlichere Viewer und korrekt gedrehte Fotos",
+  "notes": [
+    "Viewer können unterstützte Dateibefehle jetzt direkt aus der Befehlspalette oder über ihre üblichen Tastenkürzel ausführen, einschließlich Kopieren, Verschieben und Löschen der Datei, die Sie gerade ansehen. Nachdem eine Datei gelöscht wurde, kann fman gemäß Ihren Einstellungen automatisch die nächste anzeigbare Datei anzeigen.",
+    "Fotos berücksichtigen jetzt die Rotationsinformationen der Kamera, sodass im Hochformat aufgenommene Bilder im Bildbetrachter aufrecht angezeigt werden."
+  ]
+}
