@@ -23,7 +23,7 @@ Status: `pending` (not looked at yet), `ported`, `skipped` (with reason).
 | 0.10.2 | Simplified clipboard, Explorer and Recycle Bin command handling | pending | |
 | 0.10.2 | QuickView Find field forwards modified Enter shortcuts | pending | needs QuickView (0.8.0 / 0.10.0) |
 | 0.10.2 | Compare directories reports selected visible differences | pending | |
-| 0.10.2 | Pack at drive root suggests `C.zip` instead of `C:.zip` | pending | |
+| 0.10.2 | Pack at drive root suggests `C.zip` instead of `C:.zip` | ported | 2026-10-03 — `core/commands/pack.py` (`_suggest_archive_name`), `core/tests/commands/test_pack.py` |
 | 0.10.2 | Delete continuation prompts use the task dialog, explicit Yes default | pending | |
 | 0.10.1 | Removed macOS/Linux runtime branches | skipped | this fork stays cross-platform |
 | 0.10.1 | Removed GitHub plug-in installer | skipped | this fork keeps it (`docs/INSTALL_PLUGINS.md`) |
@@ -66,7 +66,7 @@ Status: `pending` (not looked at yet), `ported`, `skipped` (with reason).
 | 0.8.0 | Image QuickView (Ctrl+Q) | pending | this fork has own image viewer |
 | 0.8.0 | `tinycss` replaced by `tinycss2` | pending | new dependency |
 | 0.8.0 | No row-height recalculation on metadata updates in large folders | pending | |
-| 0.8.0 | Qt tests use nonblocking completion notification | pending | may relate to the known test hang |
+| 0.8.0 | Qt tests use nonblocking completion notification | pending | may relate to the known test hang; needs his main-thread `QApplication` test runner (`QtIT.run`, `qt_runner`) first |
 | 0.7.1 | File / folder comparator wizards, Compare files / folders | pending | |
 | 0.7.1 | Find Files cancel reports Stopped, not Error | pending | needs Find files panel (0.7.0) |
 | 0.7.1 | Find Files counts "entries" rather than "files" | pending | needs Find files panel (0.7.0) |
@@ -134,10 +134,10 @@ Status: `pending` (not looked at yet), `ported`, `skipped` (with reason).
 | 0.1.0 | F1 opens searchable keyboard shortcut guide | pending | this fork has own keybinding docs / palette |
 | 0.1.0 | 1280x800 default window, Reset Window Geometry command | pending | |
 | 0.1.0 | Application context lifetime fix (native Qt startup crashes) | pending | |
-| 0.1.0 | Worker / file-watcher / QApplication shutdown races in tests | pending | may relate to the known test hang |
+| 0.1.0 | Worker / file-watcher / QApplication shutdown races in tests | ported | 2026-10-03 — `fman/impl/model/model.py` (`shutdown` never ran `_shutdown_async`), `worker.py`, `file_watcher.py`, `fman_integrationtest/test_qt.py`; effect on the known test hang not measured |
 | 0.1.0 | `Worker.submit` forwards keyword arguments | ported | 2026-10-03 — `fman/impl/model/worker.py`, `fman_unittest/impl/model/test_worker.py` |
 | 0.1.0 | `WorkItem.__eq__` compared tuples incorrectly | ported | 2026-10-03 — same files as the row above |
-| 0.1.0 | "Sort value is not loaded" after changing sort column then relaxing filter | pending | upstream bug |
-| 0.1.0 | Move over existing file duplicated its name in cached listing | pending | upstream bug |
-| 0.1.0 | Duplicate additions to lazy plug-in directory listings left stale entries | pending | upstream bug |
+| 0.1.0 | "Sort value is not loaded" after changing sort column then relaxing filter | ported | 2026-10-03 — `fman/impl/model/model.py` (`sort`), `fman_unittest/impl/model/test_model.py` |
+| 0.1.0 | Move over existing file duplicated its name in cached listing | ported | 2026-10-03 — `fman/impl/plugins/mother_fs.py` (`_add_to_parent`), `test_mother_fs.py` |
+| 0.1.0 | Duplicate additions to lazy plug-in directory listings left stale entries | ported | 2026-10-03 — `mother_fs.py` (`CachedIterator._record`); same change as the row above |
 | 0.1.0 | Frozen Qt dependency collection, locked-build detection, title bar icon | skipped | his packaging |
