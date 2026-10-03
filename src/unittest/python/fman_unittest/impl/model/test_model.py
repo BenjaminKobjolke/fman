@@ -293,6 +293,47 @@ class InitStreamsFilesTest(ExecutorTestCase):
 		# The real one builds a QPixmap, which aborts without a QApplication:
 		self._patch('_get_empty_icon', lambda *_: None)
 
+class ModelSortTest(ExecutorTestCase):
+
+	"""
+	#sort(...) used to load the new sort column's values for the visible rows
+	only. A file hidden by a filter kept _NOT_LOADED, so relaxing the filter -
+	showing hidden files - raised 'Sort value is not loaded'.
+	"""
+
+	def test_sort_loads_values_of_filtered_out_files(self):
+		self._create_model()
+		self._sort()
+		self._expect_data([('c', '1'), ('a', '3')])
+		self._relax_filter()
+		self._expect_data([('c', '1'), ('b', '2'), ('a', '3')])
+	def test_sort_drops_filtered_out_file_that_disappeared(self):
+		self._create_model(missing='s://b')
+		self._sort()
+		self.assertNotIn('s://b', self._model._files)
+		self._relax_filter()
+		self._expect_data([('c', '1'), ('a', '3')])
+	def _create_model(self, missing=None):
+		names = {'s://a': 'a', 's://b': 'b', 's://c': 'c'}
+		numbers = {'s://a': '3', 's://b': '2', 's://c': '1'}
+		columns = [StubColumn(names), StubColumn(numbers, missing)]
+		self._model = Model(
+			StubFileSystem({}), 'null://', columns,
+			filters=[lambda url: url != 's://b']
+		)
+		self._model._record_files([
+			f(url, [c(names[url], names[url]), c(numbers[url], _NOT_LOADED)])
+			for url in names
+		])
+		self._expect_data([('a', '3'), ('c', '1')])
+	def _sort(self):
+		# Bypass @transaction: it submits to a worker thread that these tests
+		# never start.
+		Model.sort.__wrapped__(self._model, 1)
+	def _relax_filter(self):
+		self._model._filters.clear()
+		self._model.update()
+
 class ModelShutdownTest(ExecutorTestCase):
 
 	"""
@@ -321,6 +362,16 @@ class ModelShutdownTest(ExecutorTestCase):
 class NameColumn(Column):
 	def get_str(self, url):
 		return basename(url)
+
+class StubColumn(Column):
+	def __init__(self, values, missing=None):
+		super().__init__()
+		self._values = values
+		self._missing = missing
+	def get_str(self, url):
+		if url == self._missing:
+			raise FileNotFoundError(url)
+		return self._values[url]
 
 def f(url, cells, is_loaded=False, is_dir=False):
 	return File(url, None, is_dir, cells, is_loaded)

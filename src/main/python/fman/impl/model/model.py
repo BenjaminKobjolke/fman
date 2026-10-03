@@ -249,14 +249,29 @@ class Model(SortFilterTableModel, DragAndDrop):
 	@transaction(priority=3)
 	def sort(self, column, order=Qt.AscendingOrder):
 		ascending = order == Qt.AscendingOrder
-		for i, row in enumerate(self._rows):
-			if not self._sort_value_is_loaded(row, column, ascending):
-				new_row = self._load_sort_value(row, column, ascending)
-				# Here, we violate the constraint that data only be changed in
-				# the main thread. But! The data we are changing here is not
-				# "visible" outside this class. So it's OK.
-				self._rows[i] = new_row
-				self._files[row.url] = new_row
+		# Load values for all files, not just the visible rows. Files hidden by
+		# a filter would otherwise lack the value when the filter is relaxed.
+		updated = {}
+		disappeared = []
+		for row in self._files.values():
+			if self._sort_value_is_loaded(row, column, ascending):
+				continue
+			try:
+				updated[row.url] = \
+					self._load_sort_value(row, column, ascending)
+			except FileNotFoundError:
+				disappeared.append(row.url)
+		# Here, we violate the constraint that data only be changed in the
+		# main thread. But! The data we are changing here is not "visible"
+		# outside this class. So it's OK.
+		self._files.update(updated)
+		for url, new_row in updated.items():
+			try:
+				rownum = self._rows.find(url)
+			except KeyError:
+				continue
+			self._rows[rownum] = new_row
+		self._record_files([], disappeared)
 		run_in_main_thread(super().sort)(column, order)
 	def _sort_value_is_loaded(self, row, column, ascending):
 		try:
