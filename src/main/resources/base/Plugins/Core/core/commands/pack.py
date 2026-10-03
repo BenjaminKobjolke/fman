@@ -17,7 +17,12 @@ from fman.url import join, splitscheme
 from os.path import basename
 from pathlib import PurePath
 
+import re
+
 __all__ = ['Pack']
+
+# Suggested when the pane's directory has no name of its own ('drives://').
+_DEFAULT_ARCHIVE_NAME = 'archive'
 
 class Pack(DirectoryPaneCommand):
 
@@ -31,7 +36,7 @@ class Pack(DirectoryPaneCommand):
 		if len(files) == 1:
 			dest_name = PurePath(basename(files[0])).stem + '.zip'
 		else:
-			dest_name = basename(self.pane.get_path()) + '.zip'
+			dest_name = _suggest_archive_name(self.pane.get_path())
 		dest_dir = get_opposite_pane(self.pane).get_path()
 		dest_url = join(dest_dir, dest_name)
 		suggested_dst, selection_start, selection_end = \
@@ -60,6 +65,16 @@ class Pack(DirectoryPaneCommand):
 			submit_task(_Pack(files, dest_rewritten))
 	def is_visible(self):
 		return bool(self.pane.get_file_under_cursor())
+
+def _suggest_archive_name(dir_url):
+	scheme, path = splitscheme(dir_url)
+	path = path.rstrip('/')
+	if scheme == 'file://' and re.fullmatch('[A-Za-z]:', path):
+		# A drive root: 'C:.zip' is not a valid file name.
+		name = path[0]
+	else:
+		name = basename(scheme + path)
+	return (name or _DEFAULT_ARCHIVE_NAME) + '.zip'
 
 class _Pack(Task):
 	def __init__(self, files, archive_url):
