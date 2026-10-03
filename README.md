@@ -6,7 +6,6 @@ Preview text, images and video *inside* the pane. Step into a `.zip` like it's
 a folder. Run any command from a fuzzy palette. Extend it in Python.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.7.8-blue.svg)](https://github.com/BenjaminKobjolke/fman/releases/latest)
 [![Windows installer](https://img.shields.io/badge/Windows-signed%20installer-0078d4.svg)](https://github.com/BenjaminKobjolke/fman/releases/latest)
 
 ### [⬇ Download for Windows](https://github.com/BenjaminKobjolke/fman/releases/latest)
