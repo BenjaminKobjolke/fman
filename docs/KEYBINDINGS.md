@@ -208,6 +208,10 @@ default binding**, so they are palette-only until you bind them:
 See [`docs/functions/go-to.md`](functions/go-to.md) for what each one resolves
 to and why they exist alongside `go_to`.
 
+`follow_shortcut` (Windows) is unbound too: on a `.lnk` file it goes to the
+shortcut's destination rather than launching it. See
+[`docs/functions/follow-shortcut.md`](functions/follow-shortcut.md).
+
 ## Viewer-specific bindings
 
 The [text viewer](views/TEXT_VIEWER.md), [image viewer](views/IMAGE_VIEWER.md),

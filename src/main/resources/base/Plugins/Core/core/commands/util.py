@@ -13,6 +13,9 @@ import os
 # drift between the command that deletes and the command that packs.
 NO_SELECTION = 'No file is selected!'
 CANNOT_READ = 'Could not read from %s (%s)'
+SHORTCUT_TARGET_MISSING = 'The destination of %s does not exist.'
+
+SHORTCUT_SUFFIX = '.lnk'
 
 if PLATFORM == 'Windows':
 	import winreg
@@ -91,6 +94,24 @@ def is_file_url(url):
 	# window, external), and none of them may import another without making
 	# core/commands/__init__.py's star imports circular.
 	return splitscheme(url)[0] == 'file://'
+
+def is_shortcut(path_or_url):
+	# Lower-cased because Windows file names are case-insensitive: Explorer
+	# happily creates X.LNK.
+	return path_or_url.lower().endswith(SHORTCUT_SUFFIX)
+
+def shortcut_target(path):
+	# Windows only. '' when the shortcut has no file system target (advertised
+	# MSI shortcuts, shell-namespace targets) or cannot be read at all. Shared
+	# by Enter (core/commands/opening.py) and follow_shortcut
+	# (core/commands/navigation.py), which may not import each other.
+	import win32com.client
+	from pythoncom import com_error
+	try:
+		shell = win32com.client.Dispatch('WScript.Shell')
+		return shell.CreateShortCut(path).TargetPath
+	except com_error:
+		return ''
 
 def chosen_files(command):
 	# The selection a "do this to the chosen files" command starts from.

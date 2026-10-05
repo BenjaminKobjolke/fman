@@ -1,5 +1,51 @@
+from core.commands import navigation
 from core.commands.navigation import History
-from unittest import TestCase
+from core.tests.commands import FakePane
+from fman import PLATFORM
+from fman.url import as_url
+from unittest import TestCase, skipUnless
+from unittest.mock import patch
+
+class _ArgRecordingPane(FakePane):
+	# FakePane keeps command names only; following a shortcut is all about
+	# *where* open_directory is sent.
+	def run_command(self, name, args=None):
+		super().run_command(name, args)
+		self.args_run = args
+
+@skipUnless(PLATFORM == 'Windows', '.lnk shortcuts are a Windows concept')
+class FollowShortcutTest(TestCase):
+	def test_visible_only_on_local_shortcuts(self):
+		cases = (
+			('file://C:/a/x.lnk', True),
+			('file://C:/a/x.LNK', True),
+			('file://C:/a/x.txt', False),
+			('zip://C:/a.zip/x.lnk', False),
+			(None, False),
+		)
+		for url, expected in cases:
+			with self.subTest(url=url):
+				command = navigation.FollowShortcut(FakePane(url=url))
+				self.assertEqual(expected, command.is_visible())
+	def test_opens_the_target(self):
+		# Any file that certainly exists will do as the target.
+		pane = self._follow(target=__file__)
+		self.assertEqual(['open_directory'], pane.commands_run)
+		self.assertEqual({'url': as_url(__file__)}, pane.args_run)
+		self.show_alert.assert_not_called()
+	def test_alerts_when_there_is_no_target(self):
+		for target in ('', r'C:\does\not\exist\anywhere.exe'):
+			with self.subTest(target=target):
+				pane = self._follow(target=target)
+				self.assertEqual([], pane.commands_run)
+				self.show_alert.assert_called_once()
+	def _follow(self, target):
+		pane = _ArgRecordingPane(url='file://C:/a/x.lnk')
+		with patch(
+				'core.commands.navigation.shortcut_target', return_value=target
+		), patch('core.commands.navigation.show_alert') as self.show_alert:
+			navigation.FollowShortcut(pane)()
+		return pane
 
 class HistoryTest(TestCase):
 	def test_empty_back(self):

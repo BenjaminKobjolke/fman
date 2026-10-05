@@ -10,6 +10,10 @@
 	"decrease_pane_font_size": [
 		"zoom out", "smaller pane font", "smaller", "shrink text"
 	],
+	"follow_shortcut": [
+		"lnk", "shortcut", "link target", "destination", "go to destination",
+		"go to target"
+	],
 	"go_home": [
 		"home", "~", "home directory", "user folder", "user profile",
 		"go to home"

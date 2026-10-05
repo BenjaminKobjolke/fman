@@ -70,6 +70,11 @@ palette is the only way to reach them:
   OneDrive-relocated ones a name you can type instead. A destination this
   machine doesn't have is left out of the list. See
   [`docs/functions/go-to.md`](functions/go-to.md).
+- **Follow shortcut** — Windows only, and only listed while the cursor is on
+  a `.lnk` file: goes to the shortcut's destination instead of launching it
+  (also found by *lnk*, *link target*, *destination*). A folder is opened; for
+  a file, its folder is opened with the cursor on it. See
+  [`docs/functions/follow-shortcut.md`](functions/follow-shortcut.md).
 - **Center window** — puts fman back in the middle of the screen it is
   already on (also found by *center window on screen*, *move window to
   center*, *middle*). Centered within the *available* area, so the taskbar

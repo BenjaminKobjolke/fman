@@ -1,8 +1,10 @@
-from core.commands.opening import OpenOrView, ViewFile, ViewFileInOtherPane
+from core.commands.opening import OpenOrView, ViewFile, ViewFileInOtherPane, \
+	_open_local_files_win
 from core.tests.commands import FakePane, FakeWindow
+from fman import PLATFORM
 from fman.url import as_url
 from tempfile import NamedTemporaryFile
-from unittest import TestCase
+from unittest import TestCase, skipUnless
 from unittest.mock import MagicMock, patch
 
 import os
@@ -49,6 +51,26 @@ class OpenOrViewTest(TestCase):
 				):
 			OpenOrView(pane)()
 		self.assertEqual(['open'], pane.commands_run)
+
+@skipUnless(PLATFORM == 'Windows', '.lnk shortcuts are a Windows concept')
+class OpenShortcutTest(TestCase):
+	def test_shortcut_to_directory_navigates_instead_of_launching(self):
+		# Upper case on purpose: Windows file names are case-insensitive.
+		pane, shell_execute = self._open(r'C:\a\x.LNK', target='C:\\dir')
+		pane.set_path.assert_called_once_with(as_url('C:\\dir'))
+		shell_execute.assert_not_called()
+	def test_shortcut_without_target_is_launched(self):
+		pane, shell_execute = self._open(r'C:\a\x.lnk', target='')
+		pane.set_path.assert_not_called()
+		shell_execute.assert_called_once()
+	def _open(self, path, target):
+		pane = MagicMock()
+		with patch(
+				'core.commands.opening.shortcut_target', return_value=target
+		), patch('core.commands.opening.is_dir', return_value=True), \
+				patch('win32api.ShellExecute') as shell_execute:
+			_open_local_files_win([path], pane)
+		return pane, shell_execute
 
 class _ViewerTestCase(TestCase):
 

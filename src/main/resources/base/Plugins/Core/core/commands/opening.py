@@ -5,7 +5,7 @@ instead of doing the work itself, so a plugin can override the default open
 behaviour through DirectoryPaneListener#on_command(...).
 """
 from core.commands.util import get_opposite_pane, is_dir_checked, \
-	is_file_url, require_file_url, NO_SELECTION
+	is_file_url, is_shortcut, require_file_url, shortcut_target, NO_SELECTION
 from core.viewers import viewer_for
 from fman import DirectoryPaneCommand, DirectoryPaneListener, PLATFORM, \
 	load_json, save_json, show_alert
@@ -132,13 +132,10 @@ def _open_local_files_win(paths, pane):
 	#  * D:\Book.pdf
 	#  * \\cryptomator-vault\app.exe
 	for path in paths:
-		if path.endswith('.lnk'):
-			import win32com.client
-			shell = win32com.client.Dispatch("WScript.Shell")
-			shortcut = shell.CreateShortCut(path)
-			target_url = as_url(shortcut.TargetPath)
-			if is_dir(target_url):
-				pane.set_path(target_url)
+		if is_shortcut(path):
+			target = shortcut_target(path)
+			if target and is_dir(as_url(target)):
+				pane.set_path(as_url(target))
 				return
 		try:
 			from win32api import ShellExecute

@@ -4,7 +4,10 @@
 `HistoryListener` reuses it - going back to the parent directory has to place
 the cursor on the directory just left, which plain `set_path` does not do.
 """
-from fman import DirectoryPaneCommand, DirectoryPaneListener, PLATFORM
+from core.commands.util import is_file_url, is_shortcut, shortcut_target, \
+	SHORTCUT_TARGET_MISSING
+from fman import DirectoryPaneCommand, DirectoryPaneListener, PLATFORM, \
+	show_alert
 from fman.fs import iterdir
 from fman.impl.util import get_user
 from fman.url import as_human_readable, as_url, dirname, join, splitscheme
@@ -20,7 +23,7 @@ __all__ = [
 	'OpenInRightPane', 'SelectAll', 'ShowVolumes', 'ToggleSelection', 'go_up'
 ]
 if PLATFORM == 'Windows':
-	__all__.append('GoToRootOfCurrentDrive')
+	__all__ += ['FollowShortcut', 'GoToRootOfCurrentDrive']
 
 class MoveCursorDown(DirectoryPaneCommand):
 	def __call__(self, toggle_selection=False):
@@ -253,3 +256,20 @@ if PLATFORM == 'Windows':
 				self.pane.set_path(dest)
 			except FileNotFoundError:
 				pass
+
+	class FollowShortcut(DirectoryPaneCommand):
+
+		aliases = ('Follow shortcut',)
+
+		def __call__(self):
+			url = self.pane.get_file_under_cursor()
+			target = shortcut_target(as_human_readable(url))
+			if not target or not os.path.exists(target):
+				show_alert(SHORTCUT_TARGET_MISSING % as_human_readable(url))
+				return
+			# open_directory rather than set_path: for a file target it opens
+			# the parent and puts the cursor on the file.
+			self.pane.run_command('open_directory', {'url': as_url(target)})
+		def is_visible(self):
+			url = self.pane.get_file_under_cursor()
+			return bool(url) and is_file_url(url) and is_shortcut(url)
