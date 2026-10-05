@@ -139,9 +139,10 @@ behind — do **not** also increment or run `python build.py release` then. What
 follows is the manual path.
 
 **First: close any running fman.exe.** `freeze()` (via PyInstaller) deletes and
-recreates `target/fman/` — if fman is running from that folder (e.g. you were
-just testing it), cleanup fails with `PermissionError: Access is denied` on a
-`.pyd`/`.exe` inside `target/fman/`. Close it, then build.
+recreates `target/fman/` — a running copy from that folder locks its files.
+`tools\build_windows.bat` asks that copy to close before building and stops with
+a message if it stays open. For `tools\release_create.bat`,
+`tools\build_release.bat`, and `python build.py release`, close it by hand first.
 
 **Always run `tools\build_increment.bat` first, then commit it**, regardless of
 which build path below you use — it bumps `build_version.txt` to the number

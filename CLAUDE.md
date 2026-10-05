@@ -28,6 +28,9 @@ they are intentionally referenced, not imported.
 
 ## Testing
 
+After touching `tools/close_running_fman.ps1` or `tools/build_windows.bat`, run
+`python tools/test_close_running_fman.py`.
+
 After touching `fman/impl/update_check.py`, run
 `python -m unittest fman_unittest.impl.test_update_check` with `PYTHONPATH` set
 to `src\main\python;src\unittest\python`. The Core update check and command
