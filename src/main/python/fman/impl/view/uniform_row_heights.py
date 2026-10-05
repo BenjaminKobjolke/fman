@@ -16,6 +16,8 @@ class UniformRowHeights(QTableView):
 		self.iconSizeChanged.connect(self._on_icon_size_changed)
 	def _on_icon_size_changed(self, _):
 		self._row_height = None
+		# The vertical header is Fixed, so it never asks for the new height:
+		self.get_row_height()
 		self.scheduleDelayedItemsLayout()
 	def sizeHintForRow(self, row):
 		model = self.model()
@@ -26,6 +28,7 @@ class UniformRowHeights(QTableView):
 	def get_row_height(self):
 		if self._row_height is None:
 			self._row_height = max(self._get_cell_heights())
+			self.verticalHeader().setDefaultSectionSize(self._row_height)
 		return self._row_height
 	def changeEvent(self, event):
 		# This for instance happens when the style sheet changed. It may affect

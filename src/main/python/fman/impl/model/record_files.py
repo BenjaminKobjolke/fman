@@ -1,6 +1,7 @@
 from bisect import bisect_left
 from fman.impl.model.diff import DiffEntry
 from fman.impl.model.diff import join as join_diff
+from itertools import groupby
 
 class RecordFiles:
 	"""
@@ -49,12 +50,18 @@ class RecordFiles:
 		diff.extend(DiffEntry.remove(rownum) for rownum in rem)
 		# Flush because rownums have changed:
 		self._flush(diff)
-		# Finally, insert rows. In reverse order so later inserts are not
-		# affected by earlier ones:
-		insert_sortvals = ((self._m_sortval(f), f) for f in to_insert)
-		for sortval, f in sorted(insert_sortvals, reverse=True):
-			rownum = self._get_rownum_for_sortval(sortval)
-			diff.append(DiffEntry.insert(rownum, [f]))
+		# Finally, insert rows. Files that land at the same rownum go in as one
+		# run: every insert is a beginInsertRows(...) plus an O(n) re-index of
+		# the rows behind it, so one insert per file froze the GUI thread in a
+		# directory with tens of thousands of entries. Sort by the sort value
+		# alone - files are not orderable, so a tie must not reach them:
+		to_insert.sort(key=self._m_sortval)
+		runs = [
+			DiffEntry.insert(rownum, list(files))
+			for rownum, files in groupby(to_insert, self._get_rownum_for_file)
+		]
+		# In reverse order so later inserts are not affected by earlier ones:
+		diff.extend(reversed(runs))
 		self._flush(diff)
 	def _remove_disappeared(self):
 		rownums = []
@@ -146,6 +153,8 @@ class RecordFiles:
 			if dst <= result:
 				result += 1
 		return result
+	def _get_rownum_for_file(self, file_):
+		return self._get_rownum_for_sortval(self._m_sortval(file_))
 	def _get_rownum_for_sortval(self, sort_value):
 		class SortValues:
 			def __len__(_):

@@ -17,8 +17,16 @@ from time import time
 # Slow file systems - network:// walking the browse list, a high-latency UNC
 # share - used to leave the pane empty until the very last entry had been
 # enumerated. A directory that lists faster than this never reaches the first
-# flush, so local listings behave exactly as they did before.
+# flush.
 _INIT_BATCH_SECS = .5
+# ...and neither does one that yields more files than this in that time. That is
+# a fast file system with a huge directory - local, tens of thousands of entries
+# - which needs no early rows but pays dearly for them: each flush splices its
+# files in between the rows already shown, one Qt insert per gap. In a pane
+# sorted by anything but the listing order that is thousands of inserts per
+# flush, seconds of frozen GUI thread. Such a listing is committed once, at the
+# end.
+_INIT_BATCH_MAX_FILES = 1000
 
 def transaction(priority, synchronous=False):
 	def decorator(f):
@@ -109,8 +117,11 @@ class Model(SortFilterTableModel, DragAndDrop):
 				files.append(file_)
 				batch.append(file_)
 				if time() >= batch_deadline:
-					self._record_files(batch)
-					batch = []
+					# A batch that is too big stays too big, so this stops
+					# flushing for good:
+					if len(batch) <= _INIT_BATCH_MAX_FILES:
+						self._record_files(batch)
+						batch = []
 					batch_deadline = time() + _INIT_BATCH_SECS
 		else:
 			assert self._shutdown

@@ -1,6 +1,6 @@
 from collections import namedtuple
 from fman.impl.model.table import _get_move_destination, invalidate_icons, \
-	Row as ModelRow, TableModel
+	Row as ModelRow, Rows, TableModel
 from unittest import TestCase
 
 class GetMoveDestinationTest(TestCase):
@@ -42,6 +42,42 @@ class RowEqualityTest(TestCase):
 		self.assertNotEqual(before, self._row('another icon'))
 	def _row(self, icon):
 		return ModelRow('file://C:/dir/notes.txt', icon, False, ('notes.txt',))
+
+class RowsFindTest(TestCase):
+
+	"""
+	Rows drops its key -> rownum index on every insert / remove and rebuilds it
+	in #find(...). Keeping it current instead cost O(n) per call.
+	"""
+
+	def test_find_after_insert_in_front(self):
+		self._rows.insert([Row('b'), Row('c')], 0)
+		self._rows.insert([Row('a')], 0)
+		self._expect_found('a', 'b', 'c')
+	def test_find_after_remove(self):
+		self._rows.insert([Row('a'), Row('b'), Row('c')], 0)
+		self._rows.find('c')
+		self._rows.remove(0, 2)
+		self._expect_found('c')
+		with self.assertRaises(KeyError):
+			self._rows.find('a')
+	def test_find_after_move(self):
+		self._rows.insert([Row('a'), Row('b'), Row('c')], 0)
+		self._rows.move(0, 1, 2)
+		self._expect_found('b', 'c', 'a')
+	def test_find_after_update_and_setitem(self):
+		self._rows.insert([Row('a'), Row('b'), Row('c')], 0)
+		self._rows.find('a')
+		self._rows.update([Row('x')], 1)
+		self._rows[2] = Row('y')
+		self._expect_found('a', 'x', 'y')
+	def _expect_found(self, *keys):
+		self.assertEqual(
+			list(range(len(keys))), [self._rows.find(key) for key in keys]
+		)
+	def setUp(self):
+		super().setUp()
+		self._rows = Rows()
 
 class TableModelTest(TestCase):
 	def test_empty(self):

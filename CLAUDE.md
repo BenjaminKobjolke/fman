@@ -71,6 +71,18 @@ Like `run_overlay_focus_tests.bat`, these live in a `*_test.py` file that
 `python build.py test` deliberately does not discover: they need a
 `QApplication` of their own, and stray Qt state is what makes that suite hang.
 
+If you touched the file list's row heights
+(`src/main/python/fman/impl/view/uniform_row_heights.py`, or the vertical
+header set up in `src/main/python/fman/impl/view/__init__.py`), run:
+
+```bash
+powershell -Command "cd 'D:\GIT\BenjaminKobjolke\fman'; cmd /c '.\tools\run_view_tests.bat'"
+```
+
+Same `*_test.py` arrangement. The header is `Fixed` on purpose: in
+`ResizeToContents` Qt re-measured every row on each background-load commit,
+which stalled the GUI thread in directories with tens of thousands of entries.
+
 How fman drives 7-Zip (the `-bsp1` progress protocol, canceling, why there is
 no pseudo-terminal on Windows) is documented in `docs/ARCHIVES.md`.
 

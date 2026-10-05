@@ -282,7 +282,9 @@ class FileListView(
 		# Don't let the vertical header determine the row height:
 		vertical_header.setStyleSheet("QHeaderView::section { padding: 0px; }")
 		vertical_header.setMinimumSectionSize(0)
-		vertical_header.setSectionResizeMode(QHeaderView.ResizeToContents)
+		# Fixed, not ResizeToContents: that re-measured every row each time a
+		# batch of rows finished loading. UniformRowHeights supplies the height.
+		vertical_header.setSectionResizeMode(QHeaderView.Fixed)
 
 class Menu(QMenu):
 	def resizeEvent(self, e):

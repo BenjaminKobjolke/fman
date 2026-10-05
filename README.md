@@ -239,6 +239,7 @@ These are the ones maintained on this account.
 | [FONTS.md](docs/FONTS.md) | The bundled font families, picking one, adding your own |
 | [ICONS.md](docs/ICONS.md) | File icon sets, icon size, writing your own |
 | [KEYBINDINGS.md](docs/KEYBINDINGS.md) | Default key bindings |
+| [LARGE_DIRECTORIES.md](docs/LARGE_DIRECTORIES.md) | How a pane loads tens of thousands of entries without stalling the window |
 | [PLUGINS.md](docs/PLUGINS.md) | Installing, reloading and removing plugins; duplicate package names |
 | [PLUGINS_API.md](docs/PLUGINS_API.md) | Writing a plugin: layout, registration, panes, viewers |
 | [STATUSBAR.md](docs/STATUSBAR.md) | The bar at the bottom: what it says, hiding it, theming it |

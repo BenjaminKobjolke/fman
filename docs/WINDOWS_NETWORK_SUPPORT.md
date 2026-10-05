@@ -78,7 +78,12 @@ changed:
 - **Rows appear while the directory is still being enumerated.** The model used
   to drain `iterdir(...)` completely before committing a single row. It now
   flushes what it has every 0.5 s. A directory that lists faster than that never
-  reaches the first flush, so local listings are unchanged.
+  reaches the first flush, so local listings are unchanged. Neither does one
+  that yields more than 1000 files in those 0.5 s (`_INIT_BATCH_MAX_FILES`):
+  that is a fast file system with a huge directory, and streaming it froze the
+  GUI thread — a local folder with 37,000 entries took over a minute of
+  main-thread time. It is committed once, at the end, as before. See
+  [LARGE_DIRECTORIES.md](LARGE_DIRECTORIES.md).
 - **A slow pane says so, and keeps saying it.** After 0.4 s without rows, the
   pane paints a message in its centre: a title, then a line naming what it is
   waiting on, with a seconds counter that ticks every 0.4 s. The counter is the
@@ -160,7 +165,11 @@ Neither freezes the UI, but both are worth knowing about:
   `already_visited` stays: it still guards container cycles.
 - `src/main/python/fman/impl/model/model.py` — `_init(...)` collects a batch
   alongside `files` and hands it to the existing `_record_files(...)` /
-  `RecordFiles` path every `_INIT_BATCH_SECS`. The final `_on_rows_inited(...)`
+  `RecordFiles` path every `_INIT_BATCH_SECS`, unless the batch exceeds
+  `_INIT_BATCH_MAX_FILES`. `RecordFiles` inserts new files that land in the same
+  gap as one run, and `Rows` (`table.py`) rebuilds its key index lazily in
+  `find(...)` instead of shifting it on every insert — both so that a flush of
+  hundreds of files stays cheap. The final `_on_rows_inited(...)`
   still runs and is still authoritative: `set_rows(...)` is a full diff, so the
   intermediate inserts converge. `reload()` is deliberately not batched — it
   keeps the old rows on screen while it re-enumerates.

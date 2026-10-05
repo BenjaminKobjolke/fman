@@ -126,6 +126,10 @@ def _get_move_destination(cut_start, cut_end, insert_start):
 class Rows:
 	def __init__(self):
 		self._rows = []
+		# key -> rownum, or None when rows were added or removed since it was
+		# last built. Shifting every later rownum on each insert / remove
+		# instead cost O(n) in Python per call - with thousands of inserts in
+		# one directory listing, the bulk of a GUI freeze. #find(...) rebuilds.
 		self._keys = {}
 		self._lock = RLock()
 	def __len__(self):
@@ -135,9 +139,10 @@ class Rows:
 	def __setitem__(self, i, row):
 		with self._lock:
 			old_row = self._rows[i]
-			del self._keys[old_row.key]
 			self._rows[i] = row
-			self._keys[row.key] = i
+			if self._keys is not None:
+				del self._keys[old_row.key]
+				self._keys[row.key] = i
 			self._check_integrity()
 	def __iter__(self):
 		return iter(self._rows)
@@ -148,42 +153,37 @@ class Rows:
 			self._keys = new_keys
 			self._check_integrity()
 	def insert(self, rows, first_rownum):
-		new_keys = {row.key: first_rownum + i for i, row in enumerate(rows)}
 		with self._lock:
 			# Perform this check here, once we have the lock:
 			if first_rownum < 0 or first_rownum > len(self._rows) + 1:
 				raise ValueError('Invalid first_rownum: %d' % first_rownum)
-			num_rows = len(rows)
-			for row in self._rows[first_rownum:]:
-				self._keys[row.key] += num_rows
 			self._rows = \
 				self._rows[:first_rownum] + rows + self._rows[first_rownum:]
-			self._keys.update(new_keys)
-			self._check_integrity()
+			self._keys = None
 	def move(self, cut_start, cut_end, insert_start):
 		with self._lock:
 			rows = self._cut(cut_start, cut_end)
 			self.insert(rows, insert_start)
-			self._check_integrity()
 	def update(self, rows, first_rownum):
-		keys = {row.key: first_rownum + i for i, row in enumerate(rows)}
 		with self._lock:
-			for row in self._rows[first_rownum: first_rownum + len(rows)]:
-				del self._keys[row.key]
+			if self._keys is not None:
+				for row in self._rows[first_rownum: first_rownum + len(rows)]:
+					del self._keys[row.key]
+				self._keys.update(
+					(row.key, first_rownum + i) for i, row in enumerate(rows)
+				)
 			self._rows[first_rownum: first_rownum + len(rows)] = rows
-			self._keys.update(keys)
 			self._check_integrity()
 	def remove(self, start, end):
-		num = end - start
 		with self._lock:
-			for row in self._rows[end:]:
-				self._keys[row.key] -= num
-			for row in self._rows[start:end]:
-				del self._keys[row.key]
 			del self._rows[start:end]
-			self._check_integrity()
+			self._keys = None
 	def find(self, key):
-		return self._keys[key]
+		with self._lock:
+			if self._keys is None:
+				self._keys = {row.key: i for i, row in enumerate(self._rows)}
+				self._check_integrity()
+			return self._keys[key]
 	def _cut(self, cut_start, cut_end):
 		with self._lock:
 			num_rows = len(self._rows)
@@ -191,16 +191,12 @@ class Rows:
 				raise ValueError('Invalid cut_start: %d' % cut_start)
 			if cut_end < 0 or cut_end > num_rows or cut_end <= cut_start:
 				raise ValueError('Invalid cut_end: %d' % cut_end)
-			delta = cut_end - cut_start
 			result = self._rows[cut_start:cut_end]
-			for row in result:
-				del self._keys[row.key]
-			for row in self._rows[cut_end:]:
-				self._keys[row.key] -= delta
 			self._rows = self._rows[:cut_start] + self._rows[cut_end:]
+			self._keys = None
 			return result
 	def _check_integrity(self):
-		assert len(self._rows) == len(self._keys), \
+		assert self._keys is None or len(self._rows) == len(self._keys), \
 			'Integrity error, likely caused by duplicate rows'
 
 # Bumped whenever the icons themselves change - see invalidate_icons().

@@ -65,7 +65,7 @@ Status: `pending` (not looked at yet), `ported`, `skipped` (with reason).
 | 0.8.1 | Reuse Windows directory entries' hidden attributes | pending | |
 | 0.8.0 | Image QuickView (Ctrl+Q) | pending | this fork has own image viewer |
 | 0.8.0 | `tinycss` replaced by `tinycss2` | pending | new dependency |
-| 0.8.0 | No row-height recalculation on metadata updates in large folders | pending | |
+| 0.8.0 | No row-height recalculation on metadata updates in large folders | ported | 2026-10-05 — `fman/impl/view/__init__.py` (vertical header `Fixed`), `view/uniform_row_heights.py` (`setDefaultSectionSize`; also on icon size change, which is fork-only), `fman_unittest/impl/view/uniform_row_heights_test.py`; measured at 37k rows: 0.33 s -> 0 s of GUI thread per background-load commit |
 | 0.8.0 | Qt tests use nonblocking completion notification | pending | may relate to the known test hang; needs his main-thread `QApplication` test runner (`QtIT.run`, `qt_runner`) first |
 | 0.7.1 | File / folder comparator wizards, Compare files / folders | pending | |
 | 0.7.1 | Find Files cancel reports Stopped, not Error | pending | needs Find files panel (0.7.0) |

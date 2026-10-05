@@ -132,6 +132,37 @@ class ModelRecordFilesTest(ExecutorTestCase):
 		]
 		self._model._record_files(new_files, disappeared=['s://1'])
 		self._expect_data([('3',), ('0',), ('2',)])
+	def test_new_files_are_inserted_as_runs(self):
+		# One insert per file made a directory with tens of thousands of
+		# entries freeze the GUI thread: each is a beginInsertRows(...) plus an
+		# O(n) re-index of the rows behind it.
+		self._model._record_files([
+			f('s://a', [c('a', 0)]),
+			f('s://e', [c('e', 4)])
+		])
+		inserted = []
+		insert_rows = self._model.insert_rows
+		def record_insert(rows, first_rownum=-1):
+			inserted.append(len(rows))
+			insert_rows(rows, first_rownum)
+		self._model.insert_rows = record_insert
+		self._model._record_files([
+			f('s://c', [c('c', 2)]),
+			f('s://b', [c('b', 1)]),
+			f('s://f', [c('f', 5)]),
+			f('s://d', [c('d', 3)])
+		])
+		# f after e, then b-d between a and e:
+		self.assertEqual([1, 3], inserted)
+		self._expect_data([(letter,) for letter in 'abcdef'])
+	def test_new_files_with_equal_sort_values(self):
+		# Used to raise TypeError: the files themselves were compared to break
+		# the tie.
+		self._model._record_files([
+			f('s://a', [c('a', 0)]),
+			f('s://b', [c('b', 0)])
+		])
+		self._expect_data([('a',), ('b',)])
 	def test_random(self):
 		for num in list(range(6)) + [100]:
 			self._test_random(num)
@@ -267,6 +298,14 @@ class InitStreamsFilesTest(ExecutorTestCase):
 		self.assertEqual([0, 1, 2], self._rows_while_listing)
 		self.assertEqual(3, self._model.rowCount())
 	def test_fast_listing_commits_once(self):
+		self._init(['a', 'b', 'c'])
+		self.assertEqual([0, 0, 0], self._rows_while_listing)
+		self.assertEqual(3, self._model.rowCount())
+	def test_huge_fast_listing_commits_once(self):
+		# Past the deadline, but with more files than a slow file system would
+		# have produced by then. Streaming those froze the GUI thread.
+		self._patch('_INIT_BATCH_SECS', 0)
+		self._patch('_INIT_BATCH_MAX_FILES', 0)
 		self._init(['a', 'b', 'c'])
 		self.assertEqual([0, 0, 0], self._rows_while_listing)
 		self.assertEqual(3, self._model.rowCount())
