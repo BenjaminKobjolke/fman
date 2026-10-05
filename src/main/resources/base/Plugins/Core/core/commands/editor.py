@@ -4,8 +4,8 @@
 handed straight to the same editor, with the same "pick one" flow when none is
 configured yet.
 """
-from core.commands.util import get_program_files, get_program_files_x86, \
-	require_file_url, NO_SELECTION
+from core.commands.util import create_as_admin, get_program_files, \
+	get_program_files_x86, require_file_url, NO_SELECTION
 from core.os_ import get_popen_kwargs_for_opening
 from core.util import strformat_dict_values
 from fman import CANCEL, DirectoryPaneCommand, load_json, OK, PLATFORM, \
@@ -119,11 +119,8 @@ class CreateAndEditFile(OpenWithEditor):
 				try:
 					touch(file_to_edit)
 				except PermissionError:
-					show_alert(
-						"You do not have enough permissions to create %s."
-						% as_human_readable(file_to_edit)
-					)
-					return
+					if not create_as_admin(file_to_edit, is_dir=False):
+						return
 				except NotImplementedError:
 					show_alert(
 						'Sorry, creating a file for editing is not supported '

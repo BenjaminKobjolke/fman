@@ -8,6 +8,7 @@ core/commands/pack.py.
 """
 # `import *` skips underscore names: get_dest_suggestion splits the extension
 # off the name it suggests, the same way the editor's "New file" prompt does.
+from core import elevation
 from core.commands.editor import _find_extension_start
 from core.commands.util import get_opposite_pane, is_file_url, \
 	CANNOT_READ, NO_SELECTION
@@ -47,10 +48,14 @@ class _TreeCommand(DirectoryPaneCommand):
 		proceed = self._confirm_tree_operation(files, dest_dir, src_dir)
 		if proceed:
 			dest_dir, dest_name = proceed
-			makedirs(dest_dir, exist_ok=True)
-			self._call(files, dest_dir, dest_name)
+			if not self._call_elevated(files, dest_dir, dest_name):
+				makedirs(dest_dir, exist_ok=True)
+				self._call(files, dest_dir, dest_name)
 	def _call(self, files, dest_dir, dest_name=None):
 		raise NotImplementedError()
+	def _call_elevated(self, files, dest_dir, dest_name):
+		# Returns whether core.elevation took care of it - see there.
+		return False
 	@classmethod
 	def _confirm_tree_operation(
 		cls, files, dest_dir, src_dir, ui=fman, fs=fman.fs
@@ -196,10 +201,14 @@ def _split(url):
 class Copy(_TreeCommand):
 	def _call(self, files, dest_dir, dest_name=None):
 		submit_task(CopyFiles(files, dest_dir, dest_name))
+	def _call_elevated(self, files, dest_dir, dest_name):
+		return elevation.copy(files, dest_dir, dest_name)
 
 class Move(_TreeCommand):
 	def _call(self, files, dest_dir, dest_name=None):
 		submit_task(MoveFiles(files, dest_dir, dest_name))
+	def _call_elevated(self, files, dest_dir, dest_name):
+		return elevation.move(files, dest_dir, dest_name)
 
 class DragAndDropListener(DirectoryPaneListener):
 	def on_files_dropped(self, file_urls, dest_dir, is_copy_not_move):

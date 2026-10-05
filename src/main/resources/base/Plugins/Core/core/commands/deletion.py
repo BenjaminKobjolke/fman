@@ -9,6 +9,7 @@ implement `prepare_trash`.
 from fman import DirectoryPaneCommand, PLATFORM, show_alert, submit_task, \
 	Task, NO, YES, YES_TO_ALL
 from fman.fs import prepare_delete, prepare_trash
+from core import elevation
 from core.commands.util import NO_SELECTION
 from fman.url import splitscheme
 from io import UnsupportedOperation
@@ -47,7 +48,8 @@ def confirm_trash(urls):
 	return bool(show_alert(msg, YES | NO, YES) & YES)
 
 def trash(urls):
-	submit_task(_Delete(urls, prepare_trash, prepare_delete))
+	if not elevation.delete(urls, to_trash=True):
+		submit_task(_Delete(urls, prepare_trash, prepare_delete))
 
 class DeletePermanently(DirectoryPaneCommand):
 	def __call__(self, urls=None):
@@ -61,7 +63,8 @@ class DeletePermanently(DirectoryPaneCommand):
 			"Do you really want to PERMANENTLY delete %s? This action cannot " \
 			"be undone!" % description
 		if show_alert(message, YES | NO, YES) & YES:
-			submit_task(_Delete(urls, prepare_delete))
+			if not elevation.delete(urls, to_trash=False):
+				submit_task(_Delete(urls, prepare_delete))
 
 class _Delete(Task):
 	def __init__(self, urls, prepare_fn, fallback=None):

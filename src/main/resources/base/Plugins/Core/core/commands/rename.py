@@ -3,8 +3,9 @@
 `_Rename` is a Task rather than a straight prepare_move(...) so a failure can
 offer Retry without the user retyping the new name - see its own comment.
 """
+from core import elevation
 from core.commands.editor import _find_extension_start
-from core.commands.util import is_dir_checked, NO_SELECTION
+from core.commands.util import create_as_admin, is_dir_checked, NO_SELECTION
 from fman import CANCEL, DirectoryPaneCommand, DirectoryPaneListener, \
 	PLATFORM, RETRY, show_alert, show_prompt, submit_task, Task
 from fman.fs import exists, FileSystem, makedirs, prepare_move, \
@@ -69,8 +70,17 @@ def rename_to(pane, file_url, new_name):
 		if not samefile(new_url, file_url):
 			show_alert(new_name + ' already exists!')
 			return None
-	submit_task(_Rename(pane, file_url, new_url))
+	if elevation.rename(file_url, new_name):
+		_place_cursor_at(pane, new_url)
+	else:
+		submit_task(_Rename(pane, file_url, new_url))
 	return new_url
+
+def _place_cursor_at(pane, url):
+	try:
+		pane.place_cursor_at(url)
+	except ValueError as file_disappeared:
+		pass
 
 class _Rename(Task):
 	def __init__(self, pane, src_url, dst_url):
@@ -104,10 +114,7 @@ class _Rename(Task):
 				if self.show_alert(message, RETRY | CANCEL, RETRY) & RETRY:
 					continue
 				return
-			try:
-				self._pane.place_cursor_at(self._dst_url)
-			except ValueError as file_disappeared:
-				pass
+			_place_cursor_at(self._pane, self._dst_url)
 			return
 
 class CreateDirectory(DirectoryPaneCommand):
@@ -131,6 +138,9 @@ class CreateDirectory(DirectoryPaneCommand):
 				makedirs(dir_url)
 			except FileExistsError:
 				show_alert("A file with this name already exists!")
+			except PermissionError:
+				if not create_as_admin(dir_url, is_dir=True):
+					return
 			# Use normalize(...) instead of resolve(...) to avoid the following
 			# problem: Say c/ is a symlink to a/b/. We're inside c/ and create
 			# d. Then # resolve(c/d) would give a/b/d and the relative path
@@ -140,10 +150,7 @@ class CreateDirectory(DirectoryPaneCommand):
 			effective_url = normalize(dir_url)
 			select = relpath(effective_url, base_url).split('/')[0]
 			if select != '..':
-				try:
-					self.pane.place_cursor_at(join(base_url, select))
-				except ValueError as dir_disappeared:
-					pass
+				_place_cursor_at(self.pane, join(base_url, select))
 	def is_visible(self):
 		fs = splitscheme(self.pane.get_path())[0]
 		return _fs_implements(fs, 'mkdir')

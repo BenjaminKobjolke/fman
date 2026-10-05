@@ -1,3 +1,4 @@
+from core import elevation
 from fman import PLATFORM, show_alert
 from fman.fs import is_dir
 from fman.url import as_human_readable, splitscheme
@@ -99,6 +100,18 @@ def chosen_files(command):
 	if not files:
 		show_alert(NO_SELECTION)
 	return files
+
+def create_as_admin(url, is_dir):
+	# What "New file" and "New folder" fall back to when the plain attempt was
+	# denied: one more try with a UAC prompt (core/elevation.py). Alerts and
+	# returns False if that did not create it either - the user may decline.
+	if elevation.create(url, is_dir=is_dir):
+		return True
+	show_alert(
+		'You do not have enough permissions to create %s.'
+		% as_human_readable(url)
+	)
+	return False
 
 def is_dir_checked(url, alert=show_alert):
 	# is_dir(...), except that a file system which cannot answer at all
