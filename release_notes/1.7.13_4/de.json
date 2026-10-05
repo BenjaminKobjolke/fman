@@ -1,0 +1,9 @@
+{
+  "version": "1.7.13",
+  "build": 4,
+  "date": "2026-10-05",
+  "title": "Mit fman auf dem neuesten Stand bleiben",
+  "notes": [
+    "fman sucht jetzt nach dem Start und einmal täglich auf GitHub nach neueren Versionen. Wenn ein Update verfügbar ist, können Sie die Downloadseite öffnen. Sie können auch manuell über die Befehlspalette nach Updates suchen."
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "version": "1.7.13",
+  "build": 4,
+  "date": "2026-10-05",
+  "title": "Blijf op de hoogte van fman",
+  "notes": [
+    "fman controleert nu na het opstarten en eenmaal per dag op nieuwere releases op GitHub. Als er een update beschikbaar is, kun je de downloadpagina openen. Je kunt ook handmatig controleren via het opdrachtenpalet."
+  ]
+}

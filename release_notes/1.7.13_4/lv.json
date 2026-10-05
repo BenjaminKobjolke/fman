@@ -1,0 +1,9 @@
+{
+  "version": "1.7.13",
+  "build": 4,
+  "date": "2026-10-05",
+  "title": "Uzziniet jaunāko par fman",
+  "notes": [
+    "Tagad pēc palaišanas un reizi dienā fman pārbauda, vai GitHub nav pieejamas jaunākas versijas, un, ja ir pieejams atjauninājums, ļauj atvērt lejupielādes lapu. Atjauninājumus varat pārbaudīt arī manuāli, izmantojot komandu paleti."
+  ]
+}

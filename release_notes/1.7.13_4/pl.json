@@ -1,0 +1,9 @@
+{
+  "version": "1.7.13",
+  "build": 4,
+  "date": "2026-10-05",
+  "title": "Bądź na bieżąco z fmanem",
+  "notes": [
+    "Po uruchomieniu fman sprawdza na GitHubie, czy są dostępne nowsze wersje, a następnie robi to raz dziennie. Jeśli dostępna jest aktualizacja, możesz otworzyć stronę pobierania. Możesz też ręcznie sprawdzić dostępność aktualizacji z poziomu palety poleceń."
+  ]
+}

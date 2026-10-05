@@ -1,0 +1,9 @@
+{
+  "version": "1.7.13",
+  "build": 4,
+  "date": "2026-10-05",
+  "title": "Maradj naprakész a fmannal",
+  "notes": [
+    "A fman indítás után, majd naponta egyszer ellenőrzi a GitHubon, hogy elérhető-e újabb kiadás, és frissítés esetén megnyithatod a letöltési oldalt. A parancspalettáról manuálisan is ellenőrizhetsz."
+  ]
+}

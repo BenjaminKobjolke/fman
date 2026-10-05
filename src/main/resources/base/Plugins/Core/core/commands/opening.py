@@ -200,7 +200,10 @@ def _view_file_in(source_pane, target_pane, focus_view=True):
 	if not url:
 		show_alert(NO_SELECTION)
 		return
-	if is_dir(url):
+	url_is_dir = is_dir_checked(url)
+	if url_is_dir is None:
+		return
+	if url_is_dir:
 		show_alert('Cannot view a directory.')
 		return
 	if splitscheme(url)[0] != 'file://':
@@ -248,7 +251,11 @@ class OpenOrView(DirectoryPaneCommand):
 
 	def __call__(self):
 		url = self.pane.get_file_under_cursor()
-		if (url and not is_dir(url) and splitscheme(url)[0] == 'file://'
+		url_is_dir = is_dir_checked(url) if url else False
+		if url_is_dir is None:
+			# Already alerted; `open` would only alert a second time.
+			return
+		if (url and not url_is_dir and splitscheme(url)[0] == 'file://'
 				and _is_viewable(url)):
 			self.pane.run_command('view_file')
 		else:

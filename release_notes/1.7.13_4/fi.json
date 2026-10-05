@@ -1,0 +1,9 @@
+{
+  "version": "1.7.13",
+  "build": 4,
+  "date": "2026-10-05",
+  "title": "Pysy ajan tasalla fmanin kanssa",
+  "notes": [
+    "fman tarkistaa nyt käynnistyksen jälkeen ja kerran päivässä, onko GitHubissa saatavilla uudempia julkaisuja, ja tarjoaa mahdollisuuden avata lataussivun, kun päivitys on saatavilla. Voit tarkistaa päivitykset myös manuaalisesti komentopaletista."
+  ]
+}

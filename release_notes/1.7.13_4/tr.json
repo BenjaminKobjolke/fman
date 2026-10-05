@@ -1,0 +1,9 @@
+{
+  "version": "1.7.13",
+  "build": 4,
+  "date": "2026-10-05",
+  "title": "fman ile güncel kalın",
+  "notes": [
+    "fman artık başlangıçta ve günde bir kez GitHub'da daha yeni sürümleri kontrol ediyor ve bir güncelleme mevcut olduğunda indirme sayfasını açmanıza olanak tanıyor. Komut paletinden manuel olarak da kontrol edebilirsiniz."
+  ]
+}

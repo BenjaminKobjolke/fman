@@ -1,0 +1,9 @@
+{
+  "version": "1.7.13",
+  "build": 4,
+  "date": "2026-10-05",
+  "title": "Restez à jour avec fman",
+  "notes": [
+    "Après son démarrage, puis une fois par jour, fman vérifie sur GitHub si une version plus récente est disponible et vous permet d’ouvrir la page de téléchargement lorsqu’une mise à jour est disponible. Vous pouvez également lancer une vérification manuelle depuis la palette de commandes."
+  ]
+}

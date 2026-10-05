@@ -32,7 +32,7 @@ class OpenOrViewTest(TestCase):
 				url = 'file://' + label if label else None
 				pane = FakePane(url=url)
 				with patch(
-						'core.commands.opening.is_dir',
+						'core.commands.opening.is_dir_checked',
 						return_value=cursor_is_dir
 				), patch(
 						'core.commands.opening._is_viewable',
@@ -45,12 +45,21 @@ class OpenOrViewTest(TestCase):
 		# Scheme check happens before _is_viewable, so a viewable-looking
 		# remote file still can't be handed to the (local-only) viewer.
 		pane = FakePane(url='http://example.com/file.txt')
-		with patch('core.commands.opening.is_dir', return_value=False), \
-				patch(
-					'core.commands.opening._is_viewable', return_value=True
-				):
+		with patch(
+				'core.commands.opening.is_dir_checked', return_value=False
+		), patch('core.commands.opening._is_viewable', return_value=True):
 			OpenOrView(pane)()
 		self.assertEqual(['open'], pane.commands_run)
+
+	def test_unreadable_file_system_alerts_and_runs_nothing(self):
+		# A share that went away: is_dir_checked(...) has alerted and answers
+		# None. Stop there - delegating to `open` would only alert again.
+		pane = FakePane(url='file://gone')
+		with patch(
+				'core.commands.opening.is_dir_checked', return_value=None
+		), patch('core.commands.opening._is_viewable', return_value=True):
+			OpenOrView(pane)()
+		self.assertEqual([], pane.commands_run)
 
 @skipUnless(PLATFORM == 'Windows', '.lnk shortcuts are a Windows concept')
 class OpenShortcutTest(TestCase):
@@ -79,7 +88,7 @@ class _ViewerTestCase(TestCase):
 	def setUp(self):
 		super().setUp()
 		self.viewer = MagicMock()
-		self.is_dir = self._patch('is_dir', return_value=False)
+		self.is_dir = self._patch('is_dir_checked', return_value=False)
 		self.viewer_for = self._patch('viewer_for', return_value=self.viewer)
 		self.show_alert = self._patch('show_alert')
 	def _patch(self, name, **kwargs):

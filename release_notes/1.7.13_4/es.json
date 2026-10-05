@@ -1,0 +1,9 @@
+{
+  "version": "1.7.13",
+  "build": 4,
+  "date": "2026-10-05",
+  "title": "Mantente al día con fman",
+  "notes": [
+    "Ahora, fman comprueba si hay nuevas versiones en GitHub al iniciarse y una vez al día, y te permite abrir la página de descarga cuando hay una actualización disponible. También puedes buscar actualizaciones manualmente desde la paleta de comandos."
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "version": "1.7.13",
+  "build": 4,
+  "date": "2026-10-05",
+  "title": "Stay up to date with fman",
+  "notes": [
+    "fman now checks for newer releases on GitHub after startup and once a day, and lets you open the download page when an update is available. You can also check manually from the command palette."
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "version": "1.7.13",
+  "build": 4,
+  "date": "2026-10-05",
+  "title": "Rămâi la curent cu fman",
+  "notes": [
+    "fman verifică acum, după pornire și o dată pe zi, dacă există versiuni mai noi pe GitHub și îți permite să deschizi pagina de descărcare atunci când este disponibilă o actualizare. De asemenea, poți verifica manual din paleta de comenzi."
+  ]
+}

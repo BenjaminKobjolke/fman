@@ -1,0 +1,9 @@
+{
+  "version": "1.7.13",
+  "build": 4,
+  "date": "2026-10-05",
+  "title": "Majte prehľad o novinkách vo fman",
+  "notes": [
+    "fman teraz po spustení a potom raz denne kontroluje, či na GitHube nie sú dostupné novšie vydania. Ak je k dispozícii aktualizácia, môžete otvoriť stránku na jej stiahnutie. Dostupnosť aktualizácií môžete skontrolovať aj manuálne z palety príkazov."
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "version": "1.7.13",
+  "build": 4,
+  "date": "2026-10-05",
+  "title": "Hoia fmaniga kursis",
+  "notes": [
+    "fman kontrollib nüüd pärast käivitamist ja kord päevas GitHubist uuemaid versioone ning võimaldab värskenduse olemasolul avada allalaadimislehe. Uuendusi saab käsitsi kontrollida ka käsupaletist."
+  ]
+}

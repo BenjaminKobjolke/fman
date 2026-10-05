@@ -1,0 +1,9 @@
+{
+  "version": "1.7.13",
+  "build": 4,
+  "date": "2026-10-05",
+  "title": "Hold dig opdateret med fman",
+  "notes": [
+    "fman søger nu efter nyere udgivelser på GitHub efter opstart og én gang om dagen. Hvis der er en opdatering tilgængelig, kan du åbne download­siden. Du kan også søge manuelt fra kommandopaletten."
+  ]
+}

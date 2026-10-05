@@ -1,0 +1,9 @@
+{
+  "version": "1.7.13",
+  "build": 4,
+  "date": "2026-10-05",
+  "title": "Luôn cập nhật fman",
+  "notes": [
+    "Giờ đây, fman kiểm tra các phiên bản mới trên GitHub sau khi khởi động và mỗi ngày một lần. Khi có bản cập nhật, bạn có thể mở trang tải xuống. Bạn cũng có thể kiểm tra thủ công từ bảng lệnh."
+  ]
+}
