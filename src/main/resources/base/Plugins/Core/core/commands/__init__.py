@@ -40,6 +40,7 @@ from .release_notes import *
 from .rename import *
 from .theme import *
 from .transfer import *
+from .updates import CheckForUpdates
 from .window import *
 
 def __getattr__(name):

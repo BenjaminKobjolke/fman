@@ -34,6 +34,8 @@ which does URL path manipulation, not web links.
 | `TERMINAL_DOCS`    | `fman.io/docs/terminal?s=f`            | Terminal / native-file-manager alerts  |
 | `CUSTOM_SHORTCUTS` | `fman.io/docs/custom-shortcuts?s=f`    | Key-bindings-updated alert             |
 | `MACOS_DOCS`       | `fman.io/docs/macos?s=f`               | First-run macOS setup tour             |
+| `GITHUB_REPO`     | `BenjaminKobjolke/fman`                | GitHub update lookup                   |
+| `RELEASES`        | `github.com/BenjaminKobjolke/fman/releases/latest` | Update download dialog |
 
 ## Retargeting a fork
 

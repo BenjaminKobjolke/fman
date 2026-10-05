@@ -76,13 +76,25 @@ def list_releases(release_dir):
 	for entry in Path(release_dir).iterdir():
 		if not entry.is_dir():
 			continue
-		match = _RELEASE_DIR_RE.match(entry.name)
-		if not match:
+		parsed = parse_label(entry.name)
+		if parsed is None:
 			continue
-		version_str, build_str = match.groups()
-		releases.append((version_str, int(build_str), entry))
-	releases.sort(key=lambda r: (_version_tuple(r[0]), r[1]), reverse=True)
+		version_str = entry.name.rsplit('_', 1)[0]
+		releases.append((version_str, parsed[1], entry))
+	releases.sort(key=lambda r: parse_label('%s_%d' % (r[0], r[1])), reverse=True)
 	return releases
+
+def parse_label(label):
+	"""Return the numeric release and build for a public release label."""
+	match = _RELEASE_DIR_RE.fullmatch(label)
+	if match is None:
+		return None
+	return _version_tuple(match.group(1)), int(match.group(2))
+
+def list_bundled_releases():
+	"""List the release notes shipped with this installation."""
+	release_dir = release_notes_dir()
+	return list_releases(release_dir) if release_dir else []
 
 def _version_tuple(version_str):
 	return tuple(int(part) for part in version_str.split('.'))

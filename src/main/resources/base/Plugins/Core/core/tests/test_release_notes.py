@@ -1,6 +1,6 @@
 from core.release_notes import (
 	_candidate_release_dirs, first_existing_dir, list_releases, load_release,
-	render_notes,
+	parse_label, render_notes,
 )
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -54,6 +54,15 @@ class CandidateReleaseDirsTest(TestCase):
 		self.assertEqual(deep.parents[7] / 'release_notes', candidates[1])
 
 class ListReleasesTest(TestCase):
+	def test_parses_numeric_version_and_build(self):
+		self.assertEqual(((1, 7, 13), 3), parse_label('1.7.13_3'))
+		self.assertGreater(parse_label('1.8.0_1'), parse_label('1.7.13_9'))
+
+	def test_rejects_non_release_labels(self):
+		for label in ('v1.7.13', '', '1.7.13'):
+			with self.subTest(label=label):
+				self.assertIsNone(parse_label(label))
+
 	def test_sorts_newest_first_by_version_then_build(self):
 		with TemporaryDirectory() as tmp:
 			_make_release_dir(tmp, '1.7.4_0', {'en.json': {}})

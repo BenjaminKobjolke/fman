@@ -9,7 +9,7 @@ release_notes/ layout this reads.
 """
 from core.quicksearch_matchers import contains_chars
 from core.release_notes import (
-	list_releases, load_release, release_notes_dir, render_notes,
+	list_bundled_releases, load_release, render_notes,
 )
 from core.textviewer import show_text_in_viewer
 from fman import DirectoryPaneCommand, QuicksearchItem, show_quicksearch
@@ -39,8 +39,7 @@ class ShowReleaseNotes(DirectoryPaneCommand):
 		return bool(self._list_releases())
 
 	def _list_releases(self):
-		release_dir = release_notes_dir()
-		return list_releases(release_dir) if release_dir else []
+		return list_bundled_releases()
 
 	def _release_date(self, folder):
 		# en.json is always authored (docs/CREATE_NEW_RELEASE.md), so it's

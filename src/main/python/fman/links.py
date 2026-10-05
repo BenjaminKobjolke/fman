@@ -15,3 +15,5 @@ ZEN              = 'https://fman.io/zen'
 TERMINAL_DOCS    = 'https://fman.io/docs/terminal?s=f'
 CUSTOM_SHORTCUTS = 'https://fman.io/docs/custom-shortcuts?s=f'
 MACOS_DOCS       = 'https://fman.io/docs/macos?s=f'
+GITHUB_REPO      = 'BenjaminKobjolke/fman'
+RELEASES         = 'https://github.com/%s/releases/latest' % GITHUB_REPO

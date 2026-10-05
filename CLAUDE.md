@@ -28,6 +28,11 @@ they are intentionally referenced, not imported.
 
 ## Testing
 
+After touching `fman/impl/update_check.py`, run
+`python -m unittest fman_unittest.impl.test_update_check` with `PYTHONPATH` set
+to `src\main\python;src\unittest\python`. The Core update check and command
+are covered by `run_core_tests.bat`.
+
 After changing Core plugin code (`src/main/resources/base/Plugins/Core/core/**`),
 run:
 

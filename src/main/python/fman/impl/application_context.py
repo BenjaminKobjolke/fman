@@ -37,6 +37,7 @@ from fman.impl.onboarding import TourController
 from fman.impl.onboarding.cleanup_guide import CleanupGuide
 from fman.impl.onboarding.tutorial import Tutorial
 from fman.impl.usage_helper import UsageHelper
+from fman.impl.update_check import UpdateCheckTimer
 from fman.impl.util import os_
 from fman.impl.util.path import make_absolute
 from fman.impl.util.qt import connect_once
@@ -45,6 +46,7 @@ from fman.impl.view import ProxyStyle
 from fman.impl.widgets import MainWindow, Application
 from os import makedirs, getcwd
 from os.path import dirname, join
+from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QStyleFactory, QFileIconProvider
 
 import fman
@@ -175,6 +177,7 @@ class DevelopmentApplicationContext(ApplicationContext):
 		if self._demo_mode:
 			# No tutorial during a recording.
 			return
+		self.update_check_timer.start()
 		if self.session_manager.is_first_run:
 			pane = self.plugin_support.get_panes()[0]
 			tutorial = self.tutorial_factory(pane)
@@ -349,6 +352,9 @@ class DevelopmentApplicationContext(ApplicationContext):
 			self.key_bindings, self.context_menu_provider, self.config,
 			self.builtin_plugin
 		)
+	@cached_property
+	def update_check_timer(self):
+		return UpdateCheckTimer(self.plugin_support, QTimer(self.app))
 	@cached_property
 	def plugin_factory(self):
 		return PluginFactory(
