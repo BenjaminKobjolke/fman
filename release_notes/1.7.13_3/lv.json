@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 3,
+  "date": "2026-10-05",
+  "title": "Raitāka pārlūkošana un drošākas failu darbības operētājsistēmā Windows",
+  "notes": [
+    "Operētājsistēmā Windows fman tagad var veikt darbības ar failiem aizsargātās mapēs, piemēram, Program Files un Windows, izmantojot standarta UAC uzvedni, kamēr pārējā lietotne turpina darboties bez paaugstinātām privilēģijām.",
+    "Atverot ļoti lielas mapes, lietotne reaģē raitāk, tāpēc varat turpināt izmantot pārējo fman, kamēr tiek ielādēta milzīga mape.",
+    "Jaunums operētājsistēmā Windows: komandu paletē izmantojiet komandu Follow shortcut, lai pārietu uz .lnk saīsnes mērķi, nevis to palaistu.",
+    "Spraudņi tagad var pievienot savus arhīvu iestatījumus, netraucējot fman iebūvētajam ZIP, 7z un TAR failu atbalstam."
+  ]
+}

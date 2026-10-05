@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 3,
+  "date": "2026-10-05",
+  "title": "Pregledanje je lakše, a rad sa Windows datotekama bezbedniji",
+  "notes": [
+    "Na Windowsu, fman sada može da obavlja operacije nad datotekama u zaštićenim fasciklama kao što su Program Files i Windows uz standardni UAC zahtev, dok ostatak aplikacije ostaje bez povišenih privilegija.",
+    "Otvaranje veoma velikih fascikli sada je odzivnije, pa možete da nastavite da koristite ostatak fman-a dok se velika fascikla učitava.",
+    "Novo u Windows verziji: iz palete komandi izaberite „Prati prečicu“ da biste otvorili odredište prečice .lnk umesto da pokrenete prečicu.",
+    "Dodaci sada mogu da dodaju sopstvena podešavanja za arhive, a da pritom ne naruše fman-ovu ugrađenu podršku za ZIP, 7z i TAR datoteke."
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 3,
+  "date": "2026-10-05",
+  "title": "Flüssigere Dateinavigation und sicherere Dateioperationen unter Windows",
+  "notes": [
+    "Unter Windows kann fman Dateioperationen in geschützten Ordnern wie „Programme“ und „Windows“ jetzt mit einer standardmäßigen UAC-Abfrage ausführen, während der Rest der App weiterhin ohne erhöhte Rechte läuft.",
+    "Sehr große Verzeichnisse lassen sich jetzt reaktionsschneller öffnen. So bleibt der Rest von fman nutzbar, während ein riesiger Ordner fertig geladen wird.",
+    "Neu unter Windows: Mit „Verknüpfung folgen“ in der Befehlspalette kannst du zum Ziel einer .lnk-Verknüpfung navigieren, anstatt sie zu starten.",
+    "Plugins können jetzt eigene Archiveinstellungen hinzufügen, ohne die integrierte Unterstützung von fman für ZIP-, 7z- und TAR-Dateien zu beeinträchtigen."
+  ]
+}

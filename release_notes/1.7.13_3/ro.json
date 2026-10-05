@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 3,
+  "date": "2026-10-05",
+  "title": "Navigare mai fluidă și operațiuni cu fișiere mai sigure în Windows",
+  "notes": [
+    "În Windows, fman poate acum să efectueze operațiuni cu fișiere în foldere protejate, precum Program Files și Windows, folosind o solicitare UAC standard, în timp ce restul aplicației rămâne fără privilegii ridicate.",
+    "Deschiderea directoarelor foarte mari este mai rapidă, astfel încât restul aplicației fman rămâne utilizabil în timp ce se încarcă un folder voluminos.",
+    "Noutate în Windows: folosiți comanda „Urmărește comanda rapidă” din paleta de comenzi pentru a naviga la destinația unei comenzi rapide .lnk, în loc să o lansați.",
+    "Pluginurile pot adăuga acum propriile setări pentru arhive fără să afecteze suportul integrat în fman pentru fișiere ZIP, 7z și TAR."
+  ]
+}

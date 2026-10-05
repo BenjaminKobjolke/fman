@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 3,
+  "date": "2026-10-05",
+  "title": "Navigazione più fluida e operazioni sui file di Windows più sicure",
+  "notes": [
+    "Su Windows, fman può ora gestire le operazioni sui file nelle cartelle protette, come Program Files e Windows, mostrando la normale richiesta UAC, mentre il resto dell'app continua a funzionare senza privilegi elevati.",
+    "L'apertura di directory molto grandi è più reattiva: puoi continuare a usare il resto di fman mentre viene caricata una cartella enorme.",
+    "Novità per Windows: usa il comando Segui collegamento dalla tavolozza dei comandi per raggiungere la destinazione di un collegamento .lnk invece di avviarlo.",
+    "Ora i plugin possono aggiungere le proprie impostazioni per gli archivi senza compromettere il supporto integrato di fman per i file ZIP, 7z e TAR."
+  ]
+}

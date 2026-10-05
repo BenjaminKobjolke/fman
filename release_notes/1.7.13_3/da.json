@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 3,
+  "date": "2026-10-05",
+  "title": "Smidigere browsing og sikrere filhåndtering i Windows",
+  "notes": [
+    "I Windows kan fman nu udføre filhandlinger i beskyttede mapper som Program Files og Windows med en standard UAC-prompt, mens resten af appen fortsat kører uden forhøjede rettigheder.",
+    "Det er nu mere responsivt at åbne meget store mapper, så resten af fman stadig kan bruges, mens en stor mappe indlæses.",
+    "Nyt i Windows: Brug Følg genvej fra kommandopaletten til at gå til destinationen for en .lnk-genvej i stedet for at starte den.",
+    "Plugins kan nu tilføje deres egne arkivindstillinger uden at påvirke fmans indbyggede understøttelse af ZIP-, 7z- og TAR-filer."
+  ]
+}

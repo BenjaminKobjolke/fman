@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 3,
+  "date": "2026-10-05",
+  "title": "Smoother browsing and safer Windows file operations",
+  "notes": [
+    "On Windows, fman can now handle file operations in protected folders such as Program Files and Windows with a standard UAC prompt, while the rest of the app stays unelevated.",
+    "Opening very large directories is more responsive, so the rest of fman remains usable while a huge folder finishes loading.",
+    "New on Windows: use Follow shortcut from the command palette to navigate to a .lnk shortcut's destination instead of launching it.",
+    "Plugins can now add their own archive settings without breaking fman's built-in support for ZIP, 7z and TAR files."
+  ]
+}

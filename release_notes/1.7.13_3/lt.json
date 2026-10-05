@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 3,
+  "date": "2026-10-05",
+  "title": "Sklandesnis naršymas ir saugesnės failų operacijos sistemoje „Windows“",
+  "notes": [
+    "Sistemoje „Windows“ fman dabar gali atlikti failų operacijas apsaugotuose aplankuose, pvz., „Program Files“ ir „Windows“, naudodamas standartinį UAC raginimą, o likusi programos dalis veikia be padidintų teisių.",
+    "Atveriant labai didelius katalogus, programa reaguoja sparčiau, todėl likusia fman dalimi galima naudotis, kol baigiamas įkelti didžiulis aplankas.",
+    "Nauja sistemoje „Windows“: komandų paletėje naudokite komandą „Sekti nuorodą“, kad pereitumėte į .lnk nuorodos paskirties vietą, o ne ją paleistumėte.",
+    "Papildiniai dabar gali pridėti savo archyvų nustatymus, nepakenkdami fman integruotam ZIP, 7z ir TAR failų palaikymui."
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 3,
+  "date": "2026-10-05",
+  "title": "Daha akıcı gezinme ve daha güvenli Windows dosya işlemleri",
+  "notes": [
+    "Windows'ta fman artık Program Files ve Windows gibi korumalı klasörlerdeki dosya işlemlerini standart bir UAC istemiyle gerçekleştirebiliyor; uygulamanın geri kalanı yükseltilmiş izinler olmadan çalışmaya devam ediyor.",
+    "Çok büyük dizinler artık daha hızlı yanıt veriyor. Böylece büyük bir klasörün yüklenmesi sürerken fman'ın geri kalanını kullanmaya devam edebilirsiniz.",
+    "Windows'ta yeni: Bir .lnk kısayolunu çalıştırmak yerine hedef konumuna gitmek için komut paletindeki Kısayolu izle'yi kullanın.",
+    "Eklentiler artık ZIP, 7z ve TAR dosyaları için fman'ın yerleşik desteğini bozmadan kendi arşiv ayarlarını ekleyebilir."
+  ]
+}

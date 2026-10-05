@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 3,
+  "date": "2026-10-05",
+  "title": "Sujuvam failide sirvimine ja turvalisem failitoimingute käsitlemine Windowsis",
+  "notes": [
+    "Windowsis saab fman nüüd teha failitoiminguid kaitstud kaustades, näiteks Program Files ja Windows, tavalise UAC-kinnituse abil, samal ajal kui ülejäänud rakendus töötab kõrgendatud õigusteta.",
+    "Väga suurte kataloogide avamine on nüüd sujuvam, nii et fmani saab kasutada ka siis, kui suure kausta laadimine veel käib.",
+    "Uus Windowsis: kasuta käsupaletist käsku „Järgi otseteed”, et liikuda .lnk-otsetee sihtkohta selle avamise asemel.",
+    "Pluginad saavad nüüd lisada oma arhiiviseadeid, häirimata fmani sisseehitatud ZIP-, 7z- ja TAR-failide tuge."
+  ]
+}

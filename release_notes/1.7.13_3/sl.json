@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 3,
+  "date": "2026-10-05",
+  "title": "Tekočejše brskanje in varnejše operacije z datotekami v sistemu Windows",
+  "notes": [
+    "V sistemu Windows lahko fman zdaj izvaja operacije z datotekami v zaščitenih mapah, kot sta Program Files in Windows, s standardnim pozivom UAC, medtem ko preostali del aplikacije še naprej deluje brez povišanih pravic.",
+    "Odpiranje zelo velikih map je zdaj odzivnejše, zato lahko med nalaganjem obsežne mape še naprej uporabljate preostali del programa fman.",
+    "Novost v sistemu Windows: v paleti ukazov izberite »Sledi bližnjici«, da se pomaknete do cilja bližnjice .lnk, namesto da jo zaženete.",
+    "Vtičniki lahko zdaj dodajo lastne nastavitve arhivov, ne da bi pri tem vplivali na vgrajeno podporo programa fman za datoteke ZIP, 7z in TAR."
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 3,
+  "date": "2026-10-05",
+  "title": "Smidigere navigering og tryggere filoperasjoner i Windows",
+  "notes": [
+    "I Windows kan fman nå håndtere filoperasjoner i beskyttede mapper, som Program Files og Windows, med en vanlig UAC-forespørsel, mens resten av appen fortsatt kjører uten forhøyede rettigheter.",
+    "Det går raskere å åpne svært store kataloger, slik at resten av fman fortsatt kan brukes mens en stor mappe lastes inn.",
+    "Nytt i Windows: Bruk «Følg snarvei» fra kommandopaletten for å gå til målet for en .lnk-snarvei i stedet for å starte det.",
+    "Programtillegg kan nå legge til egne arkivinnstillinger uten å forstyrre fmans innebygde støtte for ZIP-, 7z- og TAR-filer."
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 3,
+  "date": "2026-10-05",
+  "title": "Sujuvampaa selailua ja turvallisempia tiedostotoimintoja Windowsissa",
+  "notes": [
+    "Windowsissa fman voi nyt käsitellä tiedostoja suojatuissa kansioissa, kuten Program Files- ja Windows-kansioissa, tavallisen UAC-kehotteen avulla. Muu sovellus toimii edelleen ilman korotettuja käyttöoikeuksia.",
+    "Erittäin suuret kansiot avautuvat nyt sujuvammin, joten voit käyttää fmanin muita toimintoja samalla, kun suuren kansion lataus valmistuu.",
+    "Uutta Windowsissa: siirry .lnk-pikakuvakkeen kohteeseen käynnistämisen sijaan valitsemalla komentovalikosta Seuraa pikakuvaketta.",
+    "Lisäosat voivat nyt lisätä omia arkistoasetuksiaan häiritsemättä fmanin sisäistä ZIP-, 7z- ja TAR-tiedostojen tukea."
+  ]
+}

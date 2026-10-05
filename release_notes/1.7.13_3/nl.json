@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 3,
+  "date": "2026-10-05",
+  "title": "Vlotter bladeren en veiligere bestandsbewerkingen in Windows",
+  "notes": [
+    "In Windows kan fman nu bestandsbewerkingen uitvoeren in beveiligde mappen, zoals Program Files en Windows, met een standaard UAC-prompt, terwijl de rest van de app zonder verhoogde rechten blijft draaien.",
+    "Het openen van zeer grote mappen reageert nu sneller, zodat je fman kunt blijven gebruiken terwijl een enorme map wordt geladen.",
+    "Nieuw in Windows: gebruik ‘Snelkoppeling volgen’ in het opdrachtenpalet om naar de bestemming van een .lnk-snelkoppeling te navigeren in plaats van deze te starten.",
+    "Plug-ins kunnen nu hun eigen archiefinstellingen toevoegen zonder dat dit gevolgen heeft voor de ingebouwde ondersteuning van fman voor ZIP-, 7z- en TAR-bestanden."
+  ]
+}

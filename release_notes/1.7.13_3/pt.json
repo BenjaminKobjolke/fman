@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 3,
+  "date": "2026-10-05",
+  "title": "Navegação mais fluida e operações de arquivos mais seguras no Windows",
+  "notes": [
+    "No Windows, o fman agora pode realizar operações com arquivos em pastas protegidas, como Arquivos de Programas e Windows, usando uma solicitação padrão do UAC, enquanto o restante do aplicativo continua sem privilégios elevados.",
+    "Abrir pastas muito grandes está mais ágil, então o restante do fman continua utilizável enquanto o carregamento de uma pasta enorme é concluído.",
+    "Novidade no Windows: use “Seguir atalho” na paleta de comandos para navegar até o destino de um atalho .lnk, em vez de iniciá-lo.",
+    "Agora, os plugins podem adicionar suas próprias configurações de arquivos compactados sem comprometer o suporte integrado do fman a arquivos ZIP, 7z e TAR."
+  ]
+}

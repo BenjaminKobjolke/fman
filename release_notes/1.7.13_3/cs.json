@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 3,
+  "date": "2026-10-05",
+  "title": "Plynulejší procházení a bezpečnější operace se soubory ve Windows",
+  "notes": [
+    "Ve Windows nyní fman dokáže provádět operace se soubory v chráněných složkách, jako jsou Program Files a Windows, po zobrazení standardní výzvy UAC, zatímco zbytek aplikace zůstane bez zvýšených oprávnění.",
+    "Otevírání velmi rozsáhlých adresářů je nyní svižnější, takže fman zůstává použitelný i během načítání obrovské složky.",
+    "Novinka ve Windows: Pomocí příkazu Follow shortcut z palety příkazů můžete přejít do cílového umístění zástupce .lnk, místo abyste jej spustili.",
+    "Pluginy nyní mohou přidávat vlastní nastavení archivů, aniž by narušily vestavěnou podporu souborů ZIP, 7z a TAR ve fmanu."
+  ]
+}

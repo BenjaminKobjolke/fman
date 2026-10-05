@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 3,
+  "date": "2026-10-05",
+  "title": "Brže pregledavanje i sigurnije operacije s datotekama u sustavu Windows",
+  "notes": [
+    "U sustavu Windows fman sada može izvršavati operacije s datotekama u zaštićenim mapama kao što su Program Files i Windows uz standardni UAC upit, dok ostatak aplikacije i dalje radi bez povišenih ovlasti.",
+    "Otvaranje vrlo velikih direktorija sada je responzivnije, pa ostatak fmana ostaje upotrebljiv dok se dovršava učitavanje velike mape.",
+    "Novo u sustavu Windows: upotrijebite naredbu Slijedi prečac na paleti naredbi da biste otvorili odredište prečaca .lnk umjesto da ga pokrenete.",
+    "Dodaci sada mogu dodavati vlastite postavke arhiva bez narušavanja fmanove ugrađene podrške za datoteke ZIP, 7z i TAR."
+  ]
+}

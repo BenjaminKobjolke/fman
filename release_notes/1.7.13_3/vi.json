@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 3,
+  "date": "2026-10-05",
+  "title": "Duyệt tệp mượt mà hơn và thao tác tệp Windows an toàn hơn",
+  "notes": [
+    "Trên Windows, giờ đây fman có thể thao tác với tệp trong các thư mục được bảo vệ như Program Files và Windows bằng lời nhắc UAC tiêu chuẩn, trong khi phần còn lại của ứng dụng vẫn chạy mà không cần quyền nâng cao.",
+    "Việc mở các thư mục rất lớn phản hồi nhanh hơn, nhờ đó bạn vẫn có thể sử dụng các phần khác của fman trong khi thư mục lớn đang tải.",
+    "Tính năng mới trên Windows: dùng Follow shortcut trong bảng lệnh để chuyển đến đích của lối tắt .lnk thay vì khởi chạy lối tắt đó.",
+    "Giờ đây, plugin có thể thêm cài đặt lưu trữ riêng mà không làm ảnh hưởng đến khả năng hỗ trợ tích hợp các tệp ZIP, 7z và TAR của fman."
+  ]
+}

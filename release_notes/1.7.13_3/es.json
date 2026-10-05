@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 3,
+  "date": "2026-10-05",
+  "title": "Navegación más fluida y operaciones con archivos de Windows más seguras",
+  "notes": [
+    "En Windows, fman ahora puede realizar operaciones con archivos en carpetas protegidas, como Program Files y Windows, mediante un aviso estándar del UAC, mientras que el resto de la aplicación sigue sin ejecutarse con privilegios elevados.",
+    "La apertura de directorios muy grandes es más ágil, por lo que puedes seguir usando el resto de fman mientras termina de cargarse una carpeta enorme.",
+    "Novedad en Windows: usa «Seguir acceso directo» desde la paleta de comandos para ir al destino de un acceso directo .lnk en lugar de abrirlo.",
+    "Los complementos ahora pueden añadir sus propios ajustes para archivos comprimidos sin afectar a la compatibilidad integrada de fman con ZIP, 7z y TAR."
+  ]
+}

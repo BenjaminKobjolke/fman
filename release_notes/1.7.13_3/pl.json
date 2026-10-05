@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 3,
+  "date": "2026-10-05",
+  "title": "Płynniejsze przeglądanie i bezpieczniejsze operacje na plikach w systemie Windows",
+  "notes": [
+    "W systemie Windows fman może teraz wykonywać operacje na plikach w chronionych folderach, takich jak Program Files i Windows, wyświetlając standardowy monit UAC, podczas gdy pozostała część aplikacji działa bez podwyższonych uprawnień.",
+    "Otwieranie bardzo dużych katalogów jest teraz sprawniejsze, dzięki czemu z fman można korzystać, gdy trwa wczytywanie dużego folderu.",
+    "Nowość w systemie Windows: użyj polecenia „Przejdź do celu skrótu” z palety poleceń, aby przejść do miejsca docelowego skrótu .lnk zamiast go uruchamiać.",
+    "Wtyczki mogą teraz dodawać własne ustawienia archiwów bez zakłócania wbudowanej obsługi plików ZIP, 7z i TAR w fman."
+  ]
+}

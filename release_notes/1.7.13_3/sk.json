@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 3,
+  "date": "2026-10-05",
+  "title": "Plynulejšie prehliadanie a bezpečnejšia práca so súbormi vo Windowse",
+  "notes": [
+    "Vo Windowse teraz fman dokáže vykonávať operácie so súbormi v chránených priečinkoch, ako sú Program Files a Windows, pomocou štandardnej výzvy UAC, pričom zvyšok aplikácie naďalej funguje bez zvýšených oprávnení.",
+    "Otváranie veľmi veľkých priečinkov je teraz svižnejšie, takže fman zostáva použiteľný aj počas načítavania obrovského priečinka.",
+    "Novinka vo Windowse: pomocou príkazu Follow shortcut v palete príkazov môžete prejsť do cieľového umiestnenia odkazu .lnk namiesto jeho spustenia.",
+    "Moduly teraz môžu pridávať vlastné nastavenia archívov bez toho, aby narušili vstavanú podporu súborov ZIP, 7z a TAR vo fman."
+  ]
+}

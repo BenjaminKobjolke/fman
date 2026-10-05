@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 3,
+  "date": "2026-10-05",
+  "title": "Gördülékenyebb böngészés és biztonságosabb fájlműveletek Windows alatt",
+  "notes": [
+    "Windows alatt az fman mostantól hagyományos UAC-engedélykéréssel is el tudja végezni a védett mappákban, például a Program Files és a Windows mappában szükséges fájlműveleteket, miközben az alkalmazás többi része továbbra is emelt jogosultság nélkül fut.",
+    "A nagyon nagy könyvtárak megnyitása gyorsabban reagál, így az fman többi része is használható marad, amíg egy hatalmas mappa betöltése be nem fejeződik.",
+    "Újdonság Windows alatt: a parancspalettán válaszd a „Parancsikon követése” lehetőséget, hogy egy .lnk parancsikon célhelyére navigálj ahelyett, hogy elindítanád azt.",
+    "A bővítmények mostantól saját archívumbeállításokat is hozzáadhatnak anélkül, hogy ez megzavarná az fman beépített ZIP-, 7z- és TAR-fájlkezelését."
+  ]
+}

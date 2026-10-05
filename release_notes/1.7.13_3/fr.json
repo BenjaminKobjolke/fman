@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 3,
+  "date": "2026-10-05",
+  "title": "Une navigation plus fluide et des opérations sur les fichiers Windows plus sûres",
+  "notes": [
+    "Sous Windows, fman peut désormais effectuer des opérations sur les fichiers dans des dossiers protégés, comme Program Files et Windows, à l’aide d’une invite UAC standard, tandis que le reste de l’application continue de fonctionner sans élévation de privilèges.",
+    "L’ouverture de très grands répertoires est plus réactive : le reste de fman reste utilisable pendant le chargement d’un dossier volumineux.",
+    "Nouveauté sous Windows : utilisez la commande « Suivre le raccourci » dans la palette de commandes pour accéder à la destination d’un raccourci .lnk au lieu de le lancer.",
+    "Les plugins peuvent désormais ajouter leurs propres paramètres d’archives sans compromettre la prise en charge intégrée des fichiers ZIP, 7z et TAR par fman."
+  ]
+}
