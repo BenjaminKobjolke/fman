@@ -39,13 +39,9 @@ class _TreeCommand(DirectoryPaneCommand):
 	def __call__(self, files=None, dest_dir=None):
 		if files is None:
 			files = self.get_chosen_files()
-			src_dir = self.pane.get_path()
-		else:
-			# This for instance happens in Drag and Drop operations.
-			src_dir = None
 		if dest_dir is None:
 			dest_dir = get_opposite_pane(self.pane).get_path()
-		proceed = self._confirm_tree_operation(files, dest_dir, src_dir)
+		proceed = self._confirm_tree_operation(files, dest_dir)
 		if proceed:
 			dest_dir, dest_name = proceed
 			if not self._call_elevated(files, dest_dir, dest_name):
@@ -57,18 +53,17 @@ class _TreeCommand(DirectoryPaneCommand):
 		# Returns whether core.elevation took care of it - see there.
 		return False
 	@classmethod
-	def _confirm_tree_operation(
-		cls, files, dest_dir, src_dir, ui=fman, fs=fman.fs
-	):
+	def _confirm_tree_operation(cls, files, dest_dir, ui=fman, fs=fman.fs):
 		if not files:
 			ui.show_alert(NO_SELECTION)
 			return
-		selection_start = 0
+		dest_path = as_human_readable(dest_dir)
+		verb = cls._verb().capitalize()
 		selection_end = None # Select everything
+		exists_and_is_dir = False
 		if len(files) == 1:
 			file_, = files
 			dest_name = basename(file_)
-			files_descr = '"%s"' % dest_name
 			try:
 				exists_and_is_dir = fs.is_dir(file_)
 			except FileNotFoundError:
@@ -76,43 +71,16 @@ class _TreeCommand(DirectoryPaneCommand):
 			except OSError as e:
 				ui.show_alert(CANNOT_READ % (as_human_readable(file_), e))
 				return
-			if exists_and_is_dir:
-				"""
-				There is only one reasonable course of action when the file to
-				be copied is a dir: Suggest the parent directory and copy the
-				dir into it as a folder. The alternative would be to suggest the
-				destination directory and copy the dir's *contents*. But this 
-				brings a host of problems: Say we copy folder src/ to (inside) 
-				dst/ once, and then a second time. Then src/dst is suggested. It
-				already exists. This leads to the remaining logic in this class
-				copying to src/dst/dst instead of overwriting the previously 
-				copied files.
-				
-				Another problem with the alternative approach would be that the
-				user may copy a folder with a lot of files, and manually type in
-				an existing destination directory. If we copied the folder's 
-				contents, then the user may end up with thousands of files 
-				scattered all over the existing directory when he intended for 
-				them to be contained in a separate, single directory.
-				
-				Finally, the alternative approach might not be able to preserve
-				the directory's permissions when an existing destination folder
-				is supplied.
-				"""
-				suggested_dst = as_human_readable(dest_dir)
-			else:
-				dest_url = join(dest_dir, dest_name)
-				suggested_dst, selection_start, selection_end = \
-					get_dest_suggestion(dest_url)
+			if not exists_and_is_dir:
+				selection_end = _find_extension_start(dest_name)
+			message = '%s "%s" to\n%s' % (verb, dest_name, dest_path)
+			suggested_dst = dest_name
 		else:
-			files_descr = '%d files' % len(files)
-			suggested_dst = as_human_readable(dest_dir)
-		message = '%s %s to' % (cls._verb().capitalize(), files_descr)
-		dest, ok = ui.show_prompt(
-			message, suggested_dst, selection_start, selection_end
-		)
+			message = '%s %d files to' % (verb, len(files))
+			suggested_dst = dest_path
+		dest, ok = ui.show_prompt(message, suggested_dst, 0, selection_end)
 		if dest and ok:
-			dest_url = _from_human_readable(dest, dest_dir, src_dir)
+			dest_url = _from_human_readable(dest, dest_dir, None)
 			if fs.exists(dest_url):
 				try:
 					dest_is_dir = fs.is_dir(dest_url)
@@ -124,12 +92,14 @@ class _TreeCommand(DirectoryPaneCommand):
 						# This happens when renaming a/ -> A/ on
 						# case-insensitive file systems.
 						return _split(dest_url)
-					for file_ in files:
-						if is_parent(file_, dest_url, fs):
-							ui.show_alert(
-								'You cannot %s a file to itself!' % cls._verb()
-							)
-							return
+					if cls._is_into_itself(files, dest_url, ui, fs):
+						return
+					if exists_and_is_dir and \
+						dest_url == join(dest_dir, dest_name):
+						# The dir's own name, left as suggested: merge into
+						# the existing dir of that name. Returning dest_url
+						# would nest a second copy inside it.
+						return dest_dir, None
 					return dest_url, None
 				else:
 					if len(files) == 1:
@@ -141,6 +111,8 @@ class _TreeCommand(DirectoryPaneCommand):
 						)
 			else:
 				if len(files) == 1:
+					if cls._is_into_itself(files, dest_url, ui, fs):
+						return
 					return _split(dest_url)
 				else:
 					choice = ui.show_alert(
@@ -151,6 +123,13 @@ class _TreeCommand(DirectoryPaneCommand):
 					)
 					if choice & YES:
 						return dest_url, None
+	@classmethod
+	def _is_into_itself(cls, files, dest_url, ui, fs):
+		for file_ in files:
+			if is_parent(file_, dest_url, fs):
+				ui.show_alert('You cannot %s a file to itself!' % cls._verb())
+				return True
+		return False
 	@classmethod
 	def _verb(cls):
 		return cls.__name__.lower()
@@ -183,11 +162,14 @@ def _from_human_readable(path_or_url, dest_dir, src_dir):
 		dest_scheme, dest_dir_path = splitscheme(dest_dir)
 		if src_dir:
 			# Treat dest as relative to src_dir:
-			src_scheme, src_path = splitscheme(src_dir)
-			dest_path = PurePath(src_path, path_or_url).as_posix()
+			base_path = splitscheme(src_dir)[1]
 		else:
-			dest_path = PurePath(dest_dir_path, path_or_url).as_posix()
-		path_or_url = dest_scheme + dest_path
+			base_path = dest_dir_path
+		if base_path.endswith(':'):
+			# A drive root is 'C:' here. PurePath('C:', 'a') is 'C:a' - relative
+			# to the drive's current directory, not to its root.
+			base_path += '/'
+		path_or_url = dest_scheme + PurePath(base_path, path_or_url).as_posix()
 	return path_or_url
 
 def _split(url):
@@ -261,7 +243,7 @@ class Symlink(_TreeCommand):
 			f_path = as_human_readable(f_url)
 			dest_path = as_human_readable(dest_url)
 			try:
-				os.symlink(f_path, dest_path, is_dir(f_url))
+				os.symlink(f_path, dest_path, fman.fs.is_dir(f_url))
 			except FileExistsError:
 				if ignore_exists:
 					continue
