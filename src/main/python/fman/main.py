@@ -1,10 +1,31 @@
+import atexit
+import logging
+import os
 import sys
 
 def main():
+	# Registered first so this runs after every other exit handler.
+	atexit.register(_skip_interpreter_teardown)
 	from fman.impl.application_context import get_application_context
 	appctxt = get_application_context()
 	exit_code = appctxt.run()
+	_skip_interpreter_teardown.exit_code = exit_code
 	sys.exit(exit_code)
+
+def _skip_interpreter_teardown():
+	# Destroying PyQt objects during interpreter teardown can crash in sip.
+	try:
+		logging.shutdown()
+		for stream in (sys.stdout, sys.stderr):
+			if stream is not None:
+				try:
+					stream.flush()
+				except (OSError, ValueError):
+					pass
+	finally:
+		# Must be reached whatever the above raises, or teardown runs after all.
+		os._exit(_skip_interpreter_teardown.exit_code)
+_skip_interpreter_teardown.exit_code = 1
 
 def profile_main():
 	# Import late to only incur the .0n sec time cost when necessary:
