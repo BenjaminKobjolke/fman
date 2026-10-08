@@ -6,6 +6,7 @@ from fman.impl.plugins.config import Config
 from fman.impl.plugins.context_menu import ContextMenuProvider
 from fman.impl.plugins.key_bindings import KeyBindings
 from fman.impl.plugins.mother_fs import MotherFileSystem
+from fman.impl.viewers import ViewerRegistry
 from fman_integrationtest import get_resource
 from fman_integrationtest.impl.plugins import StubCommandCallback, StubTheme, \
 	StubFontDatabase, StubDirectoryPaneWidget
@@ -48,7 +49,7 @@ class PluginTest(TestCase):
 		plugin_factory = PluginFactory(
 			config, theme, font_db, self._error_handler, self._appcmd_registry,
 			self._panecmd_registry, key_bindings, cm_provider, self._mother_fs,
-			self._window
+			ViewerRegistry(), self._window
 		)
 		self._plugin_support = PluginSupport(
 			plugin_factory, self._appcmd_registry, key_bindings, cm_provider,
