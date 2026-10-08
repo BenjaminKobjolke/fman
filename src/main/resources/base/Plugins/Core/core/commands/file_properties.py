@@ -56,11 +56,11 @@ elif PLATFORM == 'Windows':
 
 			def __call__(self):
 				show_alert(
-					'Sorry, the module for displaying file properties %r could '
+					('Sorry, the module for displaying file properties %r could '
 					'not be loaded. Please file a bug report at '
 					'<a href="' + links.ISSUES + '">'
 					+ links.ISSUES + '</a> mentioning your Windows '
-					'version (eg. Windows 10) and architecture (eg. 64 bit).'
+					'version (eg. Windows 10) and architecture (eg. 64 bit).')
 					% error.name
 				)
 
