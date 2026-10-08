@@ -9,8 +9,8 @@ from fman.impl.view.move_without_updating_selection import \
 	MoveWithoutUpdatingSelection
 from fman.impl.view.resize_cols_to_contents import ResizeColumnsToContents
 from fman.impl.view.single_row_mode import SingleRowMode
-from PyQt5.QtCore import QEvent, QItemSelectionModel as QISM, QRect, Qt, \
-	pyqtSignal, QRectF
+from PyQt5.QtCore import QEvent, QItemSelection, QItemSelectionModel as QISM, \
+	QRect, Qt, pyqtSignal, QRectF
 from PyQt5.QtGui import QPen, QContextMenuEvent, QKeySequence, QPainterPath, \
 	QRegion, QPainter, QPalette
 from PyQt5.QtWidgets import QTableView, QLineEdit, QVBoxLayout, QStyle, \
@@ -126,8 +126,29 @@ class FileListView(
 	def select(self, file_urls, ignore_errors=False):
 		if isinstance(file_urls, str):
 			raise ValueError('It should be select([file]) not select(file).')
-		for url in file_urls:
-			self._change_selection(url, QISM.Select, ignore_errors)
+		model, selection = self.model(), QItemSelection()
+		last_col = model.columnCount() - 1
+		first = last = None
+		try:
+			for url in file_urls:
+				try:
+					row = model.find(url).row()
+				except ValueError:
+					if ignore_errors:
+						continue
+					raise
+				if first is None:
+					first = last = row
+				elif row == last + 1:
+					last = row
+				else:
+					selection.select(model.index(first, 0), model.index(last, last_col))
+					first = last = row
+		finally:
+			if first is not None:
+				selection.select(model.index(first, 0), model.index(last, last_col))
+			if selection:
+				self.selectionModel().select(selection, QISM.Select | QISM.Rows)
 	def deselect(self, file_urls, ignore_errors=False):
 		if isinstance(file_urls, str):
 			raise ValueError(
