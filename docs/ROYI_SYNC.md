@@ -4,7 +4,7 @@ Which changes from the RoyiFileManager fork have been ported into this fork.
 Maintained by the `royi-sync` skill (`.claude/skills/royi-sync/SKILL.md`).
 
 Source: https://github.com/RoyiAvital/RoyiFileManager (local: `D:\GIT\GitHub\RoyiFileManager`)
-Last reviewed: v0.11.0 (cc5824f)
+Last reviewed: v0.15.0 (d2cd32b)
 
 The two repositories share no git history, so nothing can be merged or
 cherry-picked — every row is a manual re-implementation. Rows follow the
@@ -14,6 +14,40 @@ Status: `pending` (not looked at yet), `ported`, `skipped` (with reason).
 
 | Version | Change | Status | Note |
 |---------|--------|--------|------|
+| 0.15.0 | `fman.ui.show_quick_board` | pending | needs QuickTable (0.12.0) |
+| 0.15.0 | Batch File Renamer plug-in | pending | needs `show_quick_board`, `rename_no_replace`, `reload(on_done=)` |
+| 0.15.0 | `fman.fs.rename_no_replace` / `RenameResult` | pending | his local implementation is Windows-only |
+| 0.15.0 | `DirectoryPane.reload(on_done=...)` | pending | his code reads snapshot-model internals (0.9.0) |
+| 0.15.0 | Favorites Manager added / last opened / count | skipped | own external plug-in FMAN-Favorites |
+| 0.15.0 | Copy/Move cancellable preparation before validation, missing nested destinations | pending | touches `transfer.py` + `fileoperations.py` |
+| 0.15.0 | Yes to all: skipped errors reported once at the end | pending | `fileoperations.py` |
+| 0.15.0 | Public file selection batches Qt selection updates | ported | 2026-10-08 — `fman/impl/view/__init__.py`, `fman_unittest/impl/view/selection_test.py`, `tools/run_view_tests.bat` |
+| 0.15.0 | QuickTable initial focus / visibility by source position | pending | needs QuickTable (0.12.0) |
+| 0.15.0 | QuickList footer, third-press sort reset, frameless | pending | needs QuickList (0.3.0 / 0.14.0) |
+| 0.15.0 | Fuzzy Find follows pane hidden-file visibility | pending | needs SearchFileFuzzy (0.2.0) |
+| 0.15.0 | Saved JSON uses two-space indent and final newline | ported | 2026-10-08; `src/main/python/fman/impl/plugins/config.py`, `src/main/python/fman/impl/util/settings.py` |
+| 0.15.0 | Copy to unavailable drive / share shows one clear error | ported | 2026-10-08; `core/fs/local/__init__.py`, `core/fileoperations.py` |
+| 0.15.0 | Copy performance table, documentation | skipped | measurements / his docs |
+| 0.14.0 | QuickView PDF preview | pending | needs QuickView (0.8.0); new dependency pypdfium2 |
+| 0.14.0 | `fman.ui.show_quick_list` | pending | needs QuickList (0.3.0) |
+| 0.14.0 | Favorites Manager on `show_quick_list` | skipped | own external plug-in FMAN-Favorites |
+| 0.14.0 | QuickTable ASCII filter fast path | pending | needs QuickTable (0.12.0) |
+| 0.14.0 | Removed Qt widget exports from `fman.ui` | skipped | exports never existed here |
+| 0.14.0 | Reset window geometry stays cleared through shutdown | pending | needs Reset Window Geometry (0.1.0) |
+| 0.14.0 | Exit access violation: skip interpreter teardown | ported | 2026-10-08; landed in `e54739b` (v0.13.1); `src/main/python/fman/main.py`, `src/unittest/python/fman_unittest/test_main.py` |
+| 0.13.1 | Name sort keys in C (`_fsparser.natural_keys`) | pending | native binary; snapshot architecture (0.9.0) |
+| 0.13.1 | Unchanged refresh skips re-sort / table reset | pending | snapshot architecture (0.9.0) |
+| 0.13.1 | Projection worker yields every ~16 ms; smaller row map | pending | snapshot architecture (0.9.0) |
+| 0.13.1 | Performance tables | skipped | no code |
+| 0.13.0 | Native NTFS directory parser (`fsparser.c`) | pending | native binary, Windows-only; snapshot architecture (0.9.0) |
+| 0.13.0 | Performance tables | skipped | no code |
+| 0.12.0 | `show_table` reworked into `show_quick_table` (breaking) | pending | supersedes the 0.4.0 `show_table` row: port this shape, not the old API |
+| 0.12.0 | Typed `QuickTableColumn`, header sort/filter icons, `truncated`, tab cells, cell menus | pending | part of QuickTable |
+| 0.12.0 | Search Files Extended mode | pending | needs Search files (0.4.0) |
+| 0.12.0 | Find Files / Search Files / Verify checksum result changes | pending | need 0.7.0 / 0.4.0 / 0.10.3 plug-ins |
+| 0.12.0 | Natural name sorting moved to a shared host helper | pending | |
+| 0.12.0 | Removed per-pane mode of Extended Status Bar | pending | needs extended status bar (0.2.0) |
+| 0.12.0 | Documentation | skipped | his docs |
 | 0.11.0 | Everything Search plug-in (Ctrl+E), database folder manager | pending | bundles Everything portable binary |
 | 0.11.0 | Build auto-provisions hash-verified Everything portable files | pending | belongs to the plug-in above |
 | 0.10.3 | ChecksumFiles plug-in (generate / verify checksum files) | pending | needs `show_table` (0.4.0), BLAKE3 dependency |
