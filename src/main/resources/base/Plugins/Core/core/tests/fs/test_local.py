@@ -6,10 +6,26 @@ from pathlib import Path
 from stat import S_IWRITE
 from tempfile import TemporaryDirectory
 from unittest import TestCase, skipIf
+from unittest.mock import patch
 
 import os
 
 class LocalFileSystemTest(TestCase):
+	@skipIf(PLATFORM != 'Windows', 'Skip Windows-only test')
+	def test_makedirs_unavailable_drive_or_share(self):
+		for path, drive in (
+			('Q:/missing/new', 'Q:'),
+			('//server/share/missing/new', r'\\server\share'),
+		):
+			with self.subTest(path=path), \
+					patch('core.fs.local.os.path.isdir', return_value=False) as isdir, \
+					patch.object(self._fs, 'mkdir') as mkdir:
+				with self.assertRaises(FileNotFoundError) as raised:
+					self._fs.makedirs(path)
+				self.assertEqual(drive, raised.exception.filename)
+				isdir.assert_called_once_with(drive + '\\')
+				mkdir.assert_not_called()
+
 	def test_mkdir_root(self):
 		with self.assertRaises(FileExistsError):
 			self._fs.mkdir('C:' if PLATFORM == 'Windows' else '/')

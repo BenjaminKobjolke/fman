@@ -67,6 +67,14 @@ class LocalFileSystem(FileSystem):
 			os_path.touch(exist_ok=True)
 		else:
 			self.notify_file_added(path)
+	def makedirs(self, path, exist_ok=True):
+		# Otherwise the base recursion reaches a bare drive or server name.
+		drive = splitdrive(self._url_to_os_path(path))[0]
+		if drive and not os.path.isdir(drive + '\\'):
+			raise FileNotFoundError(
+				ENOENT, 'The drive or network share is not available', drive
+			)
+		super().makedirs(path, exist_ok)
 	def mkdir(self, path):
 		os_path = Path(self._url_to_os_path(path))
 		if not os_path.is_absolute():

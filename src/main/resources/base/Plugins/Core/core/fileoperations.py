@@ -6,6 +6,14 @@ from os.path import pardir
 
 import fman.fs
 
+def _describe_error(error):
+	# Providers may wrap the OS error, e.g. FileExistsError(path) from WinError 183.
+	for candidate in (error, error.__cause__):
+		strerror = getattr(candidate, 'strerror', None)
+		if strerror:
+			return strerror[0].lower() + strerror[1:]
+	return error.__class__.__name__
+
 class FileTreeOperation(Task):
 	def __init__(
 		self, descr_verb, files, dest_dir, dest_name=None, fs=fman.fs
@@ -53,13 +61,10 @@ class FileTreeOperation(Task):
 					break
 				self.set_progress(progress_before + task.get_size())
 	def _gather_files(self):
-		dest_dir_url = self._get_dest_dir_url()
-		self._enqueue([Task(
-			'Preparing ' + basename(dest_dir_url), fn=self._fs.makedirs,
-			 args=(dest_dir_url,), kwargs={'exist_ok': True}
-		)])
-		for i, src in enumerate(self._iter(self._files)):
-			is_last = i == len(self._files) - 1
+		# Checked before the destination is created: a rejected transfer must
+		# not leave a new folder behind, least of all inside its own source.
+		samefile_renames = set()
+		for src in self._iter(self._files):
 			dest = self._get_dest_url(src)
 			if is_parent(src, dest, self._fs):
 				if src != dest:
@@ -69,12 +74,27 @@ class FileTreeOperation(Task):
 						is_samefile = False
 					if is_samefile:
 						if self._can_transfer_samefile():
-							self._enqueue(self._prepare_transfer(src, dest))
+							samefile_renames.add(src)
 							continue
 				self.show_alert(
 					"You cannot %s a file to itself." % self._descr_verb
 				)
 				return False
+		dest_dir_url = self._get_dest_dir_url()
+		try:
+			self._fs.makedirs(dest_dir_url, exist_ok=True)
+		except OSError as e:
+			self.show_alert(
+				'Could not create the destination folder %s (%s).' %
+				(as_human_readable(dest_dir_url), _describe_error(e))
+			)
+			return False
+		for i, src in enumerate(self._iter(self._files)):
+			is_last = i == len(self._files) - 1
+			dest = self._get_dest_url(src)
+			if src in samefile_renames:
+				self._enqueue(self._prepare_transfer(src, dest))
+				continue
 			try:
 				is_dir = self._fs.is_dir(src)
 			except OSError as e:
@@ -164,10 +184,7 @@ class FileTreeOperation(Task):
 	def _handle_exception(self, message, is_last, exc):
 		if self._ignore_exceptions:
 			return True
-		if exc.strerror:
-			cause = exc.strerror[0].lower() + exc.strerror[1:]
-		else:
-			cause = exc.__class__.__name__
+		cause = _describe_error(exc)
 		message = '%s (%s).' % (message, cause)
 		if is_last:
 			buttons = OK

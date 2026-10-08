@@ -1,10 +1,14 @@
 from core.fileoperations import CopyFiles, MoveFiles
+from core.fs.local import LocalFileSystem
 from core.tests import StubFS
 from fman import YES, NO, OK, YES_TO_ALL, NO_TO_ALL, ABORT, PLATFORM
 from fman.url import join, dirname, as_url, as_human_readable
 from os.path import exists
+from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import TestCase, skipIf
+from unittest.mock import patch
+from fman.impl.plugins.mother_fs import MotherFileSystem
 
 import os
 import os.path
@@ -149,6 +153,16 @@ class FileTreeOperationAT:
 			answer=OK
 		)
 		self._perform_on(dir_, dest_dir=subdir)
+	def test_move_to_own_nonexistent_subdir(self):
+		dir_ = join(self.src, 'dir')
+		self._touch(join(dir_, 'file.txt'))
+		self._expect_alert(
+			('You cannot %s a file to itself.' % self.operation_descr_verb,),
+			answer=OK
+		)
+		self._perform_on(dir_, dest_dir=join(dir_, 'subdir'))
+		# The rejected transfer must not have created its destination:
+		self._expect_files({'file.txt'}, in_dir=dir_)
 	def test_external_file(self):
 		external_file = join(self.external_dir, 'test.txt')
 		self._touch(external_file)
@@ -432,6 +446,42 @@ class MoveFilesTest(FileTreeOperationAT, TestCase):
 	def test_overwrite_directory_file_in_subdir(self):
 		super().test_overwrite_directory_file_in_subdir()
 		self.assertNotIn('dir1', self._fs.iterdir(self.src))
+
+class UnavailableDestinationTest(TestCase):
+	def test_copy_and_move_report_one_destination_error(self):
+		with TemporaryDirectory() as tmp_dir:
+			root = Path(tmp_dir)
+			blocker = root / 'blocker'
+			blocker.write_text('blocker')
+			destinations = [(blocker / 'new', False)]
+			if PLATFORM == 'Windows':
+				free_drive = next((
+					letter for letter in 'ZYXWVUTSRQPONMLKJIHGFED'
+					if not os.path.exists(letter + ':\\')
+				), None)
+				if free_drive:
+					destinations.append((Path(free_drive + ':\\fman-missing\\new'), True))
+			for operation in (CopyFiles, MoveFiles):
+				for dest_dir, missing_drive in destinations:
+					with self.subTest(operation=operation.__name__, dest_dir=dest_dir):
+						src = root / (operation.__name__ + '.txt')
+						src.write_text('source')
+						fs = MotherFileSystem(None)
+						fs.add_child('file://', LocalFileSystem())
+						dialog = MockProgressDialog(self)
+						task = operation([as_url(src)], as_url(dest_dir), fs=fs)
+						task._dialog = dialog
+						with patch.object(dialog, 'show_alert', return_value=OK) as alert:
+							task()
+						self.assertEqual(1, alert.call_count)
+						message = alert.call_args.args[0]
+						self.assertIn('Could not create the destination folder', message)
+						self.assertIn(str(dest_dir), message)
+						self.assertNotIn('FileExistsError', message)
+						if missing_drive:
+							self.assertIn('the drive or network share is not available', message)
+						self.assertEqual('source', src.read_text())
+						self.assertEqual('blocker', blocker.read_text())
 
 class MockProgressDialog:
 	def __init__(self, test_case):
