@@ -125,6 +125,18 @@ Results are written to `code_analysis_results/` as **per-rule CSV files** (e.g.
 no `.md` report, and a missing CSV means that rule found nothing. Fix any
 reported issues before committing.
 
+### Analyzer findings and exclusions
+
+The run exits 1 only for ERROR findings: Ruff `E…` codes and files above the
+line-count `error` threshold. Ruff `F`/`W` findings and duplicate matches are
+warnings. `E101` and `E731` are ignored alongside `W191`: upstream uses tabs
+with aligned continuation lines and `name = lambda`; do not reformat those files
+just to satisfy Ruff.
+
+Ruff excludes use bare directory names because `target/**` does not exclude the
+build output on this machine. The console's Ruff finding count is capped at 50
+in the full run and 5 in the changed-files run, so it is not the total.
+
 ### `tools/fix_ruff_issues.bat` — safe now, but it only adds newlines
 
 It used to break the build: ruff's F401 autofix deleted `from .zip import *`

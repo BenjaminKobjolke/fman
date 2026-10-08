@@ -12,6 +12,12 @@
         "reason": "Upstream fman application source. Splitting these creates conflicts on every upstream merge for zero functional gain; the fork's own code lives in Plugins/Core. Thresholds still catch runaway growth beyond today's largest file (widgets.py, 1002)."
       },
       {
+        "file": "src/main/resources/base/Plugins/Core/core/fs/zip.py",
+        "warning": 700,
+        "error": 800,
+        "reason": "Upstream fman Core file: 640 lines since 2018, the fork added 6. Splitting it conflicts with every upstream merge and touches 7-Zip code whose tests are kept out of the default run."
+      },
+      {
         "file": "src/main/resources/base/Plugins/Core/core/tests/*",
         "warning": 700,
         "error": 1200,
@@ -87,7 +93,7 @@
   "ruff_analyze": {
     "enabled": true,
     "select": ["E", "F", "W"],
-    "ignore": ["W191"],
-    "exclude_patterns": ["venv/**", "__pycache__/**", ".git/**", "target/**", "tmp/**", "cache/**"]
+    "ignore": ["W191", "E101", "E731"],
+    "exclude_patterns": ["venv", "__pycache__", ".git", "target", "tmp", "cache"]
   }
 }
