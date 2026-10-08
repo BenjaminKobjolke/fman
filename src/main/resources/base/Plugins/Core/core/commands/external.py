@@ -63,11 +63,11 @@ class CompareDirectories(DirectoryPaneCommand):
 			          '<br/>(Did not compare contents, Size or Modified.)'
 		else:
 			msg_parts = []
-			def report(count, l, r):
+			def report(count, this_side, other_side):
 				if count:
 					msg_parts.append(
 						'The %s pane contains %d file%s not present on the %s.'
-						% (l, count, '' if count == 1 else 's', r)
+						% (this_side, count, '' if count == 1 else 's', other_side)
 					)
 			report(res_left, 'left', 'right')
 			report(res_right, 'right', 'left')

@@ -17,7 +17,8 @@ class SelectionModel(QStandardItemModel):
 
 	def find(self, url):
 		try:
-			return self.index({'first': 0, 'second': 1, 'third': 2, 'fourth': 3, 'fifth': 4}[url], 0)
+			row = {'first': 0, 'second': 1, 'third': 2, 'fourth': 3, 'fifth': 4}[url]
+			return self.index(row, 0)
 		except KeyError:
 			raise ValueError(url)
 
@@ -37,14 +38,17 @@ class FileListSelectionTest(TestCase):
 		self.view.selectionModel().selectionChanged.connect(changed)
 		self.view.select(['first', 'third', 'unknown', 'fifth'], ignore_errors=True)
 		self.assertEqual(
-			[0, 2, 4], sorted(index.row() for index in self.view.selectionModel().selectedRows())
+			[0, 2, 4],
+			sorted(index.row() for index in self.view.selectionModel().selectedRows())
 		)
 		changed.assert_called_once()
 
 	def test_unknown_url_keeps_earlier_selection(self):
 		with self.assertRaises(ValueError):
 			self.view.select(['first', 'unknown'])
-		self.assertEqual([0], [index.row() for index in self.view.selectionModel().selectedRows()])
+		self.assertEqual(
+			[0], [index.row() for index in self.view.selectionModel().selectedRows()]
+		)
 
 	def test_string_is_rejected(self):
 		with self.assertRaises(ValueError):

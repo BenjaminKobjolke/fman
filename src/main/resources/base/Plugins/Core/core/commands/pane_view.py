@@ -7,7 +7,8 @@ of the global in another module would silently break the icon scaling that
 derives from it (see docs/ICONS.md).
 """
 from core.commands.util import get_opposite_pane
-from core.font_size import change_font_size, effective_font_size, 	get_saved_font_size, reset_font_size
+from core.font_size import change_font_size, effective_font_size, \
+	get_saved_font_size, reset_font_size
 from fman import DirectoryPaneCommand, DirectoryPaneListener
 # Not in fman's __all__, so a star import would not bring these in - the same
 # reason commands/theme.py names the icon functions explicitly.

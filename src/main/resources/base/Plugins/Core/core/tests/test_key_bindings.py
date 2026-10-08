@@ -14,7 +14,9 @@ class CommandForKeyEventTest(TestCase):
 		event = QtKeyEvent(Qt.Key_M, Qt.NoModifier)
 		self.assertEqual(
 			'video_mute',
-			command_for_key_event(event, self._BINDINGS, ('video_mute', 'video_restart')),
+			command_for_key_event(
+				event, self._BINDINGS, ('video_mute', 'video_restart')
+			),
 		)
 
 	def test_finds_command_regardless_of_command_names_order(self):
@@ -23,13 +25,17 @@ class CommandForKeyEventTest(TestCase):
 		event = QtKeyEvent(Qt.Key_R, Qt.ControlModifier)
 		self.assertEqual(
 			'video_restart',
-			command_for_key_event(event, self._BINDINGS, ('video_mute', 'video_restart')),
+			command_for_key_event(
+				event, self._BINDINGS, ('video_mute', 'video_restart')
+			),
 		)
 
 	def test_no_match_returns_none(self):
 		event = QtKeyEvent(Qt.Key_Z, Qt.NoModifier)
 		self.assertIsNone(
-			command_for_key_event(event, self._BINDINGS, ('video_mute', 'video_restart'))
+			command_for_key_event(
+				event, self._BINDINGS, ('video_mute', 'video_restart')
+			)
 		)
 
 class DispatchBindableCommandTest(TestCase):

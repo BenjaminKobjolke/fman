@@ -578,9 +578,9 @@ class Run7ZipViaPty:
 					break
 				elif b == b'\b':
 					if prev_len_delta == 1:
-						l = curr_line()
-						if l.strip():
-							yield l
+						line = curr_line()
+						if line.strip():
+							yield line
 					buffer = buffer[:-1]
 					prev_len_delta = -1
 				else:

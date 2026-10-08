@@ -67,7 +67,8 @@ def check_release_version():
             '@echo off\nif exist "%~dp0no_tag" exit /b 2\nexit /b 0\n'
         )
         shutil.copyfile(
-            TOOLS / "release" / "build_number.py", scripts / "release" / "build_number.py"
+            TOOLS / "release" / "build_number.py",
+            scripts / "release" / "build_number.py",
         )
         shutil.copyfile(TOOLS / "build_release.bat", scripts / "build_release.bat")
         copy_with_fake_tool("github_release.bat", scripts, fake_tool)
@@ -84,16 +85,24 @@ def check_release_version():
         try:
             result = run_batch(build)
             assert result.returncode == 0, result.stdout + result.stderr
-            assert record.read_text().strip() == "1.0.0_504", "Build must record its label"
+            assert record.read_text().strip() == "1.0.0_504", (
+                "Build must record its label"
+            )
 
             # The source counter moves on (next release in preparation) while
             # the 504 installer is still waiting to be published.
             counter.write_text("505\n")
             result = run_batch(publish)
-            assert 'github-release "1.0.0_504"' in result.stdout, result.stdout + result.stderr
+            assert 'github-release "1.0.0_504"' in result.stdout, (
+                result.stdout + result.stderr
+            )
             assert "release_notes\\1.0.0_504\\en.json" in result.stdout, result.stdout
-            assert result.returncode == UPLOAD_EXIT, "Publisher must preserve upload failures"
-            assert counter.read_text() == "505\n", "Publishing must not change the source version"
+            assert result.returncode == UPLOAD_EXIT, (
+                "Publisher must preserve upload failures"
+            )
+            assert counter.read_text() == "505\n", (
+                "Publishing must not change the source version"
+            )
 
             (fake_tool / "no_tag").touch()
             result = run_batch(publish)
@@ -122,7 +131,9 @@ def check_release_version():
 
             # An installer from before the record existed is named explicitly.
             result = run_batch(publish, "1.0.0_504")
-            assert 'github-release "1.0.0_504"' in result.stdout, result.stdout + result.stderr
+            assert 'github-release "1.0.0_504"' in result.stdout, (
+                result.stdout + result.stderr
+            )
             assert result.returncode == UPLOAD_EXIT, result.stdout + result.stderr
 
             (root / "no_installer").touch()
@@ -131,7 +142,9 @@ def check_release_version():
             assert not record.exists(), "No installer, no record"
 
             result = run_batch(scripts / "release_create.bat", "--dry-run")
-            assert result.returncode == UPLOAD_EXIT, "Release launcher must preserve failures"
+            assert result.returncode == UPLOAD_EXIT, (
+                "Release launcher must preserve failures"
+            )
         finally:
             os.environ["PATH"] = previous_path
 

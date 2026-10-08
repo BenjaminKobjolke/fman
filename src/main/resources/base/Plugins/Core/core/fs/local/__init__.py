@@ -221,7 +221,7 @@ class LocalFileSystem(FileSystem):
 		if not self._isabs(path):
 			raise filenotfounderror(path)
 		if PLATFORM == 'Windows':
-			is_unc_server = path.startswith(r'\\') and not '\\' in path[2:]
+			is_unc_server = path.startswith(r'\\') and '\\' not in path[2:]
 			if is_unc_server:
 				# Python can handle \\server\folder but not \\server. Defer to
 				# the network:// file system.

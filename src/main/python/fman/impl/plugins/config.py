@@ -94,7 +94,7 @@ def load_json(paths):
 		if result is None:
 			result = type(next_value)(next_value)
 			continue
-		if type(next_value) != type(result):
+		if type(next_value) is not type(result):
 			raise ValueError(
 				'Cannot join types %s and %s.' %
 				(type(next_value).__name__, type(result).__name__)
@@ -132,7 +132,7 @@ def get_differential_json(obj, paths, final_path):
 	if old_obj is None:
 		return obj
 	else:
-		if type(obj) != type(old_obj):
+		if type(obj) is not type(old_obj):
 			raise ValueError(
 				'Cannot overwrite value of type %s with different type %s.' %
 				(type(old_obj).__name__, type(obj).__name__)

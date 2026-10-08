@@ -460,7 +460,9 @@ class UnavailableDestinationTest(TestCase):
 					if not os.path.exists(letter + ':\\')
 				), None)
 				if free_drive:
-					destinations.append((Path(free_drive + ':\\fman-missing\\new'), True))
+					destinations.append((
+						Path(free_drive + ':\\fman-missing\\new'), True
+					))
 			for operation in (CopyFiles, MoveFiles):
 				for dest_dir, missing_drive in destinations:
 					with self.subTest(operation=operation.__name__, dest_dir=dest_dir):
@@ -471,15 +473,21 @@ class UnavailableDestinationTest(TestCase):
 						dialog = MockProgressDialog(self)
 						task = operation([as_url(src)], as_url(dest_dir), fs=fs)
 						task._dialog = dialog
-						with patch.object(dialog, 'show_alert', return_value=OK) as alert:
+						with patch.object(
+							dialog, 'show_alert', return_value=OK
+						) as alert:
 							task()
 						self.assertEqual(1, alert.call_count)
 						message = alert.call_args.args[0]
-						self.assertIn('Could not create the destination folder', message)
+						self.assertIn(
+							'Could not create the destination folder', message
+						)
 						self.assertIn(str(dest_dir), message)
 						self.assertNotIn('FileExistsError', message)
 						if missing_drive:
-							self.assertIn('the drive or network share is not available', message)
+							self.assertIn(
+								'the drive or network share is not available', message
+							)
 						self.assertEqual('source', src.read_text())
 						self.assertEqual('blocker', blocker.read_text())
 

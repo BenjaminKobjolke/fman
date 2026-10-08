@@ -52,12 +52,20 @@ class PaneCommandLookupTest(TestCase):
 			{'keys': ['Down'], 'command': 'move_cursor_down'},
 		]
 		with patch('core.viewer_pane_commands.load_json', return_value=bindings):
-			self.assertEqual('copy', pane_command_for(pane, QtKeyEvent(Qt.Key_F5, Qt.NoModifier)))
-			self.assertEqual('move', pane_command_for(pane, QtKeyEvent(Qt.Key_F6, Qt.NoModifier)))
-			self.assertIsNone(pane_command_for(pane, QtKeyEvent(Qt.Key_Down, Qt.NoModifier)))
+			self.assertEqual(
+				'copy', pane_command_for(pane, QtKeyEvent(Qt.Key_F5, Qt.NoModifier))
+			)
+			self.assertEqual(
+				'move', pane_command_for(pane, QtKeyEvent(Qt.Key_F6, Qt.NoModifier))
+			)
+			self.assertIsNone(pane_command_for(
+				pane, QtKeyEvent(Qt.Key_Down, Qt.NoModifier)
+			))
 			bindings.insert(0, {'keys': ['F5'], 'command': 'do_nothing'})
 			bindings.insert(0, {'keys': [], 'command': 'copy'})
-			self.assertIsNone(pane_command_for(pane, QtKeyEvent(Qt.Key_F5, Qt.NoModifier)))
+			self.assertIsNone(pane_command_for(
+				pane, QtKeyEvent(Qt.Key_F5, Qt.NoModifier)
+			))
 
 
 class PaneCommandRunTest(TestCase):

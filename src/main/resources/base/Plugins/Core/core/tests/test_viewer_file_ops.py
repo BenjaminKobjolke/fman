@@ -141,7 +141,8 @@ class AfterFileGoneTest(_SettingsTestCase):
 	def setUp(self):
 		super().setUp()
 		for target, replacement in (
-			('core.viewer_navigation._category', lambda url: 'image' if url.endswith('.png') else None),
+			('core.viewer_navigation._category',
+			 lambda url: 'image' if url.endswith('.png') else None),
 			('core.viewer_navigation.get_same_type_only', lambda category: True),
 		):
 			patcher = patch(target, replacement)
@@ -227,7 +228,8 @@ class NavigatorEntryTest(TestCase):
 			)
 			with patch('core.viewer_pane_commands.load_json', return_value=[]):
 				self.assertEqual(
-					['Delete file', 'Rename file…', 'Go to next file after deleting', 'Copy', 'Move'],
+					['Delete file', 'Rename file…',
+					 'Go to next file after deleting', 'Copy', 'Move'],
 					[entry[0] for entry in with_close.actions()[3:]]
 				)
 			self.assertFalse(without.run_pane_shortcut(None))
