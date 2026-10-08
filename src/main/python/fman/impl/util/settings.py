@@ -25,6 +25,7 @@ class Settings:
 	def flush(self):
 		makedirs(dirname(self._json_path), exist_ok=True)
 		with open(self._json_path, 'w') as f:
-			json.dump(self._json_dict, f)
+			json.dump(self._json_dict, f, indent=2)
+			f.write('\n')
 	def __bool__(self):
 		return bool(self._json_dict)

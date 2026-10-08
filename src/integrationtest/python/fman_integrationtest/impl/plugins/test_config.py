@@ -5,6 +5,7 @@ from os.path import join, exists
 from shutil import rmtree, copy
 from tempfile import mkdtemp
 from unittest import TestCase
+from unittest.mock import patch
 
 import json
 
@@ -119,6 +120,11 @@ class LoadJsonTest(TestCase):
 class WriteDifferentialJsonTest(TestCase):
 	def test_dict(self):
 		self._check_write({'a': 1})
+	def test_pretty_nested_values_and_unicode(self):
+		self._check_write({
+			'title': 'caf\u00e9',
+			'items': [{'enabled': True, 'values': [1, None]}, {}]
+		})
 	def test_list(self):
 		self._check_write([1, 2])
 	def test_string(self):
@@ -145,6 +151,8 @@ class WriteDifferentialJsonTest(TestCase):
 		write_differential_json(d, [self._json_file(0)], self._json_file(1))
 		with open(self._json_file(1), 'r') as f:
 			self.assertEqual({'b': 2, 'c': 3}, json.load(f))
+		with open(self._json_file(1), 'r') as f:
+			self.assertEqual(json.dumps({'b': 2, 'c': 3}, indent=2) + '\n', f.read())
 	def test_extend_list(self):
 		write_differential_json([1, 2], [], self._json_file())
 		self._check_write([1, 2, 3])
@@ -158,6 +166,8 @@ class WriteDifferentialJsonTest(TestCase):
 		write_differential_json([0, 1, 2, 3], [json1], json2)
 		with open(json2, 'r') as f:
 			self.assertEqual([0, 1], json.load(f))
+		with open(json2, 'r') as f:
+			self.assertEqual(json.dumps([0, 1], indent=2) + '\n', f.read())
 	def test_type_change_raises(self):
 		write_differential_json(1, [], self._json_file())
 		with self.assertRaises(ValueError):
@@ -179,6 +189,16 @@ class WriteDifferentialJsonTest(TestCase):
 		json2 = self._json_file(1)
 		write_differential_json(values, [json1], json2)
 		self.assertFalse(exists(json2))
+	def test_unchanged_compact_file_is_not_reformatted(self):
+		value = {'items': [1, 2]}
+		compact = json.dumps(value)
+		with open(self._json_file(), 'w') as f:
+			f.write(compact)
+		with patch('fman.impl.plugins.config.replace') as replace:
+			write_differential_json(value, [], self._json_file())
+		replace.assert_not_called()
+		with open(self._json_file(), 'r') as f:
+			self.assertEqual(compact, f.read())
 	def test_delete_dict_key_same_file_ok(self):
 		json1 = self._json_file(0)
 		json2 = self._json_file(1)
@@ -200,6 +220,10 @@ class WriteDifferentialJsonTest(TestCase):
 		write_differential_json({'a': {'x': 1, 'y': 2, 'z': 3}}, [json1], json2)
 		with open(json2, 'r') as f:
 			self.assertEqual({'a': {'y': 2, 'z': 3}}, json.load(f))
+		with open(json2, 'r') as f:
+			self.assertEqual(
+				json.dumps({'a': {'y': 2, 'z': 3}}, indent=2) + '\n', f.read()
+			)
 		self.assertEqual(
 			{'a': {'x': 1, 'y': 2, 'z': 3}}, load_json([json1, json2])
 		)
@@ -224,5 +248,7 @@ class WriteDifferentialJsonTest(TestCase):
 	def _check_write(self, obj):
 		write_differential_json(obj, [], self._json_file())
 		self.assertEqual(obj, load_json([self._json_file()]))
+		with open(self._json_file(), 'r') as f:
+			self.assertEqual(json.dumps(obj, indent=2) + '\n', f.read())
 	def _json_file(self, i=0):
 		return join(self.temp_dir, '%d.json' % i)
