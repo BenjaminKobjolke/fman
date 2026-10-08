@@ -9,6 +9,7 @@ from fman import clipboard, DirectoryPaneCommand, PLATFORM, show_alert, \
 	show_status_message
 from fman.fs import exists
 from fman.url import as_human_readable
+from core.commands.util import NO_SELECTION
 
 __all__ = [
 	'CopyPathsToClipboard', 'CopyToClipboard', 'Cut', 'Paste', 'PasteCut'
