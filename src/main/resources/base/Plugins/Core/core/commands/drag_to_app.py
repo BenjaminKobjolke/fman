@@ -5,8 +5,9 @@ from fman.impl.util.qt.thread import run_in_main_thread
 from fman.url import as_human_readable, splitscheme
 from fman.impl.widgets import MessageBox
 
-from PyQt5.QtCore import QMimeData, Qt, QUrl
-from PyQt5.QtGui import QDrag
+from collections import namedtuple
+
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QMessageBox
 
 import ctypes
@@ -15,7 +16,24 @@ import os
 import threading
 import time
 
+try:
+	import pythoncom
+except ImportError:
+	pythoncom = None
+
 __all__ = ['DragToLastUsedApp']
+
+_Window = namedtuple(
+	'_Window',
+	'hwnd pid title visible minimized tool_window cloaked topmost'
+)
+_S_OK = 0
+_DRAGDROP_S_DROP = 0x00040100
+_DRAGDROP_S_CANCEL = 0x00040101
+_DRAGDROP_S_USEDEFAULTCURSORS = 0x00040102
+# ponytail: a fixed delay lets the target answer a few DragOver rounds; make it
+# configurable only if a real app needs longer.
+_DROP_DELAY = .4
 
 
 class DragToLastUsedApp(DirectoryPaneCommand):
@@ -44,8 +62,9 @@ class DragToLastUsedApp(DirectoryPaneCommand):
 		if target is None:
 			show_alert('No other app window found.')
 			return
-		hwnd, _, title, _, _, _, _ = target
-		exe = _get_exe_name(target[1])
+		hwnd = target.hwnd
+		title = target.title
+		exe = _get_exe_name(target.pid)
 		import win32con
 		import win32gui
 		win32gui.SetWindowPos(
@@ -56,20 +75,15 @@ class DragToLastUsedApp(DirectoryPaneCommand):
 		main_window = self.pane.window._widget
 		if not _confirm_drag(main_window, len(paths), title, exe):
 			return
-		import win32api
-		import win32gui
-
 		win32gui.SetForegroundWindow(hwnd)
 		left, top, right, bottom = win32gui.GetWindowRect(hwnd)
-		target_point = ((left + right) // 2, (top + bottom) // 2)
-		cursor_position = win32api.GetCursorPos()
-		mouse_thread = threading.Thread(
-			target=_drive_mouse,
-			args=(cursor_position, target_point),
-			daemon=True
-		)
-		mouse_thread.start()
-		_perform_ole_drag(main_window, paths)
+		center = ((left + right) // 2, (top + bottom) // 2)
+		if win32gui.GetAncestor(
+				win32gui.WindowFromPoint(center), win32con.GA_ROOT) != hwnd:
+			show_alert('The center of "%s" is covered by another window.' % title)
+			return
+		if _drop_files(paths, center) == 0:
+			show_alert('"%s" did not accept the files.' % title)
 
 
 @run_in_main_thread
@@ -94,82 +108,74 @@ def _confirm_drag(main_window, file_count, title, exe):
 	return accepted
 
 
-class _MouseInput(ctypes.Structure):
-	_fields_ = (
-		('dx', ctypes.wintypes.LONG),
-		('dy', ctypes.wintypes.LONG),
-		('mouseData', ctypes.wintypes.DWORD),
-		('dwFlags', ctypes.wintypes.DWORD),
-		('time', ctypes.wintypes.DWORD),
-		('dwExtraInfo', ctypes.c_size_t),
+def _drop_decision(escape_pressed, now, drop_at):
+	if escape_pressed:
+		return _DRAGDROP_S_CANCEL
+	if now >= drop_at:
+		return _DRAGDROP_S_DROP
+	return _S_OK
+
+
+class _DropSource:
+	_com_interfaces_ = (
+		[pythoncom.IID_IDropSource] if pythoncom is not None else []
 	)
+	_public_methods_ = ['QueryContinueDrag', 'GiveFeedback']
 
+	def __init__(self, drop_at):
+		self._drop_at = drop_at
 
-class _InputUnion(ctypes.Union):
-	_fields_ = (('mi', _MouseInput),)
+	def QueryContinueDrag(self, escape_pressed, key_state):
+		return _drop_decision(escape_pressed, time.monotonic(), self._drop_at)
 
-
-class _Input(ctypes.Structure):
-	_fields_ = (
-		('type', ctypes.wintypes.DWORD),
-		('input', _InputUnion),
-	)
-
-
-def _absolute_coordinates(point):
-	user32 = ctypes.windll.user32
-	virtual_left = user32.GetSystemMetrics(76)
-	virtual_top = user32.GetSystemMetrics(77)
-	virtual_width = user32.GetSystemMetrics(78)
-	virtual_height = user32.GetSystemMetrics(79)
-	x = round((point[0] - virtual_left) * 65535 / max(virtual_width - 1, 1))
-	y = round((point[1] - virtual_top) * 65535 / max(virtual_height - 1, 1))
-	return x, y
-
-
-def _send_mouse_input(point, flags):
-	x, y = _absolute_coordinates(point)
-	input_ = _Input()
-	input_.type = 0  # INPUT_MOUSE
-	input_.input.mi = _MouseInput(x, y, 0, flags, 0, 0)
-	if ctypes.windll.user32.SendInput(
-		1, ctypes.byref(input_), ctypes.sizeof(input_)
-	) != 1:
-		raise ctypes.WinError(ctypes.get_last_error())
-
-
-def _drive_mouse(start, target):
-	absolute = 0x8000 | 0x4000  # MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_VIRTUALDESK
-	import win32api
-	button_down = False
-	try:
-		_send_mouse_input(start, absolute | 0x0002)  # MOUSEEVENTF_LEFTDOWN
-		button_down = True
-		# ponytail: timing gives OLE targets time to enter and process drag-over.
-		time.sleep(.05)
-		for step in range(1, 11):
-			point = (
-				round(start[0] + (target[0] - start[0]) * step / 10),
-				round(start[1] + (target[1] - start[1]) * step / 10),
-			)
-			_send_mouse_input(point, absolute | 0x0001)  # MOUSEEVENTF_MOVE
-			time.sleep(.015)
-		time.sleep(.1)
-	finally:
-		try:
-			if button_down:
-				_send_mouse_input(target, absolute | 0x0004)  # MOUSEEVENTF_LEFTUP
-		finally:
-			win32api.SetCursorPos(start)
+	def GiveFeedback(self, effect):
+		return _DRAGDROP_S_USEDEFAULTCURSORS
 
 
 @run_in_main_thread
-def _perform_ole_drag(main_window, paths):
-	mime_data = QMimeData()
-	mime_data.setUrls([QUrl.fromLocalFile(path) for path in paths])
-	drag = QDrag(main_window)
-	drag.setMimeData(mime_data)
-	drag.exec_(Qt.CopyAction)
+def _drop_files(paths, point):
+	import win32api
+	from win32com.server.util import wrap
+	from win32com.shell import shell, shellcon
+
+	desktop = shell.SHGetDesktopFolder()
+	parent = os.path.dirname(paths[0])
+	parent_pidl = desktop.ParseDisplayName(0, None, parent, 0)[1]
+	folder = desktop.BindToObject(parent_pidl, None, shell.IID_IShellFolder)
+	children = [
+		folder.ParseDisplayName(0, None, os.path.basename(path), 0)[1]
+		for path in paths
+	]
+	data_object = folder.GetUIObjectOf(
+		0, children, pythoncom.IID_IDataObject, 0
+	)[1]
+
+	original_position = win32api.GetCursorPos()
+	win32api.SetCursorPos(point)
+	stop_nudging = threading.Event()
+
+	def nudge_cursor():
+		started = time.monotonic()
+		while (not stop_nudging.wait(.05) and
+		       time.monotonic() - started < 3):
+			win32api.SetCursorPos((point[0] + 1, point[1]))
+			if stop_nudging.wait(.05):
+				break
+			win32api.SetCursorPos(point)
+
+	nudger = threading.Thread(target=nudge_cursor, daemon=True)
+	nudger.start()
+	try:
+		return pythoncom.DoDragDrop(
+			data_object,
+			wrap(_DropSource(time.monotonic() + _DROP_DELAY),
+			     pythoncom.IID_IDropSource),
+			shellcon.DROPEFFECT_COPY,
+		)
+	finally:
+		stop_nudging.set()
+		nudger.join(.1)
+		win32api.SetCursorPos(original_position)
 
 
 def _get_exe_name(pid):
@@ -222,7 +228,7 @@ def _enumerate_windows():
 		try:
 			pid = _get_window_pid(hwnd)
 			ex_style = win32gui.GetWindowLong(hwnd, win32con.GWL_EXSTYLE)
-			windows.append((
+			windows.append(_Window(
 				hwnd,
 				pid,
 				win32gui.GetWindowText(hwnd),
@@ -230,6 +236,7 @@ def _enumerate_windows():
 				bool(win32gui.IsIconic(hwnd)),
 				bool(ex_style & win32con.WS_EX_TOOLWINDOW),
 				_is_cloaked(hwnd),
+				bool(ex_style & win32con.WS_EX_TOPMOST),
 			))
 		except Exception:
 			# A window can disappear while EnumWindows is walking the Z-order.
@@ -252,11 +259,13 @@ def _is_cloaked(hwnd):
 
 
 def _pick_target(windows, own_pid):
+	eligible = []
 	for window in windows:
-		_, pid, title, visible, minimized, tool_window, cloaked = window
 		# ponytail: skip minimized windows until restore-and-confirm support exists.
-		if minimized:
+		if window.minimized:
 			continue
-		if visible and not tool_window and not cloaked and title and pid != own_pid:
-			return window
-	return None
+		if (window.visible and not window.tool_window and not window.cloaked and
+				window.title and window.pid != own_pid):
+			eligible.append(window)
+	return next((window for window in eligible if not window.topmost),
+	            eligible[0] if eligible else None)
