@@ -6,6 +6,7 @@ from fman.url import as_human_readable, splitscheme
 from fman.impl.widgets import MessageBox
 
 from collections import namedtuple
+from contextlib import contextmanager
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QMessageBox
@@ -34,6 +35,7 @@ _DRAGDROP_S_USEDEFAULTCURSORS = 0x00040102
 # ponytail: a fixed delay lets the target answer a few DragOver rounds; make it
 # configurable only if a real app needs longer.
 _DROP_DELAY = .4
+_MINIMIZE_DELAY = .5  # Wait for the minimize animation before hit-testing the target.
 
 
 class DragToLastUsedApp(DirectoryPaneCommand):
@@ -76,14 +78,41 @@ class DragToLastUsedApp(DirectoryPaneCommand):
 		if not _confirm_drag(main_window, len(paths), title, exe):
 			return
 		win32gui.SetForegroundWindow(hwnd)
-		left, top, right, bottom = win32gui.GetWindowRect(hwnd)
-		center = ((left + right) // 2, (top + bottom) // 2)
-		if win32gui.GetAncestor(
-				win32gui.WindowFromPoint(center), win32con.GA_ROOT) != hwnd:
-			show_alert('The center of "%s" is covered by another window.' % title)
-			return
-		if _drop_files(paths, center) == 0:
-			show_alert('"%s" did not accept the files.' % title)
+		message = None
+		with _main_window_minimized(main_window):
+			left, top, right, bottom = win32gui.GetWindowRect(hwnd)
+			center = ((left + right) // 2, (top + bottom) // 2)
+			if win32gui.GetAncestor(
+					win32gui.WindowFromPoint(center), win32con.GA_ROOT) != hwnd:
+				message = 'The center of "%s" is covered by another window.' % title
+			elif _drop_files(paths, center) == 0:
+				message = '"%s" did not accept the files.' % title
+		if message:
+			show_alert(message)
+
+
+@run_in_main_thread
+def _minimize_window(main_window):
+	state = main_window.windowState()
+	main_window.setWindowState(Qt.WindowMinimized)
+	return state
+
+
+@run_in_main_thread
+def _restore_window(main_window, state):
+	main_window.setWindowState(state)
+	main_window.raise_()
+	main_window.activateWindow()
+
+
+@contextmanager
+def _main_window_minimized(main_window):
+	state = _minimize_window(main_window)
+	try:
+		time.sleep(_MINIMIZE_DELAY)
+		yield
+	finally:
+		_restore_window(main_window, state)
 
 
 @run_in_main_thread

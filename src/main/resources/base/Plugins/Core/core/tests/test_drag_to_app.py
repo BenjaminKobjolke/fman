@@ -1,18 +1,65 @@
 import sys
 from unittest import TestCase, skipUnless
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from fbs_runtime.platform import is_windows
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QMainWindow
 
 from core.commands.drag_to_app import (
 	_DRAGDROP_S_CANCEL,
 	_DRAGDROP_S_DROP,
+	_MINIMIZE_DELAY,
 	_S_OK,
 	_Window,
+	_main_window_minimized,
 	_drop_decision,
 	_enumerate_windows,
 	_pick_target,
 )
+
+
+class MainWindowMinimizedTest(TestCase):
+	def setUp(self):
+		self.main_window = MagicMock(spec=QMainWindow)
+		self.main_window.windowState.return_value = Qt.WindowMaximized
+
+	def test_minimizes_then_restores_saved_state(self):
+		with patch('core.commands.drag_to_app.time.sleep'):
+			with _main_window_minimized(self.main_window):
+				self.main_window.setWindowState.assert_called_once_with(
+					Qt.WindowMinimized
+				)
+
+		self.assertEqual(
+			Qt.WindowMaximized,
+			self.main_window.setWindowState.call_args_list[-1].args[0],
+		)
+		self.main_window.raise_.assert_called_once_with()
+		self.main_window.activateWindow.assert_called_once_with()
+
+	def test_restores_when_body_raises(self):
+		with patch('core.commands.drag_to_app.time.sleep'):
+			with self.assertRaises(ValueError):
+				with _main_window_minimized(self.main_window):
+					raise ValueError
+
+		self.assertEqual(
+			Qt.WindowMaximized,
+			self.main_window.setWindowState.call_args_list[-1].args[0],
+		)
+
+	def test_waits_before_yielding(self):
+		calls = []
+		with patch('core.commands.drag_to_app.time.sleep',
+		           side_effect=lambda delay: calls.append(('sleep', delay))):
+			with _main_window_minimized(self.main_window):
+				calls.append(('body', None))
+
+		self.assertEqual([
+			('sleep', _MINIMIZE_DELAY),
+			('body', None),
+		], calls)
 
 
 @skipUnless(is_windows(), 'Windows-only window enumeration')
