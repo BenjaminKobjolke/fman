@@ -44,11 +44,12 @@ def start_cmd(directory):
 def start_dll_user(directory):
     # A process started elsewhere that only loaded a DLL from the folder, like
     # php.exe launched from a terminal fman opened.
+    # A venv's python.exe is a launcher whose child loads the DLL under a different PID.
     dll = directory / "fman_close_test.dll"
     shutil.copyfile(Path(os.environ["SystemRoot"]) / "System32" / "version.dll", dll)
     load_and_wait = "import ctypes, sys; dll = ctypes.WinDLL(sys.argv[1]); sys.stdin.read()"
     return subprocess.Popen(
-        [sys.executable, "-c", load_and_wait, str(dll)],
+        [sys._base_executable, "-c", load_and_wait, str(dll)],
         stdin=subprocess.PIPE,
         creationflags=subprocess.CREATE_NO_WINDOW,
     )
