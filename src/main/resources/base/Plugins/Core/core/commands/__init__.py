@@ -23,6 +23,7 @@ from .archives import *
 from .clipboard import *
 from .columns import *
 from .deletion import *
+from .drag_to_app import *
 from .editor import *
 from .external import *
 from .file_properties import *

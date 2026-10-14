@@ -22,10 +22,11 @@ import core
 import inspect
 
 EXPECTED = frozenset({
-	'About', 'ArchiveOpenListener', 'CenterWindow', 'CheckForUpdates',
+		'About', 'ArchiveOpenListener', 'CenterWindow', 'CheckForUpdates',
 	'CommandPalette', 'CompareDirectories', 'Copy', 'CopyPathsToClipboard',
 	'CopyToClipboard',
-	'CreateAndEditFile', 'CreateDirectory', 'Cut', 'DecreasePaneFontSize',
+		'CreateAndEditFile', 'CreateDirectory', 'Cut', 'DecreasePaneFontSize',
+		'DragToLastUsedApp',
 	'DeletePermanently', 'Deselect', 'DoNothing', 'DragAndDropListener',
 	'FollowShortcut', 'GoBack', 'GoForward', 'GoHome', 'GoTo', 'GoToAppData',
 	'GoToDesktop',
