@@ -1,0 +1,80 @@
+"""Tests for command visibility, selection, locking and plug-in discovery."""
+
+from pathlib import Path
+from tempfile import TemporaryDirectory
+from unittest import TestCase
+from unittest.mock import Mock, patch
+
+from robocopy_plugin import CopyWithRobocopy, MoveWithRobocopy, _invoke
+from robocopy_plugin import _lock
+from fman.impl.plugins.discover import find_plugin_dirs
+from fman import PLATFORM
+
+
+class CommandTest(TestCase):
+	def setUp(self):
+		self.pane = Mock()
+		self.pane.window.get_panes.return_value = [self.pane, Mock()]
+
+	def test_commands_are_visible_only_on_windows(self):
+		with patch('robocopy_plugin.PLATFORM', 'Windows'):
+			self.assertTrue(CopyWithRobocopy(self.pane).is_visible())
+			self.assertTrue(MoveWithRobocopy(self.pane).is_visible())
+		with patch('robocopy_plugin.PLATFORM', 'Linux'):
+			self.assertFalse(CopyWithRobocopy(self.pane).is_visible())
+			self.assertFalse(MoveWithRobocopy(self.pane).is_visible())
+
+	def test_names_and_aliases_are_stable(self):
+		self.assertEqual(('Copy with robocopy',), CopyWithRobocopy(self.pane).aliases)
+		self.assertEqual(('Move with robocopy',), MoveWithRobocopy(self.pane).aliases)
+
+	def test_invoke_submits_the_plan_and_refreshes_both_panes(self):
+		other = self.pane.window.get_panes.return_value[1]
+		self.pane.get_path.return_value = 'file:///C:/source'
+		self.pane.get_chosen_files.return_value = ['file:///C:/source/file.txt']
+		self.pane.window.get_panes.return_value = [self.pane, other]
+		plan = Mock(jobs=())
+		with patch('robocopy_plugin.fman.show_quicksearch', return_value=('', 'C:\\dest')), \
+				patch('robocopy_plugin.fman.load_json', return_value={}), \
+				patch('robocopy_plugin.windows.executable', return_value='C:\\Windows\\robocopy.exe'), \
+				patch('robocopy_plugin.planner.prepare', return_value=plan) as prepare, \
+				patch('robocopy_plugin.planner.probe') as probe, \
+				patch('robocopy_plugin.fman.submit_task') as submit:
+			_invoke('move', MoveWithRobocopy(self.pane))
+		self.assertTrue(prepare.call_args.kwargs['move'])
+		probe.assert_called_once()
+		submit.assert_called_once()
+		self.pane.reload.assert_called_once_with()
+		other.reload.assert_called_once_with()
+
+	def test_no_selection_stops_before_showing_the_destination_picker(self):
+		self.pane.get_selected_files.return_value = []
+		self.pane.get_file_under_cursor.return_value = None
+		with patch('robocopy_plugin.fman.show_alert') as alert, \
+				patch('robocopy_plugin.fman.show_quicksearch') as quicksearch:
+			_invoke('copy', CopyWithRobocopy(self.pane))
+		alert.assert_called_once()
+		quicksearch.assert_not_called()
+
+	@patch('robocopy_plugin._invoke')
+	def test_copy_and_move_commands_dispatch_the_action(self, invoke):
+		CopyWithRobocopy(self.pane)()
+		MoveWithRobocopy(self.pane)()
+		self.assertEqual(['copy', 'move'], [call.args[0] for call in invoke.call_args_list])
+
+	def test_an_active_operation_is_rejected(self):
+		self.assertTrue(_lock.acquire(blocking=False))
+		try:
+			with patch('robocopy_plugin.fman.show_alert') as show_alert:
+				CopyWithRobocopy(self.pane)()
+		finally:
+			_lock.release()
+		show_alert.assert_called_once_with('A Robocopy operation is already active.')
+
+	def test_shipped_plugin_directory_is_discovered(self):
+		with TemporaryDirectory() as root:
+			shipped = Path(root) / 'Plugins'
+			robocopy = shipped / 'Robocopy'
+			robocopy.mkdir(parents=True)
+			found = find_plugin_dirs(str(shipped), str(Path(root) / 'thirdparty'), str(Path(root) / 'user'))
+			self.assertIn(str(robocopy), found)
