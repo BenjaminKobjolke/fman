@@ -94,6 +94,21 @@ which stalled the GUI thread in directories with tens of thousands of entries.
 How fman drives 7-Zip (the `-bsp1` progress protocol, canceling, why there is
 no pseudo-terminal on Windows) is documented in `docs/ARCHIVES.md`.
 
+After touching `src/main/resources/base/Plugins/Robocopy/**`, run:
+
+```bash
+powershell -Command "cd 'D:\GIT\BenjaminKobjolke\fman'; cmd /c '.\tools\run_robocopy_tests.bat'"
+```
+
+When `windows.py`, `planner.py` or `jobs.py` changed, also run:
+
+```bash
+powershell -Command "cd 'D:\GIT\BenjaminKobjolke\fman'; cmd /c '.\tools\run_robocopy_integration_tests.bat'"
+```
+
+The integration runner spawns real `robocopy.exe`, so its `*_test.py` file is
+excluded from the unit-test pattern, like the zip tests.
+
 ## Code Analysis
 
 Two analysis modes — pick by situation:
