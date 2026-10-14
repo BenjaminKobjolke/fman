@@ -256,6 +256,14 @@ class DevelopmentApplicationContext(ApplicationContext):
 			)
 			self._main_window.closed.connect(self.on_main_window_close)
 			self.app.set_main_window(self._main_window)
+			if PLATFORM == 'Windows':
+				from fman.impl.build_shutdown import BuildShutdownFilter
+				# Kept on self: Qt does not own the filter, so Python's
+				# garbage collector would otherwise delete it.
+				self._build_shutdown_filter = BuildShutdownFilter(
+					self._main_window, self.app.exit
+				)
+				self.app.installNativeEventFilter(self._build_shutdown_filter)
 		return self._main_window
 	def _get_main_window_title(self):
 		return 'fman'

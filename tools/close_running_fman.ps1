@@ -1,9 +1,14 @@
 # freeze() cannot replace target\fman while a process is running from it.
-# Ask Windows to close its window so fman can save its session normally.
+# Ask fman to close itself so it can save its session normally. It shows a
+# countdown first, which the user can cancel with Esc.
 param(
     [Parameter(Mandatory = $true)][string]$Directory,
-    [int]$TimeoutSeconds = 15
+    [int]$TimeoutSeconds = 15,
+    [int]$CountdownSeconds = 10
 )
+
+# Must match MESSAGE_NAME in src\main\python\fman\impl\build_shutdown.py.
+$MessageName = 'fman.CloseForBuild'
 
 $prefix = [IO.Path]::GetFullPath($Directory).TrimEnd('\') + '\'
 function Test-InFolder([string]$path) {
@@ -63,6 +68,43 @@ public static class FileLockers {
         } finally { RmEndSession(handle); }
     }
 }
+
+public static class FmanWindow {
+    delegate bool EnumWindowsProc(IntPtr hwnd, IntPtr lParam);
+    [DllImport("user32.dll")]
+    static extern bool EnumWindows(EnumWindowsProc callback, IntPtr lParam);
+    [DllImport("user32.dll")]
+    static extern uint GetWindowThreadProcessId(IntPtr hwnd, out int processId);
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    static extern uint RegisterWindowMessage(string name);
+    [DllImport("user32.dll")]
+    static extern IntPtr SendMessageTimeout(IntPtr hwnd, uint msg, IntPtr wParam, IntPtr lParam, uint flags, uint timeoutMs, out IntPtr result);
+    [DllImport("user32.dll")]
+    static extern bool AllowSetForegroundWindow(int processId);
+
+    const uint SMTO_ABORTIFHUNG = 2;
+
+    // True once a window of the process started the countdown. An fman built
+    // before the countdown existed does not know the message and answers 0.
+    public static bool AskToClose(int processId, string messageName, int seconds) {
+        uint message = RegisterWindowMessage(messageName);
+        // The build console is in front; this lets fman raise its countdown.
+        AllowSetForegroundWindow(processId);
+        bool started = false;
+        EnumWindows((hwnd, _) => {
+            int owner;
+            GetWindowThreadProcessId(hwnd, out owner);
+            IntPtr answer;
+            if (owner == processId
+                && SendMessageTimeout(hwnd, message, (IntPtr)seconds, IntPtr.Zero, SMTO_ABORTIFHUNG, 2000, out answer) != IntPtr.Zero
+                && answer == (IntPtr)1) {
+                started = true;
+            }
+            return !started;
+        }, IntPtr.Zero);
+        return started;
+    }
+}
 '@
 
 function Exit-IfDllsLocked {
@@ -82,13 +124,19 @@ function Exit-IfDllsLocked {
 $running = @(Get-Process | Where-Object { Test-InFolder $_.Path })
 if ($running.Count -eq 0) { Exit-IfDllsLocked; exit 0 }
 
+$waitSeconds = $TimeoutSeconds
 foreach ($process in $running) {
+    if ([FmanWindow]::AskToClose($process.Id, $MessageName, $CountdownSeconds)) {
+        Write-Host "$($process.ProcessName) (PID $($process.Id)) closes in $CountdownSeconds s. Press Esc there to keep it running."
+        $waitSeconds = $TimeoutSeconds + $CountdownSeconds
+        continue
+    }
     Write-Host "Closing $($process.ProcessName) (PID $($process.Id))..."
     # Never kill it: a file operation may still be in progress.
     [void]$process.CloseMainWindow()
 }
 
-$deadline = (Get-Date).AddSeconds($TimeoutSeconds)
+$deadline = (Get-Date).AddSeconds($waitSeconds)
 while ((Get-Date) -lt $deadline -and ($running | Where-Object { -not $_.HasExited })) {
     Start-Sleep -Milliseconds 200
 }
@@ -98,7 +146,7 @@ if ($left.Count -gt 0) {
     foreach ($process in $left) {
         Write-Host "ERROR: $($process.ProcessName) (PID $($process.Id)) is still running from $prefix"
     }
-    Write-Host "Close it by hand (a dialog may be waiting for an answer), then build again."
+    Write-Host "Close it by hand (a dialog may be waiting for an answer, or the countdown was canceled), then build again."
     exit 1
 }
 Exit-IfDllsLocked

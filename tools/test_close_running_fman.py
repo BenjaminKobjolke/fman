@@ -18,7 +18,7 @@ def run_helper(directory, timeout_seconds):
         [
             "powershell", "-NoProfile", "-ExecutionPolicy", "Bypass",
             "-File", str(SCRIPT), "-Directory", str(directory),
-            "-TimeoutSeconds", str(timeout_seconds),
+            "-TimeoutSeconds", str(timeout_seconds), "-CountdownSeconds", "1",
         ],
         stdin=subprocess.DEVNULL,
         capture_output=True,
@@ -46,10 +46,63 @@ def start_dll_user(directory):
     # php.exe launched from a terminal fman opened.
     dll = directory / "fman_close_test.dll"
     shutil.copyfile(Path(os.environ["SystemRoot"]) / "System32" / "version.dll", dll)
-    load_and_wait = "import ctypes, sys; ctypes.WinDLL(sys.argv[1]); sys.stdin.read()"
+    load_and_wait = "import ctypes, sys; dll = ctypes.WinDLL(sys.argv[1]); sys.stdin.read()"
     return subprocess.Popen(
         [sys.executable, "-c", load_and_wait, str(dll)],
         stdin=subprocess.PIPE,
+        creationflags=subprocess.CREATE_NO_WINDOW,
+    )
+
+
+# Stands in for fman's BuildShutdownFilter: a window that answers the close
+# request, and with "exit" also quits, as fman does once the countdown ends.
+# The message name must match MESSAGE_NAME in fman/impl/build_shutdown.py.
+COUNTDOWN_WINDOW = r'''
+import ctypes, sys
+from ctypes import wintypes
+user32 = ctypes.windll.user32
+message = user32.RegisterWindowMessageW("fman.CloseForBuild")
+exits = sys.argv[1] == "exit"
+WNDPROC = ctypes.WINFUNCTYPE(
+    ctypes.c_ssize_t, wintypes.HWND, wintypes.UINT, wintypes.WPARAM, wintypes.LPARAM
+)
+user32.CreateWindowExW.restype = wintypes.HWND
+user32.SetWindowLongPtrW.argtypes = [wintypes.HWND, ctypes.c_int, ctypes.c_void_p]
+user32.SetWindowLongPtrW.restype = ctypes.c_void_p
+user32.CallWindowProcW.argtypes = [
+    ctypes.c_void_p, wintypes.HWND, wintypes.UINT, wintypes.WPARAM, wintypes.LPARAM
+]
+user32.CallWindowProcW.restype = ctypes.c_ssize_t
+
+def answer(hwnd, msg, wparam, lparam):
+    if msg == message:
+        if exits:
+            user32.PostQuitMessage(0)
+        return 1
+    return user32.CallWindowProcW(default, hwnd, msg, wparam, lparam)
+
+proc = WNDPROC(answer)
+hwnd = user32.CreateWindowExW(
+    0, "STATIC", "fman", 0, 0, 0, 0, 0, None, None, None, None
+)
+default = user32.SetWindowLongPtrW(hwnd, -4, ctypes.cast(proc, ctypes.c_void_p))
+msg = wintypes.MSG()
+while user32.GetMessageW(ctypes.byref(msg), None, 0, 0) > 0:
+    user32.DispatchMessageW(ctypes.byref(msg))
+'''
+
+
+def start_countdown_window(directory, mode):
+    # The helper only asks processes running from the folder, so run a copy of
+    # the base interpreter from there. A venv's python.exe is a launcher whose
+    # real interpreter would run from elsewhere.
+    base = Path(sys._base_executable).parent
+    for name in ["python.exe", *(dll.name for dll in base.glob("*.dll"))]:
+        if not (directory / name).exists():
+            shutil.copyfile(base / name, directory / name)
+    return subprocess.Popen(
+        [str(directory / "python.exe"), "-c", COUNTDOWN_WINDOW, mode],
+        env={**os.environ, "PYTHONHOME": sys.base_prefix},
         creationflags=subprocess.CREATE_NO_WINDOW,
     )
 
@@ -87,6 +140,25 @@ def check_close_running_fman():
         finally:
             close_stdin.cancel()
             close_stdin.join()
+            stop_cmd(process)
+
+        process = start_countdown_window(directory, "exit")
+        try:
+            time.sleep(1)
+            result = run_helper(directory, 10)
+            assert result.returncode == 0, result.stdout + result.stderr
+            assert "closes in 1 s" in result.stdout, result.stdout
+        finally:
+            stop_cmd(process)
+
+        process = start_countdown_window(directory, "cancel")
+        try:
+            time.sleep(1)
+            result = run_helper(directory, 1)
+            assert result.returncode == 1, result.stdout + result.stderr
+            assert "countdown was canceled" in result.stdout, result.stdout
+            assert process.poll() is None, "The helper must not kill a process"
+        finally:
             stop_cmd(process)
 
         process = start_dll_user(directory)

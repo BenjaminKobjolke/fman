@@ -1,0 +1,71 @@
+"""
+Lets tools\\close_running_fman.ps1 close fman before a build replaces its files.
+
+The script sends MESSAGE_NAME to our windows. Closing straight away could cut
+off a file operation, so fman shows a countdown instead, which the user can
+cancel with Esc. When it runs out, fman quits the normal way and so saves its
+session. Windows only: the request is a native window message.
+"""
+
+from ctypes import windll
+from ctypes.wintypes import MSG
+from fman.impl.widgets import MessageBox
+from PyQt5.QtCore import QAbstractNativeEventFilter, QTimer
+
+# Must match $MessageName in tools\close_running_fman.ps1.
+MESSAGE_NAME = 'fman.CloseForBuild'
+
+class BuildShutdownFilter(QAbstractNativeEventFilter):
+	def __init__(self, main_window, quit_):
+		super().__init__()
+		self._main_window = main_window
+		self._quit = quit_
+		self._message_id = windll.user32.RegisterWindowMessageW(MESSAGE_NAME)
+		self._counting_down = False
+	def is_counting_down(self):
+		return self._counting_down
+	def nativeEventFilter(self, event_type, message):
+		if bytes(event_type) != b'windows_generic_MSG':
+			return False, 0
+		msg = MSG.from_address(int(message))
+		if msg.message != self._message_id:
+			return False, 0
+		if not self._counting_down:
+			self._counting_down = True
+			seconds = msg.wParam
+			# Not right here: the script waits in SendMessageTimeout for the
+			# answer below, and the countdown runs a nested event loop.
+			QTimer.singleShot(0, lambda: self._count_down(seconds))
+		# 1 tells the script that the countdown runs. An older fman answers 0,
+		# and the script then falls back to closing the main window.
+		return True, 1
+	def _count_down(self, seconds):
+		try:
+			countdown = Countdown(self._main_window, seconds)
+			if self._main_window.exec_dialog(countdown) == Countdown.Ok:
+				self._quit()
+		finally:
+			self._counting_down = False
+
+class Countdown(MessageBox):
+
+	_TEXT = 'Closing fman for a build in %d s.\nPress Esc to keep it running.'
+
+	def __init__(self, parent, seconds):
+		super().__init__(parent)
+		self._seconds_left = seconds
+		self.setStandardButtons(self.Cancel)
+		self.setDefaultButton(self.Cancel)
+		self.setText(self._TEXT % seconds)
+		# The build runs in another window, so fman is rarely in front.
+		self.shown.connect(self.activateWindow)
+		self._timer = QTimer(self)
+		self._timer.timeout.connect(self._tick)
+		self._timer.start(1000)
+	def _tick(self):
+		self._seconds_left -= 1
+		if self._seconds_left > 0:
+			self.setText(self._TEXT % self._seconds_left)
+		else:
+			self._timer.stop()
+			self.done(self.Ok)
