@@ -16,7 +16,7 @@ Status: `pending` (not looked at yet), `ported`, `skipped` (with reason).
 |---------|--------|--------|------|
 | Unreleased | Copy file path menu entry shows the Copy-paths shortcut (F11) via `shortcut_command` | ported | 2026-10-14 — `src/main/python/fman/impl/plugins/context_menu.py`, `src/unittest/python/fman_unittest/impl/plugins/test_context_menu.py`, three File Context Menu JSON files |
 | 0.16.2 | Single-item Copy file name / Copy file path in context menu and Command Center; Shift+F11 copies the name | ported | 2026-10-14 — `core/commands/clipboard.py`, `core/tests/commands/test_clipboard.py`, `core/tests/test_viewer_pane_commands.py`, `Key Bindings.json`, `docs/KEYBINDINGS.md` |
-| 0.16.1 | Ecode preset for text editor / viewer setup | pending | needs editor wizards (0.5.1) |
+| 0.16.1 | Ecode preset for text editor / viewer setup | ported | 2026-10-14 — editor arguments only |
 | 0.16.0 | Robocopy plug-in: Copy / Move with robocopy, wizard, progress, logs | pending | self-contained plug-in folder, Windows-only, ~1,000 lines; check its `fman.ui` dependencies before porting |
 | 0.15.0 | `fman.ui.show_quick_board` | pending | needs QuickTable (0.12.0) |
 | 0.15.0 | Batch File Renamer plug-in | pending | needs `show_quick_board`, `rename_no_replace`, `reload(on_done=)` |
@@ -110,16 +110,16 @@ Status: `pending` (not looked at yet), `ported`, `skipped` (with reason).
 | 0.7.1 | Find Files counts "entries" rather than "files" | pending | needs Find files panel (0.7.0) |
 | 0.7.0 | Find files with fd panel (Shift+F7) | pending | bundles fd binary, needs `show_panel` (0.4.0) |
 | 0.7.0 | `fman.ui` dropdown, date/integer fields, section dividers | pending | needs `show_panel` (0.4.0) |
-| 0.7.0 | EmEditor preset for text editor / viewer | pending | needs editor wizards (0.5.1) |
+| 0.7.0 | EmEditor preset for text editor / viewer | ported | 2026-10-14 — editor arguments only |
 | 0.7.0 | Command renames: Find files, Favorites manager, Search files, New file | pending | |
 | 0.7.0 | Minimum window size 960 x 600 | pending | |
-| 0.6.4 | CudaText preset arguments | pending | needs editor wizards (0.5.1) |
-| 0.6.3 | Notepad 4 preset; Notepad++ preset arguments | pending | needs editor wizards (0.5.1) |
-| 0.6.2 | Notepad 4 preset | pending | same as 0.6.3 row |
+| 0.6.4 | CudaText preset arguments | ported | 2026-10-14 — editor arguments only |
+| 0.6.3 | Notepad 4 preset; Notepad++ preset arguments | ported | 2026-10-14 — editor arguments only |
+| 0.6.2 | Notepad 4 preset | ported | 2026-10-14 — editor arguments only |
 | 0.6.1 | Modified date and size beneath fuzzy search results | pending | needs SearchFileFuzzy (0.2.0) |
 | 0.6.0 | ProcessPane plug-in (process list, F8 terminate) | pending | |
 | 0.6.0 | Fuzzy search supports fzf extended query operators | pending | needs SearchFileFuzzy (0.2.0) |
-| 0.5.1 | External text viewer / editor wizards (F3 / F4) | pending | |
+| 0.5.1 | External text viewer / editor wizards (F3 / F4) | ported | 2026-10-14 — `core/text_editor.py`, `core/commands/editor.py`, editor tests, `docs/KEYBINDINGS.md`; editor only (F4 + Set text editor); F3 external viewer and Clear option skipped — F3 is this fork's own text viewer; settings keep the fork's Popen-mapping format |
 | 0.5.1 | About shows product version | skipped | rebrand |
 | 0.5.0 | Pane filter syntax (`?`, classes, anchors, negation) and matched/total counts | pending | |
 | 0.5.0 | Search File Content lists files by name when content pattern is empty | pending | needs Search files (0.4.0) |

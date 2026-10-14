@@ -97,6 +97,8 @@ command palette — see
 | `Alt+Up` | `increase_pane_font_size` |
 | `Alt+Down` | `decrease_pane_font_size` |
 
+Choose the program F4 starts and its arguments with **Set text editor** in the Command Center; presets are available for Notepad++, CudaText, Notepad 4, EmEditor and Ecode, or you can enter manual arguments.
+
 `F2` (and `Shift+F6`, the dual-pane convention) edits the name in place rather than opening a dialog, and offers
 *Retry* when the rename fails — see
 [`docs/functions/rename.md`](functions/rename.md).
