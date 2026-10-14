@@ -242,6 +242,7 @@ These are the ones maintained on this account.
 | [LARGE_DIRECTORIES.md](docs/LARGE_DIRECTORIES.md) | How a pane loads tens of thousands of entries without stalling the window |
 | [PLUGINS.md](docs/PLUGINS.md) | Installing, reloading and removing plugins; duplicate package names |
 | [PLUGINS_API.md](docs/PLUGINS_API.md) | Writing a plugin: layout, registration, panes, viewers |
+| [ROBOCOPY.md](docs/ROBOCOPY.md) | Copy and Move with robocopy (Windows): destination picker, progress, logs |
 | [STATUSBAR.md](docs/STATUSBAR.md) | The bar at the bottom: what it says, hiding it, theming it |
 | [SINGLE_INSTANCE.md](docs/SINGLE_INSTANCE.md) | Reusing a running window, and the `single_instance` setting |
 | [THEMES.md](docs/THEMES.md) | Theme files, color tokens and switching |

@@ -17,7 +17,7 @@ Status: `pending` (not looked at yet), `ported`, `skipped` (with reason).
 | Unreleased | Copy file path menu entry shows the Copy-paths shortcut (F11) via `shortcut_command` | ported | 2026-10-14 — `src/main/python/fman/impl/plugins/context_menu.py`, `src/unittest/python/fman_unittest/impl/plugins/test_context_menu.py`, three File Context Menu JSON files |
 | 0.16.2 | Single-item Copy file name / Copy file path in context menu and Command Center; Shift+F11 copies the name | ported | 2026-10-14 — `core/commands/clipboard.py`, `core/tests/commands/test_clipboard.py`, `core/tests/test_viewer_pane_commands.py`, `Key Bindings.json`, `docs/KEYBINDINGS.md` |
 | 0.16.1 | Ecode preset for text editor / viewer setup | ported | 2026-10-14 — editor arguments only |
-| 0.16.0 | Robocopy plug-in: Copy / Move with robocopy, wizard, progress, logs | pending | self-contained plug-in folder, Windows-only, ~1,000 lines; check its `fman.ui` dependencies before porting |
+| 0.16.0 | Robocopy plug-in: Copy / Move with robocopy, wizard, progress, logs | ported | 2026-10-14 — Plugins/Robocopy/**, docs/ROBOCOPY.md, tools/run_robocopy_tests.bat, tools/run_robocopy_integration_tests.bat; fman.ui owner/resource replaced by a module lock, Job-Object process owner replaced by Popen |
 | 0.15.0 | `fman.ui.show_quick_board` | pending | needs QuickTable (0.12.0) |
 | 0.15.0 | Batch File Renamer plug-in | pending | needs `show_quick_board`, `rename_no_replace`, `reload(on_done=)` |
 | 0.15.0 | `fman.fs.rename_no_replace` / `RenameResult` | pending | his local implementation is Windows-only |

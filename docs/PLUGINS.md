@@ -1,8 +1,9 @@
 # Plugins
 
-fman is plugins all the way down — the file list, the archive support and
-every command in the palette live in the shipped **Core** plugin, loaded
-through the same mechanism your own plugins use.
+fman is plugins all the way down — the file list, archive support and most
+commands in the palette live in the shipped **Core** plugin. The shipped
+**Robocopy** plugin adds Windows-only copy and move commands. Both load through
+the same mechanism your own plugins use.
 
 This page is about *running* plugins: installing them, reloading them without
 restarting, and what fman tells you when two of them collide. For writing one,
@@ -14,7 +15,7 @@ does and which GitHub endpoints it uses, see
 
 | Directory | What goes there |
 |-----------|-----------------|
-| `<resources>/Plugins` | The shipped **Core** plugin. Loads first, and is never reloaded at runtime. |
+| `<resources>/Plugins` | The shipped **Core** and **Robocopy** plugins. Load first, and are never reloaded at runtime. |
 | `%APPDATA%\fman\Plugins\Third-party` | Plugins installed with *Install plugin*. |
 | `%APPDATA%\fman\Plugins\User` | Your own. `User\Settings` always loads **last**, so its JSON wins. |
 
