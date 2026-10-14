@@ -9,5 +9,7 @@
 	{ "command": "get_info", "id": "properties" },
 	{ "command": "pack", "caption": "Compress...", "id": "archive" },
 	{ "caption": "-", "id": "clipboard" },
-	{ "command": "copy_to_clipboard", "caption": "Copy" }
+	{ "command": "copy_to_clipboard", "caption": "Copy" },
+	{ "command": "copy_file_name", "caption": "Copy file name" },
+	{ "command": "copy_file_path", "caption": "Copy file path", "shortcut_command": "copy_paths_to_clipboard" }
 ]

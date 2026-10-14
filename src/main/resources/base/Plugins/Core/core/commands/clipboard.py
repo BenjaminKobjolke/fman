@@ -1,18 +1,21 @@
-"""The clipboard commands: Copy, Cut, Paste and "Copy paths to clipboard".
+"""The clipboard commands: Copy, Cut, Paste and clipboard text actions.
 
 Copy/Cut only put the files *on* the clipboard - the actual work happens in
 Paste, which dispatches to the `copy` or `move` command depending on which of
 the two filled it. "Copy paths to clipboard" is the odd one out: it copies
 text, not files, so it never takes part in that hand-off.
+
+Copy file name and Copy file path copy one item's name or path as text.
 """
 from fman import clipboard, DirectoryPaneCommand, PLATFORM, show_alert, \
 	show_status_message
 from fman.fs import exists
-from fman.url import as_human_readable
+from fman.url import as_human_readable, basename
 from core.commands.util import NO_SELECTION
 
 __all__ = [
-	'CopyPathsToClipboard', 'CopyToClipboard', 'Cut', 'Paste', 'PasteCut'
+	'CopyFileName', 'CopyFilePath', 'CopyPathsToClipboard', 'CopyToClipboard',
+	'Cut', 'Paste', 'PasteCut'
 ]
 
 class CopyPathsToClipboard(DirectoryPaneCommand):
@@ -25,6 +28,22 @@ class CopyPathsToClipboard(DirectoryPaneCommand):
 		clipboard.set_text('\n'.join(map(as_human_readable, to_copy)))
 		_report_clipboard_action('Copied', to_copy, ' to the clipboard', 'path')
 
+class CopyFileName(DirectoryPaneCommand):
+	usable_in_viewer = True
+
+	def __call__(self):
+		_copy_single_item_text(self.get_chosen_files(), basename)
+	def is_visible(self):
+		return len(self.get_chosen_files()) == 1
+
+class CopyFilePath(DirectoryPaneCommand):
+	usable_in_viewer = True
+
+	def __call__(self):
+		_copy_single_item_text(self.get_chosen_files(), as_human_readable)
+	def is_visible(self):
+		return len(self.get_chosen_files()) == 1
+
 def _report_clipboard_action(verb, files, suffix='', ftype='file'):
 	num = len(files)
 	first_file = as_human_readable(files[0])
@@ -35,6 +54,14 @@ def _report_clipboard_action(verb, files, suffix='', ftype='file'):
 		message = '%s %s and %d other %s%s%s' % \
 				  (verb, first_file, num - 1, ftype, plural, suffix)
 	show_status_message(message, timeout_secs=3)
+
+def _copy_single_item_text(files, format_text):
+	if len(files) != 1:
+		return
+	text = format_text(files[0])
+	clipboard.clear()
+	clipboard.set_text(text)
+	show_status_message('Copied %s to the clipboard' % text, timeout_secs=3)
 
 class CopyToClipboard(DirectoryPaneCommand):
 	def __call__(self):

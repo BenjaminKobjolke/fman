@@ -1,9 +1,104 @@
 from core.commands.clipboard import CopyToClipboard, Cut, _report_clipboard_action
 from core.commands.util import NO_SELECTION
 from core.tests.commands import FakePane
+from fman import DirectoryPane
 from fman.url import as_human_readable, as_url
 from unittest import TestCase
-from unittest.mock import patch
+from unittest.mock import Mock, patch
+
+class CopyItemTextTest(TestCase):
+	def test_single_selected_items_copy_name_or_path(self):
+		items = [
+			('file://C:/folder/report.tar.gz', 'report.tar.gz'),
+			('file://C:/folder/My Folder', 'My Folder'),
+			('file://C:/folder/café.txt', 'café.txt'),
+			('file:////server/share/Folder', 'Folder'),
+			('zip://C:/archive.zip/folder/item.txt', 'item.txt')
+		]
+		for url, name in items:
+			with self.subTest(url=url):
+				self._assert_copy(url, name, 'CopyFileName')
+				self._assert_copy(
+					url, as_human_readable(url), 'CopyFilePath'
+				)
+
+	def test_cursor_fallback_and_invalid_counts(self):
+		url = 'file://C:/folder/report.txt'
+		for command_name in ('CopyFileName', 'CopyFilePath'):
+			command_class = self._command_class(command_name)
+			with self.subTest(command=command_name, case='cursor fallback'):
+				pane = Mock(spec=DirectoryPane)
+				pane.get_selected_files.return_value = []
+				pane.get_file_under_cursor.return_value = url
+				self._assert_copy_on_pane(
+					command_class, pane,
+					url.rsplit('/', 1)[-1] if command_name == 'CopyFileName'
+					else as_human_readable(url)
+				)
+			with self.subTest(command=command_name, case='no selection'):
+				pane = Mock(spec=DirectoryPane)
+				pane.get_selected_files.return_value = []
+				pane.get_file_under_cursor.return_value = None
+				self._assert_not_copied(command_class, pane)
+			with self.subTest(command=command_name, case='two selected'):
+				pane = Mock(spec=DirectoryPane)
+				pane.get_selected_files.return_value = [url, url + '2']
+				self._assert_not_copied(command_class, pane)
+
+	def test_execution_rechecks_selection(self):
+		for command_name in ('CopyFileName', 'CopyFilePath'):
+			with self.subTest(command=command_name):
+				pane = Mock(spec=DirectoryPane)
+				pane.get_selected_files.side_effect = [
+					['file://C:/folder/report.txt'],
+					['file://C:/folder/report.txt', 'file://C:/folder/other.txt']
+				]
+				pane.get_file_under_cursor.return_value = None
+				command_class = self._command_class(command_name)
+				command = command_class(pane)
+				self.assertTrue(command.is_visible())
+				with patch('core.commands.clipboard.clipboard.clear') as clear, \
+						patch('core.commands.clipboard.clipboard.set_text') as set_text, \
+						patch('core.commands.clipboard.show_status_message') as status:
+					command()
+				clear.assert_not_called()
+				set_text.assert_not_called()
+				status.assert_not_called()
+
+	def _assert_copy(self, url, name, command_name):
+		pane = Mock(spec=DirectoryPane)
+		pane.get_selected_files.return_value = [url]
+		text = name if command_name == 'CopyFileName' else as_human_readable(url)
+		self._assert_copy_on_pane(self._command_class(command_name), pane, text)
+
+	def _assert_copy_on_pane(self, command_class, pane, text):
+		command = command_class(pane)
+		self.assertTrue(command.is_visible())
+		with patch('core.commands.clipboard.clipboard.clear') as clear, \
+				patch('core.commands.clipboard.clipboard.set_text') as set_text, \
+				patch('core.commands.clipboard.show_status_message') as status:
+			command()
+		clear.assert_called_once_with()
+		set_text.assert_called_once_with(text)
+		status.assert_called_once_with(
+			'Copied %s to the clipboard' % text, timeout_secs=3
+		)
+		pane.get_path.assert_not_called()
+
+	def _assert_not_copied(self, command_class, pane):
+		command = command_class(pane)
+		self.assertFalse(command.is_visible())
+		with patch('core.commands.clipboard.clipboard.clear') as clear, \
+				patch('core.commands.clipboard.clipboard.set_text') as set_text, \
+				patch('core.commands.clipboard.show_status_message') as status:
+			command()
+		clear.assert_not_called()
+		set_text.assert_not_called()
+		status.assert_not_called()
+
+	def _command_class(self, name):
+		from core import commands
+		return getattr(commands, name)
 
 class NoSelectionTest(TestCase):
 	def test_copy_alerts_when_nothing_is_chosen(self):

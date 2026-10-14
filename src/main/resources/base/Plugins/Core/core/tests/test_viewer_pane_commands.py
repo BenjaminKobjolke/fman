@@ -29,6 +29,7 @@ class ViewerCommandFlagTest(TestCase):
 		import core
 		expected = {
 			'Copy', 'Move', 'Symlink', 'CopyPathsToClipboard',
+			'CopyFileName', 'CopyFilePath',
 			'OpenWithEditor', 'OpenTerminal', 'OpenNativeFileManager',
 			'ShowExplorerProperties', 'Pack', 'OpenWith',
 			'ShowOnlyActivePane', 'ShowAllPanes',

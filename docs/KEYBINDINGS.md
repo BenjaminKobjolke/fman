@@ -89,6 +89,7 @@ command palette — see
 | `F9` | `open_terminal` |
 | `F10` | `open_native_file_manager` |
 | `F11` | `copy_paths_to_clipboard` |
+| `Shift+F11` | `copy_file_name` |
 | `Shift+Delete` | `delete_permanently` |
 | `Alt+F1` | `show_volumes` (left pane) |
 | `Alt+F2` | `show_volumes` (right pane) |
@@ -256,6 +257,8 @@ shortcut hint, and Shift+Enter edits their global binding.
 |---------|-------------|
 | Copy / Move / Symlink | F5 / F6 / Shift+F5 |
 | Copy paths to clipboard | F11 |
+| Copy file name | Shift+F11 |
+| Copy file path | Palette only (menu shows F11) |
 | Edit / Terminal / Open native file manager | F4 / F9 / F10 |
 | Properties | Alt+Enter (Windows) |
 | Pack to archive | Alt+F5 |

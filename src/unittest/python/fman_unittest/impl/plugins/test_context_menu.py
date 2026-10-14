@@ -5,8 +5,46 @@ from fman.impl.plugins.context_menu import sanitize_context_menu, \
 	ContextMenuProvider
 from fman.impl.plugins.key_bindings import KeyBindings
 from unittest import TestCase
+from unittest.mock import patch
 
 class GetContextMenuTest(TestCase):
+	def test_shortcut_source_keeps_callback_and_prefers_direct_binding(self):
+		for cmd in ('single', 'multiple'):
+			self._app_cmd_registry.register_command(cmd, lambda *_, **__: None)
+			self._key_bindings.register_command(cmd)
+		self._cm.load(
+			[{
+				'command': 'single', 'caption': 'Copy file path',
+				'shortcut_command': 'multiple'
+			}], '', self._cm.FILE_CONTEXT
+		)
+		cases = [
+			([{'keys': ['F11'], 'command': 'multiple'}], 'F11'),
+			([{'keys': ['Ctrl+F11'], 'command': 'multiple'}], 'Ctrl+F11'),
+			([], ''),
+			([
+				{'keys': ['F11'], 'command': 'multiple'},
+				{'keys': ['Alt+F11'], 'command': 'single'}
+			], 'Alt+F11')
+		]
+		for bindings, expected_shortcut in cases:
+			with self.subTest(bindings=bindings):
+				self._key_bindings.load(bindings)
+				try:
+					with patch.object(
+						self._app_cmd_registry, 'execute_command'
+					) as execute_command:
+						entry, = self._cm.get_context_menu(
+							self._pane, 'file://C:/item'
+						)
+						caption, shortcut, callback = entry
+						self.assertEqual('Copy file path', caption)
+						self.assertEqual(expected_shortcut, shortcut)
+						callback()
+					execute_command.assert_called_once_with('single', {})
+				finally:
+					self._key_bindings.unload(bindings)
+
 	def test_id_handling(self):
 		for cmd in ('about', 'delete', 'open', 'copy', 'rename'):
 			self._app_cmd_registry.register_command(cmd, lambda *_, **__: None)
@@ -38,6 +76,27 @@ class GetContextMenuTest(TestCase):
 		self._pane = DirectoryPane(None, None, self._pane_cmd_registry)
 
 class SanitizeContextMenuTest(TestCase):
+	def test_shortcut_source_must_name_available_command(self):
+		for shortcut_command in (None, '', [], {}, 'missing'):
+			with self.subTest(shortcut_command=shortcut_command):
+				result, errors = self._sanitize_context_menu(
+					[{
+						'command': 'single',
+						'shortcut_command': shortcut_command
+					}], ['single', 'multiple']
+				)
+				self.assertEqual([], result)
+				self.assertEqual(1, len(errors))
+				self.assertIn('"shortcut_command"', errors[0])
+		result, errors = self._sanitize_context_menu(
+			[{'command': 'single', 'shortcut_command': 'multiple'}],
+			['single', 'multiple']
+		)
+		self.assertEqual(
+			[{'command': 'single', 'shortcut_command': 'multiple'}], result
+		)
+		self.assertEqual([], errors)
+
 	def test_non_list(self):
 		self.assertEqual(
 			([], [
