@@ -32,7 +32,7 @@ class ViewerCommandFlagTest(TestCase):
 			'CopyFileName', 'CopyFilePath',
 			'OpenWithEditor', 'OpenTerminal', 'OpenNativeFileManager',
 			'ShowExplorerProperties', 'Pack', 'OpenWith',
-			'ShowOnlyActivePane', 'ShowAllPanes',
+			'ShowOnlyActivePane', 'ShowAllPanes', 'SetTextEditor',
 		}
 		actual = {
 			name for name in dir(core)
