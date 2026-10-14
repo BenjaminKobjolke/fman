@@ -6,10 +6,81 @@ param(
 )
 
 $prefix = [IO.Path]::GetFullPath($Directory).TrimEnd('\') + '\'
-$running = @(Get-Process | Where-Object {
-    $_.Path -and $_.Path.StartsWith($prefix, [StringComparison]::OrdinalIgnoreCase)
-})
-if ($running.Count -eq 0) { exit 0 }
+function Test-InFolder([string]$path) {
+    $path -and $path.StartsWith($prefix, [StringComparison]::OrdinalIgnoreCase)
+}
+
+# Other programs can hold a DLL from the folder too, eg. php.exe started from a
+# terminal fman opened (child processes inherit PyInstaller's DLL directory).
+# They are not ours to close, so name them and stop the build. The Restart
+# Manager answers "who holds these files" directly; enumerating every process's
+# modules from PowerShell takes minutes.
+Add-Type -TypeDefinition @'
+using System;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
+
+public static class FileLockers {
+    [StructLayout(LayoutKind.Sequential)]
+    struct RM_UNIQUE_PROCESS { public int dwProcessId; public System.Runtime.InteropServices.ComTypes.FILETIME ProcessStartTime; }
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    struct RM_PROCESS_INFO {
+        public RM_UNIQUE_PROCESS Process;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)] public string strAppName;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)] public string strServiceShortName;
+        public int ApplicationType; public uint AppStatus; public uint TSSessionId;
+        [MarshalAs(UnmanagedType.Bool)] public bool bRestartable;
+    }
+
+    [DllImport("rstrtmgr.dll", CharSet = CharSet.Unicode)]
+    static extern int RmStartSession(out uint handle, int flags, string key);
+    [DllImport("rstrtmgr.dll")]
+    static extern int RmEndSession(uint handle);
+    [DllImport("rstrtmgr.dll", CharSet = CharSet.Unicode)]
+    static extern int RmRegisterResources(uint handle, uint nFiles, string[] files, uint nApps, IntPtr apps, uint nServices, string[] services);
+    [DllImport("rstrtmgr.dll")]
+    static extern int RmGetList(uint handle, out uint needed, ref uint count, [In, Out] RM_PROCESS_INFO[] infos, ref uint reasons);
+
+    public static int[] Find(string[] files) {
+        uint handle;
+        if (RmStartSession(out handle, 0, Guid.NewGuid().ToString()) != 0) return new int[0];
+        try {
+            if (RmRegisterResources(handle, (uint)files.Length, files, 0, IntPtr.Zero, 0, null) != 0) return new int[0];
+            uint needed, count = 0, reasons = 0;
+            RM_PROCESS_INFO[] infos = null;
+            int result;
+            // ERROR_MORE_DATA (234): the list grew between the two calls.
+            do {
+                infos = new RM_PROCESS_INFO[count];
+                result = RmGetList(handle, out needed, ref count, infos, ref reasons);
+                count = needed;
+            } while (result == 234);
+            if (result != 0) return new int[0];
+            var ids = new List<int>();
+            for (int i = 0; i < needed; i++) ids.Add(infos[i].Process.dwProcessId);
+            return ids.ToArray();
+        } finally { RmEndSession(handle); }
+    }
+}
+'@
+
+function Exit-IfDllsLocked {
+    if (-not (Test-Path -LiteralPath $prefix)) { return }
+    $files = @(Get-ChildItem -LiteralPath $prefix -Recurse -File -Include *.dll, *.pyd | ForEach-Object FullName)
+    if ($files.Count -eq 0) { return }
+    $holders = @([FileLockers]::Find($files) | Sort-Object -Unique)
+    if ($holders.Count -eq 0) { return }
+    foreach ($id in $holders) {
+        $name = (Get-Process -Id $id -ErrorAction SilentlyContinue).ProcessName
+        Write-Host "ERROR: $name (PID $id) has a DLL loaded from $prefix"
+    }
+    Write-Host "Close it by hand, then build again."
+    exit 1
+}
+
+$running = @(Get-Process | Where-Object { Test-InFolder $_.Path })
+if ($running.Count -eq 0) { Exit-IfDllsLocked; exit 0 }
 
 foreach ($process in $running) {
     Write-Host "Closing $($process.ProcessName) (PID $($process.Id))..."
@@ -30,4 +101,5 @@ if ($left.Count -gt 0) {
     Write-Host "Close it by hand (a dialog may be waiting for an answer), then build again."
     exit 1
 }
+Exit-IfDllsLocked
 exit 0

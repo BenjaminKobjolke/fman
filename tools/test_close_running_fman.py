@@ -3,8 +3,10 @@
 import os
 import shutil
 import subprocess
+import sys
 import tempfile
 import threading
+import time
 from pathlib import Path
 
 
@@ -21,7 +23,9 @@ def run_helper(directory, timeout_seconds):
         stdin=subprocess.DEVNULL,
         capture_output=True,
         text=True,
-        timeout=30,
+        # A run normally takes 2 s, but PowerShell startup and Add-Type
+        # sometimes stall for 20-30 s on this machine (AV scanning).
+        timeout=90,
     )
 
 
@@ -33,6 +37,19 @@ def start_cmd(directory):
         stdin=subprocess.PIPE,
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
+        creationflags=subprocess.CREATE_NO_WINDOW,
+    )
+
+
+def start_dll_user(directory):
+    # A process started elsewhere that only loaded a DLL from the folder, like
+    # php.exe launched from a terminal fman opened.
+    dll = directory / "fman_close_test.dll"
+    shutil.copyfile(Path(os.environ["SystemRoot"]) / "System32" / "version.dll", dll)
+    load_and_wait = "import ctypes, sys; ctypes.WinDLL(sys.argv[1]); sys.stdin.read()"
+    return subprocess.Popen(
+        [sys.executable, "-c", load_and_wait, str(dll)],
+        stdin=subprocess.PIPE,
         creationflags=subprocess.CREATE_NO_WINDOW,
     )
 
@@ -70,6 +87,16 @@ def check_close_running_fman():
         finally:
             close_stdin.cancel()
             close_stdin.join()
+            stop_cmd(process)
+
+        process = start_dll_user(directory)
+        try:
+            time.sleep(1)
+            result = run_helper(directory, 1)
+            assert result.returncode == 1, result.stdout + result.stderr
+            assert str(process.pid) in result.stdout + result.stderr
+            assert process.poll() is None, "The helper must not kill a process"
+        finally:
             stop_cmd(process)
 
 
