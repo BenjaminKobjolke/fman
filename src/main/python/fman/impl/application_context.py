@@ -562,6 +562,14 @@ class FrozenApplicationContext(DevelopmentApplicationContext):
 		delete = [var for var in os.environ if var.startswith('QT_')]
 		for var in delete:
 			del os.environ[var]
+		if PLATFORM == 'Windows':
+			# PyInstaller's bootloader calls SetDllDirectory(...\_internal), and
+			# processes we spawn inherit it. They then load our DLLs (eg.
+			# VCRUNTIME140.dll) instead of their own, which also keeps
+			# target\fman locked so the next build cannot replace it. Restore
+			# the default search order, under the same assumption as above.
+			import ctypes
+			ctypes.windll.kernel32.SetDllDirectoryW(None)
 		super().on_main_window_shown()
 	@cached_property
 	def exception_handlers(self):
