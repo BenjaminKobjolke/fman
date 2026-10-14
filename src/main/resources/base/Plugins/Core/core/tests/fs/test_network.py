@@ -1,4 +1,4 @@
-from core.fs.local.windows.network import NetworkFileSystem
+from core.fs.local.windows.network import NetworkFileSystem, native_location
 from fman import PLATFORM
 from unittest import TestCase, skipIf
 from unittest.mock import patch
@@ -17,6 +17,10 @@ _TREE = {
 
 @skipIf(PLATFORM != 'Windows', 'network:// only exists on Windows')
 class NetworkFileSystemTest(TestCase):
+	def test_native_location_for_overview(self):
+		self.assertEqual('shell:NetworkPlacesFolder', native_location(''))
+	def test_native_location_for_server(self):
+		self.assertEqual(r'\\SERVER1', native_location('SERVER1'))
 	def test_root_lists_servers(self):
 		self.assertEqual(['SERVER1', 'SERVER2'], list(self._fs.iterdir('')))
 	def test_root_does_not_open_servers(self):

@@ -68,6 +68,9 @@ Everything above is about `file://` UNC paths. The `network://` scheme — the
 pane for a long time with no sign that anything was happening. Three things
 changed:
 
+From the network overview, **Open native file manager** (F10) opens Explorer's
+Network page. Inside `network://SERVER`, it opens `\\SERVER`.
+
 - **The browse-list walk no longer opens servers.** `NetworkFileSystem` only
   descends into containers (providers, domains/workgroups). It used to recurse
   into every resource it enumerated, so listing the root opened a connection to

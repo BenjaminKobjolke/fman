@@ -1,8 +1,7 @@
 """Handing a directory - or a preview of a file - to another program.
 
-Every command here refuses anything but file:// URLs: a terminal, the native
-file manager and Quick Look all take a path on disk, and there is nothing to
-give them for a location that only exists inside fman (a zip://, say).
+The native file manager also supports network:// locations on Windows. A
+terminal and Quick Look still need file:// paths on disk.
 """
 from core.commands.util import chosen_files, is_file_url
 from core.os_ import open_native_file_manager, open_terminal_in_directory
@@ -36,8 +35,14 @@ class OpenNativeFileManager(DirectoryPaneCommand):
 
 	def __call__(self):
 		url = self.pane.get_path()
-		scheme = splitscheme(url)[0]
-		if scheme != 'file://':
+		scheme, path = splitscheme(url)
+		if scheme == 'file://':
+			location = as_human_readable(url)
+		elif scheme == 'network://':
+			# win32wnet is Windows-only, and network:// only exists there.
+			from core.fs.local.windows.network import native_location
+			location = native_location(path)
+		else:
 			if PLATFORM == 'Mac':
 				native_fm = 'Finder'
 			elif PLATFORM == 'Windows':
@@ -46,7 +51,7 @@ class OpenNativeFileManager(DirectoryPaneCommand):
 				native_fm = 'your native file manager'
 			show_alert("Cannot open %s in %s" % (native_fm, scheme))
 			return
-		open_native_file_manager(as_human_readable(url))
+		open_native_file_manager(location)
 
 class CompareDirectories(DirectoryPaneCommand):
 	def __call__(self):

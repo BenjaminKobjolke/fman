@@ -79,6 +79,12 @@ class NetworkFileSystem(FileSystem):
 def _to_unc(path):
 	return r'\\' + path.replace('/', '\\')
 
+def native_location(path):
+	"""What Explorer opens for network://<path>: its Network page at the
+	overview, or the server's UNC path below it.
+	"""
+	return _to_unc(path) if path else 'shell:NetworkPlacesFolder'
+
 def _get_resource(path):
 	"""
 	The NETRESOURCE Windows knows for `path`. Raises WNetError if `path` is not
