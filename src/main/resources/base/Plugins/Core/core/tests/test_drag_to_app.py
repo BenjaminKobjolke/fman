@@ -1,6 +1,21 @@
-from unittest import TestCase
+import sys
+from unittest import TestCase, skipUnless
+from unittest.mock import patch
 
-from core.commands.drag_to_app import _pick_target
+from fbs_runtime.platform import is_windows
+
+from core.commands.drag_to_app import _enumerate_windows, _pick_target
+
+
+@skipUnless(is_windows(), 'Windows-only window enumeration')
+class EnumerateWindowsTest(TestCase):
+	def test_enumerates_windows_without_win32process(self):
+		with patch.dict(sys.modules, {'win32process': None}):
+			windows = _enumerate_windows()
+
+		self.assertTrue(windows)
+		self.assertTrue(all(len(window) == 7 for window in windows))
+		self.assertTrue(any(pid > 0 for _, pid, *_ in windows))
 
 
 class PickTargetTest(TestCase):

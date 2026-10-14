@@ -200,16 +200,27 @@ def _get_exe_name(pid):
 		return ''
 
 
+def _get_window_pid(hwnd):
+	user32 = ctypes.WinDLL('user32', use_last_error=True)
+	get_window_thread_process_id = user32.GetWindowThreadProcessId
+	get_window_thread_process_id.argtypes = (
+		ctypes.wintypes.HWND, ctypes.POINTER(ctypes.wintypes.DWORD)
+	)
+	get_window_thread_process_id.restype = ctypes.wintypes.DWORD
+	pid = ctypes.wintypes.DWORD()
+	get_window_thread_process_id(hwnd, ctypes.byref(pid))
+	return pid.value
+
+
 def _enumerate_windows():
 	import win32con
 	import win32gui
-	import win32process
 
 	windows = []
 
 	def collect(hwnd, _):
 		try:
-			_, pid = win32process.GetWindowThreadProcessId(hwnd)
+			pid = _get_window_pid(hwnd)
 			ex_style = win32gui.GetWindowLong(hwnd, win32con.GWL_EXSTYLE)
 			windows.append((
 				hwnd,
