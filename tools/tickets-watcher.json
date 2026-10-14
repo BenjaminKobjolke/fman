@@ -3,11 +3,43 @@
     "TICKETS_WATCHER_COMMANDS.md": 2
   },
   "analysis_commands": [
-    "tools\\analyze_code.bat"
+    "tools\\analyze_code.bat",
+    "tools\\run_tests.bat",
+    "tools\\run_core_tests.bat",
+    "tools\\run_robocopy_tests.bat",
+    "tools\\run_zip_tests.bat",
+    "tools\\run_robocopy_integration_tests.bat",
+    "python tools\\test_close_running_fman.py",
+    "python tools\\test_release_version.py",
+    "python tools\\test_unittest_with_timeout.py"
   ],
   "analysis_command_states": {
     "tools\\analyze_code.bat": {
       "code_quality": "green"
+    },
+    "tools\\run_tests.bat": {
+      "test": "green"
+    },
+    "tools\\run_core_tests.bat": {
+      "test": "green"
+    },
+    "tools\\run_robocopy_tests.bat": {
+      "test": "green"
+    },
+    "tools\\run_zip_tests.bat": {
+      "test": "green"
+    },
+    "tools\\run_robocopy_integration_tests.bat": {
+      "test": "green"
+    },
+    "python tools\\test_close_running_fman.py": {
+      "test": "green"
+    },
+    "python tools\\test_release_version.py": {
+      "test": "green"
+    },
+    "python tools\\test_unittest_with_timeout.py": {
+      "test": "green"
     }
   },
   "command_check_scripts": [
@@ -73,14 +105,17 @@
       "run_overlay_focus_tests.bat",
       "run_robocopy_integration_tests.bat",
       "run_robocopy_tests.bat",
+      "run_tests.bat",
       "run_theme_tests.bat",
       "run_view_tests.bat",
       "run_window_chrome_tests.bat",
       "run_zip_tests.bat",
       "sign_exe.bat",
       "translate_release_notes.bat",
+      "unittest_with_timeout.bat",
       "version_get.bat"
     ],
     "tests": true
-  }
+  },
+  "analysis_tests_answered": true
 }
