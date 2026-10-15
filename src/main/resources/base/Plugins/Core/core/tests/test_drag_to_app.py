@@ -49,7 +49,7 @@ class FindWindropTest(TestCase):
 class WindropCommandTest(TestCase):
 	def test_passes_paths_as_arguments(self):
 		self.assertEqual(
-			['windrop.exe', r'C:\a b.txt', r'C:\c.txt'],
+			['windrop.exe', '--keyboard', r'C:\a b.txt', r'C:\c.txt'],
 			_windrop_command('windrop.exe', [r'C:\a b.txt', r'C:\c.txt'])
 		)
 

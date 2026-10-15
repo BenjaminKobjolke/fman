@@ -98,7 +98,9 @@ def _find_windrop():
 
 
 def _windrop_command(windrop, paths):
-	return [windrop, *paths]
+	# The user already confirmed the target, so windrop engages the drag at
+	# once and the keyboard steers it.
+	return [windrop, '--keyboard', *paths]
 
 
 @run_in_main_thread

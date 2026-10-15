@@ -5,9 +5,10 @@ cursor) into another app by drag and drop. It works like this:
 
 1. fman picks the most recently used app window and asks you to confirm.
 2. It brings that window to the front and moves the mouse to the window's center.
-3. It launches the bundled [windrop](https://github.com/BenjaminKobjolke/windrop). windrop
-   shows a small card with the file under the mouse; press it and drag to wherever you want
-   the files, or use windrop's `F8` mode. Esc or a right-click cancels.
+3. It launches the bundled [windrop](https://github.com/BenjaminKobjolke/windrop) with
+   `--keyboard`. The drag starts right away at the window's center: `WASD` or the arrow keys
+   move the cursor (hold to keep moving), `Q`, `Space` or `Enter` drop the files, Esc cancels.
+   Moving the real mouse and clicking drops too.
 
 ## Why windrop
 
@@ -34,4 +35,4 @@ run `tools\update_windrop.bat`:
 windrop links the C runtime statically, so no `vcruntime` DLL is needed.
 
 To try a different build without re-vendoring, set `"windrop_path"` in `Core Settings.json`.
-It takes precedence over the bundled exe.
+It takes precedence over the bundled exe, and must be a windrop that knows `--keyboard`.
