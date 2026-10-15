@@ -44,3 +44,5 @@ tickets/
 tools/previous_version.txt
 # Snapshot of the shared release-notes recipe; re-copied by /release:setup-automated-script
 tools/CREATE_RELEASE_NOTES.md
+# Temporary command copies written by tools\tickets-watcher (see TICKETS_WATCHER_COMMANDS.md)
+/tools/.tw-run-*.bat
