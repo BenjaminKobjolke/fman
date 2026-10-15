@@ -103,26 +103,54 @@ def _windrop_command(windrop, paths):
 	return [windrop, '--keyboard', *paths]
 
 
+def _new_drag_message_box():
+	box = MessageBox(None)
+	box.setWindowFlags(box.windowFlags() | Qt.WindowStaysOnTopHint)
+	return box
+
+
 @run_in_main_thread
 def _confirm_drag(main_window, file_count, title, exe):
 	file_word = 'file' if file_count == 1 else 'files'
 	exe_text = ' (%s)' % exe if exe else ''
-	box = MessageBox(None)
-	box.setWindowFlags(box.windowFlags() | Qt.WindowStaysOnTopHint)
+	box = _new_drag_message_box()
 	box.setWindowTitle('Confirm drag')
 	box.setIcon(QMessageBox.Question)
 	box.setText(
 		'Drag %d %s to "%s"%s?' % (file_count, file_word, title, exe_text)
 	)
-	box.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+	box.setStandardButtons(
+		QMessageBox.Ok | QMessageBox.Cancel | QMessageBox.Help
+	)
 	box.setDefaultButton(QMessageBox.Ok)
 	box.raise_()
 	box.activateWindow()
-	accepted = box.exec_() == QMessageBox.Ok
+	while True:
+		result = box.exec_()
+		if result != QMessageBox.Help:
+			break
+		_show_drag_help()
+	accepted = result == QMessageBox.Ok
 	if not accepted:
 		main_window.raise_()
 		main_window.activateWindow()
 	return accepted
+
+
+def _show_drag_help():
+	box = _new_drag_message_box()
+	box.setWindowTitle('Drag controls')
+	box.setIcon(QMessageBox.Information)
+	box.setStandardButtons(QMessageBox.Ok)
+	box.setText(
+		'After you click OK, fman brings the window to the front and starts the '
+		'drag at its center.\n\n'
+		'WASD / arrow keys: move the cursor (hold to keep moving)\n'
+		'Q / Space / Enter: drop the files\n'
+		'Esc: cancel\n'
+		'Moving the real mouse and clicking also drops.'
+	)
+	box.exec_()
 
 
 def _get_exe_name(pid):
