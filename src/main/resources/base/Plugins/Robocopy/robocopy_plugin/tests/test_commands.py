@@ -9,6 +9,7 @@ from robocopy_plugin import CopyWithRobocopy, MoveWithRobocopy, _invoke
 from robocopy_plugin import _lock
 from fman.impl.plugins.discover import find_plugin_dirs
 from fman import PLATFORM
+from fman.url import as_human_readable
 
 
 class CommandTest(TestCase):
@@ -31,10 +32,11 @@ class CommandTest(TestCase):
 	def test_invoke_submits_the_plan_and_refreshes_both_panes(self):
 		other = self.pane.window.get_panes.return_value[1]
 		self.pane.get_path.return_value = 'file:///C:/source'
-		self.pane.get_chosen_files.return_value = ['file:///C:/source/file.txt']
+		self.pane.get_selected_files.return_value = ['file:///C:/source/file.txt']
 		self.pane.window.get_panes.return_value = [self.pane, other]
+		other.get_path.return_value = 'file:///C:/other'
 		plan = Mock(jobs=())
-		with patch('robocopy_plugin.fman.show_quicksearch', return_value=('', 'C:\\dest')), \
+		with patch('robocopy_plugin.fman.show_prompt', return_value=('C:\\dest', True)), \
 				patch('robocopy_plugin.fman.load_json', return_value={}), \
 				patch('robocopy_plugin.windows.executable', return_value='C:\\Windows\\robocopy.exe'), \
 				patch('robocopy_plugin.planner.prepare', return_value=plan) as prepare, \
@@ -42,19 +44,42 @@ class CommandTest(TestCase):
 				patch('robocopy_plugin.fman.submit_task') as submit:
 			_invoke('move', MoveWithRobocopy(self.pane))
 		self.assertTrue(prepare.call_args.kwargs['move'])
+		self.assertEqual('C:\\dest', prepare.call_args.args[2])
 		probe.assert_called_once()
 		submit.assert_called_once()
 		self.pane.reload.assert_called_once_with()
 		other.reload.assert_called_once_with()
 
-	def test_no_selection_stops_before_showing_the_destination_picker(self):
+	def test_prompt_defaults_to_the_other_panes_folder(self):
+		other = self.pane.window.get_panes.return_value[1]
+		other.get_path.return_value = 'file:///C:/other'
+		self.pane.get_selected_files.return_value = ['file:///C:/source/file.txt']
+		with patch('robocopy_plugin.fman.show_prompt', return_value=('', False)) as prompt:
+			_invoke('copy', CopyWithRobocopy(self.pane))
+		self.assertEqual(as_human_readable('file:///C:/other'), prompt.call_args.args[1])
+		self.assertEqual(0, prompt.call_args.args[2])
+		self.assertIsNone(prompt.call_args.args[3])
+
+	def test_canceling_or_accepting_an_empty_prompt_starts_nothing(self):
+		self.pane.window.get_panes.return_value[1].get_path.return_value = 'file:///C:/other'
+		self.pane.get_selected_files.return_value = ['file:///C:/source/file.txt']
+		for response in [('C:\\dest', False), ('', True)]:
+			with self.subTest(response=response):
+				with patch('robocopy_plugin.fman.show_prompt', return_value=response), \
+						patch('robocopy_plugin.planner.prepare') as prepare, \
+						patch('robocopy_plugin.fman.submit_task') as submit:
+					_invoke('copy', CopyWithRobocopy(self.pane))
+			prepare.assert_not_called()
+			submit.assert_not_called()
+
+	def test_no_selection_stops_before_showing_the_destination_prompt(self):
 		self.pane.get_selected_files.return_value = []
 		self.pane.get_file_under_cursor.return_value = None
 		with patch('robocopy_plugin.fman.show_alert') as alert, \
-				patch('robocopy_plugin.fman.show_quicksearch') as quicksearch:
+				patch('robocopy_plugin.fman.show_prompt') as prompt:
 			_invoke('copy', CopyWithRobocopy(self.pane))
 		alert.assert_called_once()
-		quicksearch.assert_not_called()
+		prompt.assert_not_called()
 
 	@patch('robocopy_plugin._invoke')
 	def test_copy_and_move_commands_dispatch_the_action(self, invoke):

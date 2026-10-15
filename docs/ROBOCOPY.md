@@ -9,10 +9,11 @@ or context-menu entries.
 ## Use
 
 Select files or folders in the active pane; when nothing is selected, the
-highlighted entry is used. Choose a Robocopy command, then accept the opposite
-pane's destination or type an absolute drive or UNC folder path. The destination
-receives each selected item by name, including empty subfolders. Unselected
-siblings are left alone.
+highlighted entry is used. Choose a Robocopy command, then the destination
+prompt opens with the opposite pane's folder filled in and selected, like F5/F6.
+Press Enter to accept it, or type another absolute drive or UNC folder path. The
+destination receives each selected item by name, including empty subfolders.
+Unselected siblings are left alone.
 
 Only one operation can run at a time, including destination selection and cleanup.
 Another invocation reports **“A Robocopy operation is already active.”** Cancel

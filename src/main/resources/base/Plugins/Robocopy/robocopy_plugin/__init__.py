@@ -4,7 +4,7 @@ from threading import Lock
 import os
 
 import fman
-from fman import DirectoryPaneCommand, PLATFORM, QuicksearchItem
+from fman import DirectoryPaneCommand, PLATFORM
 from fman.url import as_human_readable
 
 from . import logs, planner, windows
@@ -18,17 +18,19 @@ _BUSY_MESSAGE = 'A Robocopy operation is already active.'
 _NO_SELECTION_MESSAGE = 'Select one or more files or folders first.'
 
 
-def _destinations(query: str, pane: DirectoryPaneCommand) -> list[QuicksearchItem]:
-	panes = pane.pane.window.get_panes()
-	index = panes.index(pane.pane)
+def _other_pane_path(command: DirectoryPaneCommand) -> str:
+	panes = command.pane.window.get_panes()
+	index = panes.index(command.pane)
 	other = panes[(index + 1) % len(panes)]
-	items = [QuicksearchItem(query, title=query or 'Use the typed path',
-		hint='Enter to use path')]
-	if other is not pane.pane:
-		url = other.get_path()
-		items.append(QuicksearchItem(url, title='Other pane',
-			description=as_human_readable(url), hint='Enter to use folder'))
-	return items
+	return as_human_readable(other.get_path()) if other is not command.pane else ''
+
+
+def _prompt_text(action: str, selected: list[str]) -> str:
+	verb = 'Move' if action == 'move' else 'Copy'
+	if len(selected) == 1:
+		name = os.path.basename(as_human_readable(selected[0]))
+		return '%s "%s" with robocopy to' % (verb, name)
+	return '%s %d files with robocopy to' % (verb, len(selected))
 
 
 def _refresh(pane: DirectoryPaneCommand) -> None:
@@ -46,12 +48,9 @@ def _invoke(action: str, command: DirectoryPaneCommand) -> None:
 			fman.show_alert(_NO_SELECTION_MESSAGE)
 			return
 		pane = command.pane
-		selection = fman.show_quicksearch(
-			lambda text: _destinations(text, command), query='')
-		if selection is None:
-			return
-		query, destination = selection
-		if not destination:
+		destination, ok = fman.show_prompt(
+			_prompt_text(action, selected), _other_pane_path(command), 0, None)
+		if not (ok and destination):
 			return
 		settings = Settings.load(fman.load_json(_SETTINGS_NAME, {}))
 		executable = windows.executable()
