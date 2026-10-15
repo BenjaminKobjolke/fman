@@ -715,6 +715,17 @@ class MessageBox(QMessageBox):
 			QSpacerItem(width, 0, QSizePolicy.Minimum, QSizePolicy.Fixed),
 			layout.rowCount(), 0, 1, layout.columnCount()
 		)
+	def _fit_buttons(self):
+		"""Qt's updateSize caps the box width, which can squeeze its buttons."""
+		button_box = self.findChild(QDialogButtonBox)
+		if button_box is None:
+			return
+		margins = self.layout().contentsMargins()
+		needed = button_box.minimumSizeHint().width() + margins.left() + \
+			margins.right()
+		if self.width() < needed:
+			screen = self.screen() or QApplication.primaryScreen()
+			self.setFixedWidth(min(needed, screen.availableGeometry().width()))
 	def setStandardButtons(self, buttons):
 		super().setStandardButtons(buttons)
 		if is_mac():
@@ -739,7 +750,13 @@ class MessageBox(QMessageBox):
 		# resizing once it is already on screen.
 		self._apply_layout_fixes()
 		super().showEvent(event)
+		self._fit_buttons()
 		self.shown.emit()
+	def event(self, e):
+		result = super().event(e)
+		if e.type() == QEvent.LayoutRequest:
+			self._fit_buttons()
+		return result
 
 class Prompt(QInputDialog):
 	"""

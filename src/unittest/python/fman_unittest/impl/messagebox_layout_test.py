@@ -15,9 +15,9 @@ tools\\run_messagebox_tests.bat.
 """
 
 from fman.impl.widgets import MessageBox
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import QEvent, Qt
 from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QApplication, QLabel, QMessageBox
+from PyQt5.QtWidgets import QApplication, QDialogButtonBox, QLabel, QMessageBox
 from unittest import TestCase
 
 ONE_LINE = 'Everything has no index loaded.'
@@ -59,6 +59,18 @@ class MessageBoxLayoutTest(TestCase):
 		# than the display.
 		screen = QApplication.primaryScreen().availableGeometry().width()
 		self.assertLessEqual(self._box(ONE_LINE).width(), screen)
+	def test_many_buttons_are_not_squeezed(self):
+		box = self._box('waiting.mp3 exists. Do you want to overwrite it?')
+		box.setStandardButtons(
+			QMessageBox.Yes | QMessageBox.YesToAll | QMessageBox.No |
+			QMessageBox.NoToAll | QMessageBox.Abort
+		)
+		QApplication.sendEvent(box, QEvent(QEvent.LayoutRequest))
+		button_box = box.findChild(QDialogButtonBox)
+		for button in button_box.buttons():
+			self.assertGreaterEqual(
+				button.width(), button.minimumSizeHint().width(), button.text()
+			)
 	def _label_of(self, text):
 		return self._box(text).findChild(QLabel, 'qt_msgbox_label')
 	def _box(self, text):

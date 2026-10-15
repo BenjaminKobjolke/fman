@@ -19,6 +19,11 @@ QPushButton {
 	padding: 1ex 6ex;
 }
 
+/* 6ex each side squeezes 5 buttons (overwrite prompt) past Qt's message box width cap. */
+QMessageBox QPushButton {
+	padding: 1ex 2ex;
+}
+
 Quicksearch #query-container {
 	margin: .6ex;
 	border-width: .2ex;
