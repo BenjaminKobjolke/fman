@@ -1,0 +1,14 @@
+{
+  "version": "1.7.13",
+  "build": 5,
+  "date": "2026-10-15",
+  "title": "Dra filer til apper, tryggere filoverføringer i Windows og enklere redigering",
+  "notes": [
+    "I Windows kan du bruke «Dra til sist brukte app» til å sende den valgte filen eller mappen til et annet program med en veiledet dra-og-slipp-handling. Du kan styre markøren med tastaturet, og den nye Hjelp-knappen viser hvilke kontroller du kan bruke.",
+    "Windows-brukere kan nå kopiere eller flytte filer med innebygd støtte for Robocopy. Velg et mål i den andre ruten, eller skriv inn en lokal bane eller UNC-bane. Du kan også konfigurere antall nye forsøk, tråder og valgfrie overføringslogger.",
+    "Med «Angi tekstredigeringsprogram» kan du konfigurere redigeringsprogrammet med ferdige forhåndsinnstillinger eller egne argumenter. Du kan kjøre funksjonen fra kommandopaletten, også mens du viser en fil.",
+    "Når ett element er valgt, kan du kopiere bare filnavnet eller hele banen til utklippstavlen. Disse kommandoene fungerer også fra visningsprogrammet.",
+    "«Åpne innebygd filbehandling» fungerer nå fra nettverksoversikten og fra individuelle datamaskiner på nettverket. Du kommer direkte til den tilsvarende plasseringen i Windows Utforsker.",
+    "Overføringsmeldinger og Windows-dialogbokser er enklere å lese: Feilmeldinger om målplasseringen er tydeligere, og dialogbokser med flere knapper vises ikke lenger som en smal kolonne."
+  ]
+}

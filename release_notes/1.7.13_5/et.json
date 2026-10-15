@@ -1,0 +1,14 @@
+{
+  "version": "1.7.13",
+  "build": 5,
+  "date": "2026-10-15",
+  "title": "Lohista failid rakendustesse, turvalisem failiedastus Windowsis ja lihtsam redigeerimine",
+  "notes": [
+    "Windowsis võimaldab funktsioon „Lohista viimati kasutatud rakendusse” saata valitud faili või kausta juhendatud pukseerimise abil teise rakendusse. Kursorit saab juhtida klaviatuuriga ja uus nupp „Spikker” näitab juhtnuppe.",
+    "Windowsi kasutajad saavad nüüd faile kopeerida või teisaldada, kasutades Robocopy natiivset tuge. Vali sihtkoht teisel paanil või sisesta kohalik või UNC-tee. Korduskatsete arvu ja lõimede hulka saab seadistada ning soovi korral saab salvestada edastuslogid.",
+    "Funktsioon „Määra tekstiredaktor” aitab redaktorit seadistada valmis eelseadistuste või enda argumentide abil. Seda saab käivitada käsupaletist ka faili vaatamise ajal.",
+    "Kui valitud on üks üksus, saad lõikelauale kopeerida ainult selle failinime või täieliku tee. Need käsud toimivad ka vaaturis.",
+    "Funktsioon „Ava natiivne failihaldur” töötab nüüd ka võrgu ülevaates ja üksikute võrguarvutite juures, viies sind otse vastavasse Windows Exploreri asukohta.",
+    "Edastusviibad ja Windowsi teateaknad on nüüd hõlpsamini loetavad: sihtkoha veateated on selgemad ning mitme nupuga dialoogid ei ahene enam kitsaks veeruks."
+  ]
+}

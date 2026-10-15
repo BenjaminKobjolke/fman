@@ -1,0 +1,14 @@
+{
+  "version": "1.7.13",
+  "build": 5,
+  "date": "2026-10-15",
+  "title": "Sleep bestanden naar apps, veiligere Windows-overdrachten en eenvoudiger bewerken",
+  "notes": [
+    "In Windows kun je met Slepen naar laatst gebruikte app het geselecteerde bestand of de geselecteerde map met een begeleide sleepactie naar een andere toepassing sturen. Je kunt de cursor met het toetsenbord verplaatsen en met de nieuwe knop Help zie je welke toetsen je kunt gebruiken.",
+    "Windows-gebruikers kunnen bestanden nu kopiëren of verplaatsen met native ondersteuning voor Robocopy. Kies een bestemming in het andere paneel of voer een lokaal pad of UNC-pad in. Je kunt het aantal nieuwe pogingen en threads instellen en optioneel overdrachtslogboeken bijhouden.",
+    "Met Teksteditor instellen kun je je editor configureren met kant-en-klare presets of eigen argumenten. Je kunt deze functie uitvoeren via het opdrachtpalet, ook wanneer je een bestand bekijkt.",
+    "Als er één item is geselecteerd, kun je alleen de bestandsnaam of het volledige pad naar het klembord kopiëren. Deze opdrachten werken ook vanuit de viewer.",
+    "Native bestandsbeheerder openen werkt nu vanuit het netwerkoverzicht en vanuit afzonderlijke netwerkcomputers. Je komt daarmee rechtstreeks op de bijbehorende locatie in Windows Verkenner terecht.",
+    "Overdrachtsmeldingen en Windows-berichtvensters zijn nu beter leesbaar: fouten met bestemmingen zijn duidelijker en dialoogvensters met meerdere knoppen worden niet langer samengedrukt tot een smalle kolom."
+  ]
+}

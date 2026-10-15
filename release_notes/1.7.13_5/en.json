@@ -1,0 +1,14 @@
+{
+  "version": "1.7.13",
+  "build": 5,
+  "date": "2026-10-15",
+  "title": "Drag files to apps, safer Windows transfers, and easier editing",
+  "notes": [
+    "On Windows, Drag to last used app lets you send the selected file or folder into another application with a guided drag-and-drop action. You can steer the cursor with the keyboard, and the new Help button shows the controls.",
+    "Windows users can now copy or move files with native Robocopy support. Choose a destination in the other pane or enter a local or UNC path, with configurable retries, threading and optional transfer logs.",
+    "Set text editor now helps you configure your editor with ready-made presets or your own arguments. You can run it from the command palette, including while viewing a file.",
+    "When one item is selected, you can copy just its file name or full path to the clipboard. These commands also work from the viewer.",
+    "Open native file manager now works from the network overview and from individual network computers, taking you directly to the matching Windows Explorer location.",
+    "Transfer prompts and Windows message boxes are easier to read: destination errors are clearer, and dialogs with several buttons no longer collapse into a narrow column."
+  ]
+}

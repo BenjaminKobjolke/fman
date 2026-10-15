@@ -1,0 +1,14 @@
+{
+  "version": "1.7.13",
+  "build": 5,
+  "date": "2026-10-15",
+  "title": "Vilkite failus į programas, saugesnis failų perkėlimas sistemoje „Windows“ ir paprastesnis redagavimas",
+  "notes": [
+    "Sistemoje „Windows“ funkcija „Vilkite į paskutinę naudotą programą“ leidžia pasirinkti failą ar aplanką ir nuvilkti jį į kitą programą. Žymeklį galite valdyti klaviatūra, o naujame mygtuke „Žinynas“ pateikiami valdikliai.",
+    "„Windows“ naudotojai dabar gali kopijuoti arba perkelti failus naudodami savąjį „Robocopy“ palaikymą. Pasirinkite paskirties vietą kitame polangyje arba įveskite vietinį ar UNC kelią. Galima nustatyti bandymų skaičių, gijų skaičių ir, jei reikia, įrašyti perkėlimo žurnalus.",
+    "Funkcija „Nustatyti teksto rengyklę“ padeda sukonfigūruoti rengyklę naudojant paruoštus išankstinius nustatymus arba savo argumentus. Ją galima paleisti komandų paletėje, net ir peržiūrint failą.",
+    "Pasirinkę vieną elementą, į iškarpinę galite nukopijuoti tik jo failo pavadinimą arba visą kelią. Šios komandos veikia ir peržiūros lange.",
+    "Komanda „Atverti savąją failų tvarkytuvę“ dabar veikia tinklo apžvalgoje ir atskirų tinklo kompiuterių rodiniuose – ji nukreipia tiesiai į atitinkamą vietą „Windows Explorer“.",
+    "Perkėlimo pranešimus ir „Windows“ pranešimų langus dabar lengviau skaityti: aiškiau pateikiamos paskirties vietos klaidos, o dialogo langai su keliais mygtukais nebesusitraukia į siaurą stulpelį."
+  ]
+}

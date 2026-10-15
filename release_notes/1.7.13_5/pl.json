@@ -1,0 +1,14 @@
+{
+  "version": "1.7.13",
+  "build": 5,
+  "date": "2026-10-15",
+  "title": "Przeciąganie plików do aplikacji, bezpieczniejsze transfery w systemie Windows i łatwiejsza edycja",
+  "notes": [
+    "W systemie Windows funkcja „Przeciągnij do ostatnio używanej aplikacji” pozwala wysłać wybrany plik lub folder do innej aplikacji za pomocą podpowiedzi podczas przeciągania i upuszczania. Możesz sterować kursorem za pomocą klawiatury, a nowy przycisk „Pomoc” pokazuje dostępne sterowanie.",
+    "Użytkownicy systemu Windows mogą teraz kopiować i przenosić pliki dzięki natywnej obsłudze Robocopy. Wybierz miejsce docelowe w drugim panelu lub wpisz ścieżkę lokalną albo UNC. Możesz też skonfigurować liczbę ponowień, wielowątkowość i opcjonalne dzienniki transferu.",
+    "Funkcja „Ustaw edytor tekstu” ułatwia teraz konfigurację edytora za pomocą gotowych ustawień lub własnych argumentów. Możesz ją uruchomić z palety poleceń, także podczas przeglądania pliku.",
+    "Po zaznaczeniu jednego elementu możesz skopiować do schowka samą nazwę pliku lub pełną ścieżkę. Te polecenia działają również w podglądzie.",
+    "Funkcja „Otwórz w natywnym menedżerze plików” działa teraz z poziomu przeglądu sieci oraz widoków poszczególnych komputerów w sieci. Otwiera bezpośrednio odpowiadające im miejsce w Eksploratorze plików systemu Windows.",
+    "Monity o transferze i okna komunikatów systemu Windows są teraz czytelniejsze: komunikaty o błędach miejsca docelowego są jaśniejsze, a okna dialogowe z kilkoma przyciskami nie zwijają się już do wąskiej kolumny."
+  ]
+}

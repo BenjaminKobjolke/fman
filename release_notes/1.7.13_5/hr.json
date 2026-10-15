@@ -1,0 +1,14 @@
+{
+  "version": "1.7.13",
+  "build": 5,
+  "date": "2026-10-15",
+  "title": "Povlačenje datoteka u aplikacije, sigurniji prijenosi u sustavu Windows i jednostavnije uređivanje",
+  "notes": [
+    "U sustavu Windows opcija Povuci u posljednju korištenu aplikaciju omogućuje slanje odabrane datoteke ili mape u drugu aplikaciju pomoću vođenog postupka povlačenja i ispuštanja. Pokazivačem možete upravljati tipkovnicom, a novim gumbom Pomoć prikazuju se kontrole.",
+    "Korisnici sustava Windows sada mogu kopirati ili premještati datoteke uz izvornu podršku za Robocopy. Odaberite odredište u drugom oknu ili unesite lokalnu ili UNC putanju te prilagodite broj ponovnih pokušaja i niti, kao i uključite zapisnike prijenosa po želji.",
+    "Opcija Postavi uređivač teksta sada vam pomaže konfigurirati uređivač pomoću gotovih postavki ili vlastitih argumenata. Možete je pokrenuti iz palete naredbi, čak i dok pregledavate datoteku.",
+    "Kada je odabrana jedna stavka, u međuspremnik možete kopirati samo njezin naziv datoteke ili cijelu putanju. Te naredbe rade i u pregledniku.",
+    "Opcija Otvori izvorni upravitelj datoteka sada radi iz pregleda mreže i za pojedinačna računala na mreži te vas vodi izravno do odgovarajuće lokacije u Eksploreru za datoteke sustava Windows.",
+    "Upiti za prijenos i dijaloški okviri sustava Windows sada su pregledniji: pogreške povezane s odredištem jasnije su, a dijaloški okviri s više gumba više se ne sužavaju u uski stupac."
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "version": "1.7.13",
+  "build": 5,
+  "date": "2026-10-15",
+  "title": "Arrastra archivos a aplicaciones, transferencias más seguras en Windows y edición más sencilla",
+  "notes": [
+    "En Windows, Arrastrar a la última aplicación usada te permite enviar el archivo o la carpeta seleccionados a otra aplicación mediante una acción guiada de arrastrar y soltar. Puedes mover el cursor con el teclado y el nuevo botón Ayuda muestra los controles.",
+    "Ahora, los usuarios de Windows pueden copiar o mover archivos con compatibilidad nativa con Robocopy. Elige un destino en el otro panel o introduce una ruta local o UNC, y configura los reintentos, el uso de subprocesos y los registros de transferencia opcionales.",
+    "Configurar el editor de texto ahora te ayuda a elegir un editor mediante ajustes preestablecidos o tus propios argumentos. Puedes ejecutarlo desde la paleta de comandos, incluso mientras ves un archivo.",
+    "Si hay un elemento seleccionado, puedes copiar al portapapeles solo su nombre de archivo o la ruta completa. Estos comandos también funcionan desde el visor.",
+    "Abrir el gestor de archivos nativo ahora funciona desde la vista general de la red y desde los equipos de red individuales, y te lleva directamente a la ubicación correspondiente en el Explorador de archivos de Windows.",
+    "Los avisos de transferencia y los cuadros de mensaje de Windows son más fáciles de leer: los errores de destino son más claros y los cuadros de diálogo con varios botones ya no se comprimen en una columna estrecha."
+  ]
+}

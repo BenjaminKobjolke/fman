@@ -1,0 +1,14 @@
+{
+  "version": "1.7.13",
+  "build": 5,
+  "date": "2026-10-15",
+  "title": "Dosyaları uygulamalara sürükleyin, Windows aktarımlarını daha güvenli hale getirin ve düzenlemeyi kolaylaştırın",
+  "notes": [
+    "Windows'ta Son kullanılan uygulamaya sürükle özelliği, seçili dosya veya klasörü yönlendirmeli bir sürükle-bırak işlemiyle başka bir uygulamaya göndermenizi sağlar. İmleci klavyeyle yönlendirebilir, yeni Yardım düğmesiyle de kontrolleri görebilirsiniz.",
+    "Windows kullanıcıları artık yerel Robocopy desteğiyle dosyaları kopyalayabilir veya taşıyabilir. Diğer bölmede bir hedef seçin ya da yerel bir yol veya UNC yolu girin; yeniden deneme sayısını ve iş parçacığı sayısını ayarlayın, isterseniz aktarım günlüklerini etkinleştirin.",
+    "Metin düzenleyiciyi ayarla özelliği artık hazır ayarlarla veya kendi bağımsız değişkenlerinizle düzenleyicinizi yapılandırmanıza yardımcı oluyor. Bir dosyayı görüntülerken bile bu özelliği komut paletinden çalıştırabilirsiniz.",
+    "Tek bir öğe seçiliyken panoya yalnızca dosya adını veya dosyanın tam yolunu kopyalayabilirsiniz. Bu komutlar görüntüleyicide de çalışır.",
+    "Yerel dosya yöneticisini aç özelliği artık ağ genel görünümünden ve tek tek ağ bilgisayarlarından da çalışıyor; sizi doğrudan eşleşen Windows Gezgini konumuna götürüyor.",
+    "Aktarım istemleri ve Windows ileti kutuları artık daha kolay okunuyor: hedefle ilgili hatalar daha anlaşılır ve birden fazla düğmesi olan iletişim kutuları artık dar bir sütuna sıkışmıyor."
+  ]
+}

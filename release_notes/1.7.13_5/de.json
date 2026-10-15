@@ -1,0 +1,14 @@
+{
+  "version": "1.7.13",
+  "build": 5,
+  "date": "2026-10-15",
+  "title": "Dateien in Apps ziehen, sicherere Windows-Übertragungen und einfachere Bearbeitung",
+  "notes": [
+    "Unter Windows können Sie mit „In zuletzt verwendete App ziehen“ die ausgewählte Datei oder den ausgewählten Ordner per geführtem Drag-and-drop in eine andere Anwendung übertragen. Sie können den Cursor mit der Tastatur steuern. Über die neue Schaltfläche „Hilfe“ werden die Steuerelemente angezeigt.",
+    "Windows-Nutzer können Dateien jetzt mit nativer Robocopy-Unterstützung kopieren oder verschieben. Wählen Sie im anderen Fensterbereich ein Ziel aus oder geben Sie einen lokalen Pfad oder UNC-Pfad ein. Wiederholungsversuche und Thread-Anzahl lassen sich konfigurieren; Übertragungsprotokolle können optional erstellt werden.",
+    "Mit „Texteditor festlegen“ können Sie Ihren Editor jetzt mithilfe vorgefertigter Voreinstellungen oder eigener Argumente einrichten. Sie können den Befehl über die Befehlspalette ausführen, auch während Sie eine Datei anzeigen.",
+    "Wenn ein Element ausgewählt ist, können Sie nur seinen Dateinamen oder den vollständigen Pfad in die Zwischenablage kopieren. Diese Befehle funktionieren auch in der Dateivorschau.",
+    "„Nativen Dateimanager öffnen“ funktioniert jetzt in der Netzwerkübersicht und bei einzelnen Netzwerkcomputern. Sie gelangen damit direkt zum entsprechenden Speicherort im Windows-Explorer.",
+    "Übertragungsabfragen und Windows-Meldungsfenster sind jetzt besser lesbar: Fehlermeldungen zum Ziel sind klarer, und Dialoge mit mehreren Schaltflächen werden nicht mehr zu schmalen Spalten zusammengequetscht."
+  ]
+}

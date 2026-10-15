@@ -1,0 +1,14 @@
+{
+  "version": "1.7.13",
+  "build": 5,
+  "date": "2026-10-15",
+  "title": "Glissez des fichiers vers des applications, transférez-les plus sûrement sous Windows et modifiez-les plus facilement",
+  "notes": [
+    "Sous Windows, la fonction « Glisser vers la dernière application utilisée » vous permet d’envoyer le fichier ou le dossier sélectionné vers une autre application en le faisant glisser grâce à une action guidée. Vous pouvez déplacer le curseur à l’aide du clavier, et le nouveau bouton « Aide » affiche les commandes disponibles.",
+    "Sous Windows, vous pouvez désormais copier ou déplacer des fichiers grâce à la prise en charge native de Robocopy. Choisissez une destination dans l’autre volet ou saisissez un chemin local ou UNC, puis configurez le nombre de tentatives, le multithreading et, si vous le souhaitez, les journaux de transfert.",
+    "La fonction « Définir l’éditeur de texte » vous aide à configurer votre éditeur à l’aide de préréglages ou de vos propres arguments. Vous pouvez la lancer depuis la palette de commandes, y compris lorsque vous consultez un fichier.",
+    "Lorsqu’un seul élément est sélectionné, vous pouvez copier uniquement son nom de fichier ou son chemin complet dans le presse-papiers. Ces commandes sont également disponibles dans la visionneuse.",
+    "La fonction « Ouvrir dans le gestionnaire de fichiers natif » est désormais disponible depuis la vue d’ensemble du réseau et les ordinateurs du réseau. Elle vous conduit directement à l’emplacement correspondant dans l’Explorateur Windows.",
+    "Les demandes de transfert et les boîtes de dialogue Windows sont plus faciles à lire : les erreurs de destination sont plus claires et les boîtes de dialogue comportant plusieurs boutons ne sont plus comprimées dans une colonne étroite."
+  ]
+}

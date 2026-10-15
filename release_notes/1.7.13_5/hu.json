@@ -1,0 +1,14 @@
+{
+  "version": "1.7.13",
+  "build": 5,
+  "date": "2026-10-15",
+  "title": "Fájlok áthúzása alkalmazásokba, biztonságosabb Windowsos átvitel és egyszerűbb szerkesztés",
+  "notes": [
+    "Windows rendszeren a „Húzás a legutóbb használt alkalmazásba” funkcióval egy irányított húzással átküldheti a kijelölt fájlt vagy mappát egy másik alkalmazásba. A kurzort a billentyűzettel is irányíthatja, az új Súgó gomb pedig megmutatja a vezérlőket.",
+    "A Windows-felhasználók mostantól a Robocopy natív támogatásával másolhatnak vagy helyezhetnek át fájlokat. Válasszon célhelyet a másik panelen, vagy adjon meg helyi vagy UNC-útvonalat; az újrapróbálkozások száma, a párhuzamos szálak és az opcionális átviteli naplók is beállíthatók.",
+    "A „Szövegszerkesztő beállítása” funkcióval kész beállítások vagy saját argumentumok segítségével konfigurálhatja a szerkesztőt. A parancspalettáról is elindíthatja, akár fájl megtekintése közben.",
+    "Ha egy elem van kijelölve, csak a fájlnevét vagy a teljes elérési útját is a vágólapra másolhatja. Ezek a parancsok a fájlnézegetőből is működnek.",
+    "A „Megnyitás a natív fájlkezelőben” funkció mostantól a hálózati áttekintésből és az egyes hálózati számítógépek nézetéből is működik, és közvetlenül a Windows Intéző megfelelő helyére visz.",
+    "Az átviteli párbeszédablakok és a Windows üzenetablakai könnyebben áttekinthetők: a célhellyel kapcsolatos hibák egyértelműbbek, a több gombot tartalmazó párbeszédablakok pedig már nem szűkülnek keskeny oszloppá."
+  ]
+}

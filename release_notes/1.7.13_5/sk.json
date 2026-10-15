@@ -1,0 +1,14 @@
+{
+  "version": "1.7.13",
+  "build": 5,
+  "date": "2026-10-15",
+  "title": "Presúvanie súborov do aplikácií, bezpečnejšie prenosy vo Windows a jednoduchšie úpravy",
+  "notes": [
+    "Vo Windows vám funkcia Presunúť do naposledy použitej aplikácie umožňuje presunúť vybraný súbor alebo priečinok do inej aplikácie pomocou sprievodcu presúvaním myšou. Kurzor môžete ovládať klávesnicou a nové tlačidlo Pomocník zobrazí dostupné ovládacie prvky.",
+    "Používatelia Windows teraz môžu kopírovať alebo presúvať súbory s natívnou podporou nástroja Robocopy. Vyberte cieľ v druhom paneli alebo zadajte miestnu cestu či cestu UNC. Môžete nastaviť počet opakovaných pokusov a počet vlákien a voliteľne zaznamenávať priebeh prenosu.",
+    "Funkcia Nastaviť textový editor vám teraz pomôže nakonfigurovať editor pomocou pripravených predvolieb alebo vlastných argumentov. Môžete ju spustiť z palety príkazov, aj keď si práve prezeráte súbor.",
+    "Keď je vybratá jedna položka, môžete skopírovať do schránky iba jej názov súboru alebo celú cestu. Tieto príkazy fungujú aj v prehliadači súborov.",
+    "Možnosť Otvoriť v natívnom správcovi súborov teraz funguje v prehľade siete aj pri jednotlivých počítačoch v sieti a presmeruje vás priamo na zodpovedajúce umiestnenie v Prieskumníkovi Windows.",
+    "Výzvy na potvrdenie prenosu a systémové hlásenia Windows sa teraz ľahšie čítajú: chyby cieľového umiestnenia sú zrozumiteľnejšie a dialógové okná s viacerými tlačidlami sa už nezobrazujú v úzkom stĺpci."
+  ]
+}

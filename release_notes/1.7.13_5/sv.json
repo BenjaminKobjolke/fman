@@ -1,0 +1,14 @@
+{
+  "version": "1.7.13",
+  "build": 5,
+  "date": "2026-10-15",
+  "title": "Dra filer till appar, säkrare filöverföringar i Windows och enklare redigering",
+  "notes": [
+    "I Windows kan du med Dra till senast använda app skicka den markerade filen eller mappen till ett annat program genom att dra och släppa med hjälp av en guide. Du kan styra markören med tangentbordet, och den nya hjälpknappen visar vilka kontroller du kan använda.",
+    "Windows-användare kan nu kopiera eller flytta filer med inbyggt stöd för Robocopy. Välj en målplats i den andra panelen eller ange en lokal sökväg eller UNC-sökväg. Du kan även ställa in antal återförsök och trådning samt välja att spara överföringsloggar.",
+    "Med Ange textredigerare kan du nu konfigurera redigeraren med färdiga förinställningar eller egna argument. Du kan köra kommandot från kommandopaletten, även när du visar en fil.",
+    "När ett objekt är markerat kan du kopiera enbart filnamnet eller hela sökvägen till urklipp. Kommandona fungerar även i visaren.",
+    "Öppna inbyggd filhanterare fungerar nu från nätverksöversikten och från enskilda nätverksdatorer, och tar dig direkt till motsvarande plats i Utforskaren.",
+    "Överföringsmeddelanden och meddelanderutor i Windows är enklare att läsa: fel om målplatser är tydligare och dialogrutor med flera knappar visas inte längre som en smal kolumn."
+  ]
+}

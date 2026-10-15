@@ -1,0 +1,14 @@
+{
+  "version": "1.7.13",
+  "build": 5,
+  "date": "2026-10-15",
+  "title": "Kéo tệp vào ứng dụng, truyền tệp an toàn hơn trên Windows và chỉnh sửa dễ dàng hơn",
+  "notes": [
+    "Trên Windows, tính năng Kéo vào ứng dụng dùng gần đây nhất cho phép bạn gửi tệp hoặc thư mục đã chọn sang một ứng dụng khác bằng thao tác kéo-thả có hướng dẫn. Bạn có thể điều khiển con trỏ bằng bàn phím, và nút Trợ giúp mới sẽ hiển thị các phím điều khiển.",
+    "Người dùng Windows giờ đây có thể sao chép hoặc di chuyển tệp với hỗ trợ Robocopy tích hợp. Chọn đích ở khung bên kia hoặc nhập đường dẫn cục bộ hay UNC, đồng thời tùy chỉnh số lần thử lại, số luồng và bật nhật ký truyền tệp nếu muốn.",
+    "Tính năng Đặt trình soạn thảo văn bản giờ đây giúp bạn thiết lập trình soạn thảo bằng các cấu hình sẵn có hoặc đối số của riêng mình. Bạn có thể chạy tính năng này từ bảng lệnh, kể cả khi đang xem một tệp.",
+    "Khi chọn một mục, bạn có thể sao chép riêng tên tệp hoặc toàn bộ đường dẫn vào bảng nhớ tạm. Các lệnh này cũng hoạt động trong trình xem.",
+    "Tính năng Mở trình quản lý tệp gốc giờ đây hoạt động từ phần tổng quan mạng và từ từng máy tính trong mạng, đưa bạn thẳng đến vị trí tương ứng trong Windows Explorer.",
+    "Thông báo truyền tệp và hộp thoại Windows giờ đây dễ đọc hơn: lỗi đích đến được diễn đạt rõ ràng hơn, và các hộp thoại có nhiều nút sẽ không còn bị thu hẹp thành một cột."
+  ]
+}

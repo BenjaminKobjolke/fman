@@ -1,0 +1,14 @@
+{
+  "version": "1.7.13",
+  "build": 5,
+  "date": "2026-10-15",
+  "title": "Povlecite datoteke v aplikacije, varnejši prenosi v sistemu Windows in preprostejše urejanje",
+  "notes": [
+    "V sistemu Windows vam možnost »Povleci v nazadnje uporabljeno aplikacijo« omogoča, da izbrano datoteko ali mapo z vodenim dejanjem povleci-in-spusti prenesete v drugo aplikacijo. Kazalec lahko usmerjate s tipkovnico, novi gumb »Pomoč« pa prikaže razpoložljive ukaze.",
+    "Uporabniki sistema Windows lahko zdaj datoteke kopirajo ali premikajo z izvorno podporo za Robocopy. Izberite cilj v drugem podoknu ali vnesite lokalno pot oziroma pot UNC; določite lahko število ponovnih poskusov, večnitnost in po želji tudi dnevnike prenosov.",
+    "Možnost »Nastavi urejevalnik besedila« vam zdaj pomaga nastaviti urejevalnik z vnaprej pripravljenimi prednastavitvami ali lastnimi argumenti. Zaženete jo lahko v ukazni paleti, tudi med ogledom datoteke.",
+    "Ko je izbran en element, lahko v odložišče kopirate samo njegovo ime datoteke ali celotno pot. Ti ukazi delujejo tudi v pregledovalniku.",
+    "Možnost »Odpri izvorni upravitelj datotek« zdaj deluje v pregledu omrežja in pri posameznih računalnikih v omrežju ter vas popelje neposredno na ustrezno mesto v Raziskovalcu.",
+    "Obvestila o prenosu in sporočilna okna sistema Windows so zdaj preglednejša: napake pri cilju so jasneje prikazane, pogovorna okna z več gumbi pa se ne skrčijo več v ozek stolpec."
+  ]
+}

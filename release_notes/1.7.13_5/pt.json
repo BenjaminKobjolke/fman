@@ -1,0 +1,14 @@
+{
+  "version": "1.7.13",
+  "build": 5,
+  "date": "2026-10-15",
+  "title": "Arraste arquivos para aplicativos, transfira arquivos com mais segurança no Windows e edite com mais facilidade",
+  "notes": [
+    "No Windows, o recurso Arrastar para o último aplicativo usado permite enviar o arquivo ou a pasta selecionado para outro aplicativo com uma ação guiada de arrastar e soltar. Você pode controlar o cursor pelo teclado, e o novo botão Ajuda mostra os controles.",
+    "Agora, os usuários do Windows podem copiar ou mover arquivos com suporte nativo ao Robocopy. Escolha um destino no outro painel ou informe um caminho local ou UNC, com opções para configurar novas tentativas, multithreading e registros de transferência.",
+    "A opção Definir editor de texto agora ajuda você a configurar seu editor usando predefinições prontas ou argumentos próprios. Você pode executá-la pela paleta de comandos, inclusive enquanto visualiza um arquivo.",
+    "Quando um item está selecionado, você pode copiar apenas o nome do arquivo ou o caminho completo para a área de transferência. Esses comandos também funcionam no visualizador.",
+    "A opção Abrir gerenciador de arquivos nativo agora funciona na visão geral da rede e nos computadores individuais da rede, levando você diretamente ao local correspondente no Explorador de Arquivos do Windows.",
+    "Os avisos de transferência e as caixas de mensagem do Windows estão mais fáceis de ler: os erros de destino ficaram mais claros, e as caixas de diálogo com vários botões não ficam mais espremidas em uma coluna estreita."
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "version": "1.7.13",
+  "build": 5,
+  "date": "2026-10-15",
+  "title": "Trage fișiere în aplicații, transferuri Windows mai sigure și editare mai ușoară",
+  "notes": [
+    "În Windows, funcția „Trage în ultima aplicație folosită” îți permite să trimiți fișierul sau folderul selectat într-o altă aplicație, printr-o acțiune de glisare și fixare ghidată. Poți controla cursorul de la tastatură, iar noul buton „Ajutor” afișează comenzile.",
+    "Utilizatorii Windows pot acum să copieze sau să mute fișiere cu suport nativ pentru Robocopy. Alege o destinație în celălalt panou sau introdu o cale locală ori UNC, cu număr configurabil de reîncercări, opțiuni de procesare în paralel și jurnale de transfer opționale.",
+    "Opțiunea „Setează editorul de text” te ajută acum să configurezi editorul folosind presetări gata făcute sau argumente personalizate. O poți accesa din paleta de comenzi, inclusiv în timp ce vizualizezi un fișier.",
+    "Când este selectat un singur element, poți copia în clipboard doar numele fișierului sau calea completă. Aceste comenzi funcționează și din vizualizator.",
+    "Opțiunea „Deschide managerul de fișiere nativ” funcționează acum din ecranul general al rețelei și din paginile individuale ale computerelor din rețea, ducându-te direct la locația corespunzătoare din Windows Explorer.",
+    "Solicitările de confirmare pentru transfer și casetele de mesaje Windows sunt acum mai ușor de citit: erorile de destinație sunt mai clare, iar casetele de dialog cu mai multe butoane nu se mai îngustează într-o singură coloană."
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "version": "1.7.13",
+  "build": 5,
+  "date": "2026-10-15",
+  "title": "Træk filer til apps, sikrere filoverførsler i Windows og nemmere redigering",
+  "notes": [
+    "I Windows kan du med Træk til senest brugte app sende den valgte fil eller mappe til et andet program ved hjælp af en guidet træk-og-slip-handling. Du kan styre markøren med tastaturet, og den nye Hjælp-knap viser betjeningsmulighederne.",
+    "Windows-brugere kan nu kopiere eller flytte filer med indbygget Robocopy-understøttelse. Vælg en destination i den anden rude, eller angiv en lokal sti eller UNC-sti. Du kan konfigurere antal genforsøg og tråde samt vælge at oprette overførselslogfiler.",
+    "Med Indstil teksteditor kan du nu konfigurere din editor med færdige forudindstillinger eller dine egne argumenter. Du kan starte funktionen fra kommandopaletten, også mens du får vist en fil.",
+    "Når ét element er valgt, kan du kopiere enten kun dets filnavn eller hele stien til udklipsholderen. Disse kommandoer virker også i fremviseren.",
+    "Åbn indbygget filhåndtering virker nu fra netværksoversigten og fra de enkelte computere på netværket, så du går direkte til den tilsvarende placering i Windows Stifinder.",
+    "Overførselsmeddelelser og Windows-dialogbokse er nemmere at læse: Fejl ved destinationer er tydeligere, og dialogbokse med flere knapper bliver ikke længere klemt sammen i en smal kolonne."
+  ]
+}

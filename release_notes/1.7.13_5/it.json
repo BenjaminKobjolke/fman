@@ -1,0 +1,14 @@
+{
+  "version": "1.7.13",
+  "build": 5,
+  "date": "2026-10-15",
+  "title": "Trascina i file nelle app, trasferimenti Windows più sicuri e modifiche più semplici",
+  "notes": [
+    "Su Windows, la funzione «Trascina nell’ultima app usata» permette di inviare il file o la cartella selezionati a un’altra applicazione con un’operazione di trascinamento guidata. Puoi spostare il cursore con la tastiera e il nuovo pulsante «Guida» mostra i comandi.",
+    "Gli utenti Windows possono ora copiare o spostare file con il supporto nativo di Robocopy. Scegli una destinazione nell’altro pannello oppure inserisci un percorso locale o UNC, configurando i tentativi, il numero di thread e, facoltativamente, i registri dei trasferimenti.",
+    "La funzione «Imposta editor di testo» ora ti aiuta a configurare l’editor con preimpostazioni pronte all’uso o con argomenti personalizzati. Puoi avviarla dalla tavolozza dei comandi, anche mentre visualizzi un file.",
+    "Quando è selezionato un solo elemento, puoi copiare negli appunti solo il nome del file o il percorso completo. Questi comandi funzionano anche dal visualizzatore.",
+    "La funzione «Apri nel file manager nativo» è ora disponibile dalla panoramica della rete e dai singoli computer di rete e ti porta direttamente alla posizione corrispondente in Esplora file di Windows.",
+    "Le richieste di trasferimento e le finestre di messaggio di Windows sono più leggibili: gli errori di destinazione sono più chiari e le finestre di dialogo con più pulsanti non vengono più compresse in una colonna stretta."
+  ]
+}

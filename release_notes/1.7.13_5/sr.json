@@ -1,0 +1,14 @@
+{
+  "version": "1.7.13",
+  "build": 5,
+  "date": "2026-10-15",
+  "title": "Prevlačenje datoteka u aplikacije, bezbedniji prenosi u Windowsu i jednostavnije uređivanje",
+  "notes": [
+    "U Windowsu, opcija „Prevuci u poslednju korišćenu aplikaciju“ omogućava da izabranu datoteku ili fasciklu prevučete u drugu aplikaciju pomoću vođenog postupka prevlačenja i otpuštanja. Pokazivačem možete upravljati pomoću tastature, a novo dugme „Pomoć“ prikazuje dostupne kontrole.",
+    "Korisnici Windowsa sada mogu da kopiraju ili premeštaju datoteke uz nativnu podršku za Robocopy. Izaberite odredište u drugom oknu ili unesite lokalnu ili UNC putanju, uz mogućnost podešavanja broja ponovnih pokušaja i broja niti, kao i uključivanja evidencije prenosa.",
+    "Opcija „Podesi uređivač teksta“ sada vam pomaže da podesite uređivač pomoću gotovih podešavanja ili sopstvenih argumenata. Možete je pokrenuti iz palete komandi, uključujući i dok pregledate datoteku.",
+    "Kada je izabrana jedna stavka, možete da kopirate samo njen naziv datoteke ili celu putanju u ostavu. Ove komande rade i u prikazivaču.",
+    "Opcija „Otvori nativni upravljač datotekama“ sada radi iz pregleda mreže i sa pojedinačnih računara na mreži, vodeći vas direktno do odgovarajuće lokacije u Windows Exploreru.",
+    "Obaveštenja o prenosu i Windows dijalozi sa porukama sada su pregledniji: greške u vezi sa odredištem jasnije su prikazane, a dijalozi sa više dugmadi više se ne skupljaju u usku kolonu."
+  ]
+}

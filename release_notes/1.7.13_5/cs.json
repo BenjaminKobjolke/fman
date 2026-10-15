@@ -1,0 +1,14 @@
+{
+  "version": "1.7.13",
+  "build": 5,
+  "date": "2026-10-15",
+  "title": "Přetahování souborů do aplikací, bezpečnější přenosy ve Windows a snazší úpravy",
+  "notes": [
+    "Ve Windows vám funkce Přetáhnout do naposledy použité aplikace umožňuje pomocí řízeného přetažení odeslat vybraný soubor nebo složku do jiné aplikace. Kurzor můžete ovládat klávesnicí a novým tlačítkem Nápověda zobrazíte příslušné ovládací prvky.",
+    "Uživatelé Windows nyní mohou kopírovat nebo přesouvat soubory pomocí nativní podpory nástroje Robocopy. Vyberte cíl v druhém panelu nebo zadejte místní cestu či cestu UNC; můžete nastavit počet opakovaných pokusů, vícevláknové zpracování i volitelné protokoly přenosu.",
+    "Funkce Nastavit textový editor vám nyní pomůže nakonfigurovat editor pomocí přednastavených hodnot nebo vlastních argumentů. Můžete ji spustit z palety příkazů, a to i při prohlížení souboru.",
+    "Když je vybrána jedna položka, můžete do schránky zkopírovat pouze její název souboru nebo úplnou cestu. Tyto příkazy fungují také v prohlížeči.",
+    "Funkce Otevřít nativního správce souborů nyní funguje z přehledu sítě i z jednotlivých počítačů v síti a přenese vás přímo na odpovídající umístění v Průzkumníku Windows.",
+    "Výzvy k přenosu a okna se zprávami ve Windows se nyní čtou snáze: chyby cílového umístění jsou jasnější a dialogová okna s několika tlačítky se už nesmršťují do úzkého sloupce."
+  ]
+}

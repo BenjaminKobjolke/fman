@@ -1,0 +1,14 @@
+{
+  "version": "1.7.13",
+  "build": 5,
+  "date": "2026-10-15",
+  "title": "Tiedostojen vetäminen sovelluksiin, turvallisemmat Windows-siirrot ja helpompi muokkaus",
+  "notes": [
+    "Windowsissa Viimeksi käytettyyn sovellukseen vetäminen -toiminnolla voit lähettää valitun tiedoston tai kansion toiseen sovellukseen ohjatun vedä ja pudota -toiminnon avulla. Voit ohjata kohdistinta näppäimistöllä, ja uusi Ohje-painike näyttää käytettävissä olevat ohjaimet.",
+    "Windows-käyttäjät voivat nyt kopioida tai siirtää tiedostoja Robocopyn natiivin tuen avulla. Valitse kohde toisesta ruudusta tai anna paikallinen polku tai UNC-polku. Voit myös määrittää uudelleenyritykset ja säikeet sekä ottaa siirtolokit käyttöön.",
+    "Aseta tekstieditori -toiminto auttaa määrittämään editorin valmiiden määritysten tai omien argumenttien avulla. Voit käynnistää sen komentopaletista myös tiedostoa katsellessasi.",
+    "Kun valittuna on yksi kohde, voit kopioida leikepöydälle pelkän tiedostonimen tai koko polun. Nämä komennot toimivat myös katseluohjelmassa.",
+    "Avaa natiivi tiedostonhallinta toimii nyt verkkonäkymästä ja yksittäisten verkkotietokoneiden näkymistä. Se avaa suoraan vastaavan sijainnin Windowsin Resurssienhallinnassa.",
+    "Siirtokehotteita ja Windowsin viestiruutuja on helpompi lukea: kohdevirheet ovat selkeämpiä, eivätkä useita painikkeita sisältävät valintaikkunat enää kutistu kapeaksi sarakkeeksi."
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "version": "1.7.13",
+  "build": 5,
+  "date": "2026-10-15",
+  "title": "Velciet failus uz lietotnēm, drošāka pārsūtīšana Windows vidē un vienkāršāka rediģēšana",
+  "notes": [
+    "Windows vidē funkcija “Vilkt uz pēdējo izmantoto lietotni” ļauj atlasīto failu vai mapi ar vedņa palīdzību vilkšanas un nomešanas veidā pārsūtīt uz citu lietotni. Varat vadīt kursoru ar tastatūru, un jaunā poga “Palīdzība” parāda vadīklas.",
+    "Windows lietotāji tagad var kopēt vai pārvietot failus, izmantojot iebūvēto Robocopy atbalstu. Izvēlieties mērķi otrā rūtī vai ievadiet lokālu vai UNC ceļu, kā arī konfigurējiet atkārtotus mēģinājumus un pavedienus un pēc izvēles saglabājiet pārsūtīšanas žurnālus.",
+    "Funkcija “Iestatīt teksta redaktoru” tagad palīdz konfigurēt redaktoru, izmantojot gatavus iestatījumus vai savus argumentus. To var palaist komandu paletē, arī faila skatīšanas laikā.",
+    "Kad ir atlasīts viens vienums, starpliktuvē var kopēt tikai tā faila nosaukumu vai pilnu ceļu. Šīs komandas darbojas arī skatītājā.",
+    "Funkcija “Atvērt iebūvēto failu pārvaldnieku” tagad darbojas tīkla pārskatā un atsevišķu tīkla datoru skatos, novirzot tieši uz atbilstošo atrašanās vietu Windows Explorer.",
+    "Paziņojumus par pārsūtīšanu un Windows ziņojumu logus tagad ir vieglāk lasīt: mērķa kļūdas ir skaidrākas, un dialoglodziņi ar vairākām pogām vairs nesaplūst šaurā kolonnā."
+  ]
+}
