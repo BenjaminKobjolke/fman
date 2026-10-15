@@ -3,11 +3,14 @@ cd "%~dp0.."
 call "%~dp0update_windrop.bat"
 @set "RESULT=%ERRORLEVEL%"
 @if not "%RESULT%"=="0" goto :done
+call "%~dp0find_build_python.bat"
+@set "RESULT=%ERRORLEVEL%"
+@if not "%RESULT%"=="0" goto :done
 @REM A fman started from target\fman locks the files freeze() replaces.
 powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0close_running_fman.ps1" -Directory "%~dp0..\target\fman" <NUL
 @set "RESULT=%ERRORLEVEL%"
 @if not "%RESULT%"=="0" goto :done
-call python build.py freeze
+call "%FMAN_PYTHON%" build.py freeze
 @set "RESULT=%ERRORLEVEL%"
 :done
 cd "%~dp0"

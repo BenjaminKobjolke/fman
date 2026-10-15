@@ -71,23 +71,57 @@ def check_release_version():
             scripts / "release" / "build_number.py",
         )
         shutil.copyfile(TOOLS / "build_release.bat", scripts / "build_release.bat")
+        find_build_python = TOOLS / "find_build_python.bat"
+        if find_build_python.exists():
+            shutil.copyfile(find_build_python, scripts / find_build_python.name)
         copy_with_fake_tool("github_release.bat", scripts, fake_tool)
         copy_with_fake_tool("release_create.bat", scripts, fake_tool)
         build = scripts / "build_release.bat"
         publish = scripts / "github_release.bat"
         record = root / "target" / "release_version.txt"
         installer = root / "target" / "fmanSetup.exe"
+        fake_site = root / "fake_site"
+        (fake_site / "fbs").mkdir(parents=True)
+        (fake_site / "fbs" / "__init__.py").write_text("")
 
         previous_path = os.environ.get("PATH", "")
+        previous_pythonpath = os.environ.get("PYTHONPATH")
+        previous_virtual_env = os.environ.get("VIRTUAL_ENV")
         os.environ["PATH"] = os.pathsep.join(
             [str(fake_tool), str(Path(sys.executable).parent), previous_path]
         )
+        os.environ["PYTHONPATH"] = str(fake_site)
         try:
             result = run_batch(build)
             assert result.returncode == 0, result.stdout + result.stderr
             assert record.read_text().strip() == "1.0.0_504", (
                 "Build must record its label"
             )
+
+            # The watcher and uv venv can both precede the system interpreter.
+            watcher_venv = root / "watcher_venv" / "Scripts"
+            uv_venv = root / "uv_venv" / "Scripts"
+            for scripts_dir in (watcher_venv, uv_venv):
+                scripts_dir.mkdir(parents=True)
+                (scripts_dir / "python.cmd").write_text("@exit /b 9\n")
+            os.environ["PATH"] = os.pathsep.join(
+                [str(watcher_venv), str(uv_venv), str(fake_tool),
+                 str(Path(sys.executable).parent), previous_path]
+            )
+            os.environ["VIRTUAL_ENV"] = str(uv_venv.parent)
+            result = run_batch(build)
+            assert result.returncode == 0, (
+                "Build must skip stacked venvs whose python lacks fbs: "
+                + result.stdout + result.stderr
+            )
+            assert record.read_text().strip() == "1.0.0_504"
+            os.environ["PATH"] = os.pathsep.join(
+                [str(fake_tool), str(Path(sys.executable).parent), previous_path]
+            )
+            if previous_virtual_env is None:
+                os.environ.pop("VIRTUAL_ENV", None)
+            else:
+                os.environ["VIRTUAL_ENV"] = previous_virtual_env
 
             # The source counter moves on (next release in preparation) while
             # the 504 installer is still waiting to be published.
@@ -147,6 +181,14 @@ def check_release_version():
             )
         finally:
             os.environ["PATH"] = previous_path
+            if previous_pythonpath is None:
+                os.environ.pop("PYTHONPATH", None)
+            else:
+                os.environ["PYTHONPATH"] = previous_pythonpath
+            if previous_virtual_env is None:
+                os.environ.pop("VIRTUAL_ENV", None)
+            else:
+                os.environ["VIRTUAL_ENV"] = previous_virtual_env
 
 
 if __name__ == "__main__":

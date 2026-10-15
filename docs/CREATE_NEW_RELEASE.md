@@ -36,7 +36,10 @@ remain the manual path:
 4. Runs `tools\translate_release_notes.bat` (step 3).
 5. Runs `tools\build_release.bat`: `python build.py release_build`, i.e. clean +
    release profile + freeze, sign, installer, sign the installer. On success it
-   records the label in `target\release_version.txt`, next to the installer.
+   records the label in `target\release_version.txt`, next to the installer. The
+   build bats use the first `python` on `PATH` that can import `fbs`
+   (`tools\find_build_python.bat`), skipping venvs in front of it, such as those
+   stacked when started from the Tickets Watcher.
 6. **Asks** `Commit, tag and push <label>?` — `git add -A`, commit
    `RELEASE (fman): <label>`, tag `<label>`, push both.
 7. **Asks** `Create GitHub Release <label>?` — only offered if 6 ran. Uploads
