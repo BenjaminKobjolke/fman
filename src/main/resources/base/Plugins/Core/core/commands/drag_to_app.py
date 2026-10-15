@@ -1,4 +1,10 @@
-"""Drag selected local files to the last used app window on Windows."""
+"""Hand selected local files to windrop, aimed at the last used app window.
+
+A drag fman fakes with DoDragDrop (no mouse button held) is rejected by many
+apps. windrop (github.com/BenjaminKobjolke/windrop) shows a small card at the
+cursor that the user drags from with the real mouse, so fman only focuses the
+target, puts the cursor on its center and launches windrop there.
+"""
 from fman import DirectoryPaneCommand, show_alert
 from fbs_runtime.platform import is_windows
 from fman.impl.util.qt.thread import run_in_main_thread
@@ -6,7 +12,7 @@ from fman.url import as_human_readable, splitscheme
 from fman.impl.widgets import MessageBox
 
 from collections import namedtuple
-from contextlib import contextmanager
+from core.settings import SETTINGS_FILE, get_setting
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QMessageBox
@@ -14,13 +20,7 @@ from PyQt5.QtWidgets import QMessageBox
 import ctypes
 import ctypes.wintypes
 import os
-import threading
-import time
-
-try:
-	import pythoncom
-except ImportError:
-	pythoncom = None
+import subprocess
 
 __all__ = ['DragToLastUsedApp']
 
@@ -28,22 +28,16 @@ _Window = namedtuple(
 	'_Window',
 	'hwnd pid title visible minimized tool_window cloaked topmost'
 )
-_S_OK = 0
-_DRAGDROP_S_DROP = 0x00040100
-_DRAGDROP_S_CANCEL = 0x00040101
-_DRAGDROP_S_USEDEFAULTCURSORS = 0x00040102
-# ponytail: a fixed delay lets the target answer a few DragOver rounds; make it
-# configurable only if a real app needs longer.
-_DROP_DELAY = .4
-_MINIMIZE_DELAY = .5  # Wait for the minimize animation before hit-testing the target.
+_WINDROP_SETTING = 'windrop_path'
+# Vendored by tools/update_windrop.bat, next to 7za.exe (see core/fs/zip.py).
+_BUNDLED_WINDROP = os.path.join(
+	os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+	'bin', 'windows', 'windrop.exe'
+)
 
 
 class DragToLastUsedApp(DirectoryPaneCommand):
-	"""Copy files to another app; elevated or non-droppable targets may fail.
-
-	An elevated target with non-elevated fman blocks the drop (UIPI), and the
-	target app must accept file drops at its window center.
-	"""
+	"""Focus the last used app and open windrop on its center for the files."""
 
 	aliases = 'Drag to last used app',
 
@@ -59,14 +53,20 @@ class DragToLastUsedApp(DirectoryPaneCommand):
 		if any(splitscheme(url)[0] != 'file://' for url in chosen):
 			show_alert('Drag to last used app only supports local files.')
 			return
+		windrop = _find_windrop()
+		if windrop is None:
+			show_alert(
+				'windrop.exe not found at %s. Run tools/update_windrop.bat or '
+				'set "%s" in %s.' % (_BUNDLED_WINDROP, _WINDROP_SETTING, SETTINGS_FILE)
+			)
+			return
 		paths = [as_human_readable(url) for url in chosen]
 		target = _pick_target(_enumerate_windows(), os.getpid())
 		if target is None:
 			show_alert('No other app window found.')
 			return
 		hwnd = target.hwnd
-		title = target.title
-		exe = _get_exe_name(target.pid)
+		import win32api
 		import win32con
 		import win32gui
 		win32gui.SetWindowPos(
@@ -75,44 +75,30 @@ class DragToLastUsedApp(DirectoryPaneCommand):
 			win32con.SWP_NOACTIVATE
 		)
 		main_window = self.pane.window._widget
-		if not _confirm_drag(main_window, len(paths), title, exe):
+		if not _confirm_drag(
+				main_window, len(paths), target.title, _get_exe_name(target.pid)):
 			return
 		win32gui.SetForegroundWindow(hwnd)
-		message = None
-		with _main_window_minimized(main_window):
-			left, top, right, bottom = win32gui.GetWindowRect(hwnd)
-			center = ((left + right) // 2, (top + bottom) // 2)
-			if win32gui.GetAncestor(
-					win32gui.WindowFromPoint(center), win32con.GA_ROOT) != hwnd:
-				message = 'The center of "%s" is covered by another window.' % title
-			elif _drop_files(paths, center) == 0:
-				message = '"%s" did not accept the files.' % title
-		if message:
-			show_alert(message)
+		left, top, right, bottom = win32gui.GetWindowRect(hwnd)
+		# windrop opens its card at the cursor.
+		win32api.SetCursorPos(((left + right) // 2, (top + bottom) // 2))
+		# windrop owns the drag, cancel and result from here; don't wait on it.
+		subprocess.Popen(
+			_windrop_command(windrop, paths),
+			creationflags=subprocess.CREATE_NO_WINDOW
+		)
 
 
-@run_in_main_thread
-def _minimize_window(main_window):
-	state = main_window.windowState()
-	main_window.setWindowState(Qt.WindowMinimized)
-	return state
+def _find_windrop():
+	# The setting overrides the bundled exe, e.g. to try a fresh windrop build.
+	configured = get_setting(SETTINGS_FILE, _WINDROP_SETTING)
+	if configured and os.path.isfile(configured):
+		return configured
+	return _BUNDLED_WINDROP if os.path.isfile(_BUNDLED_WINDROP) else None
 
 
-@run_in_main_thread
-def _restore_window(main_window, state):
-	main_window.setWindowState(state)
-	main_window.raise_()
-	main_window.activateWindow()
-
-
-@contextmanager
-def _main_window_minimized(main_window):
-	state = _minimize_window(main_window)
-	try:
-		time.sleep(_MINIMIZE_DELAY)
-		yield
-	finally:
-		_restore_window(main_window, state)
+def _windrop_command(windrop, paths):
+	return [windrop, *paths]
 
 
 @run_in_main_thread
@@ -135,76 +121,6 @@ def _confirm_drag(main_window, file_count, title, exe):
 		main_window.raise_()
 		main_window.activateWindow()
 	return accepted
-
-
-def _drop_decision(escape_pressed, now, drop_at):
-	if escape_pressed:
-		return _DRAGDROP_S_CANCEL
-	if now >= drop_at:
-		return _DRAGDROP_S_DROP
-	return _S_OK
-
-
-class _DropSource:
-	_com_interfaces_ = (
-		[pythoncom.IID_IDropSource] if pythoncom is not None else []
-	)
-	_public_methods_ = ['QueryContinueDrag', 'GiveFeedback']
-
-	def __init__(self, drop_at):
-		self._drop_at = drop_at
-
-	def QueryContinueDrag(self, escape_pressed, key_state):
-		return _drop_decision(escape_pressed, time.monotonic(), self._drop_at)
-
-	def GiveFeedback(self, effect):
-		return _DRAGDROP_S_USEDEFAULTCURSORS
-
-
-@run_in_main_thread
-def _drop_files(paths, point):
-	import win32api
-	from win32com.server.util import wrap
-	from win32com.shell import shell, shellcon
-
-	desktop = shell.SHGetDesktopFolder()
-	parent = os.path.dirname(paths[0])
-	parent_pidl = desktop.ParseDisplayName(0, None, parent, 0)[1]
-	folder = desktop.BindToObject(parent_pidl, None, shell.IID_IShellFolder)
-	children = [
-		folder.ParseDisplayName(0, None, os.path.basename(path), 0)[1]
-		for path in paths
-	]
-	data_object = folder.GetUIObjectOf(
-		0, children, pythoncom.IID_IDataObject, 0
-	)[1]
-
-	original_position = win32api.GetCursorPos()
-	win32api.SetCursorPos(point)
-	stop_nudging = threading.Event()
-
-	def nudge_cursor():
-		started = time.monotonic()
-		while (not stop_nudging.wait(.05) and
-		       time.monotonic() - started < 3):
-			win32api.SetCursorPos((point[0] + 1, point[1]))
-			if stop_nudging.wait(.05):
-				break
-			win32api.SetCursorPos(point)
-
-	nudger = threading.Thread(target=nudge_cursor, daemon=True)
-	nudger.start()
-	try:
-		return pythoncom.DoDragDrop(
-			data_object,
-			wrap(_DropSource(time.monotonic() + _DROP_DELAY),
-			     pythoncom.IID_IDropSource),
-			shellcon.DROPEFFECT_COPY,
-		)
-	finally:
-		stop_nudging.set()
-		nudger.join(.1)
-		win32api.SetCursorPos(original_position)
 
 
 def _get_exe_name(pid):

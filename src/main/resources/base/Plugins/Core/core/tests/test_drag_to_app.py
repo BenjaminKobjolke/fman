@@ -1,65 +1,57 @@
+import os
 import sys
 from unittest import TestCase, skipUnless
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 from fbs_runtime.platform import is_windows
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QMainWindow
 
 from core.commands.drag_to_app import (
-	_DRAGDROP_S_CANCEL,
-	_DRAGDROP_S_DROP,
-	_MINIMIZE_DELAY,
-	_S_OK,
+	_BUNDLED_WINDROP,
 	_Window,
-	_main_window_minimized,
-	_drop_decision,
 	_enumerate_windows,
+	_find_windrop,
 	_pick_target,
+	_windrop_command,
 )
 
 
-class MainWindowMinimizedTest(TestCase):
-	def setUp(self):
-		self.main_window = MagicMock(spec=QMainWindow)
-		self.main_window.windowState.return_value = Qt.WindowMaximized
+class FindWindropTest(TestCase):
+	def _find(self, setting, existing):
+		with patch('core.commands.drag_to_app.get_setting',
+		           return_value=setting), \
+		     patch('core.commands.drag_to_app.os.path.isfile',
+		           side_effect=lambda path: path in existing):
+			return _find_windrop()
 
-	def test_minimizes_then_restores_saved_state(self):
-		with patch('core.commands.drag_to_app.time.sleep'):
-			with _main_window_minimized(self.main_window):
-				self.main_window.setWindowState.assert_called_once_with(
-					Qt.WindowMinimized
-				)
-
+	def test_setting_wins_over_bundled(self):
 		self.assertEqual(
-			Qt.WindowMaximized,
-			self.main_window.setWindowState.call_args_list[-1].args[0],
-		)
-		self.main_window.raise_.assert_called_once_with()
-		self.main_window.activateWindow.assert_called_once_with()
-
-	def test_restores_when_body_raises(self):
-		with patch('core.commands.drag_to_app.time.sleep'):
-			with self.assertRaises(ValueError):
-				with _main_window_minimized(self.main_window):
-					raise ValueError
-
-		self.assertEqual(
-			Qt.WindowMaximized,
-			self.main_window.setWindowState.call_args_list[-1].args[0],
+			r'C:\tools\windrop.exe',
+			self._find(r'C:\tools\windrop.exe',
+			           {r'C:\tools\windrop.exe', _BUNDLED_WINDROP})
 		)
 
-	def test_waits_before_yielding(self):
-		calls = []
-		with patch('core.commands.drag_to_app.time.sleep',
-		           side_effect=lambda delay: calls.append(('sleep', delay))):
-			with _main_window_minimized(self.main_window):
-				calls.append(('body', None))
+	def test_falls_back_to_bundled(self):
+		self.assertEqual(_BUNDLED_WINDROP, self._find(None, {_BUNDLED_WINDROP}))
 
-		self.assertEqual([
-			('sleep', _MINIMIZE_DELAY),
-			('body', None),
-		], calls)
+	def test_ignores_setting_that_points_nowhere(self):
+		self.assertEqual(
+			_BUNDLED_WINDROP,
+			self._find(r'C:\gone\windrop.exe', {_BUNDLED_WINDROP})
+		)
+
+	def test_none_when_missing(self):
+		self.assertIsNone(self._find(None, set()))
+
+	def test_bundled_exe_is_shipped(self):
+		self.assertTrue(os.path.isfile(_BUNDLED_WINDROP))
+
+
+class WindropCommandTest(TestCase):
+	def test_passes_paths_as_arguments(self):
+		self.assertEqual(
+			['windrop.exe', r'C:\a b.txt', r'C:\c.txt'],
+			_windrop_command('windrop.exe', [r'C:\a b.txt', r'C:\c.txt'])
+		)
 
 
 @skipUnless(is_windows(), 'Windows-only window enumeration')
@@ -114,17 +106,3 @@ class PickTargetTest(TestCase):
 		clock = _Window(1, 20, 'clock', True, False, False, False, True)
 
 		self.assertEqual(clock, _pick_target([clock], own_pid=10))
-
-
-class DropDecisionTest(TestCase):
-	def test_escape_cancels(self):
-		self.assertEqual(_DRAGDROP_S_CANCEL, _drop_decision(True, 0, 0))
-
-	def test_waits_before_drop_deadline(self):
-		self.assertEqual(_S_OK, _drop_decision(False, 1, 2))
-
-	def test_drops_at_deadline(self):
-		self.assertEqual(_DRAGDROP_S_DROP, _drop_decision(False, 2, 2))
-
-	def test_escape_wins_over_elapsed_deadline(self):
-		self.assertEqual(_DRAGDROP_S_CANCEL, _drop_decision(True, 2, 1))
