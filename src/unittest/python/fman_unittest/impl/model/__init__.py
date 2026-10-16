@@ -1,10 +1,9 @@
-from fman.fs import FileSystem, cached
-from fman.impl.util import filenotfounderror
+from fman_test_support import CachedStubFileSystem
 from fman.impl.util.path import normalize
 from fman.url import splitscheme, basename, dirname
 from io import UnsupportedOperation
 
-class StubFileSystem(FileSystem):
+class StubFileSystem(CachedStubFileSystem):
 
 	scheme = 'stub://'
 
@@ -22,25 +21,6 @@ class StubFileSystem(FileSystem):
 		except KeyError:
 			raise FileNotFoundError(path) from None
 		return list(items.get('files', []))
-	@cached # Mirror a typical implementation
-	def is_dir(self, existing_path):
-		path_resolved = normalize(existing_path)
-		try:
-			item = self._items[path_resolved]
-		except KeyError:
-			raise filenotfounderror(existing_path)
-		return item.get('is_dir', False)
-	@cached # Mirror a typical implementation
-	def size_bytes(self, path):
-		return self._items[normalize(path)].get('size', 1)
-	@cached # Mirror a typical implementation
-	def modified_datetime(self, path):
-		return self._items[normalize(path)].get('mtime', 1473339041.0)
-	def touch(self, path):
-		file_existed = self.exists(path)
-		self._items[normalize(path)] = {}
-		if not file_existed:
-			self.notify_file_added(path)
 	def mkdir(self, path):
 		if self.exists(path):
 			raise FileExistsError(path)

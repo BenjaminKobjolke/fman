@@ -4,7 +4,7 @@ REM because they spawn 7za.exe as a real subprocess and can hang under
 REM AV/EDR interference or resource contention.
 setlocal
 set ROOT=%~dp0..
-set PYTHONPATH=%ROOT%\src\main\python
+set PYTHONPATH=%ROOT%\src\main\python;%ROOT%\src\unittest\python
 call "%~dp0unittest_with_timeout.bat" discover -v -p "zip_test.py" ^
 	-s "%ROOT%\src\main\resources\base\Plugins\Core\core\tests\fs" ^
 	-t "%ROOT%\src\main\resources\base\Plugins\Core"
