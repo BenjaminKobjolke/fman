@@ -116,7 +116,8 @@ class ConfigureEditorTest(TestCase):
 			return_value='/applications'):
 			configure_editor()
 		self.show_file_open_dialog.assert_called_once_with(
-			'Pick an Editor', '/applications', editor_module._PLATFORM_APPLICATIONS_FILTER[
+			'Pick an Editor', '/applications',
+			editor_module._PLATFORM_APPLICATIONS_FILTER[
 				editor_module.PLATFORM
 			]
 		)
@@ -142,7 +143,9 @@ class OpenWithEditorConfigurationTest(TestCase):
 		settings = {}
 		with patch.object(editor_module, 'load_json', return_value=settings), \
 			patch.object(editor_module, 'show_alert', return_value=OK), \
-			patch.object(editor_module, 'configure_editor', return_value={'args': []}) as wizard:
+			patch.object(
+				editor_module, 'configure_editor', return_value={'args': []}
+			) as wizard:
 			self.assertEqual(
 				{'args': []}, editor_module.OpenWithEditor(None)._get_editor()
 			)

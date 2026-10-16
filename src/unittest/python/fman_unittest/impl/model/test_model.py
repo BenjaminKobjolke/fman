@@ -7,7 +7,7 @@ from fman.impl.util.qt.thread import Executor
 from fman.url import basename, splitscheme
 from fman_unittest.impl.model import StubFileSystem
 from PyQt5.QtCore import QObject, pyqtSignal
-from random import shuffle, random
+from random import shuffle
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 

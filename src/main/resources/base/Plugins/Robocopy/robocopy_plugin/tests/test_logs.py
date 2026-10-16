@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 import tempfile
 import unittest
@@ -39,4 +38,6 @@ class TransferLogTest(unittest.TestCase):
 	def test_path_is_inside_local_robocopy_log_directory(self):
 		with tempfile.TemporaryDirectory() as temporary:
 			path = Path(choose_path(temporary))
-			self.assertEqual(Path(temporary) / 'Local' / 'Robocopy' / 'Logs', path.parent)
+			self.assertEqual(
+				Path(temporary) / 'Local' / 'Robocopy' / 'Logs', path.parent
+			)

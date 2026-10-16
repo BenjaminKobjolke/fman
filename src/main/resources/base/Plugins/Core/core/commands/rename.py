@@ -79,7 +79,7 @@ def rename_to(pane, file_url, new_name):
 def _place_cursor_at(pane, url):
 	try:
 		pane.place_cursor_at(url)
-	except ValueError as file_disappeared:
+	except ValueError:
 		pass
 
 class _Rename(Task):

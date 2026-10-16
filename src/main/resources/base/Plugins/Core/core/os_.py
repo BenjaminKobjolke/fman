@@ -60,7 +60,7 @@ def open_native_file_manager(dir_path):
 				try:
 					fpl = \
 						check_output(['dconf', 'read', _FOCUS_PREVENTION_LEVEL])
-				except FileNotFoundError as dconf_not_installed:
+				except FileNotFoundError:
 					pass
 				else:
 					if fpl in (b'', b'1\n'):

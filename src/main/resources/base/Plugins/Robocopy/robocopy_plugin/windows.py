@@ -79,7 +79,9 @@ def case_sensitive(path: str) -> bool:
 	"""Read the case-sensitive-directory flag without following a reparse point."""
 	kernel = api()
 	handle = kernel.CreateFileW(path, _FILE_READ_ATTRIBUTES, _FILE_SHARE_ALL, None,
-		_OPEN_EXISTING, _FILE_FLAG_BACKUP_SEMANTICS | _FILE_FLAG_OPEN_REPARSE_POINT, None)
+		_OPEN_EXISTING,
+		_FILE_FLAG_BACKUP_SEMANTICS | _FILE_FLAG_OPEN_REPARSE_POINT, None
+	)
 	if handle == wintypes.HANDLE(-1).value:
 		raise ctypes.WinError(ctypes.get_last_error())
 	try:
@@ -95,7 +97,9 @@ def case_sensitive(path: str) -> bool:
 		kernel.CloseHandle(handle)
 
 
-def filenames(directory: str, check: Callable[[], None] = lambda: None) -> Iterable[tuple[str, str]]:
+def filenames(
+		directory: str, check: Callable[[], None] = lambda: None
+) -> Iterable[tuple[str, str]]:
 	"""Yield long and 8.3 names, closing the Win32 search handle on every exit."""
 	kernel = api()
 	data = _FindData()
@@ -173,7 +177,9 @@ def run(arguments: Iterable[str], check: Callable[[], None] = lambda: None,
 		while process.poll() is None:
 			check()
 			if timeout is not None and monotonic() - started >= timeout:
-				raise TimeoutError('Robocopy did not finish within %s seconds.' % timeout)
+				raise TimeoutError(
+					'Robocopy did not finish within %s seconds.' % timeout
+				)
 			sleep(_POLL_INTERVAL)
 		code = process.wait()
 		reader.join(2)

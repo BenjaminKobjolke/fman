@@ -8,7 +8,6 @@ from unittest.mock import Mock, patch
 from robocopy_plugin import CopyWithRobocopy, MoveWithRobocopy, _invoke
 from robocopy_plugin import _lock
 from fman.impl.plugins.discover import find_plugin_dirs
-from fman import PLATFORM
 from fman.url import as_human_readable
 
 
@@ -36,10 +35,17 @@ class CommandTest(TestCase):
 		self.pane.window.get_panes.return_value = [self.pane, other]
 		other.get_path.return_value = 'file:///C:/other'
 		plan = Mock(jobs=())
-		with patch('robocopy_plugin.fman.show_prompt', return_value=('C:\\dest', True)), \
+		with patch(
+			'robocopy_plugin.fman.show_prompt', return_value=('C:\\dest', True)
+		), \
 				patch('robocopy_plugin.fman.load_json', return_value={}), \
-				patch('robocopy_plugin.windows.executable', return_value='C:\\Windows\\robocopy.exe'), \
-				patch('robocopy_plugin.planner.prepare', return_value=plan) as prepare, \
+				patch(
+					'robocopy_plugin.windows.executable',
+					return_value='C:\\Windows\\robocopy.exe'
+				), \
+				patch(
+					'robocopy_plugin.planner.prepare', return_value=plan
+				) as prepare, \
 				patch('robocopy_plugin.planner.probe') as probe, \
 				patch('robocopy_plugin.fman.submit_task') as submit:
 			_invoke('move', MoveWithRobocopy(self.pane))
@@ -54,9 +60,13 @@ class CommandTest(TestCase):
 		other = self.pane.window.get_panes.return_value[1]
 		other.get_path.return_value = 'file:///C:/other'
 		self.pane.get_selected_files.return_value = ['file:///C:/source/file.txt']
-		with patch('robocopy_plugin.fman.show_prompt', return_value=('', False)) as prompt:
+		with patch(
+			'robocopy_plugin.fman.show_prompt', return_value=('', False)
+		) as prompt:
 			_invoke('copy', CopyWithRobocopy(self.pane))
-		self.assertEqual(as_human_readable('file:///C:/other'), prompt.call_args.args[1])
+		self.assertEqual(
+			as_human_readable('file:///C:/other'), prompt.call_args.args[1]
+		)
 		self.assertEqual(0, prompt.call_args.args[2])
 		self.assertIsNone(prompt.call_args.args[3])
 
@@ -85,7 +95,9 @@ class CommandTest(TestCase):
 	def test_copy_and_move_commands_dispatch_the_action(self, invoke):
 		CopyWithRobocopy(self.pane)()
 		MoveWithRobocopy(self.pane)()
-		self.assertEqual(['copy', 'move'], [call.args[0] for call in invoke.call_args_list])
+		self.assertEqual(
+			['copy', 'move'], [call.args[0] for call in invoke.call_args_list]
+		)
 
 	def test_an_active_operation_is_rejected(self):
 		self.assertTrue(_lock.acquire(blocking=False))
@@ -101,5 +113,7 @@ class CommandTest(TestCase):
 			shipped = Path(root) / 'Plugins'
 			robocopy = shipped / 'Robocopy'
 			robocopy.mkdir(parents=True)
-			found = find_plugin_dirs(str(shipped), str(Path(root) / 'thirdparty'), str(Path(root) / 'user'))
+			found = find_plugin_dirs(
+				str(shipped), str(Path(root) / 'thirdparty'), str(Path(root) / 'user')
+			)
 			self.assertIn(str(robocopy), found)

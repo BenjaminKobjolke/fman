@@ -18,9 +18,9 @@ class KeyBindings:
 			for binding in bindings:
 				try:
 					self._sanitized_bindings.remove(binding)
-				except ValueError as not_in_list:
+				except ValueError:
 					pass
-		except TypeError as not_iterable:
+		except TypeError:
 			pass
 	def get_sanitized_bindings(self):
 		return self._sanitized_bindings

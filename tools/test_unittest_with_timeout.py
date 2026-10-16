@@ -13,7 +13,8 @@ def run_runner(tools_directory, tests_directory, test_name):
 		f"sys.path.insert(0, {str(tools_directory)!r}); "
 		"import unittest_with_timeout; "
 		"unittest_with_timeout.TEST_TIMEOUT_SECONDS = 2; "
-		f"unittest_with_timeout.main(['runner', 'discover', '-s', {str(tests_directory)!r}, "
+		f"unittest_with_timeout.main(['runner', 'discover', "
+		f"'-s', {str(tests_directory)!r}, "
 		f"'-k', {test_name!r}])"
 	)
 	started = time.monotonic()

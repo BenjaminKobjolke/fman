@@ -59,7 +59,7 @@ class InstallPlugin(ApplicationCommand):
 			with StatusMessage('Downloading %s...' % repo.name):
 				try:
 					ref = repo.get_latest_release()
-				except LookupError as no_release_yet:
+				except LookupError:
 					ref = repo.get_latest_commit()
 				zipball_contents = repo.download_zipball(ref)
 			plugin_dir = self._install_plugin(repo.name, zipball_contents)
@@ -111,7 +111,7 @@ class InstallPlugin(ApplicationCommand):
 			for plugin in reversed(to_unload):
 				try:
 					unload_plugin(plugin)
-				except ValueError as was_not_loaded:
+				except ValueError:
 					pass
 			result = load_plugin(plugin_dir)
 			for plugin in to_unload:
@@ -158,7 +158,7 @@ class RemovePlugin(ApplicationCommand):
 				if plugin_dir:
 					try:
 						unload_plugin(plugin_dir)
-					except ValueError as plugin_was_not_loaded:
+					except ValueError:
 						pass
 					delete(as_url(plugin_dir))
 					show_alert(
@@ -179,7 +179,7 @@ class ReloadPlugins(ApplicationCommand):
 			for plugin in reversed(plugins):
 				try:
 					unload_plugin(plugin)
-				except ValueError as plugin_had_not_been_loaded:
+				except ValueError:
 					pass
 			for plugin in plugins:
 				load_plugin(plugin)

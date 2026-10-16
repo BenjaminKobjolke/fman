@@ -15,7 +15,9 @@ class OutputTailTest(TestCase):
 		self.assertEqual('bcdef', output.text())
 
 	def test_decodes_robocopy_unicode_output(self):
-		self.assertEqual('Copied\n', windows.output_text('Copied\n'.encode('utf-16-le')))
+		self.assertEqual(
+			'Copied\n', windows.output_text('Copied\n'.encode('utf-16-le'))
+		)
 
 
 class RunTest(TestCase):
@@ -63,7 +65,9 @@ class RunTest(TestCase):
 class LazyWindowsApiTest(TestCase):
 	def test_plugin_import_does_not_load_windows_dlls_on_other_platforms(self):
 		import robocopy_plugin
-		with patch('fman.PLATFORM', 'Linux'), patch('ctypes.WinDLL', create=True) as load:
+		with patch('fman.PLATFORM', 'Linux'), patch(
+			'ctypes.WinDLL', create=True
+		) as load:
 			importlib.reload(windows)
 			importlib.reload(robocopy_plugin)
 			load.assert_not_called()

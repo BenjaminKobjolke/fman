@@ -73,7 +73,9 @@ def check_python_behavior():
         source_notes.mkdir()
         (source_notes / "1.0.0_1").mkdir()
         (source_notes / "1.0.0_1" / "en.json").write_text("{}")
-        build_impl.path = lambda value: str(source_notes) if value == "release_notes" else value
+        build_impl.path = lambda value: (
+            str(source_notes) if value == "release_notes" else value
+        )
         destination = base / "bundle" / "release_notes"
         destination.parent.mkdir()
         build_impl.copy_release_notes(str(destination))
@@ -113,7 +115,9 @@ def check_bash_scripts():
         record_args = Path(temporary) / "uv-args"
         uv = fake_bin / "uv"
         uv.write_text(
-            "#!/bin/bash\nprintf '%s\\n' \"$@\" > \"$UV_ARGS\"\nexit \"${UV_EXIT:-0}\"\n"
+            "#!/bin/bash\n"
+            "printf '%s\\n' \"$@\" > \"$UV_ARGS\"\n"
+            "exit \"${UV_EXIT:-0}\"\n"
         )
         uv.chmod(0o755)
         app = Path(temporary) / "fman.app"
@@ -154,7 +158,8 @@ def check_bash_scripts():
         fake_python = fake_bin / "python3"
         fake_python.write_text(
             "#!/bin/bash\n"
-            "if [[ $1 == tools/release/build_number.py ]]; then echo 1.0.0_5; exit 0; fi\n"
+            "if [[ $1 == tools/release/build_number.py ]]; "
+            "then echo 1.0.0_5; exit 0; fi\n"
             "mkdir -p target; touch target/fman.dmg\n"
         )
         fake_python.chmod(0o755)

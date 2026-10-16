@@ -57,9 +57,13 @@ class CopyItemTextTest(TestCase):
 				command_class = self._command_class(command_name)
 				command = command_class(pane)
 				self.assertTrue(command.is_visible())
-				with patch('core.commands.clipboard.clipboard.clear') as clear, \
-						patch('core.commands.clipboard.clipboard.set_text') as set_text, \
-						patch('core.commands.clipboard.show_status_message') as status:
+				with patch(
+					'core.commands.clipboard.clipboard.clear'
+				) as clear, patch(
+					'core.commands.clipboard.clipboard.set_text'
+				) as set_text, patch(
+					'core.commands.clipboard.show_status_message'
+				) as status:
 					command()
 				clear.assert_not_called()
 				set_text.assert_not_called()

@@ -124,7 +124,7 @@ class SessionManager:
 				def callback(pane=pane, url=url):
 					try:
 						pane.place_cursor_at(url)
-					except ValueError as file_disappeared:
+					except ValueError:
 						pass
 			else:
 				location = get_existing_pardir(url, self._exists_and_is_dir) \

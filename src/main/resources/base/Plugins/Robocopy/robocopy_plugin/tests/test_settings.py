@@ -13,7 +13,9 @@ class SettingsTest(unittest.TestCase):
 		self.assertNotIn('/Z', settings.arguments())
 
 	def test_optional_transfer_switches(self):
-		settings = Settings.load({'threads': 4, 'restartable': True, 'unbuffered': True})
+		settings = Settings.load(
+			{'threads': 4, 'restartable': True, 'unbuffered': True}
+		)
 		self.assertIn('/MT:4', settings.arguments())
 		self.assertIn('/Z', settings.arguments())
 		self.assertIn('/J', settings.arguments())

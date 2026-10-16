@@ -10,19 +10,35 @@ NAME_SURROGATE = 0x20000000
 
 
 def absolute_path(value: str) -> str:
-	if not isinstance(value, str) or not value or any(char in value for char in '\x00\r\n*?"'):
+	if (
+		not isinstance(value, str) or not value
+		or any(char in value for char in '\x00\r\n*?"')
+	):
 		raise ValueError('Enter an absolute Windows folder path without wildcards.')
 	if value.startswith(('\\\\?\\', '\\\\.\\')):
 		raise ValueError('Device and extended-namespace input paths are not supported.')
 	drive, tail = ntpath.splitdrive(value)
-	unc = drive.startswith(('\\\\', '//')) and len(drive.replace('/', '\\').split('\\')) == 4
-	local = len(drive) == 2 and drive[0].isascii() and drive[0].isalpha() and drive[1] == ':'
+	unc = (
+		drive.startswith(('\\\\', '//'))
+		and len(drive.replace('/', '\\').split('\\')) == 4
+	)
+	local = (
+		len(drive) == 2 and drive[0].isascii()
+		and drive[0].isalpha() and drive[1] == ':'
+	)
 	if not (unc or local) or not (tail.startswith(('\\', '/')) or unc and not tail):
-		raise ValueError('Use an absolute drive or UNC path, not a relative path or URL.')
+		raise ValueError(
+			'Use an absolute drive or UNC path, not a relative path or URL.'
+		)
 	if ':' in tail or unc and ':' in drive:
-		raise ValueError('Alternate streams and credentials in paths are not supported.')
+		raise ValueError(
+			'Alternate streams and credentials in paths are not supported.'
+		)
 	for part in tail.replace('/', '\\').split('\\'):
-		if part and part not in ('.', '..') and (ntpath.isreserved(part) or part.endswith((' ', '.'))):
+		if (
+			part and part not in ('.', '..')
+			and (ntpath.isreserved(part) or part.endswith((' ', '.')))
+		):
 			raise ValueError('Unsupported Windows path component: ' + part)
 	result = ntpath.normpath(value)
 	if len(result.encode('utf-16-le', 'strict')) // 2 > 32760:
@@ -66,8 +82,13 @@ def identity(info: os.stat_result) -> tuple[int, int, int]:
 
 def inspect_source(path: str) -> os.stat_result:
 	info = os.lstat(path)
-	if stat.S_ISLNK(info.st_mode) or getattr(info, 'st_reparse_tag', 0) & NAME_SURROGATE:
-		raise ValueError('Select actual files or folders, not symbolic links or junctions: ' + path)
+	if (
+		stat.S_ISLNK(info.st_mode)
+		or getattr(info, 'st_reparse_tag', 0) & NAME_SURROGATE
+	):
+		raise ValueError(
+			'Select actual files or folders, not symbolic links or junctions: ' + path
+		)
 	if not stat.S_ISREG(info.st_mode) and not stat.S_ISDIR(info.st_mode):
 		raise ValueError('Unsupported source type: ' + path)
 	return info

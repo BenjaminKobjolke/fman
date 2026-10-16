@@ -159,7 +159,7 @@ def _is_writable(dir_url):
 		os.close(os.open(probe, os.O_CREAT | os.O_EXCL | os.O_TEMPORARY))
 	except PermissionError:
 		return False
-	except OSError as not_a_permission_problem:
+	except OSError:
 		return True
 	return True
 

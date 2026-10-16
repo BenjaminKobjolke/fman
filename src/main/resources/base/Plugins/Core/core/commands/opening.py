@@ -74,7 +74,7 @@ class OpenDirectory(DirectoryPaneCommand):
 			def callback():
 				try:
 					self.pane.place_cursor_at(url)
-				except ValueError as file_disappeared:
+				except ValueError:
 					pass
 			self.pane.set_path(dirname(url), callback=callback, onerror=None)
 	def is_visible(self):

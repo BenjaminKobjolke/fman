@@ -148,7 +148,7 @@ def get_dest_suggestion(dst_url):
 		offset = len(scheme)
 	try:
 		last_sep = suggested_dst.rindex(sep, offset)
-	except ValueError as no_sep:
+	except ValueError:
 		selection_start = offset
 	else:
 		selection_start = last_sep + 1
@@ -158,7 +158,7 @@ def get_dest_suggestion(dst_url):
 def _from_human_readable(path_or_url, dest_dir, src_dir):
 	try:
 		splitscheme(path_or_url)
-	except ValueError as no_scheme:
+	except ValueError:
 		dest_scheme, dest_dir_path = splitscheme(dest_dir)
 		if src_dir:
 			# Treat dest as relative to src_dir:

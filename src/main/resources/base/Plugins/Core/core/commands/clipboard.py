@@ -23,7 +23,6 @@ class CopyPathsToClipboard(DirectoryPaneCommand):
 
 	def __call__(self):
 		to_copy = self.get_chosen_files() or [self.pane.get_path()]
-		files = '\n'.join(to_copy)
 		clipboard.clear()
 		clipboard.set_text('\n'.join(map(as_human_readable, to_copy)))
 		_report_clipboard_action('Copied', to_copy, ' to the clipboard', 'path')

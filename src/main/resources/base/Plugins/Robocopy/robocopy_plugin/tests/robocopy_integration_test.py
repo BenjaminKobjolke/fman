@@ -1,4 +1,5 @@
-"""Native Robocopy tests; destination-junction/ADS behavior needs a separate manual check."""
+"""Native Robocopy tests; destination-junction/ADS behavior needs a separate
+manual check."""
 
 import ctypes
 from ctypes import wintypes
@@ -30,14 +31,20 @@ class RobocopyEngineIT(TestCase):
 		codes = []
 		for job in plan.jobs:
 			planner.recheck(plan, job)
-			code, output = windows.run(job.arguments(self.executable, plan.settings, plan.move, log), timeout=15)
+			code, output = windows.run(
+				job.arguments(self.executable, plan.settings, plan.move, log),
+				timeout=15
+			)
 			self.assertLess(code, 8, output)
 			codes.append(code)
 		return codes
 
 	def test_loopback_unc_loose_files_copy_and_move(self):
 		local_source = self.source
-		unc = Path('\\\\localhost\\' + local_source.drive[0] + '$' + str(local_source)[2:])
+		unc = Path(
+			'\\\\localhost\\' + local_source.drive[0] + '$'
+			+ str(local_source)[2:]
+		)
 		try:
 			if not unc.is_dir():
 				self.skipTest('Loopback administrative share unavailable')
@@ -61,11 +68,16 @@ class RobocopyEngineIT(TestCase):
 				(self.source / name).mkdir()
 				(self.source / name / 'inside.txt').write_bytes(b'folder')
 				self.run_plan(self.plan((name,), move=move))
-				self.assertEqual(b'folder', (self.destination / name / 'inside.txt').read_bytes())
+				self.assertEqual(
+					b'folder', (self.destination / name / 'inside.txt').read_bytes()
+				)
 				self.assertEqual(not move, (self.source / name).exists())
 
 	def test_exact_mixed_selection_and_two_unicode_log_appends(self):
-		names = ('file with space.txt', 'note', '[brackets].txt', '@leading.txt', '\u00e9tude.txt')
+		names = (
+			'file with space.txt', 'note', '[brackets].txt', '@leading.txt',
+			'\u00e9tude.txt'
+		)
 		for name in (*names, 'note.txt', 'unselected.txt'):
 			(self.source / name).write_bytes(name.encode())
 		(self.source / 'Photos' / 'empty').mkdir(parents=True)
@@ -78,13 +90,21 @@ class RobocopyEngineIT(TestCase):
 		for index, job in enumerate(plan.jobs):
 			log.append('Job %d' % (index + 1))
 			planner.recheck(plan, job)
-			code, output = windows.run(job.arguments(self.executable, options, log=path), timeout=15)
+			code, output = windows.run(
+				job.arguments(self.executable, options, log=path), timeout=15
+			)
 			self.assertLess(code, 8, output)
 			log.validate()
 		log.finish('Completed fixture')
-		self.assertEqual(set((*names, 'Photos')), {path.name for path in self.destination.iterdir()})
+		self.assertEqual(
+			set((*names, 'Photos')),
+			{path.name for path in self.destination.iterdir()}
+		)
 		for name in names:
-			self.assertEqual((self.source / name).read_bytes(), (self.destination / name).read_bytes())
+			self.assertEqual(
+				(self.source / name).read_bytes(),
+				(self.destination / name).read_bytes()
+			)
 		self.assertTrue((self.destination / 'Photos' / 'empty').is_dir())
 		text = log.path.read_text(encoding='utf-16')
 		for marker in ('Job 1', 'Job 2', '\u00e9tude.txt', 'Completed fixture'):
@@ -102,7 +122,9 @@ class RobocopyEngineIT(TestCase):
 		self.assertEqual([0], self.run_plan(plan))
 		self.assertEqual(b'aaaa', source.read_bytes())
 		self.assertEqual(b'bbbb', destination.read_bytes())
-		self.assertEqual((1, 0, (str(source),)), planner.remaining(plan.jobs[0].entries))
+		self.assertEqual(
+			(1, 0, (str(source),)), planner.remaining(plan.jobs[0].entries)
+		)
 
 	def test_forced_small_native_batches_never_include_unselected_files(self):
 		names = tuple('selected %d.txt' % index for index in range(12))
@@ -110,9 +132,15 @@ class RobocopyEngineIT(TestCase):
 			(self.source / name).write_bytes(name.encode())
 		plan = self.plan(names)
 		entries = plan.jobs[0].entries
-		limit = jobs.command_units(jobs.Job(plan.source, plan.destination, (), (names[0],)).arguments(
-			self.executable, plan.settings)) + 40
-		batches = jobs.build_jobs(plan.source, plan.destination, entries, self.executable, plan.settings, limit=limit)
+		limit = jobs.command_units(
+			jobs.Job(plan.source, plan.destination, (), (names[0],)).arguments(
+				self.executable, plan.settings
+			)
+		) + 40
+		batches = jobs.build_jobs(
+			plan.source, plan.destination, entries, self.executable,
+			plan.settings, limit=limit
+		)
 		self.assertGreater(len(batches), 1)
 		for job in batches:
 			arguments = job.arguments(self.executable, plan.settings)
@@ -130,13 +158,17 @@ class RobocopyEngineIT(TestCase):
 		plan = self.plan(('move.txt', 'Empty'), move=True)
 		self.run_plan(plan)
 		self.assertEqual({'keep.txt'}, {path.name for path in self.source.iterdir()})
-		self.assertEqual({'move.txt', 'Empty'}, {path.name for path in self.destination.iterdir()})
+		self.assertEqual(
+			{'move.txt', 'Empty'},
+			{path.name for path in self.destination.iterdir()}
+		)
 		for job in plan.jobs:
 			self.assertEqual((0, 0, ()), planner.remaining(job.entries))
 
 	def test_native_overwrite_newer_and_destination_hardlink_effect(self):
 		self.destination.mkdir()
-		source, destination = self.source / 'report.txt', self.destination / 'report.txt'
+		source = self.source / 'report.txt'
+		destination = self.destination / 'report.txt'
 		source.write_bytes(b'new source content')
 		destination.write_bytes(b'old')
 		os.utime(source, (1600000000, 1600000000))
@@ -164,8 +196,13 @@ class RobocopyEngineIT(TestCase):
 		self.assertFalse(self.destination.exists())
 
 	def junction(self, link, target):
-		result = subprocess.run([os.path.join(os.environ['WINDIR'], 'System32', 'cmd.exe'),
-			'/d', '/c', 'mklink', '/J', str(link), str(target)], capture_output=True, timeout=10)
+		result = subprocess.run(
+			[
+				os.path.join(os.environ['WINDIR'], 'System32', 'cmd.exe'),
+				'/d', '/c', 'mklink', '/J', str(link), str(target)
+			],
+			capture_output=True, timeout=10
+		)
 		self.assertEqual(0, result.returncode, repr(result.stdout + result.stderr))
 
 	def test_nested_source_junction_exclusion_and_selected_junction_refusal(self):
@@ -190,7 +227,10 @@ class RobocopyEngineIT(TestCase):
 		outside.mkdir()
 		(outside / 'file.txt').write_bytes(b'outside')
 		try:
-			os.symlink(outside, self.source / 'Folder' / 'directory-link', target_is_directory=True)
+			os.symlink(
+				outside, self.source / 'Folder' / 'directory-link',
+				target_is_directory=True
+			)
 			os.symlink(outside / 'file.txt', self.source / 'Folder' / 'file-link.txt')
 			os.symlink(outside, self.source / 'selected-link', target_is_directory=True)
 		except OSError as error:
@@ -210,10 +250,15 @@ class RobocopyEngineIT(TestCase):
 		(self.destination / 'locked.txt').write_bytes(b'keep')
 		plan = self.plan(('locked.txt',), move=True)
 		library = windows.api()
-		handle = library.CreateFileW(str(self.destination / 'locked.txt'), 0x80000000, 0, None, 3, 0, None)
+		handle = library.CreateFileW(
+			str(self.destination / 'locked.txt'), 0x80000000, 0, None, 3, 0, None
+		)
 		self.assertNotEqual(ctypes.c_void_p(-1).value, handle)
 		try:
-			code, output = windows.run(plan.jobs[0].arguments(self.executable, plan.settings, True), timeout=15)
+			code, output = windows.run(
+				plan.jobs[0].arguments(self.executable, plan.settings, True),
+				timeout=15
+			)
 			self.assertGreaterEqual(code, 8, output)
 		finally:
 			library.CloseHandle(handle)
@@ -225,7 +270,9 @@ class RobocopyEngineIT(TestCase):
 		path = self.source / 'long selected filename.txt'
 		path.write_bytes(b'keep')
 		library = ctypes.WinDLL('kernel32', use_last_error=True)
-		library.GetShortPathNameW.argtypes = [wintypes.LPCWSTR, wintypes.LPWSTR, wintypes.DWORD]
+		library.GetShortPathNameW.argtypes = [
+			wintypes.LPCWSTR, wintypes.LPWSTR, wintypes.DWORD
+		]
 		library.GetShortPathNameW.restype = wintypes.DWORD
 		buffer = ctypes.create_unicode_buffer(32768)
 		if not library.GetShortPathNameW(str(path), buffer, len(buffer)):
@@ -239,17 +286,26 @@ class RobocopyEngineIT(TestCase):
 
 	def test_native_case_sensitive_directory_refused(self):
 		library = ctypes.WinDLL('kernel32', use_last_error=True)
-		library.SetFileInformationByHandle.argtypes = [wintypes.HANDLE, ctypes.c_int, ctypes.c_void_p, wintypes.DWORD]
+		library.SetFileInformationByHandle.argtypes = [
+			wintypes.HANDLE, ctypes.c_int, ctypes.c_void_p, wintypes.DWORD
+		]
 		library.SetFileInformationByHandle.restype = wintypes.BOOL
 		api = windows.api()
-		handle = api.CreateFileW(str(self.source), 0xc0000000, 7, None, 3, 0x02000000, None)
+		handle = api.CreateFileW(
+			str(self.source), 0xc0000000, 7, None, 3, 0x02000000, None
+		)
 		self.assertNotEqual(ctypes.c_void_p(-1).value, handle)
 		try:
 			flags = wintypes.DWORD(1)
-			if not library.SetFileInformationByHandle(handle, 23, ctypes.byref(flags), ctypes.sizeof(flags)):
+			if not library.SetFileInformationByHandle(
+				handle, 23, ctypes.byref(flags), ctypes.sizeof(flags)
+			):
 				code = ctypes.get_last_error()
 				if code in (1, 5, 50, 87, 1314):
-					self.skipTest('Native case-sensitive directory setup unavailable (Windows error %d)' % code)
+					self.skipTest(
+						'Native case-sensitive directory setup unavailable '
+						'(Windows error %d)' % code
+					)
 				raise ctypes.WinError(code)
 		finally:
 			api.CloseHandle(handle)

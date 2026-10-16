@@ -26,7 +26,10 @@ class Settings:
 				('retry_wait_seconds', 0, 30), ('log_retention_count', 1, 100)):
 			item = getattr(result, name)
 			if type(item) is not int or not minimum <= item <= maximum:
-				raise ValueError('%s must be an integer from %d to %d.' % (name, minimum, maximum))
+				raise ValueError(
+					'%s must be an integer from %d to %d.'
+					% (name, minimum, maximum)
+				)
 		for name in ('restartable', 'unbuffered', 'log_enabled', 'open_log_on_finish'):
 			if type(getattr(result, name)) is not bool:
 				raise ValueError(name + ' must be boolean.')
@@ -35,6 +38,12 @@ class Settings:
 		return result
 
 	def arguments(self) -> tuple[str, ...]:
-		return ('/COPY:DAT', '/XJD', '/XJF', '/NP', '/UNICODE', '/FP', '/BYTES',
-			'/MT:%d' % self.threads, '/R:%d' % self.retries, '/W:%d' % self.retry_wait_seconds) + \
-			(('/Z',) if self.restartable else ()) + (('/J',) if self.unbuffered else ())
+		return (
+			('/COPY:DAT', '/XJD', '/XJF', '/NP', '/UNICODE', '/FP', '/BYTES')
+			+ (
+				'/MT:%d' % self.threads, '/R:%d' % self.retries,
+				'/W:%d' % self.retry_wait_seconds
+			)
+			+ (('/Z',) if self.restartable else ())
+			+ (('/J',) if self.unbuffered else ())
+		)

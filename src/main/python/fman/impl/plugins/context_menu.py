@@ -30,9 +30,9 @@ class ContextMenuProvider:
 			for elt in config:
 				try:
 					self._sanitized_config[context].remove(elt)
-				except ValueError as not_in_list:
+				except ValueError:
 					pass
-		except TypeError as not_iterable:
+		except TypeError:
 			pass
 	def get_context_menu(self, pane, file_under_mouse=None):
 		context = self.FOLDER_CONTEXT if file_under_mouse is None \

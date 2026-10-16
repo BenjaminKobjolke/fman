@@ -54,7 +54,7 @@ class Config:
 			for json_name in self._save_on_quit:
 				try:
 					self.save_json(json_name)
-				except ValueError as error_computing_delta:
+				except ValueError:
 					# This can happen for a variety of reasons. One example:
 					# When multiple instances of fman are open and another
 					# instance has already written to the same json file, then

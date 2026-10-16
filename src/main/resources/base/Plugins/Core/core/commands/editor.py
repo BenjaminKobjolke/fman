@@ -186,5 +186,5 @@ def _find_extension_start(file_name, start=0):
 			return len(file_name) - len(dual_extension)
 	try:
 		return file_name.rindex('.', start)
-	except ValueError as not_found:
+	except ValueError:
 		return None

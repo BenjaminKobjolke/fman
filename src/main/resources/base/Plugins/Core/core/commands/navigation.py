@@ -78,7 +78,7 @@ def go_up(pane):
 						  splitscheme(path_before)[1]
 			try:
 				pane.place_cursor_at(cursor_dest)
-			except ValueError as dest_doesnt_exist:
+			except ValueError:
 				pane.move_cursor_home()
 	parent_dir = dirname(path_before)
 	try:
@@ -203,7 +203,7 @@ class HistoryListener(DirectoryPaneListener):
 	def _go(self, step):
 		try:
 			path = step()
-		except ValueError as nowhere_to_go:
+		except ValueError:
 			return
 		self._navigate_to(path)
 	def _navigate_to(self, path):

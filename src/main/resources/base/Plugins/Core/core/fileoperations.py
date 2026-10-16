@@ -203,7 +203,7 @@ class FileTreeOperation(Task):
 	def _get_dest_dir_url(self):
 		try:
 			splitscheme(self._dest_dir)
-		except ValueError as not_a_url:
+		except ValueError:
 			is_url = False
 		else:
 			is_url = True
@@ -224,7 +224,7 @@ class FileTreeOperation(Task):
 			if is_in_src_dir:
 				try:
 					splitscheme(self._dest_dir)
-				except ValueError as no_scheme:
+				except ValueError:
 					return join(self._src_dir, self._dest_dir, rel_path)
 				else:
 					return join(self._dest_dir, rel_path)

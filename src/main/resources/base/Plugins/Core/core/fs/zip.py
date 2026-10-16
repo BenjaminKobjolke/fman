@@ -209,7 +209,7 @@ class _7ZipFileSystem(FileSystem):
 		for suffix in self._suffixes:
 			try:
 				split_point = path.lower().index(suffix) + len(suffix)
-			except ValueError as suffix_not_found:
+			except ValueError:
 				continue
 			else:
 				return path[:split_point], path[split_point:].lstrip('/')
