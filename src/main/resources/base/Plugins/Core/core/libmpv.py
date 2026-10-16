@@ -6,7 +6,8 @@ Not bundled in the repo: LGPL builds like this one may be redistributed, but
 fetching from upstream on first use avoids shipping a ~30 MB binary in git and
 keeps fman itself from redistributing it at all - same pattern apps use for
 ffmpeg. macOS/Linux are expected to install mpv via the system package manager
-(brew/apt), where the loader finds it without any of this.
+(brew/apt). On Apple Silicon, Homebrew installs libmpv under /opt/homebrew/lib,
+which dyld does not search by default, so that directory is added to its fallback path.
 
 Pinned to a specific LGPLv2.1+ build from zhongfly/mpv-winbuild (not the more
 common shinchiro/mpv-winbuild-cmake builds, which are GPL-2.0-or-later by
@@ -47,6 +48,9 @@ LIBMPV_URL = (
 LIBMPV_SHA256 = \
 	'a932332b15293f3fbf673ff78b08824de73af7da637fabb472163092a2d7861f'
 LIBMPV_DLL_NAME = 'libmpv-2.dll'
+HOMEBREW_LIBRARY_DIR = '/opt/homebrew/lib'
+DYLD_DEFAULT_FALLBACK_LIBRARY_PATH = '~/lib:/usr/local/lib:/lib:/usr/lib'
+DYLD_LIBRARY_PATH_SEPARATOR = ':'
 
 def cache_dir():
 	return join(DATA_DIRECTORY, 'Local', 'libmpv')
@@ -65,6 +69,16 @@ def ensure_libmpv_on_path():
 	user cancels the dialog - callers must not proceed to import mpv or open
 	the video view in that case.
 	"""
+	if sys.platform == 'darwin':
+		fallback_path = os.environ.get(
+			'DYLD_FALLBACK_LIBRARY_PATH', DYLD_DEFAULT_FALLBACK_LIBRARY_PATH
+		).split(DYLD_LIBRARY_PATH_SEPARATOR)
+		if HOMEBREW_LIBRARY_DIR not in fallback_path:
+			fallback_path.append(HOMEBREW_LIBRARY_DIR)
+			os.environ['DYLD_FALLBACK_LIBRARY_PATH'] = (
+				DYLD_LIBRARY_PATH_SEPARATOR.join(fallback_path)
+			)
+		return
 	if sys.platform != 'win32':
 		return
 	dll_path = join(cache_dir(), LIBMPV_DLL_NAME)

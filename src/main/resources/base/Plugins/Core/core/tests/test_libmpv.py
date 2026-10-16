@@ -22,11 +22,33 @@ class EnsureLibmpvOnPathTest(TestCase):
 		os.environ['PATH'] = self._original_path
 
 	def test_non_windows_is_a_noop(self):
+		original_environment = dict(os.environ)
 		with patch('core.libmpv.sys.platform', 'linux'), \
 				patch('core.libmpv.submit_task') as submit:
 			ensure_libmpv_on_path()
 		submit.assert_not_called()
 		self.assertEqual(self._original_path, os.environ['PATH'])
+		self.assertEqual(original_environment, dict(os.environ))
+
+	def test_darwin_adds_homebrew_to_dyld_fallback_path(self):
+		with patch('core.libmpv.sys.platform', 'darwin'), \
+				patch.dict(os.environ, {}, clear=True):
+			ensure_libmpv_on_path()
+			self.assertEqual(
+				'~/lib:/usr/local/lib:/lib:/usr/lib:/opt/homebrew/lib',
+				os.environ['DYLD_FALLBACK_LIBRARY_PATH'],
+			)
+
+	def test_darwin_adds_homebrew_path_only_once(self):
+		with patch('core.libmpv.sys.platform', 'darwin'), \
+				patch.dict(os.environ, {
+					'DYLD_FALLBACK_LIBRARY_PATH': '/custom/lib:/opt/homebrew/lib',
+				}, clear=True):
+			ensure_libmpv_on_path()
+			self.assertEqual(
+				'/custom/lib:/opt/homebrew/lib',
+				os.environ['DYLD_FALLBACK_LIBRARY_PATH'],
+			)
 
 	def test_cache_hit_skips_download_and_prepends_path_once(self):
 		with tempfile.TemporaryDirectory() as tmp:
