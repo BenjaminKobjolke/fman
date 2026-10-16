@@ -19,8 +19,10 @@ import errno
 import os
 
 if PLATFORM == 'Windows':
-	from core.fs.local.windows.drives import DrivesFileSystem, DriveName
-	from core.fs.local.windows.network import NetworkFileSystem
+	from core.fs.local.windows.drives import (
+		DrivesFileSystem as DrivesFileSystem, DriveName as DriveName
+	)
+	from core.fs.local.windows.network import NetworkFileSystem as NetworkFileSystem
 
 class LocalFileSystem(FileSystem):
 

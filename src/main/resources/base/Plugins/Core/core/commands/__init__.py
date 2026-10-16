@@ -18,31 +18,25 @@ That, plus each submodule's __all__, means the star imports alone re-export
 only command classes - where this used to be one flat module defining every
 helper as well. `__getattr__` below closes that gap for plugins.
 """
-from .app import *
-from .archives import *
-from .clipboard import *
-from .columns import *
-from .deletion import *
-from .drag_to_app import *
-from .editor import *
-from .external import *
-from .file_properties import *
-from .goto import *
-from .hidden_files import *
-from .navigation import *
-from .open_with import *
-from .opening import *
-from .pack import *
-from .palette import *
-from .pane_view import *
-from .places import *
-from .plugins import *
-from .release_notes import *
-from .rename import *
-from .theme import *
-from .transfer import *
-from .updates import CheckForUpdates
-from .window import *
+from importlib import import_module as _import_module
+
+_COMMAND_MODULES = (
+	'app', 'archives', 'clipboard', 'columns', 'deletion', 'drag_to_app',
+	'editor', 'external', 'file_properties', 'goto', 'hidden_files',
+	'navigation', 'open_with', 'opening', 'pack', 'palette', 'pane_view',
+	'places', 'plugins', 'release_notes', 'rename', 'theme', 'transfer',
+	'updates', 'window'
+)
+__all__ = []
+for _module_name in _COMMAND_MODULES:
+	_module = _import_module('.' + _module_name, __name__)
+	_module_names = getattr(
+		_module, '__all__',
+		(name for name in vars(_module) if not name.startswith('_'))
+	)
+	for _name in _module_names:
+		globals()[_name] = getattr(_module, _name)
+		__all__.append(_name)
 
 def __getattr__(name):
 	# Third-party plugins were written against the flat core/commands.py and
@@ -61,12 +55,11 @@ def __getattr__(name):
 		# protocols), never a plugin's; answering them from a submodule would
 		# hand out the wrong module's internals.
 		raise AttributeError(name)
-	from importlib import import_module
 	from pkgutil import iter_modules
-	for submodule in iter_modules(__path__):
+	for submodule in iter_modules(__spec__.submodule_search_locations):
 		try:
 			return getattr(
-				import_module('.' + submodule.name, __name__), name
+				_import_module('.' + submodule.name, __name__), name
 			)
 		except AttributeError:
 			continue

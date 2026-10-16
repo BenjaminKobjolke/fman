@@ -1,8 +1,10 @@
 from fman.impl.model.model import Model
-from fman.impl.model.drag_and_drop import DragAndDrop
-from fman.impl.model.diff import ComputeDiff
-from fman.impl.model.file_watcher import FileWatcher
-from fman.impl.model.table import TableModel, Cell, Row
+from fman.impl.model.drag_and_drop import DragAndDrop as DragAndDrop
+from fman.impl.model.diff import ComputeDiff as ComputeDiff
+from fman.impl.model.file_watcher import FileWatcher as FileWatcher
+from fman.impl.model.table import (
+	TableModel as TableModel, Cell as Cell, Row as Row
+)
 from fman.impl.util.qt.thread import run_in_main_thread
 from fman.impl.util.url import is_pardir
 from fman.url import dirname, splitscheme

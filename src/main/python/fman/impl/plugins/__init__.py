@@ -1,5 +1,7 @@
 from fman.impl.plugins.plugin import ExternalPlugin
-from fman.impl.plugins.key_bindings import sanitize_key_bindings
+from fman.impl.plugins.key_bindings import (
+	sanitize_key_bindings as sanitize_key_bindings
+)
 
 SETTINGS_PLUGIN_NAME = 'Settings'
 

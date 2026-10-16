@@ -1,8 +1,6 @@
-from core.commands import *
-from core.fs import *
 # Re-exported so the plugin loader discovers the Viewer subclasses: it only
 # scans names reachable from this module (plugin.py:_iterate_classes).
-from core.viewers import *
+from importlib import import_module as _import_module
 from datetime import datetime
 from fman.fs import Column
 from fman.url import basename
@@ -11,6 +9,15 @@ from PyQt5.QtCore import QLocale, QDateTime
 
 import fman.fs
 import re
+
+for _module_name in ('.commands', '.fs', '.viewers'):
+	_module = _import_module(_module_name, __name__)
+	_module_names = getattr(
+		_module, '__all__',
+		(name for name in vars(_module) if not name.startswith('_'))
+	)
+	for _name in _module_names:
+		globals()[_name] = getattr(_module, _name)
 
 # Define here so get_default_columns(...) can reference it as core.Name:
 class Name(Column):

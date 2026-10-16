@@ -24,3 +24,18 @@ class CompatibilitySurfaceTest(TestCase):
 	def test_unknown_name_still_raises(self):
 		with self.assertRaises(AttributeError):
 			core.commands.no_such_name
+	def test_command_exports_remain_visible_to_core_plugin_loader(self):
+		from importlib import import_module
+		from pkgutil import iter_modules
+		command_names = (
+			name
+			for module in iter_modules(core.commands.__path__)
+			for name in getattr(
+				import_module('.' + module.name, core.commands.__name__),
+				'__all__', ()
+			)
+		)
+		for name in command_names:
+			with self.subTest(name=name):
+				self.assertTrue(hasattr(core.commands, name))
+				self.assertTrue(hasattr(core, name))

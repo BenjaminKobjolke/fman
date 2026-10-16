@@ -1,7 +1,7 @@
 from core import LocalFileSystem
-from fman import Task
+from fman import Task as Task
 from fman.fs import FileSystem
-from fman.url import splitscheme, basename
+from fman.url import splitscheme, basename as basename
 
 class StubUI:
 	def __init__(self, test_case):

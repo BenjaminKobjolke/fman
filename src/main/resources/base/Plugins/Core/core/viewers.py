@@ -14,7 +14,7 @@ from core.imageviewer import is_image, show_image_viewer
 from core.textviewer import show_text_viewer
 from core.textviewer_io import is_text_file
 from core.videoviewer import is_video, show_video_viewer
-from fman import find_viewer, viewer_for_category, Viewer
+from fman import find_viewer, viewer_for_category as viewer_for_category, Viewer
 from fman.fs import is_dir
 from fman.url import as_human_readable, splitscheme
 
