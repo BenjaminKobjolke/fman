@@ -33,6 +33,10 @@ they are intentionally referenced, not imported.
 After touching `tools/close_running_fman.ps1` or `tools/build_windows.bat`, run
 `python tools/test_close_running_fman.py`.
 
+After touching `src/build/python/build_impl/mac.py`, `tools/sign_mac.sh`,
+`tools/build_mac.sh` or `tools/github_release_mac.sh`, run
+`python tools/test_build_mac.py`.
+
 The script asks a running fman to close via the registered window message
 `fman.CloseForBuild`; fman (`src/main/python/fman/impl/build_shutdown.py`)
 answers with an Esc-cancelable countdown. After touching that module, run

@@ -1,17 +1,16 @@
-from build_impl import SETTINGS, copy_python_library, upload_installer_to_aws
+from build_impl import copy_release_notes, copy_python_library
 from fbs import path
 from fbs.cmdline import command
 from fbs.freeze.mac import freeze_mac
 from os import remove
 from os.path import basename, isdir, isfile, islink, join
 from shutil import rmtree, move
-from subprocess import run, PIPE
-
-import json
+from subprocess import run
 
 @command
 def freeze():
 	freeze_mac()
+	copy_release_notes(path('${freeze_dir}/Contents/Resources/release_notes'))
 	rmtree(path('${core_plugin_in_freeze_dir}/bin/linux'))
 	rmtree(path('${core_plugin_in_freeze_dir}/bin/windows'))
 	# Open Sans is only used on Linux. Further, it fails to load on some users'
@@ -28,10 +27,13 @@ def freeze():
 	rmtree(path('${core_plugin_in_freeze_dir}/Fonts/Roboto'))
 	_strip_unused_from_bundle()
 	copy_python_library('osxtrash', path('${core_plugin_in_freeze_dir}'))
+	# core.release_notes imports this to detect the system language; plugin
+	# code is bundled as data, so PyInstaller doesn't collect it automatically.
+	copy_python_library('python_localization', path('${core_plugin_in_freeze_dir}'))
 	import osxtrash
 	so_name = basename(osxtrash.__file__)
 	# Move the .so to Frameworks (where PyInstaller 6.x sets sys._MEIPASS),
-	# so it's both importable and codesigned:
+	# so it remains importable in the frozen app:
 	move(
 		path('${core_plugin_in_freeze_dir}/' + so_name),
 		path('${freeze_dir}/Contents/Frameworks')
@@ -75,70 +77,20 @@ def _strip_unused_from_bundle():
 
 @command
 def sign():
-	app_dir = path('${freeze_dir}')
-	_run_codesign(
-		'--deep', '--force', '--options', 'runtime',
-		'--entitlements', path('src/sign/mac/entitlements.plist'),
-		app_dir
+	_sign_mac(
+		path('${freeze_dir}'), '--entitlements',
+		path('src/sign/mac/entitlements.plist')
 	)
-	zip_path = path('${freeze_dir}') + '.zip'
-	_zip_mac(app_dir, zip_path)
-	_notarize(zip_path)
-	_staple(app_dir)
-
-def _run_codesign(*args):
-	run([
-		'codesign', '--verbose',
-		'-s', SETTINGS['mac_codesign_identity'],
-	] + list(args), check=True)
-
-def _staple(file_path):
-	run(['xcrun', 'stapler', 'staple', file_path], check=True)
-
-def _notarize(file_path):
-	result = _run_notarytool(['submit', file_path, '--wait'])
-	status = result['status']
-	if status != 'Accepted':
-		_print_notarization_issues(result['id'])
-		raise RuntimeError('Unexpected notarization status: %r' % status)
-
-def _print_notarization_issues(submission_id):
-	try:
-		log = _run_notarytool(['log', submission_id])
-	except ValueError:
-		return
-	issues = log.get('issues') or []
-	if issues:
-		print('Notarization encountered some issues:')
-		print(json.dumps(issues, indent=4, sort_keys=True))
-
-def _run_notarytool(args):
-	all_args = [
-		'xcrun', 'notarytool'
-	] + args + [
-		'--apple-id', SETTINGS['apple_developer_user'],
-		'--password', SETTINGS['apple_developer_app_pw'],
-		'--team-id', SETTINGS['apple_developer_team_id'],
-		'--output-format', 'json'
-	]
-	process = run(all_args, stdout=PIPE)
-	return json.loads(process.stdout)
 
 @command
 def sign_installer():
-	dmg_path = path('target/fman.dmg')
-	_run_codesign(dmg_path)
-	_notarize(dmg_path)
-	_staple(dmg_path)
+	_sign_mac(path('target/fman.dmg'))
+
+def _sign_mac(file_path, *args):
+	# Signing, notarization and stapling live in release-tool's mac-sign.
+	run([path('tools/sign_mac.sh'), file_path] + list(args), check=True)
 
 @command
 def upload():
-	if SETTINGS['release']:
-		upload_installer_to_aws('fman.dmg')
-
-def _zip_mac(src_dir, dest_zip):
-	run([
-		'ditto', '-c', '-k', '--sequesterRsrc', '--keepParent',
-		src_dir,
-		dest_zip
-	], check=True)
+	# This fork publishes through GitHub Releases, not update.fman.io.
+	pass

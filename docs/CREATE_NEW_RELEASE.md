@@ -47,6 +47,9 @@ remain the manual path:
 
 Both questions default to no; declining leaves a finished, signed build in `target\`.
 
+After publishing the Windows release, build and attach the Mac disk image for
+the same label; see [CREATE_NEW_RELEASE_MAC.md](CREATE_NEW_RELEASE_MAC.md).
+
 **The tag is the full label** (`1.7.13_2`), not `v<version>` as in the releases up to
 `v1.7.13`. Every build therefore gets its own tag and its own GitHub Release.
 
@@ -279,11 +282,12 @@ gh release edit <label> --repo BenjaminKobjolke/fman --notes-file notes.md
 everything under `src/main/resources/base/` into the frozen output
 (`target/fman/`), but `release_notes/` lives at the project root (authored per
 release, not under `src/main/resources`), so it needs an explicit copy.
-`freeze()` in `src/build/python/build_impl/windows.py` copies it to
-`target/fman/release_notes/` via `_copy_release_notes()` — skipped entirely if
-no release has been authored yet. `core.release_notes.release_notes_dir()` (Core plugin) finds it there at
-runtime, or falls back to the project-root `release_notes/` when running from
-source before any freeze.
+`copy_release_notes()` in `src/build/python/build_impl/__init__.py` copies it
+next to the frozen `Plugins/` directory on Windows and into
+`target/fman.app/Contents/Resources/` on macOS — skipped if no release has been
+authored yet. `core.release_notes.release_notes_dir()` (Core plugin) finds it
+there at runtime, or falls back to the project-root `release_notes/` when
+running from source before any freeze.
 
 ## 5. In-app Release Notes view
 

@@ -27,6 +27,16 @@ def copy_python_library(name, dest_dir):
 	else:
 		copy(library.__file__, dest_dir)
 
+def copy_release_notes(dest_dir):
+	# release_notes/<version>_<build>/<locale>.json (docs/CREATE_NEW_RELEASE.md)
+	# is authored at the project root, not under src/main/resources, so fbs
+	# doesn't bundle it. The caller chooses the destination next to Plugins/
+	# where core.release_notes.release_notes_dir() expects it. Skip the copy
+	# when no release has been authored so an empty release_notes/ is harmless.
+	src_dir = path('release_notes')
+	if isdir(src_dir):
+		copytree(src_dir, dest_dir)
+
 def get_canonical_os_name():
 	if is_windows():
 		return 'windows'

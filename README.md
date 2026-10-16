@@ -7,12 +7,14 @@ a folder. Run any command from a fuzzy palette. Extend it in Python.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Windows installer](https://img.shields.io/badge/Windows-signed%20installer-0078d4.svg)](https://github.com/BenjaminKobjolke/fman/releases/latest)
+[![macOS disk image](https://img.shields.io/badge/macOS-disk%20image-555.svg)](https://github.com/BenjaminKobjolke/fman/releases/latest)
 
 ### [⬇ Download for Windows](https://github.com/BenjaminKobjolke/fman/releases/latest)
 
 no license key, no trial, no nag screen
 
-*macOS and Linux: fman runs on both — [build from source](#build-from-source).*
+*macOS: download `fman.dmg` from the [Releases page](https://github.com/BenjaminKobjolke/fman/releases/latest).*
+*Linux: [build from source](#build-from-source).*
 
 ## See it work
 
@@ -253,6 +255,7 @@ These are the ones maintained on this account.
 | [WINDOW_TITLE_AND_BARS.md](docs/WINDOW_TITLE_AND_BARS.md) | Window title format, hiding the title bar (and, on macOS, the Help menu) |
 | [PURCHASING.md](docs/PURCHASING.md) | Why there is nothing to buy |
 | [CREATE_NEW_RELEASE.md](docs/CREATE_NEW_RELEASE.md) | Release process |
+| [CREATE_NEW_RELEASE_MAC.md](docs/CREATE_NEW_RELEASE_MAC.md) | Build and publish the macOS disk image |
 
 A searchable, mobile-friendly reference of all keyboard shortcuts is online at
 **[workflow-tools.com/fast-file-manager/help](https://workflow-tools.com/fast-file-manager/help/)**.
@@ -263,12 +266,12 @@ config at a local fman checkout.
 
 ## Build from source
 
-Needed on macOS and Linux, and for developing fman itself. fman currently uses
+Needed on Linux and for developing fman itself. fman currently uses
 Python 3.14.
 
 Install the requirements for your operating system:
 
-    pip install -Ur requirements/mac.txt       # macOS
+    pip install -Ur requirements/mac.txt       # macOS (release builds)
     pip install -Ur requirements/ubuntu.txt    # Ubuntu/Debian
     pip install -Ur requirements/arch.txt      # Arch Linux
     pip install -Ur requirements/fedora.txt    # Fedora
