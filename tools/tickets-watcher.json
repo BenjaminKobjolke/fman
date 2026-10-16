@@ -14,8 +14,11 @@
     "python tools\\test_unittest_with_timeout.py"
   ],
   "analysis_command_states": {
-    "tools\\analyze_code.bat": {
+    "tools/fix_ruff_issues.bat": {
       "code_quality": "green"
+    },
+    "tools\\analyze_code.bat": {
+      "code_quality": "failed"
     },
     "tools\\run_tests.bat": {
       "test": "green"
@@ -122,5 +125,6 @@
     ],
     "tests": true
   },
-  "analysis_tests_answered": true
+  "analysis_tests_answered": true,
+  "analysis_format_command": "tools/fix_ruff_issues.bat"
 }
