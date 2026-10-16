@@ -91,7 +91,9 @@ class Transfer(fman.Task):
 						try:
 							os.startfile(str(transfer_log.path))
 						except OSError as error:
-							self.show_alert('Could not open the Robocopy log: %s' % error)
+							self.show_alert(
+								'Could not open the Robocopy log: %s' % error
+							)
 					try:
 						transfer_log.prune(self.plan.settings.log_retention_count)
 					except OSError as error:
