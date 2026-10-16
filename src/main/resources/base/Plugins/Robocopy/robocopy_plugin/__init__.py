@@ -54,7 +54,10 @@ def _invoke(action: str, command: DirectoryPaneCommand) -> None:
 			return
 		settings = Settings.load(fman.load_json(_SETTINGS_NAME, {}))
 		executable = windows.executable()
-		log_path = logs.choose_path(fman.DATA_DIRECTORY) if settings.log_enabled else None
+		log_path = (
+			logs.choose_path(fman.DATA_DIRECTORY)
+			if settings.log_enabled else None
+		)
 		plan = planner.prepare(pane.get_path(), selected, destination, executable,
 			settings, move=action == 'move', log=log_path)
 		planner.probe(executable, settings)
@@ -62,8 +65,6 @@ def _invoke(action: str, command: DirectoryPaneCommand) -> None:
 		transfer = Transfer(title, plan, log_path, executable)
 		fman.submit_task(transfer)
 		_refresh(command)
-		if settings.open_log_on_finish and log_path and os.path.isfile(log_path):
-			os.startfile(log_path)
 	except (OSError, ValueError, RuntimeError) as error:
 		fman.show_alert(str(error))
 	finally:

@@ -1,5 +1,6 @@
 """Run a validated Robocopy plan while reporting progress and partial results."""
 
+import os
 from time import monotonic
 
 import fman
@@ -38,12 +39,18 @@ class Transfer(fman.Task):
 		transfer_log = None
 		results: list[str] = []
 		try:
-			transfer_log = logs.TransferLog(self.log_path, str(self)) if self.log_path else None
+			transfer_log = (
+				logs.TransferLog(self.log_path, str(self))
+				if self.log_path else None
+			)
 			for index, job in enumerate(self.plan.jobs, 1):
 				self._check()
 				planner.recheck(self.plan, job, self._check)
 				code, output = windows.run(
-					job.arguments(self.executable, self.plan.settings, self.plan.move, self.log_path),
+					job.arguments(
+						self.executable, self.plan.settings, self.plan.move,
+						self.log_path
+					),
 					check=self._check, timeout=TRANSFER_TIMEOUT,
 				)
 				results.append(exit_description(code))
@@ -74,8 +81,19 @@ class Transfer(fman.Task):
 		finally:
 			if transfer_log:
 				try:
-					transfer_log.finish(self.summary or 'Transfer stopped before completion.')
-					transfer_log.prune(self.plan.settings.log_retention_count)
+					transfer_log.finish(
+						self.summary or 'Transfer stopped before completion.'
+					)
 				except OSError as error:
 					self.show_alert('Could not finish the Robocopy log: %s' % error)
+				else:
+					if self.plan.settings.open_log_on_finish:
+						try:
+							os.startfile(str(transfer_log.path))
+						except OSError as error:
+							self.show_alert('Could not open the Robocopy log: %s' % error)
+					try:
+						transfer_log.prune(self.plan.settings.log_retention_count)
+					except OSError as error:
+						self.show_alert('Could not prune Robocopy logs: %s' % error)
 
