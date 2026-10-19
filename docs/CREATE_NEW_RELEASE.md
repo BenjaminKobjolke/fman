@@ -43,7 +43,7 @@ remain the manual path:
 6. **Asks** `Commit, tag and push <label>?` — `git add -A`, commit
    `RELEASE (fman): <label>`, tag `<label>`, push both.
 7. **Asks** `Create GitHub Release <label>?` — only offered if 6 ran. Uploads
-   `target\fmanSetup.exe` with the notes from `en.json`, titled `fman <label>`.
+   `target\fmanSetup.exe` with the notes from `en.json`, titled `fman++ <label>`.
 
 Both questions default to no; declining leaves a finished, signed build in `target\`.
 
@@ -198,11 +198,10 @@ in `-SNAPSHOT`:
   `tools\build_release.bat` does), so pass the label to step 4.5 explicitly.
 
 `publish()` on Windows runs `freeze` → `sign` → `installer` → `sign_installer` →
-`upload`. `installer()` still comes from fbs itself (fbs's built-in
-`Installer.nsi` template under `fbs/_defaults/src/installer/windows/`) — there
-is no separate project-owned installer config to maintain; override
-`src/installer/windows/Installer.nsi` in this repo only if the installer needs
-to differ from fbs's default. **`upload()` is a no-op for this fork** —
+`upload`. The project owns `src/installer/windows/Installer.nsi`; its visible
+names come from the `display_name` build setting. Keep `app_name` as `fman`:
+it names the executable, install directory and uninstall key, so existing
+installs update in place. **`upload()` is a no-op for this fork** —
 `src/build/python/build_impl/windows.py` disabled it (this fork has no access
 to the original project's AWS account and doesn't publish to
 `update.fman.io`, upstream's channel). Distribution is GitHub Releases only

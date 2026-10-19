@@ -38,4 +38,4 @@ NOTES_PATH=$(cd "$(dirname "$NOTES")" && pwd)/$(basename "$NOTES")
 cd "$RELEASE_TOOL_DIR"
 # The title mirrors title_format in release_create.ini; keep the two in sync.
 uv run python -m release_tool github-release "$LABEL" "$ASSET_PATH" \
-	--repo BenjaminKobjolke/fman --notes-json "$NOTES_PATH" --title "fman $LABEL"
+	--repo BenjaminKobjolke/fman --notes-json "$NOTES_PATH" --title "fman++ $LABEL"
