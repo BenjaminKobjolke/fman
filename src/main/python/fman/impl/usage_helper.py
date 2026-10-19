@@ -1,4 +1,4 @@
-from fman import show_alert, OK, CANCEL
+from fman import APP_NAME, show_alert, OK, CANCEL
 from fman.impl.html_style import highlight as b, underline as u
 
 class UsageHelper:
@@ -17,8 +17,9 @@ class UsageHelper:
 		if events[-1] == 'AbortedTour' and 'AbortedTour' not in events[:-1]:
 			response = show_alert(
 				"Hey, sorry to bother again. You just used the mouse. That "
-				"works, but fman isn't really optimized for it. Maybe you do "
-				"briefly want to see what makes fman special?",
+				"works, but " + APP_NAME + " isn't really optimized for it. "
+				"Maybe you do "
+				"briefly want to see what makes " + APP_NAME + " special?",
 				OK | CANCEL, OK
 			)
 			if response == OK:
@@ -27,7 +28,7 @@ class UsageHelper:
 		if events[-1] == 'CompletedTour':
 			show_alert(
 				"Hey, sorry to bother one last time. You just used the mouse. "
-				"To make the most of fman, please use the keyboard instead:"
+				"To make the most of " + APP_NAME + ", please use the keyboard instead:"
 				"<ul>"
 					"<li>Jump to files by typing their name.</li>"
 					"<li>Use %s to open them.</li>"

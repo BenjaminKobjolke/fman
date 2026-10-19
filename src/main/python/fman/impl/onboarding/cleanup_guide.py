@@ -1,4 +1,5 @@
 from fbs_runtime.platform import is_mac
+from fman import APP_NAME
 from fman.impl.onboarding import Tour, TourStep
 from fman.url import basename
 
@@ -52,10 +53,10 @@ class CleanupGuide(Tour):
 			TourStep(
 				'',
 				[
-					"Okay! Please type the name of the file. As you do this, "
-					"fman will jump to it. Once you're on the correct file, "
+					"Okay! Please type the name of the file. As you do this, " +
+					APP_NAME + " will jump to it. Once you're on the correct file, " +
 					"press *%s*." % delete_key,
-					"*Note:* Avoid using the mouse. fman makes you more "
+					"*Note:* Avoid using the mouse. " + APP_NAME + " makes you more " +
 					"productive, but only when you use it with the keyboard."
 				],
 				{
@@ -86,9 +87,9 @@ class CleanupGuide(Tour):
 			TourStep(
 				'',
 				[
-					"Okay :-) Let's try file selections this time. As before, "
+					"Okay :-) Let's try file selections this time. As before, " +
 					"type the name of the first file you want to delete. Once "
-					"fman has jumped to it, press *%s*." % selection_key
+					+ APP_NAME + " has jumped to it, press *%s*." % selection_key
 				],
 				{
 					'after': {
@@ -99,7 +100,8 @@ class CleanupGuide(Tour):
 			TourStep(
 				'',
 				[
-					"Perfect! fman selected the file. If you have other files "
+					"Perfect! " + APP_NAME + " selected the file. If you have other "
+					"files " +
 					"you want to delete, you can select them in the same way. "
 					"Or you can press *Arrow Down/Up* together with the "
 					"*Shift* key.",
@@ -179,7 +181,7 @@ class CleanupGuide(Tour):
 				'',
 				[
 					"Good. Now type the name of the file you wish to move. "
-					"Once fman has jumped to it, press *F6*.",
+					"Once " + APP_NAME + " has jumped to it, press *F6*.",
 					"You can also move several files. To do this, press *%s* "
 					"over the first one. Then, select the others with either "
 					"*%s* or *Arrow Down / Up* plus *Shift*. Finally, press "
@@ -194,7 +196,7 @@ class CleanupGuide(Tour):
 			TourStep(
 				'',
 				[
-					"fman asks whether you want to move the files to the "
+				APP_NAME + " asks whether you want to move the files to the " +
 					"folder in the other pane. Press *Enter* to confirm, or "
 					"*Escape* to cancel."
 				],

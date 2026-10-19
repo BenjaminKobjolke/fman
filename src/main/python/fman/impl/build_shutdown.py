@@ -9,6 +9,7 @@ session. Windows only: the request is a native window message.
 
 from ctypes import windll
 from ctypes.wintypes import MSG
+from fman import APP_NAME
 from fman.impl.widgets import MessageBox
 from PyQt5.QtCore import QAbstractNativeEventFilter, QTimer
 
@@ -49,7 +50,10 @@ class BuildShutdownFilter(QAbstractNativeEventFilter):
 
 class Countdown(MessageBox):
 
-	_TEXT = 'Closing fman for a build in %d s.\nPress Esc to keep it running.'
+	_TEXT = (
+		'Closing ' + APP_NAME + ' for a build in %d s.\n'
+		'Press Esc to keep it running.'
+	)
 
 	def __init__(self, parent, seconds):
 		super().__init__(parent)

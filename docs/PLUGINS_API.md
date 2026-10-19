@@ -23,6 +23,9 @@ On macOS and Linux, `%APPDATA%\fman` is
 `~/Library/Application Support/fman` and `~/.config/fman`. The path is
 `fman.DATA_DIRECTORY` (`FMAN_DATA_DIRECTORY` overrides it).
 
+`fman.APP_NAME` is the user-visible app name (`fman++`). `fman.FMAN_VERSION`
+is the current app version.
+
 Load order is shipped → third-party → user (`impl/plugins/discover.py`). Each
 plugin directory is appended to `sys.path`, so a plugin can `import` any other
 loaded plugin's packages — including Core's.

@@ -5,7 +5,7 @@ apps. windrop (github.com/BenjaminKobjolke/windrop) shows a small card at the
 cursor that the user drags from with the real mouse, so fman only focuses the
 target, puts the cursor on its center and launches windrop there.
 """
-from fman import DirectoryPaneCommand, show_alert
+from fman import APP_NAME, DirectoryPaneCommand, show_alert
 from fbs_runtime.platform import is_windows
 from fman.impl.util.qt.thread import run_in_main_thread
 from fman.url import as_human_readable, splitscheme
@@ -143,7 +143,8 @@ def _show_drag_help():
 	box.setIcon(QMessageBox.Information)
 	box.setStandardButtons(QMessageBox.Ok)
 	box.setText(
-		'After you click OK, fman brings the window to the front and starts the '
+		'After you click OK, ' + APP_NAME +
+		' brings the window to the front and starts the ' +
 		'drag at its center.\n\n'
 		'WASD / arrow keys: move the cursor (hold to keep moving)\n'
 		'Q / Space / Enter: drop the files\n'

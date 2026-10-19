@@ -1,13 +1,34 @@
 from build_impl import copy_python_library, copy_release_notes
-from fbs import path
+from fbs import path, SETTINGS
 from fbs.cmdline import command
-from fbs.freeze.windows import freeze_windows
+from fbs.freeze import windows as fbs_windows
 from shutil import rmtree
 from subprocess import run
+from build_impl.version_info import brand_version_info
+
+
+_create_version_info = fbs_windows._create_version_info
+
+
+def _create_version_info_with_display_name():
+	_create_version_info()
+	version_info_path = path('target/PyInstaller/version_info.py')
+	with open(version_info_path, 'r', encoding='utf-8') as version_info_file:
+		source = version_info_file.read()
+	with open(version_info_path, 'w', encoding='utf-8') as version_info_file:
+		version_info_file.write(brand_version_info(
+			source, SETTINGS['app_name'], SETTINGS['display_name']
+		))
+
+
+# fbs checks its bundled version_info.py before the project override, so the
+# project file is never read. This relies on a private fbs function; remove the
+# wrapper once fbs changes that lookup order.
+fbs_windows._create_version_info = _create_version_info_with_display_name
 
 @command
 def freeze():
-	freeze_windows()
+	fbs_windows.freeze_windows()
 	copy_release_notes(path('${freeze_dir}/release_notes'))
 	rmtree(path('${core_plugin_in_freeze_dir}/bin/mac'))
 	rmtree(path('${core_plugin_in_freeze_dir}/bin/linux'))

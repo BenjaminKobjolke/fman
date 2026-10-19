@@ -23,7 +23,7 @@ __all__ = [
 	'get_window_opacity', 'set_window_opacity',
 	'clipboard',
 	'submit_task', 'Task',
-	'PLATFORM', 'FMAN_VERSION', 'DATA_DIRECTORY',
+	'PLATFORM', 'FMAN_VERSION', 'APP_NAME', 'DATA_DIRECTORY',
 	'OK', 'CANCEL', 'YES', 'NO', 'YES_TO_ALL', 'NO_TO_ALL', 'ABORT', 'RETRY'
 ]
 
@@ -37,6 +37,9 @@ OK = QMessageBox.Ok
 CANCEL = QMessageBox.Cancel
 
 FMAN_VERSION = ''
+
+# Keep this in sync with display_name in src/build/settings/base.json.
+APP_NAME = 'fman++'
 
 PLATFORM = platform.name()
 

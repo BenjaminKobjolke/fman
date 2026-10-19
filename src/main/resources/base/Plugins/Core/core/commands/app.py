@@ -4,8 +4,8 @@
 sanitizer drops bindings whose command does not exist, so shadowing a shipped
 default needs a real command to point at.
 """
-from fman import ApplicationCommand, DATA_DIRECTORY, DirectoryPaneCommand, \
-	FMAN_VERSION, links, show_alert
+from fman import APP_NAME, ApplicationCommand, DATA_DIRECTORY, \
+	DirectoryPaneCommand, FMAN_VERSION, links, show_alert
 from fman.url import as_url
 from PyQt5.QtCore import QUrl
 from PyQt5.QtGui import QDesktopServices
@@ -19,7 +19,7 @@ __all__ = [
 
 class About(ApplicationCommand):
 	def __call__(self):
-		show_alert("fman version: " + FMAN_VERSION)
+		show_alert(APP_NAME + " version: " + FMAN_VERSION)
 
 class Help(ApplicationCommand):
 
@@ -52,9 +52,11 @@ class Quit(ApplicationCommand):
 		sys.exit(0)
 
 class ZenOfFman(ApplicationCommand):
+	aliases = ('Zen of fman++',)
+
 	def __call__(self):
 		show_alert(
-			"The Zen of fman\n"
+			"The Zen of " + APP_NAME + "\n"
 			+ links.ZEN + "\n\n"
 			"Looks matter\n"
 			"Speed counts\n"

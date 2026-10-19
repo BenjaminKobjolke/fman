@@ -7,8 +7,8 @@ behaviour through DirectoryPaneListener#on_command(...).
 from core.commands.util import get_opposite_pane, is_dir_checked, \
 	is_file_url, is_shortcut, require_file_url, shortcut_target, NO_SELECTION
 from core.viewers import viewer_for
-from fman import DirectoryPaneCommand, DirectoryPaneListener, PLATFORM, \
-	load_json, save_json, show_alert
+from fman import APP_NAME, DirectoryPaneCommand, DirectoryPaneListener, \
+	PLATFORM, load_json, save_json, show_alert
 from fman.fs import is_dir, resolve
 from fman.url import as_human_readable, as_url, dirname, splitscheme
 from subprocess import Popen, DEVNULL
@@ -40,9 +40,9 @@ class Open(DirectoryPaneCommand):
 						show_alert(
 							'Quick tip: Apps in macOS are directories. When '
 							'you press '
-							'<span style="color: white;">Enter</span>, '
-							'fman therefore browses them. If you want to '
-							'launch the app instead, press '
+							'<span style="color: white;">Enter</span>, ' +
+							APP_NAME + ' therefore browses them. If you want to ' +
+							'launch the app instead, press ' +
 							'<span style="color: white;">Cmd+Enter</span>.'
 						)
 						dialogs['open_app_hint_shown'] = True

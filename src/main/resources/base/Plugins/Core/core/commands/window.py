@@ -8,8 +8,8 @@ around it. The two icon toggles write settings the engine owns
 from core.commands.util import is_file_url
 from core.panes import reload_panes
 from core.settings import get_setting, save_setting
-from fman import ApplicationCommand, DirectoryPaneListener, PLATFORM, \
-	show_status_message
+from fman import APP_NAME, ApplicationCommand, DirectoryPaneListener, \
+	PLATFORM, show_status_message
 # The engine owns these: it reads the settings the two icon toggles below
 # write, and never imports this plugin - so the names live there.
 from fman.impl.model.icon_provider import EXECUTABLE_ICONS_KEY, \
@@ -22,7 +22,7 @@ __all__ = [
 	'ToggleNetworkIcons', 'UpdateWindowTitle'
 ]
 
-_WINDOW_TITLE_PREFIX = 'fman - file manager'
+_WINDOW_TITLE_PREFIX = APP_NAME + ' - file manager'
 
 def _format_window_title(paths):
 	# Pure string builder, kept separate from the pane/Qt access so it's

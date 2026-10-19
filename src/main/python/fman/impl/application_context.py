@@ -4,7 +4,7 @@ from fbs_runtime.application_context.PyQt5 import ApplicationContext
 from fbs_runtime.excepthook import StderrExceptionHandler
 from fbs_runtime.excepthook.sentry import SentryExceptionHandler
 from fbs_runtime.platform import is_mac
-from fman import PLATFORM, DATA_DIRECTORY, Window
+from fman import APP_NAME, PLATFORM, DATA_DIRECTORY, Window
 from fman.impl.controller import Controller
 from fman.impl.font_database import FontDatabase
 from fman.impl.metrics import Metrics, ServerBackend, AsynchronousMetrics, \
@@ -196,6 +196,7 @@ class DevelopmentApplicationContext(ApplicationContext):
 		result.setOrganizationName('fman.io')
 		result.setOrganizationDomain('fman.io')
 		result.setApplicationName('fman')
+		result.setApplicationDisplayName(APP_NAME)
 		result.setStyle(self.style)
 		result.setPalette(self.palette)
 		result.aboutToQuit.connect(self.on_quit)
@@ -266,7 +267,7 @@ class DevelopmentApplicationContext(ApplicationContext):
 				self.app.installNativeEventFilter(self._build_shutdown_filter)
 		return self._main_window
 	def _get_main_window_title(self):
-		return 'fman'
+		return APP_NAME
 	@cached_property
 	def help_menu_actions(self):
 		if is_mac():

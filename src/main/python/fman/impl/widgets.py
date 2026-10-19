@@ -1,5 +1,5 @@
 from fbs_runtime.platform import is_windows, is_mac
-from fman import OK
+from fman import APP_NAME, OK
 from fman.impl.background import chrome_is_transparent, for_window
 from fman.impl.model import SortedFileSystemModel
 from fman.impl.quicksearch import Quicksearch
@@ -474,7 +474,7 @@ class MainWindow(QMainWindow):
 		# Let API users pass arbitrary objects by converting str(text):
 		text_str = str(text)
 		dialog = Prompt(
-			self, 'fman', text_str, default, selection_start, selection_end
+			self, APP_NAME, text_str, default, selection_start, selection_end
 		)
 		dialog.setTextValue(default)
 		result = self.exec_dialog(dialog)

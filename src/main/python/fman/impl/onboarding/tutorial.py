@@ -1,5 +1,5 @@
 from fbs_runtime.platform import is_mac, is_windows
-from fman import load_json, show_alert, CANCEL, OK, links
+from fman import APP_NAME, load_json, show_alert, CANCEL, OK, links
 from fman.impl.onboarding import Tour, TourStep
 from fman.impl.util import is_below_dir
 from fman.impl.util.qt import connect_once
@@ -44,7 +44,7 @@ class Tutorial(Tour):
 	def on_close(self):
 		if self._is_first_run and _is_macos_catalina_or_later():
 			response = show_alert(
-				"On macOS, fman requires extra configuration.<br/>"
+				"On macOS, " + APP_NAME + " requires extra configuration.<br/>" +
 				"I'll show you the relevant documentation now.",
 				OK | CANCEL, OK
 			)
@@ -53,7 +53,7 @@ class Tutorial(Tour):
 	def _get_steps(self):
 		return [
 			TourStep(
-				'Welcome to fman!',
+				'Welcome to ' + APP_NAME + '!',
 				[
 					"Would you like to take a quick tour of the most useful "
 					"features? It takes less than five minutes and lets you "
@@ -85,7 +85,8 @@ class Tutorial(Tour):
 			TourStep(
 				"",
 				[
-					"We will now use a feature that makes fman unique among "
+					"We will now use a feature that makes " + APP_NAME +
+					" unique among " +
 					"file managers: It's called *GoTo*. Press *%s* to launch "
 					"it!" % self._cmd_p
 				],
@@ -135,9 +136,9 @@ class Tutorial(Tour):
 			TourStep(
 				'',
 				[
-					"Well done! fman opened " + self._native_fm +
+					"Well done! " + APP_NAME + " opened " + self._native_fm +
 					" in your *%s* folder.",
-					"Because fman always displays two directories, it is "
+					"Because " + APP_NAME + " always displays two directories, it is " +
 					"called a *dual-pane file manager*. Have you used one "
 					"before?"
 				],
@@ -159,8 +160,8 @@ class Tutorial(Tour):
 				'',
 				[
 					"Okay! Press *Tab* to move from one side to the other. "
-					"Then, select the file you want to copy and press *F5*. "
-					"fman will ask you for confirmation. To delete the file "
+					"Then, select the file you want to copy and press *F5*. " +
+					APP_NAME + " will ask you for confirmation. To delete the file " +
 					"afterwards, press *%s*. Once you are done, click the "
 					"button below." % self._delete_key
 				],
@@ -184,7 +185,7 @@ class Tutorial(Tour):
 				[
 					"Dual-pane file managers rely heavily on keyboard "
 					"shortcuts. But how do you remember them?",
-					"fman's answer to this question is a searchable list of "
+					APP_NAME + "'s answer to this question is a searchable list of " +
 					"features. It's called the *Command Palette*. Please press "
 					"*%s* to launch it." % self._cmd_shift_p
 				],
@@ -198,7 +199,8 @@ class Tutorial(Tour):
 			TourStep(
 				'',
 				[
-					"Well done! Note how the Command Palette shows fman's "
+					"Well done! Note how the Command Palette shows " + APP_NAME +
+					"'s " +
 					"commands as well as the shortcut for each of them.",
 					"Say you want to select all files, but don't know how. "
 					"Type *select* into the Command Palette. It will suggest "
@@ -225,9 +227,10 @@ class Tutorial(Tour):
 				}
 			),
 			TourStep(
-				'Make fman your own',
+				'Make ' + APP_NAME + ' your own',
 				[
-					"One last thing: fman's looks are yours to change. Press "
+					"One last thing: " + APP_NAME + "'s looks are yours to change. "
+					"Press " +
 					"*%s* again and type *theme*. The palette will suggest "
 					"*Select theme* - confirm with *Enter*, then pick the "
 					"theme you like." % self._cmd_shift_p,
@@ -250,7 +253,7 @@ class Tutorial(Tour):
 					"* *%s* lets you go to any _P_ath." % self._cmd_p,
 					"* *F10* opens %s" % self._native_fm,
 					"* *%s* opens the Command _P_alette." % self._cmd_shift_p,
-					"Have fun with fman! :-)"
+					"Have fun with " + APP_NAME + "! :-)"
 				],
 				buttons=[('&Close', self.complete)]
 			)
@@ -340,7 +343,7 @@ class Tutorial(Tour):
 		result = []
 		if not self._last_step:
 			result.append(
-				"fman always shows the contents of two directories. We will "
+				APP_NAME + " always shows the contents of two directories. We will " +
 				"now navigate to your *%s* folder in the left pane." %
 				fman.url.basename(self._dst_url)
 			)
@@ -391,9 +394,10 @@ class Tutorial(Tour):
 			)
 		else:
 			assert instruction == 'go to'
-			text = "We need to go to *%s*. Please press *%s* to open " \
-				   "fman's GoTo dialog. There, type *%s* followed by *Enter*."\
-				   % (path, self._cmd_p, path)
+			text = (
+				"We need to go to *%s*. Please press *%s* to open " +
+				APP_NAME + "'s GoTo dialog. There, type *%s* followed by *Enter*."
+			) % (path, self._cmd_p, path)
 			result.append(text)
 		self._last_step = instruction
 		return result
@@ -453,8 +457,10 @@ class Tutorial(Tour):
 				   "or simply type *home*. Then, press *Enter*."
 		else:
 			goto_dir = fman.url.basename(self._dst_url)
-			text = "Start typing *%s* into the dialog. fman will suggest " \
-				   "your directory. Press *Enter* to open it." % goto_dir
+			text = (
+				"Start typing *%s* into the dialog. " + APP_NAME +
+				" will suggest your directory. Press *Enter* to open it."
+			) % goto_dir
 		self._format_next_step_paragraph((), text)
 		self._next_step()
 	def _after_goto(self):
@@ -466,10 +472,11 @@ class Tutorial(Tour):
 					"Awesome! Using GoTo, you jumped to your directory in "
 					"*%.2f* seconds instead of *%.2f*." %
 					(time_taken, self._time_taken),
-					"The next time you open *%s* outside of fman, ask "
-					"yourself: Isn't it tedious to click through directory "
-					"trees all the time? fman is the answer." %
-					fman.url.basename(url)
+					(
+						"The next time you open *%s* outside of " + APP_NAME +
+						", ask yourself: Isn't it tedious to click through directory "
+						"trees all the time? " + APP_NAME + " is the answer."
+					) % fman.url.basename(url)
 				]
 			else:
 				paras = [

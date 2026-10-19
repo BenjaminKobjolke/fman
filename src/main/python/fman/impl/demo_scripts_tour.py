@@ -19,6 +19,7 @@ copy of it.
 from automated_screenshot_connector import (
 	Command, DemoScript, Pause, PressKey, TypeText,
 )
+from fman import APP_NAME
 
 TOUR_CHAPTERS = {
 	3: DemoScript(
@@ -104,7 +105,7 @@ TOUR_CHAPTERS = {
 			Command('edit'), Pause(1.0),
 			PressKey('Ctrl+End'), Pause(0.5),
 			PressKey('Return'), Pause(0.3),   # a newline; TypeText can't carry one
-			TypeText('Edited in fman'), Pause(1.3),
+			TypeText('Edited in ' + APP_NAME), Pause(1.3),
 			PressKey('Ctrl+Shift+P'), Pause(1.0),
 			Command('save'), Pause(1.5),      # straight to disk, no dialog
 			PressKey('Ctrl+Shift+P'), Pause(1.0),

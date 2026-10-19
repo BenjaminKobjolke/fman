@@ -1,6 +1,6 @@
 from fbs_runtime.platform import is_mac
-from fman import show_alert, YES, NO, run_application_command, load_json, \
-	save_json, DATA_DIRECTORY, unload_plugin, load_plugin, links
+from fman import APP_NAME, show_alert, YES, NO, run_application_command, \
+	load_json, save_json, DATA_DIRECTORY, unload_plugin, load_plugin, links
 from fman.fs import is_dir
 from fman.impl.html_style import highlight
 from fman.impl.util.qt import Key_Up
@@ -15,7 +15,7 @@ class NonexistentShortcutHandler:
 
 	_THANK_YOU_FOR_FEEDBACK_MESSAGE = \
 		'Thank you for your feedback. We will take it into account for ' \
-		'future versions of fman!'
+		'future versions of ' + APP_NAME + '!'
 
 	def __init__(self, main_window, settings, metrics):
 		self._main_window = main_window
@@ -171,7 +171,8 @@ class NonexistentShortcutHandler:
 	def _handle_ctrl_cmd_t(self):
 		key = lambda mod, k: highlight(('Cmd' if is_mac() else mod) + '+' + k)
 		show_alert(
-			"Sorry, fman does not yet support tabs. But! You might not need "
+			"Sorry, " + APP_NAME + " does not yet support tabs. But! You might not "
+			"need "
 			"them: Jump to other directories with %s, then press %s "
 			"to go back. This lets you switch folders almost as fast &ndash; "
 			"and saves valuable screen space."
@@ -233,7 +234,7 @@ class NonexistentShortcutHandler:
 			show_alert(
 				'Your key bindings were updated. To change them later, please '
 				'see the <a href="' + links.CUSTOM_SHORTCUTS + '">'
-				'Shortcuts</a> section on fman\'s web site.'
+				'Shortcuts</a> section on ' + APP_NAME + '\'s web site.'
 			)
 	def _offer_to_install_arrownavigation_plugin(self, pretext):
 		choice = show_alert(

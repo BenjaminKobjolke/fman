@@ -42,7 +42,7 @@ class CheckForUpdatesTest(TestCase):
 		)
 		CheckForUpdates(None)()
 		self.patches['show_alert'].assert_called_once_with(
-			'fman 1.7.13_3 is up to date.'
+			'fman++ 1.7.13_3 is up to date.'
 		)
 
 	def test_manual_failures_report_error(self):

@@ -1,7 +1,8 @@
 """Offer the latest GitHub release through the command palette or timer."""
 from core.updates import check_for_update
-from fman import ApplicationCommand, NO, YES, clear_status_message, links, \
-	load_json, save_json, show_alert, show_status_message
+from fman import APP_NAME, ApplicationCommand, NO, YES, \
+	clear_status_message, links, load_json, save_json, show_alert, \
+	show_status_message
 from PyQt5.QtCore import QUrl
 from PyQt5.QtGui import QDesktopServices
 from urllib.error import URLError
@@ -10,8 +11,8 @@ __all__ = ['CheckForUpdates']
 
 UPDATE_CHECK_FILE = 'Update Check.json'
 CHECKING_MESSAGE = 'Checking for updates…'
-UPDATE_MESSAGE = 'fman %s is available (installed: %s). Open the download page?'
-CURRENT_MESSAGE = 'fman %s is up to date.'
+UPDATE_MESSAGE = APP_NAME + ' %s is available (installed: %s). Open the download page?'
+CURRENT_MESSAGE = APP_NAME + ' %s is up to date.'
 ERROR_MESSAGE = 'Could not check for updates: %s'
 
 
