@@ -1,6 +1,7 @@
 from core.transfer_workers import TransferWorkers, DONE
 from queue import Queue
 from threading import Barrier, Event, get_ident
+from time import sleep
 from unittest import TestCase
 
 class TransferWorkersTest(TestCase):
@@ -101,6 +102,79 @@ class TransferWorkersTest(TestCase):
 		workers.join()
 		self.assertEqual(len(ids), len(set(ids)))
 		self.assertIn(3, ids)
+	def test_barrier_task_waits_for_earlier_tasks(self):
+		a_started, release_a = Event(), Event()
+		events = []
+		def run_task(worker, task, is_last):
+			events.append(('start', task))
+			if task == 'a':
+				a_started.set()
+				release_a.wait(self._TIMEOUT_SECS)
+			events.append(('end', task))
+			return True
+		barrier = _flagged('b', waits_for_earlier_tasks=True)
+		workers = self._start(2, ['a', barrier], run_task)
+		a_started.wait(self._TIMEOUT_SECS)
+		# Gives a broken barrier the time to start 'b' too early:
+		sleep(.2)
+		release_a.set()
+		workers.join()
+		self.assertLess(events.index(('end', 'a')), events.index(('start', 'b')))
+	def test_blocking_task_holds_back_later_tasks_only(self):
+		a_started, release_a = Event(), Event()
+		mkdir_started, release_mkdir = Event(), Event()
+		events = []
+		def run_task(worker, task, is_last):
+			events.append(('start', task))
+			if task == 'a':
+				a_started.set()
+				release_a.wait(self._TIMEOUT_SECS)
+			elif task == 'mkdir':
+				mkdir_started.set()
+				release_mkdir.wait(self._TIMEOUT_SECS)
+			events.append(('end', task))
+			return True
+		mkdir = _flagged('mkdir', blocks_later_tasks=True)
+		workers = self._start(3, ['a', mkdir, 'c'], run_task)
+		a_started.wait(self._TIMEOUT_SECS)
+		self.assertTrue(
+			mkdir_started.wait(self._TIMEOUT_SECS),
+			'A blocking task must not wait for the tasks before it.'
+		)
+		# Gives a broken implementation the time to start 'c' too early:
+		sleep(.2)
+		release_mkdir.set()
+		release_a.set()
+		workers.join()
+		self.assertLess(
+			events.index(('end', 'mkdir')), events.index(('start', 'c'))
+		)
+	def test_counts_before_start_and_after_join(self):
+		workers = TransferWorkers(
+			2, self._queue_of(['a', 'b', 'c']), lambda *_: True
+		)
+		self.assertEqual((0, 3), workers.counts())
+		workers.start()
+		workers.join()
+		self.assertEqual((3, 3), workers.counts())
+	def test_count_total_grows_with_the_queue(self):
+		a_started, release_a = Event(), Event()
+		def run_task(worker, task, is_last):
+			a_started.set()
+			release_a.wait(self._TIMEOUT_SECS)
+			return True
+		queue = Queue()
+		queue.put('a')
+		workers = TransferWorkers(2, queue, run_task)
+		workers.start()
+		a_started.wait(self._TIMEOUT_SECS)
+		self.assertEqual((0, 1), workers.counts())
+		queue.put('b')
+		queue.put(DONE)
+		self.assertEqual(2, workers.counts()[1])
+		release_a.set()
+		workers.join()
+		self.assertEqual((2, 2), workers.counts())
 	def _start(self, count, tasks, run_task):
 		result = TransferWorkers(count, self._queue_of(tasks), run_task)
 		result.start()
@@ -110,3 +184,12 @@ class TransferWorkersTest(TestCase):
 		for task in tasks + [DONE]:
 			result.put(task)
 		return result
+
+class _Flagged(str):
+	pass
+
+def _flagged(name, **flags):
+	# A str, so run_task can compare it to plain names, with Task's flags.
+	result = _Flagged(name)
+	result.__dict__.update(flags)
+	return result

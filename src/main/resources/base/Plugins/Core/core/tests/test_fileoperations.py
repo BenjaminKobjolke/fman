@@ -516,33 +516,36 @@ class StreamingTransferTest(TestCase):
 			self.assertEqual({'c.txt'}, set(fs.iterdir(join(dest, 'dir'))))
 
 class ParallelTransferTest(TestCase):
+
+	_NAMES = ['a.txt', 'b.txt', 'c.txt']
+
 	def test_copy_runs_transfers_at_the_same_time(self):
-		names = ['a.txt', 'b.txt', 'c.txt']
+		self._transfer_at_the_same_time(CopyFiles)
+	def test_move_runs_transfers_at_the_same_time(self):
+		src = self._transfer_at_the_same_time(MoveFiles)
+		self.assertEqual(set(), src, 'Moved files must leave the source.')
+	def test_emptied_folder_is_deleted_after_earlier_moves(self):
+		task = MoveFiles(['file:///a'], 'file:///b')
+		self.assertTrue(
+			task._postprocess_directory('file:///a').waits_for_earlier_tasks
+		)
+	def _transfer_at_the_same_time(self, operation):
 		with TemporaryDirectory() as tmp_dir:
 			root = as_url(tmp_dir)
 			src, dest = join(root, 'src'), join(root, 'dest')
-			fs = _ParallelStubFS(_CopyWaitsForOthers(len(names)), len(names))
+			names = self._NAMES
+			backend = _TransfersWaitForOthers(len(names))
+			fs = _ParallelStubFS(backend, len(names))
 			fs.makedirs(src)
 			for name in names:
 				fs.touch(join(src, name))
-			task = CopyFiles([join(src, name) for name in names], dest, fs=fs)
+			task = operation([join(src, name) for name in names], dest, fs=fs)
 			dialog = MockProgressDialog(self)
 			task._dialog = dialog
 			task()
 			self.assertEqual(set(names), set(fs.iterdir(dest)))
 			self.assertIsNotNone(dialog.workers, 'Workers must be shown.')
-	def test_move_stays_sequential(self):
-		with TemporaryDirectory() as tmp_dir:
-			root = as_url(tmp_dir)
-			src, dest = join(root, 'src'), join(root, 'dest')
-			fs = _ParallelStubFS(LocalFileSystem(), 3)
-			fs.makedirs(src)
-			fs.touch(join(src, 'a.txt'))
-			task = MoveFiles([join(src, 'a.txt')], dest, fs=fs)
-			dialog = MockProgressDialog(self)
-			task._dialog = dialog
-			task()
-			self.assertIsNone(dialog.workers)
+			return set(fs.iterdir(src))
 
 class _ParallelStubFS(StubFS):
 	def __init__(self, backend, parallel_transfers):
@@ -551,10 +554,10 @@ class _ParallelStubFS(StubFS):
 	def get_parallel_transfers(self, src_url, dst_url):
 		return self._parallel_transfers
 
-class _CopyWaitsForOthers(LocalFileSystem):
+class _TransfersWaitForOthers(LocalFileSystem):
 	"""
-	Each copy waits until all of them have started, so a sequential copy
-	times out instead of hanging the test run.
+	Each copy or move waits until all of them have started, so a sequential
+	transfer times out instead of hanging the test run.
 	"""
 	_TIMEOUT_SECS = 5
 	def __init__(self, count):
@@ -563,6 +566,9 @@ class _CopyWaitsForOthers(LocalFileSystem):
 	def copy(self, src_url, dst_url):
 		self._all_started.wait()
 		super().copy(src_url, dst_url)
+	def move(self, src_url, dst_url):
+		self._all_started.wait()
+		super().move(src_url, dst_url)
 
 class _IterdirWaitsForCopy(LocalFileSystem):
 	"""

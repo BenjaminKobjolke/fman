@@ -57,9 +57,9 @@ class FileTreeOperation(Task):
 	def _postprocess_directory(self, src_dir_path):
 		return None
 	def _get_worker_count(self):
-		# Moves stay sequential: a directory is post-processed once the moves
-		# before it in the queue are done.
-		return 1
+		return self._fs.get_parallel_transfers(
+			self._files[0], self._get_dest_dir_url()
+		)
 	def __call__(self):
 		# Gathering walks the whole tree first, which on a remote file system
 		# takes long. So it runs on its own thread while the workers already
@@ -325,10 +325,6 @@ class CopyFiles(FileTreeOperation):
 		return False
 	def _prepare_transfer(self, src, dest):
 		return self._fs.prepare_copy(src, dest)
-	def _get_worker_count(self):
-		return self._fs.get_parallel_transfers(
-			self._files[0], self._get_dest_dir_url()
-		)
 
 class MoveFiles(FileTreeOperation):
 	def __init__(self, *super_args, **super_kwargs):
@@ -345,10 +341,13 @@ class MoveFiles(FileTreeOperation):
 	def _does_postprocess_directory(self):
 		return True
 	def _postprocess_directory(self, src_dir_path):
-		return Task(
+		result = Task(
 			'Postprocessing ' + basename(src_dir_path),
 			fn=self._do_postprocess_directory, args=(src_dir_path,)
 		)
+		# The directory is only empty once the moves out of it are done.
+		result.waits_for_earlier_tasks = True
+		return result
 	def _do_postprocess_directory(self, src_dir_path):
 		if self._is_empty(src_dir_path):
 			try:

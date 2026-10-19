@@ -494,6 +494,15 @@ class Task:
 	class Canceled(KeyboardInterrupt):
 		pass
 
+	# When Copy or Move run tasks on several workers (see
+	# FileSystem#get_parallel_transfers): a task that waits for earlier tasks,
+	# e.g. deleting a folder emptied by a move, starts once they are all done.
+	# One that blocks later tasks, e.g. creating a folder, keeps them from
+	# starting until it is done. Class attributes, not arguments, so a plugin
+	# can set them on an instance and still load in an older fman.
+	waits_for_earlier_tasks = False
+	blocks_later_tasks = False
+
 	def __init__(self, title, size=0, fn=lambda: None, args=(), kwargs=None):
 		if kwargs is None:
 			kwargs = {}

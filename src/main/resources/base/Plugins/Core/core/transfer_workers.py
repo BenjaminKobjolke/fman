@@ -5,7 +5,7 @@ snapshot() and calls add() / remove() while the workers run.
 """
 from dataclasses import dataclass, replace
 from fman.impl.task import ChildProgressDialog
-from threading import Lock, Thread
+from threading import Condition, Thread
 
 # Ends the queue of tasks. It stays in the queue so every worker sees it.
 DONE = object()
@@ -30,7 +30,11 @@ class TransferWorkers:
 		self._queue = queue
 		self._run_task = run_task
 		self._should_stop = should_stop
-		self._lock = Lock()
+		self._lock = Condition()
+		# Ticket -> whether later tasks wait for it. Holds the tasks taken off
+		# the queue that have not ended yet. See Task#waits_for_earlier_tasks.
+		self._unfinished = {}
+		self._next_ticket = 1
 		self._workers = []
 		self._threads = []
 		self._next_id = 1
@@ -82,6 +86,19 @@ class TransferWorkers:
 	def snapshot(self):
 		with self._lock:
 			return [replace(worker) for worker in self._workers]
+	def counts(self):
+		"""
+		(done, total) tasks. The total grows while the gatherer still queues.
+		"""
+		# ponytail: counts every task, so Move's "Postprocessing <dir>" too.
+		# Filter by task type if the count should hold files only.
+		queue = self._queue
+		# The queue's lock first, like _take(...), so the two cannot deadlock.
+		with queue.not_empty:
+			queued = sum(1 for task in queue.queue if task is not DONE)
+			with self._lock:
+				taken = self._next_ticket - 1
+				return taken - len(self._unfinished), taken + queued
 	def _can_add(self):
 		return not (self._finished or self._aborted) and \
 			len(self._workers) < _MAX_WORKERS
@@ -96,36 +113,77 @@ class TransferWorkers:
 		self._workers.append(result)
 		return result
 	def _work(self, worker):
+		ticket = None
 		try:
 			while not (self._aborted or worker.retiring):
-				task = self._queue.get()
+				task, ticket = self._take()
 				if task is DONE:
-					self._queue.put(DONE)
 					break
 				is_last = self._next_is_done()
+				self._wait_for_turn(task, ticket)
 				if self._aborted or self._should_stop():
 					break
 				if not self._run_task(worker, task, is_last):
 					self._aborted = True
+				self._finish(ticket)
+				ticket = None
 		except BaseException as e:
 			self._aborted = True
 			with self._lock:
 				if self._error is None:
 					self._error = e
 		finally:
+			if ticket is not None:
+				self._finish(ticket)
 			with self._lock:
 				self._workers.remove(worker)
-	def _next_is_done(self):
-		# Waits for the next task like a look-ahead, but does not take it: it
-		# may become another worker's. Queue has no public peek.
+	def _take(self):
+		# Numbered while the queue is still locked, so the numbers follow the
+		# queue's order however the workers race for it.
 		queue = self._queue
 		with queue.not_empty:
-			while not queue.queue:
-				queue.not_empty.wait()
-			# put(...) wakes one waiter. Not taking the item, pass the wakeup
-			# on, or a second peeking worker sleeps forever.
-			queue.not_empty.notify()
-			return queue.queue[0] is DONE
+			if self._first_queued() is DONE:
+				# Left in the queue for the other workers.
+				return DONE, None
+			task = queue.queue.popleft()
+			with self._lock:
+				ticket = self._next_ticket
+				self._next_ticket += 1
+				self._unfinished[ticket] = \
+					_waits_for_earlier(task) or \
+					getattr(task, 'blocks_later_tasks', False)
+		return task, ticket
+	def _wait_for_turn(self, task, ticket):
+		waits = _waits_for_earlier(task)
+		with self._lock:
+			while any(
+				earlier < ticket and (waits or blocks)
+				for earlier, blocks in self._unfinished.items()
+			):
+				self._lock.wait()
+	def _finish(self, ticket):
+		with self._lock:
+			del self._unfinished[ticket]
+			self._lock.notify_all()
+	def _next_is_done(self):
+		# Waits for the next task like a look-ahead, but does not take it: it
+		# may become another worker's.
+		with self._queue.not_empty:
+			return self._first_queued() is DONE
+	def _first_queued(self):
+		# Call holding the queue's lock. Waits until the queue holds an item,
+		# without taking it: Queue has no public peek. put(...) wakes only one
+		# waiter, so pass the wakeup on, or another waiting worker sleeps
+		# forever.
+		queue = self._queue
+		while not queue.queue:
+			queue.not_empty.wait()
+		queue.not_empty.notify()
+		return queue.queue[0]
+
+def _waits_for_earlier(task):
+	# Plain objects without Task's flags are fine too, e.g. in tests.
+	return getattr(task, 'waits_for_earlier_tasks', False)
 
 class WorkerProgress(ChildProgressDialog):
 	"""

@@ -164,8 +164,8 @@ class FileSystem:
 			fn=self.copy, args=(src_url, dst_url)
 		)]
 	def get_parallel_transfers(self, src_url, dst_url):
-		# How many files a copy transfers at once. More than 1 pays off for
-		# transports with a high cost per file, like FTP.
+		# How many files a copy or move transfers at once. More than 1 pays
+		# off for transports with a high cost per file, like FTP.
 		return 1
 	def move(self, src_url, dst_url):
 		raise self._operation_not_implemented()
