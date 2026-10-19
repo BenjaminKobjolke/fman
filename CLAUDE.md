@@ -88,6 +88,14 @@ If you touched dialog widgets (`src/main/python/fman/impl/widgets.py` —
 powershell -Command "cd 'D:\GIT\BenjaminKobjolke\fman'; cmd /c '.\tools\run_messagebox_tests.bat'"
 ```
 
+If you touched the progress dialog's worker rows
+(`src/main/python/fman/impl/workers_label.py`, or `ProgressDialog` in
+`widgets.py`), run:
+
+```bash
+powershell -Command "cd 'D:\GIT\BenjaminKobjolke\fman'; cmd /c '.\tools\run_progress_dialog_tests.bat'"
+```
+
 Like `run_overlay_focus_tests.bat`, these live in a `*_test.py` file that
 `python build.py test` deliberately does not discover: they need a
 `QApplication` of their own, and stray Qt state is what makes that suite hang.

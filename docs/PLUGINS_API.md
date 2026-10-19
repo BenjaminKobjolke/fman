@@ -257,6 +257,12 @@ font; see [Fonts](FONTS.md).
 `show_file_open_dialog`, `show_quicksearch` (with `QuicksearchItem`), and
 `submit_task(Task(...))` for anything long enough to need a progress dialog.
 
+A `FileSystem` can return more than 1 from
+`get_parallel_transfers(src_url, dst_url)` to have Copy transfer that many files
+at once. The progress dialog then lists the workers, and the user can add or
+remove them; `Task.show_workers(workers)` is how Copy asks for that view. See
+[Copy and Move](COPY_AND_MOVE.md#parallel-workers).
+
 `show_quicksearch` returns `(query, value)`, or `None` if the user pressed
 Escape. Pass `alt_accept=True` to also accept on **Shift+Enter**: the result is
 then always a triple, `(query, value, alt)`, with `alt` telling the two apart.

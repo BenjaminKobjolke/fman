@@ -233,6 +233,7 @@ These are the ones maintained on this account.
 | Doc | Topic |
 |---|---|
 | [ARCHIVES.md](docs/ARCHIVES.md) | `.zip`, `.7z`, `.tar` browsed like folders, backed by a bundled `7za` |
+| [COPY_AND_MOVE.md](docs/COPY_AND_MOVE.md) | Copy and Move: gathering and transferring at the same time |
 | [COMMAND_PALLETTE.md](docs/COMMAND_PALLETTE.md) | The `Ctrl+Shift+P` palette |
 | [COMMAND_PALETTE_KEYBINDINGS.md](docs/COMMAND_PALETTE_KEYBINDINGS.md) | Rebinding a shortcut from the palette with `Shift+Enter` |
 | [COMMAND_PALETTE_KEYWORDS.md](docs/COMMAND_PALETTE_KEYWORDS.md) | Hidden search keywords, and editing them with `Shift+Enter` |
