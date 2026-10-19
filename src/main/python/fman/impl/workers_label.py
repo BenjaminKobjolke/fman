@@ -9,7 +9,8 @@ outside widgets.py, which is close to the analyzer's line limit.
 """
 
 from fman import QuicksearchItem
-from PyQt5.QtCore import Qt, QRect
+from PyQt5.QtCore import Qt, QRect, QSize
+from PyQt5.QtGui import QPainter
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QPushButton, QVBoxLayout
 
 class WorkersLabel(QLabel):
@@ -23,7 +24,7 @@ class WorkersLabel(QLabel):
 		# if the percentages prove too coarse.
 		self._ids = QLabel()
 		self._percents = QLabel()
-		self._titles = QLabel()
+		self._titles = _ElidingLabel()
 		self._rows = QHBoxLayout()
 		for column in (self._ids, self._percents, self._titles):
 			column.setAlignment(Qt.AlignLeft | Qt.AlignTop)
@@ -119,6 +120,28 @@ class WorkersLabel(QLabel):
 		result.setFocusPolicy(Qt.NoFocus)
 		result.clicked.connect(on_click)
 		return result
+
+class _ElidingLabel(QLabel):
+	"""
+	Asks for the width of its whole text, so the dialog grows up to its
+	max-width in styles.qss, but may get narrower: then each line is cut in the
+	middle, which keeps a file's extension and the "(finishing)" mark visible.
+	"""
+	def minimumSizeHint(self):
+		return QSize(0, super().minimumSizeHint().height())
+	def paintEvent(self, e):
+		rect = self.contentsRect()
+		text = elide_lines(self.text(), self.fontMetrics(), rect.width())
+		self.style().drawItemText(
+			QPainter(self), rect, self.alignment(), self.palette(),
+			self.isEnabled(), text, self.foregroundRole()
+		)
+
+def elide_lines(text, metrics, width):
+	return '\n'.join(
+		metrics.elidedText(line, Qt.ElideMiddle, width)
+		for line in text.split('\n')
+	)
 
 def _columns(workers):
 	# One pass, so the three columns always have the same number of lines.

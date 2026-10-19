@@ -10,12 +10,13 @@ tools\\run_progress_dialog_tests.bat.
 
 from dataclasses import dataclass
 from fman.impl.widgets import MainWindow, ProgressDialog
-from fman.impl.workers_label import WorkersLabel
+from fman.impl.workers_label import elide_lines, WorkersLabel
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPalette
 from PyQt5.QtTest import QTest
 from fman.impl.view import ProxyStyle
-from PyQt5.QtWidgets import QApplication, QStyle, QStyleFactory, QWidget
+from PyQt5.QtWidgets import QApplication, QLabel, QStyle, QStyleFactory, \
+	QWidget
 from unittest import TestCase
 
 class WorkersLabelTest(TestCase):
@@ -73,6 +74,22 @@ class WorkersLabelTest(TestCase):
 		width = percents.fontMetrics().horizontalAdvance('100%')
 		self.assertEqual(width, percents.minimumWidth())
 		self.assertEqual(width, percents.maximumWidth())
+	def test_long_titles_are_elided_in_the_middle_per_line(self):
+		label = QLabel()
+		metrics = label.fontMetrics()
+		long = 'Deleting a_very_long_file_name_indeed.jpg  (finishing)'
+		width = metrics.horizontalAdvance(long) // 2
+		lines = elide_lines('short\n' + long, metrics, width).split('\n')
+		self.assertEqual('short', lines[0])
+		self.assertTrue(lines[1].startswith('Del'))
+		self.assertTrue(lines[1].endswith('(finishing)'))
+		self.assertLessEqual(metrics.horizontalAdvance(lines[1]), width)
+	def test_title_column_may_get_narrower_than_its_text(self):
+		label = self._label(_Worker(1, 'Copying ' + 'x' * 200))
+		titles = label._titles
+		self.assertLess(
+			titles.minimumSizeHint().width(), titles.sizeHint().width()
+		)
 	def test_unknown_size_shows_no_percentage(self):
 		label = self._label(_Worker(1, 'Copying a', size=0))
 		self.assertEqual('', label._percents.text())
