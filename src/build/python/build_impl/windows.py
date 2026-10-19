@@ -19,6 +19,8 @@ def _create_version_info_with_display_name():
 		version_info_file.write(brand_version_info(
 			source, SETTINGS['app_name'], SETTINGS['display_name']
 		))
+	# fbs passes this to PyInstaller as --version-file.
+	return version_info_path
 
 
 # fbs checks its bundled version_info.py before the project override, so the

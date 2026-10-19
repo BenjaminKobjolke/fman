@@ -29,6 +29,25 @@ def check_version_info_rewrite():
     assert "StringStruct('OriginalFilename', 'fman.exe')" in branded
 
 
+def check_version_info_wrapper_returns_path():
+    # fbs passes the return value to PyInstaller as --version-file, so a
+    # wrapper returning None crashes the freeze in subprocess.list2cmdline.
+    import sys
+    import tempfile
+
+    sys.path.insert(0, str(BUILD_PYTHON))
+    from build_impl import windows
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        version_info = Path(temp_dir) / "version_info.py"
+        version_info.write_text("StringStruct('ProductName', 'fman')")
+        windows._create_version_info = lambda: None
+        windows.path = lambda _: str(version_info)
+        windows.SETTINGS = {"app_name": "fman", "display_name": "fman++"}
+        returned = windows._create_version_info_with_display_name()
+    assert returned == str(version_info), returned
+
+
 def check_installer():
     script = INSTALLER.read_text()
     for expected in (
@@ -59,6 +78,7 @@ def check_installer():
 def main():
     check_installer()
     check_version_info_rewrite()
+    check_version_info_wrapper_returns_path()
 
 
 if __name__ == "__main__":
