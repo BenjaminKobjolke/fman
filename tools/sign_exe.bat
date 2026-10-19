@@ -24,7 +24,7 @@ if not exist "%~1" (
 )
 
 cd /d D:\GIT\BenjaminKobjolke\release-tool
-call uv run python -c "from release_tool.pre_signer import PreSigner,PreSignConfig; from pathlib import Path; PreSigner(PreSignConfig(True, r'//XIDA-SERVER/SigningExecutables/', r'//XIDA-SERVER/SigningExecutables/signed', 'XIDA GmbH', timeout=1800)).process(Path(r'%~1'))"
+call uv run python -c "from release_tool.pre_signer import PreSigner,PreSignConfig; from pathlib import Path; PreSigner(PreSignConfig(enabled=True, expected_signer='XIDA GmbH', network_path=r'//XIDA-SERVER/SigningExecutables/', network_path_signed=r'//XIDA-SERVER/SigningExecutables/signed', timeout=1800)).process(Path(r'%~1'))"
 if errorlevel 1 (
     echo ERROR: signing failed for %~1
     exit /b 1
