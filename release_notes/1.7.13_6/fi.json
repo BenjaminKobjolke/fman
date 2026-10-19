@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 6,
+  "date": "2026-10-19",
+  "title": "Nopeammat siirrot ja selkeämmät edistymisikkunat",
+  "notes": [
+    "Kopiointi- ja siirtotoiminnot voivat nyt käsitellä tiedostoja rinnakkain samalla, kun tiedostoluetteloa vielä kerätään. Tämä nopeuttaa suurten siirtojen tuntua.",
+    "Siirron edistymisikkunassa näytetään nyt tiedostomäärät, työntekijöiden tiedot pysyvät kohdakkain ja käytettävissä ovat pikanäppäimet sekä komentopalettitoiminnot. Myös pitkät työntekijöiden nimet ovat nyt helpommin luettavissa.",
+    "Kehyksettömien ikkunoiden rajaukset ovat nyt selkeämmät, joten niiden reunat on helpompi havaita.",
+    "Sovelluksessa ja asennusohjelmassa käytetään nyt johdonmukaisesti fman++-tuotenimeä."
+  ]
+}

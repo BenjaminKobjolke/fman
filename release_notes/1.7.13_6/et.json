@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 6,
+  "date": "2026-10-19",
+  "title": "Kiiremad edastused ja selgemad edenemisdialoogid",
+  "notes": [
+    "Failide kopeerimisel ja teisaldamisel saab nüüd faile paralleelselt töödelda juba ajal, mil faililoendit alles koostatakse, mistõttu tunduvad suured edastused kiiremad.",
+    "Edastuse edenemise dialoog kuvab nüüd failide arvu, hoiab töötajate üksikasjad joondatuna ning toetab klaviatuuri otseteid ja käsupaleti toiminguid. Ka pikki töötajate nimesid on nüüd lihtsam lugeda.",
+    "Raamita dialoogidel on nüüd selgemad kontuurid, nii et nende piire on lihtsam märgata.",
+    "Rakendus ja installiprogramm kasutavad nüüd järjepidevalt tootenime fman++."
+  ]
+}

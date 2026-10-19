@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 6,
+  "date": "2026-10-19",
+  "title": "Hurtigere overførsler og tydeligere statusdialoger",
+  "notes": [
+    "Kopierings- og flytteoverførsler kan nu behandle filer parallelt, mens fillisten stadig indlæses, så store overførsler føles hurtigere.",
+    "Dialogboksen for overførselsstatus viser nu antallet af filer, holder oplysningerne om arbejderne på linje og understøtter tastaturgenveje og handlinger fra kommandopaletten. Lange navne på arbejdere er også nemmere at læse.",
+    "Dialogbokse uden ramme har nu tydeligere konturer, så deres grænser er lettere at få øje på.",
+    "Appen og installationsprogrammet bruger nu konsekvent produktnavnet fman++."
+  ]
+}

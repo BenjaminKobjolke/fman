@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 6,
+  "date": "2026-10-19",
+  "title": "Gyorsabb átvitelek és áttekinthetőbb folyamatjelző ablakok",
+  "notes": [
+    "A másolási és áthelyezési műveletek mostantól párhuzamosan is feldolgozhatják a fájlokat, miközben a fájllista összeállítása még folyamatban van, így a nagyobb átvitelek gyorsabbnak tűnnek.",
+    "Az átviteli folyamatjelző ablak most már megjeleníti a fájlok számát, rendezetten tartja a feldolgozók adatait, és támogatja a billentyűparancsokat, valamint a parancspaletta műveleteit. A hosszú feldolgozónevek is könnyebben olvashatók.",
+    "A keret nélküli párbeszédablakok körvonalai most már jól láthatók, így könnyebb észrevenni a határaikat.",
+    "Az alkalmazás és a telepítő mostantól következetesen az fman++ terméknevet használja."
+  ]
+}

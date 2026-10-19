@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 6,
+  "date": "2026-10-19",
+  "title": "Transferts plus rapides et boîtes de dialogue de progression plus claires",
+  "notes": [
+    "Les transferts par copie et déplacement peuvent désormais traiter des fichiers en parallèle pendant que la liste des fichiers est encore en cours de collecte, ce qui accélère les transferts volumineux.",
+    "La boîte de dialogue de progression des transferts affiche désormais le nombre de fichiers, aligne les détails des tâches et prend en charge les raccourcis clavier ainsi que les actions de la palette de commandes. Les noms des tâches longues sont également plus faciles à lire.",
+    "Les boîtes de dialogue sans cadre ont désormais des contours plus nets, ce qui permet de mieux repérer leurs limites.",
+    "L’application et le programme d’installation utilisent désormais systématiquement le nom du produit fman++."
+  ]
+}

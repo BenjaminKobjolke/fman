@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 6,
+  "date": "2026-10-19",
+  "title": "Ātrāka pārsūtīšana un skaidrāki progresa dialoglodziņi",
+  "notes": [
+    "Failus kopēšanas un pārvietošanas laikā tagad var apstrādāt paralēli, kamēr vēl tiek veidots failu saraksts, tāpēc lielu apjomu pārsūtīšana šķiet ātrāka.",
+    "Pārsūtīšanas progresa dialoglodziņā tagad tiek rādīts failu skaits, informācija par darba procesiem ir līdzināta, kā arī tiek atbalstīti īsinājumtaustiņi un komandu paletes darbības. Arī garus darba procesu nosaukumus tagad ir vieglāk izlasīt.",
+    "Dialoglodziņiem bez rāmja tagad ir skaidrākas kontūras, tāpēc to robežas ir vieglāk pamanīt.",
+    "Lietotnē un instalētājā tagad konsekventi tiek izmantots produkta nosaukums fman++."
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 6,
+  "date": "2026-10-19",
+  "title": "Brži prenosi i pregledniji dijalozi za praćenje napretka",
+  "notes": [
+    "Prenosi kopiranjem i premeštanjem sada mogu da obrađuju datoteke paralelno dok se lista datoteka još prikuplja, pa veliki prenosi deluju brže.",
+    "Dijalog za praćenje napretka prenosa sada prikazuje broj datoteka, poravnava detalje o radnicima i podržava prečice na tastaturi i radnje iz palete komandi. Duga imena radnika sada se lakše čitaju.",
+    "Dijalozi bez okvira sada imaju jasnije konture, pa se njihove granice lakše uočavaju.",
+    "Aplikacija i instalacioni program sada dosledno koriste naziv proizvoda fman++."
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 6,
+  "date": "2026-10-19",
+  "title": "Greitesnis failų perkėlimas ir aiškesni eigos dialogai",
+  "notes": [
+    "Dabar kopijuojant ir perkeliant failus jie gali būti apdorojami lygiagrečiai, kol vis dar sudaromas failų sąrašas, todėl dideli perkėlimai vyksta greičiau.",
+    "Perkėlimo eigos dialoge dabar rodomas failų skaičius, suderintai pateikiama informacija apie vykdytojus, taip pat palaikomi spartieji klavišai ir komandų paletės veiksmai. Ilgus vykdytojų pavadinimus taip pat lengviau perskaityti.",
+    "Dialogų be rėmelių kontūrai dabar aiškesni, todėl jų ribas lengviau pastebėti.",
+    "Programoje ir diegimo programoje dabar nuosekliai naudojamas „fman++“ produkto pavadinimas."
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 6,
+  "date": "2026-10-19",
+  "title": "Szybsze transfery i czytelniejsze okna postępu",
+  "notes": [
+    "Kopiowanie i przenoszenie mogą teraz przetwarzać pliki równolegle, nawet gdy lista plików jest nadal zbierana, dzięki czemu duże transfery przebiegają szybciej.",
+    "Okno postępu transferu pokazuje teraz liczbę plików, zachowuje wyrównanie szczegółów procesów roboczych oraz obsługuje skróty klawiszowe i działania z palety poleceń. Długie nazwy procesów roboczych są też teraz czytelniejsze.",
+    "Okna dialogowe bez ramek mają teraz wyraźniejsze kontury, dzięki czemu łatwiej dostrzec ich granice.",
+    "Aplikacja i instalator używają teraz spójnie nazwy produktu fman++."
+  ]
+}

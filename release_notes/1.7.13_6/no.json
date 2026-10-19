@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 6,
+  "date": "2026-10-19",
+  "title": "Raskere overføringer og tydeligere fremdriftsdialoger",
+  "notes": [
+    "Kopiering og flytting kan nå behandle filer parallelt mens fillisten fortsatt samles inn, slik at store overføringer oppleves raskere.",
+    "Dialogen for overføringsfremdrift viser nå antall filer, holder informasjon om arbeidsprosesser på linje og støtter hurtigtaster og handlinger fra kommandopaletten. Det er også enklere å lese lange navn på arbeidsprosesser.",
+    "Rammeløse dialoger har nå tydeligere omriss, slik at grensene deres er lettere å få øye på.",
+    "Appen og installasjonsprogrammet bruker nå konsekvent produktnavnet fman++."
+  ]
+}

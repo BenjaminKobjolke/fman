@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 6,
+  "date": "2026-10-19",
+  "title": "Transferuri mai rapide și dialoguri de progres mai clare",
+  "notes": [
+    "Transferurile prin copiere și mutare pot procesa acum fișierele în paralel, în timp ce lista de fișiere este încă în curs de colectare, astfel încât transferurile mari par mai rapide.",
+    "Dialogul de progres al transferului afișează acum numărul de fișiere, menține aliniate detaliile proceselor de lucru și acceptă scurtături de la tastatură și acțiuni din paleta de comenzi. Numele lungi ale proceselor de lucru sunt, de asemenea, mai ușor de citit.",
+    "Dialogurile fără cadru au acum contururi mai vizibile, astfel încât marginile lor sunt mai ușor de observat.",
+    "Aplicația și programul de instalare folosesc acum în mod consecvent numele produsului fman++."
+  ]
+}

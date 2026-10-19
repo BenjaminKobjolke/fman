@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 6,
+  "date": "2026-10-19",
+  "title": "Rýchlejšie prenosy a prehľadnejšie dialógy priebehu",
+  "notes": [
+    "Kopírovanie a presúvanie teraz dokáže spracúvať súbory paralelne, aj keď sa zoznam súborov ešte zostavuje, takže prenosy veľkého množstva súborov pôsobia rýchlejšie.",
+    "Dialóg priebehu prenosu teraz zobrazuje počty súborov, prehľadne zarovnáva podrobnosti o pracovných vláknach a podporuje klávesové skratky aj akcie z palety príkazov. Dlhšie názvy pracovných vlákien sa tiež čítajú jednoduchšie.",
+    "Dialógy bez rámu majú teraz výraznejšie obrysy, takže ich hranice ľahšie uvidíte.",
+    "Aplikácia aj inštalátor teraz jednotne používajú názov produktu fman++."
+  ]
+}

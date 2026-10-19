@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 6,
+  "date": "2026-10-19",
+  "title": "Snabbare överföringar och tydligare förloppsdialogrutor",
+  "notes": [
+    "Kopierings- och flyttöverföringar kan nu hantera filer parallellt medan fillistan fortfarande hämtas, vilket gör att stora överföringar känns snabbare.",
+    "Dialogrutan för överföringsförlopp visar nu antal filer, håller informationen om arbetsprocesserna justerad och har stöd för kortkommandon och åtgärder i kommandopaletten. Långa namn på arbetsprocesser är också lättare att läsa.",
+    "Ramlösa dialogrutor har nu tydligare konturer, så att deras gränser blir lättare att urskilja.",
+    "Appen och installationsprogrammet använder nu konsekvent produktnamnet fman++."
+  ]
+}

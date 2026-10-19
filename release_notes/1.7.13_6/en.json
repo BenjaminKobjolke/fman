@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 6,
+  "date": "2026-10-19",
+  "title": "Faster transfers and clearer progress dialogs",
+  "notes": [
+    "Copy and move transfers can now process files in parallel while the file list is still being gathered, making large transfers feel faster.",
+    "The transfer progress dialog now shows file counts, keeps worker details aligned, and supports keyboard shortcuts and command-palette actions. Long worker names are also easier to read.",
+    "Frameless dialogs now have clearer outlines, making their boundaries easier to spot.",
+    "The app and installer now consistently use the fman++ product name."
+  ]
+}

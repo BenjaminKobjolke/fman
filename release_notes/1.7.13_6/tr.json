@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 6,
+  "date": "2026-10-19",
+  "title": "Daha hızlı aktarımlar ve daha anlaşılır ilerleme iletişim kutuları",
+  "notes": [
+    "Dosya listesi hâlâ oluşturulurken kopyalama ve taşıma işlemleri artık dosyaları paralel olarak işleyebiliyor; böylece büyük aktarımlar daha hızlı tamamlanıyor.",
+    "Aktarım ilerleme iletişim kutusu artık dosya sayılarını gösteriyor, çalışan ayrıntılarını hizalı tutuyor ve klavye kısayollarını ve komut paleti eylemlerini destekliyor. Uzun çalışan adlarını okumak da artık daha kolay.",
+    "Çerçevesiz iletişim kutularının artık daha belirgin ana hatları var; böylece sınırlarını fark etmek daha kolay.",
+    "Uygulama ve yükleyici artık tutarlı biçimde fman++ ürün adını kullanıyor."
+  ]
+}

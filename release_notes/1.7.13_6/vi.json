@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 6,
+  "date": "2026-10-19",
+  "title": "Truyền tệp nhanh hơn, hộp thoại tiến trình rõ ràng hơn",
+  "notes": [
+    "Giờ đây, thao tác sao chép và di chuyển có thể xử lý nhiều tệp song song trong khi danh sách tệp vẫn đang được thu thập, giúp các lượt truyền tệp lớn có cảm giác nhanh hơn.",
+    "Hộp thoại tiến trình truyền tệp giờ hiển thị số lượng tệp, căn chỉnh thông tin về các tiến trình phụ, đồng thời hỗ trợ phím tắt và thao tác trong bảng lệnh. Tên tiến trình phụ dài cũng dễ đọc hơn.",
+    "Các hộp thoại không có khung giờ có đường viền rõ hơn, giúp bạn dễ nhận biết ranh giới của chúng.",
+    "Ứng dụng và trình cài đặt giờ đây luôn sử dụng tên sản phẩm fman++."
+  ]
+}

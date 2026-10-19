@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 6,
+  "date": "2026-10-19",
+  "title": "Schnellere Übertragungen und übersichtlichere Fortschrittsdialoge",
+  "notes": [
+    "Dateien können bei Kopier- und Verschiebevorgängen jetzt parallel verarbeitet werden, während die Dateiliste noch zusammengestellt wird. Dadurch wirken große Übertragungen schneller.",
+    "Der Dialog für den Übertragungsfortschritt zeigt jetzt die Dateianzahl an, richtet die Worker-Details übersichtlich aus und unterstützt Tastenkürzel sowie Aktionen der Befehlspalette. Lange Workernamen sind ebenfalls leichter lesbar.",
+    "Rahmenlose Dialoge haben jetzt deutlichere Umrisse, sodass ihre Begrenzungen leichter zu erkennen sind.",
+    "App und Installationsprogramm verwenden jetzt durchgehend den Produktnamen fman++."
+  ]
+}

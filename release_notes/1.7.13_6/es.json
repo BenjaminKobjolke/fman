@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 6,
+  "date": "2026-10-19",
+  "title": "Transferencias más rápidas y cuadros de progreso más claros",
+  "notes": [
+    "Las operaciones de copia y movimiento ahora pueden procesar archivos en paralelo mientras se sigue recopilando la lista de archivos, lo que hace que las transferencias grandes parezcan más rápidas.",
+    "El cuadro de progreso de las transferencias ahora muestra el número de archivos, mantiene alineados los detalles de los procesos de trabajo y admite atajos de teclado y acciones de la paleta de comandos. Además, los nombres largos de los procesos se leen mejor.",
+    "Los cuadros de diálogo sin marco ahora tienen contornos más claros, por lo que es más fácil distinguir sus límites.",
+    "La aplicación y el instalador ahora usan de forma coherente el nombre del producto fman++."
+  ]
+}

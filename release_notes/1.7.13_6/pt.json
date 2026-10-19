@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 6,
+  "date": "2026-10-19",
+  "title": "Transferências mais rápidas e janelas de progresso mais claras",
+  "notes": [
+    "As operações de cópia e movimentação agora podem processar arquivos em paralelo enquanto a lista de arquivos ainda está sendo compilada, tornando as transferências grandes mais rápidas.",
+    "A janela de progresso das transferências agora mostra a quantidade de arquivos, mantém os detalhes dos processos alinhados e oferece suporte a atalhos de teclado e ações da paleta de comandos. Nomes longos de processos também ficam mais fáceis de ler.",
+    "As janelas sem moldura agora têm contornos mais nítidos, facilitando a identificação de seus limites.",
+    "O aplicativo e o instalador agora usam o nome do produto fman++ de forma consistente."
+  ]
+}

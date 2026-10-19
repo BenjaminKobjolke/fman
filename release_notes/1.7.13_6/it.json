@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 6,
+  "date": "2026-10-19",
+  "title": "Trasferimenti più rapidi e finestre di avanzamento più chiare",
+  "notes": [
+    "I trasferimenti di copia e spostamento possono ora elaborare i file in parallelo mentre l’elenco dei file è ancora in fase di raccolta, rendendo più rapidi i trasferimenti di grandi dimensioni.",
+    "La finestra di avanzamento dei trasferimenti ora mostra il conteggio dei file, mantiene allineati i dettagli dei processi e supporta le scorciatoie da tastiera e le azioni della tavolozza dei comandi. Inoltre, i nomi lunghi dei processi sono più facili da leggere.",
+    "Le finestre di dialogo senza cornice ora hanno contorni più definiti, così è più facile individuarne i bordi.",
+    "L’app e il programma di installazione ora utilizzano in modo coerente il nome del prodotto fman++."
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 6,
+  "date": "2026-10-19",
+  "title": "Hitrejši prenosi in preglednejša pogovorna okna napredka",
+  "notes": [
+    "Pri kopiranju in premikanju se lahko datoteke zdaj obdelujejo vzporedno, medtem ko se seznam datotek še sestavlja, zato so veliki prenosi hitrejši.",
+    "Pogovorno okno napredka prenosa zdaj prikazuje število datotek, ohranja poravnavo podrobnosti o delovnih procesih ter podpira bližnjice na tipkovnici in dejanja v paleti ukazov. Tudi dolga imena delovnih procesov so zdaj lažje berljiva.",
+    "Pogovorna okna brez okvirja imajo zdaj jasnejše obrise, zato je njihove robove lažje opaziti.",
+    "Aplikacija in namestitveni program zdaj dosledno uporabljata ime izdelka fman++."
+  ]
+}

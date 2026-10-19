@@ -1,0 +1,12 @@
+{
+  "version": "1.7.13",
+  "build": 6,
+  "date": "2026-10-19",
+  "title": "Snellere overdrachten en duidelijkere voortgangsvensters",
+  "notes": [
+    "Kopieer- en verplaatsacties kunnen bestanden nu parallel verwerken terwijl de bestandslijst nog wordt verzameld. Daardoor verlopen grote overdrachten sneller.",
+    "Het voortgangsvenster voor overdrachten toont nu aantallen bestanden, houdt de details van de werkprocessen netjes uitgelijnd en ondersteunt sneltoetsen en acties uit het opdrachtpalet. Lange namen van werkprocessen zijn ook beter leesbaar.",
+    "Vensters zonder rand hebben nu duidelijkere contouren, waardoor hun grenzen beter opvallen.",
+    "De app en het installatieprogramma gebruiken nu consequent de productnaam fman++."
+  ]
+}
