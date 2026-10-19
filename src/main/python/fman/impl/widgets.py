@@ -1064,6 +1064,19 @@ class ProgressDialog(QProgressDialog):
 	def show_workers(self, workers):
 		self._workers_label = WorkersLabel(workers, self)
 		self.setLabel(self._workers_label)
+		self.installEventFilter(self)
+		self._cancel_button.installEventFilter(self)
+	def eventFilter(self, obj, e):
+		# Filters the focused Cancel button too: it uses Up / Down itself.
+		if e.type() != QEvent.KeyPress:
+			return False
+		if e.key() == Qt.Key_P and e.modifiers() & Qt.ControlModifier and \
+				e.modifiers() & Qt.ShiftModifier:
+			self._workers_label.open_palette(
+				self.parent().show_quicksearch, self.request_cancel
+			)
+			return True
+		return self._workers_label.handle_key(e.key())
 	def showEvent(self, e):
 		self._update()
 		self._update_timer.start(self._UPDATE_INTERVAL_MS)
