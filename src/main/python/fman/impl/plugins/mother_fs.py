@@ -152,6 +152,13 @@ class MotherFileSystem:
 				except Exception as e:
 					# Don't show previous UnsupportedOperation in traceback.
 					raise e from None
+	def get_parallel_transfers(self, src_url, dst_url):
+		src_fs = self._split(src_url)[0]
+		dst_fs = self._split(dst_url)[0]
+		return max(
+			src_fs.get_parallel_transfers(src_url, dst_url),
+			dst_fs.get_parallel_transfers(src_url, dst_url)
+		)
 	def add_file_changed_callback(self, url, callback):
 		child, path = self._split(url)
 		child._add_file_changed_callback(path, callback)

@@ -523,13 +523,22 @@ class Task:
 			raise self.Canceled()
 	def run(self, subtask):
 		self.set_text(subtask.get_title())
-		subtask._dialog = ChildProgressDialog(self._dialog)
+		self._run_with_dialog(subtask, ChildProgressDialog(self._dialog))
+	def _run_with_dialog(self, subtask, dialog):
+		subtask._dialog = dialog
 		subtask()
 		# Some tasks, especially those with size 1, may not "complete" their
 		# progress at the end. Do it for them:
 		subtask.set_progress(subtask.get_size())
 	def show_alert(self, *args, **kwargs):
 		return self._dialog.show_alert(*args, **kwargs)
+	def show_workers(self, workers):
+		"""
+		Lists the parallel workers in the progress dialog, with buttons to add
+		and remove them. `workers` provides snapshot(), add(), remove(),
+		can_add() and can_remove(), like core's TransferWorkers.
+		"""
+		self._dialog.show_workers(workers)
 	def __str__(self):
 		return self._title
 

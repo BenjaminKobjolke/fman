@@ -2,10 +2,11 @@ from core.fileoperations import CopyFiles, MoveFiles
 from core.fs.local import LocalFileSystem
 from core.tests import StubFS
 from fman import YES, NO, OK, YES_TO_ALL, NO_TO_ALL, ABORT, PLATFORM
-from fman.url import join, dirname, as_url, as_human_readable
+from fman.url import join, dirname, as_url, as_human_readable, splitscheme
 from os.path import exists
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from threading import Barrier, Event
 from unittest import TestCase, skipIf
 from unittest.mock import patch
 from fman.impl.plugins.mother_fs import MotherFileSystem
@@ -491,11 +492,104 @@ class UnavailableDestinationTest(TestCase):
 						self.assertEqual('source', src.read_text())
 						self.assertEqual('blocker', blocker.read_text())
 
+class StreamingTransferTest(TestCase):
+	def test_transfer_starts_before_gathering_ends(self):
+		with TemporaryDirectory() as tmp_dir:
+			root = as_url(tmp_dir)
+			src, dest = join(root, 'src'), join(root, 'dest')
+			src_dir = join(src, 'dir')
+			backend = _IterdirWaitsForCopy(splitscheme(src_dir)[1])
+			fs = StubFS(backend)
+			fs.makedirs(src_dir)
+			for name in ('a.txt', 'b.txt', 'dir/c.txt'):
+				fs.touch(join(src, *name.split('/')))
+			# An existing destination folder makes the gathering list src_dir:
+			fs.makedirs(join(dest, 'dir'))
+			files = [join(src, 'a.txt'), join(src, 'b.txt'), src_dir]
+			task = CopyFiles(files, dest, fs=fs)
+			task._dialog = MockProgressDialog(self)
+			task()
+			self.assertTrue(
+				backend.copy_started_first,
+				'Gathering must not block the transfers already found.'
+			)
+			self.assertEqual({'c.txt'}, set(fs.iterdir(join(dest, 'dir'))))
+
+class ParallelTransferTest(TestCase):
+	def test_copy_runs_transfers_at_the_same_time(self):
+		names = ['a.txt', 'b.txt', 'c.txt']
+		with TemporaryDirectory() as tmp_dir:
+			root = as_url(tmp_dir)
+			src, dest = join(root, 'src'), join(root, 'dest')
+			fs = _ParallelStubFS(_CopyWaitsForOthers(len(names)), len(names))
+			fs.makedirs(src)
+			for name in names:
+				fs.touch(join(src, name))
+			task = CopyFiles([join(src, name) for name in names], dest, fs=fs)
+			dialog = MockProgressDialog(self)
+			task._dialog = dialog
+			task()
+			self.assertEqual(set(names), set(fs.iterdir(dest)))
+			self.assertIsNotNone(dialog.workers, 'Workers must be shown.')
+	def test_move_stays_sequential(self):
+		with TemporaryDirectory() as tmp_dir:
+			root = as_url(tmp_dir)
+			src, dest = join(root, 'src'), join(root, 'dest')
+			fs = _ParallelStubFS(LocalFileSystem(), 3)
+			fs.makedirs(src)
+			fs.touch(join(src, 'a.txt'))
+			task = MoveFiles([join(src, 'a.txt')], dest, fs=fs)
+			dialog = MockProgressDialog(self)
+			task._dialog = dialog
+			task()
+			self.assertIsNone(dialog.workers)
+
+class _ParallelStubFS(StubFS):
+	def __init__(self, backend, parallel_transfers):
+		super().__init__(backend)
+		self._parallel_transfers = parallel_transfers
+	def get_parallel_transfers(self, src_url, dst_url):
+		return self._parallel_transfers
+
+class _CopyWaitsForOthers(LocalFileSystem):
+	"""
+	Each copy waits until all of them have started, so a sequential copy
+	times out instead of hanging the test run.
+	"""
+	_TIMEOUT_SECS = 5
+	def __init__(self, count):
+		super().__init__()
+		self._all_started = Barrier(count, timeout=self._TIMEOUT_SECS)
+	def copy(self, src_url, dst_url):
+		self._all_started.wait()
+		super().copy(src_url, dst_url)
+
+class _IterdirWaitsForCopy(LocalFileSystem):
+	"""
+	Listing `watched_path` waits until a copy has started. Only a transfer that
+	runs while the gathering continues can start one; sequential code would
+	time out instead of hanging the test run.
+	"""
+	_TIMEOUT_SECS = 5
+	def __init__(self, watched_path):
+		super().__init__()
+		self._watched_path = watched_path
+		self._copy_started = Event()
+		self.copy_started_first = None
+	def copy(self, src_url, dst_url):
+		self._copy_started.set()
+		super().copy(src_url, dst_url)
+	def iterdir(self, path):
+		if path == self._watched_path and self.copy_started_first is None:
+			self.copy_started_first = self._copy_started.wait(self._TIMEOUT_SECS)
+		return super().iterdir(path)
+
 class MockProgressDialog:
 	def __init__(self, test_case):
 		self._test_case = test_case
 		self._progress = 0
 		self._expected_alerts = []
+		self.workers = None
 	def expect_alert(self, args, answer):
 		self._expected_alerts.append((args, answer))
 	def verify_expected_dialogs_were_shown(self):
@@ -519,3 +613,5 @@ class MockProgressDialog:
 		return self._progress
 	def set_progress(self, progress):
 		self._progress = progress
+	def show_workers(self, workers):
+		self.workers = workers

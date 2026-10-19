@@ -48,6 +48,9 @@ def copy(src_url, dst_url):
 def prepare_copy(src_url, dst_url):
 	return _get_mother_fs().prepare_copy(src_url, dst_url)
 
+def get_parallel_transfers(src_url, dst_url):
+	return _get_mother_fs().get_parallel_transfers(src_url, dst_url)
+
 def iterdir(url):
 	return _get_mother_fs().iterdir(url)
 
@@ -160,6 +163,10 @@ class FileSystem:
 			'Copying ' + basename(src_url),
 			fn=self.copy, args=(src_url, dst_url)
 		)]
+	def get_parallel_transfers(self, src_url, dst_url):
+		# How many files a copy transfers at once. More than 1 pays off for
+		# transports with a high cost per file, like FTP.
+		return 1
 	def move(self, src_url, dst_url):
 		raise self._operation_not_implemented()
 	def prepare_move(self, src_url, dst_url):

@@ -178,6 +178,20 @@ class MotherFileSystemTest(TestCase):
 		self.assertTrue(mother_fs.is_dir('stub://dir'))
 		mother_fs.move('stub://a/b', 'stub://a/../b')
 		self.assertTrue(mother_fs.exists('stub://b'))
+	def test_parallel_transfers_default_to_one(self):
+		mother_fs = self._create_mother_fs(StubFileSystem({}))
+		self.assertEqual(
+			1, mother_fs.get_parallel_transfers('stub://a', 'stub://b')
+		)
+	def test_parallel_transfers_take_either_side(self):
+		mother_fs = self._create_mother_fs(StubFileSystem({}))
+		mother_fs.add_child(ParallelFileSystem.scheme, ParallelFileSystem())
+		self.assertEqual(
+			3, mother_fs.get_parallel_transfers('stub://a', 'par://b')
+		)
+		self.assertEqual(
+			3, mother_fs.get_parallel_transfers('par://a', 'stub://b')
+		)
 	def _create_mother_fs(self, fs):
 		result = MotherFileSystem(None)
 		result.add_child(fs.scheme, fs)
@@ -198,6 +212,13 @@ class FileSystemCountingIsdirCalls(FileSystem):
 		# Give other threads a chance to run:
 		sleep(.1)
 		return True
+
+class ParallelFileSystem(FileSystem):
+
+	scheme = 'par://'
+
+	def get_parallel_transfers(self, src_url, dst_url):
+		return 3
 
 class FileSystemRaisingError(FileSystem):
 

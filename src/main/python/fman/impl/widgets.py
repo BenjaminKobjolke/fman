@@ -9,6 +9,7 @@ from fman.impl.util.qt.thread import run_in_main_thread
 from fman.impl.view.backgrounds import PAINTER, set_transparent
 from fman.impl.view.location_bar import LocationBar
 from fman.impl.view import FileListView, Layout, set_selection
+from fman.impl.workers_label import WorkersLabel
 from fman.url import as_human_readable, basename, splitscheme
 from PyQt5.QtCore import pyqtSignal, QTimer, Qt, QEvent, QSize, QPoint, \
 	QRect
@@ -1004,6 +1005,7 @@ class ProgressDialog(QProgressDialog):
 		self._text = ''
 		self._progress = 0
 		self._was_canceled = False
+		self._workers_label = None
 		self.findChild(QProgressBar).setPalette(progress_bar_palette)
 		self.setMinimumDuration(self._MINIMUM_DURATION_MS)
 		self.setAutoReset(False)
@@ -1047,6 +1049,10 @@ class ProgressDialog(QProgressDialog):
 			self.setMinimumDuration(self._MINIMUM_DURATION_MS)
 	def was_canceled(self):
 		return self._was_canceled
+	@run_in_main_thread
+	def show_workers(self, workers):
+		self._workers_label = WorkersLabel(workers)
+		self.setLabel(self._workers_label)
 	def showEvent(self, e):
 		self._update()
 		self._update_timer.start(self._UPDATE_INTERVAL_MS)
@@ -1062,7 +1068,12 @@ class ProgressDialog(QProgressDialog):
 	def _update(self):
 		if self.wasCanceled():
 			return
-		self.setLabelText(self._text)
+		if self._workers_label is None:
+			self.setLabelText(self._text)
+		# QLabel#setText(...) is not virtual, so setLabelText(...) would not
+		# reach the workers label's own text.
+		elif self._workers_label.refresh(self._text):
+			self.adjustSize()
 		self._set_value(self._progress)
 	def _set_value(self, progress):
 		if self._size > self._MAX_C_INT:

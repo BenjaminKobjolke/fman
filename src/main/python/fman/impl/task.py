@@ -17,6 +17,8 @@ class StubProgressDialog:
 		raise NotImplementedError(
 			'Task#show_alert(...) is only supported for tasks with a GUI'
 		)
+	def show_workers(self, workers):
+		pass
 
 class ChildProgressDialog:
 	def __init__(self, parent):
@@ -37,3 +39,5 @@ class ChildProgressDialog:
 		return self._parent.was_canceled()
 	def show_alert(self, *args, **kwargs):
 		return self._parent.show_alert(*args, **kwargs)
+	def show_workers(self, workers):
+		self._parent.show_workers(workers)

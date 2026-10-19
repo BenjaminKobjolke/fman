@@ -1,8 +1,11 @@
+from core.transfer_workers import DONE, TransferWorkers, WorkerProgress
 from core.util import is_parent
 from fman import Task, YES, NO, YES_TO_ALL, NO_TO_ALL, ABORT, OK
 from fman.url import basename, join, dirname, splitscheme, relpath, \
 	as_human_readable
 from os.path import pardir
+from queue import Queue
+from threading import Lock, Thread
 
 import fman.fs
 
@@ -29,8 +32,17 @@ class FileTreeOperation(Task):
 		self._dest_name = dest_name
 		self._fs = fs
 		self._src_dir = dirname(files[0])
-		self._tasks = []
-		self._num_files = 0
+		self._queue = Queue()
+		self._gather_aborted = False
+		self._gather_exception = None
+		self._stop_gathering = False
+		# Overwrite prompts come from the gathering thread, error prompts from
+		# the transferring one. A second modal would open inside the first.
+		self._alert_lock = Lock()
+		# Workers add to the total size and progress at the same time. Never
+		# held by the GUI thread, so set_size(...) may wait for it.
+		self._progress_lock = Lock()
+		self._worker_count = 1
 		self._cannot_move_to_self_shown = False
 		self._override_all = None
 		self._ignore_exceptions = False
@@ -44,22 +56,78 @@ class FileTreeOperation(Task):
 		return False
 	def _postprocess_directory(self, src_dir_path):
 		return None
+	def _get_worker_count(self):
+		# Moves stay sequential: a directory is post-processed once the moves
+		# before it in the queue are done.
+		return 1
 	def __call__(self):
+		# Gathering walks the whole tree first, which on a remote file system
+		# takes long. So it runs on its own thread while the workers already
+		# transfer the files found so far.
 		self.set_text('Gathering files...')
-		if not self._gather_files():
-			return
-		self.set_size(sum(task.get_size() for task in self._tasks))
-		for i, task in enumerate(self._iter(self._tasks)):
-			is_last = i == len(self._tasks) - 1
-			progress_before = self.get_progress()
-			try:
-				self.run(task)
-			except (OSError, IOError) as e:
-				title = task.get_title()
-				message = 'Error ' + (title[0].lower() + title[1:])
-				if not self._handle_exception(message, is_last, e):
-					break
-				self.set_progress(progress_before + task.get_size())
+		gatherer = Thread(target=self._gather_in_background, daemon=True)
+		gatherer.start()
+		try:
+			self._run_gathered_tasks()
+		finally:
+			self._stop_gathering = True
+			gatherer.join()
+		if self._gather_exception is not None:
+			raise self._gather_exception
+	def _gather_in_background(self):
+		try:
+			self._gather_aborted = not self._gather_files()
+		except Task.Canceled:
+			pass
+		except Exception as e:
+			self._gather_exception = e
+		finally:
+			self._queue.put(DONE)
+	def _run_gathered_tasks(self):
+		self._worker_count = self._get_worker_count()
+		workers = TransferWorkers(
+			self._worker_count, self._queue, self._run_one,
+			should_stop=lambda: self._gather_aborted
+		)
+		if self._worker_count > 1:
+			# The worker rows show the files, so this keeps the overall title.
+			self.set_text(self.get_title())
+			self.show_workers(workers)
+		workers.start()
+		workers.join()
+	def _run_one(self, worker, task, is_last):
+		# When the transfers end early, the walk must stop too: the other
+		# workers wait for its end of the queue.
+		try:
+			keep_going = self._transfer_one(worker, task, is_last)
+		except BaseException:
+			self._stop_gathering = True
+			raise
+		if not keep_going:
+			self._stop_gathering = True
+		return keep_going
+	def _transfer_one(self, worker, task, is_last):
+		self.check_canceled()
+		size = task.get_size()
+		if size:
+			with self._progress_lock:
+				# The total grows as tasks start: it is unknown while gathering.
+				self.set_size(self.get_size() + size)
+		progress = WorkerProgress(
+			self._dialog, self._progress_lock, worker, task,
+			forward_text=self._worker_count == 1
+		)
+		try:
+			self._run_with_dialog(task, progress)
+		except (OSError, IOError) as e:
+			title = task.get_title()
+			message = 'Error ' + (title[0].lower() + title[1:])
+			if not self._handle_exception(message, is_last, e):
+				return False
+			progress.set_progress(size)
+		finally:
+			worker.title = ''
+		return True
 	def _gather_files(self):
 		# Checked before the destination is created: a rejected transfer must
 		# not leave a new folder behind, least of all inside its own source.
@@ -155,6 +223,9 @@ class FileTreeOperation(Task):
 			self._enqueue([self._postprocess_directory(src)])
 		return True
 	def _should_overwrite(self, file_url):
+		with self._alert_lock:
+			return self._ask_overwrite(file_url)
+	def _ask_overwrite(self, file_url):
 		if self._override_all is None:
 			choice = self.show_alert(
 				"%s exists. Do you want to overwrite it?" % basename(file_url),
@@ -173,15 +244,14 @@ class FileTreeOperation(Task):
 				return ABORT
 		return YES if self._override_all else NO
 	def _enqueue(self, tasks):
+		# Iterated lazily: a file system's prepare_copy(...) may walk a whole
+		# tree, and each task must reach the transferring thread when found.
 		for task in self._iter(tasks):
-			if task.get_size() > 0:
-				self._num_files += 1
-				self.set_text(
-					'Preparing to {} {:,} files.'
-						.format(self._descr_verb, self._num_files)
-				)
-			self._tasks.append(task)
+			self._queue.put(task)
 	def _handle_exception(self, message, is_last, exc):
+		with self._alert_lock:
+			return self._ask_continue(message, is_last, exc)
+	def _ask_continue(self, message, is_last, exc):
 		if self._ignore_exceptions:
 			return True
 		cause = _describe_error(exc)
@@ -232,6 +302,9 @@ class FileTreeOperation(Task):
 	def _iter(self, iterable):
 		for item in iterable:
 			self.check_canceled()
+			if self._stop_gathering:
+				# The transfers ended early (abort, error): stop walking.
+				raise Task.Canceled()
 			yield item
 	def _get_title(self, descr_verb, files):
 		verb = descr_verb.capitalize()
@@ -252,6 +325,10 @@ class CopyFiles(FileTreeOperation):
 		return False
 	def _prepare_transfer(self, src, dest):
 		return self._fs.prepare_copy(src, dest)
+	def _get_worker_count(self):
+		return self._fs.get_parallel_transfers(
+			self._files[0], self._get_dest_dir_url()
+		)
 
 class MoveFiles(FileTreeOperation):
 	def __init__(self, *super_args, **super_kwargs):
