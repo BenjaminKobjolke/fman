@@ -493,17 +493,24 @@ class MainWindow(QMainWindow):
 		)
 		result = self.exec_dialog(dialog)
 		return result
+	def _match_title_bar(self, dialog):
+		# Set the flag before show(), so Qt does not recreate the native window.
+		if not self.is_title_bar_visible():
+			dialog.setWindowFlag(Qt.FramelessWindowHint)
 	@run_in_main_thread
 	def create_progress_dialog(self, title, task_size):
-		return ProgressDialog(
+		dialog = ProgressDialog(
 			self, title, task_size, self._progress_bar_palette
 		)
+		self._match_title_bar(dialog)
+		return dialog
 	@run_in_main_thread
 	def exec_dialog(self, dialog):
 		self._dialog = dialog
 		self.before_dialog.emit(dialog)
 		dialog.moveToThread(self._app.thread())
 		dialog.setParent(self)
+		self._match_title_bar(dialog)
 		# No setWindowOpacity here on purpose: dialogs are top-level windows
 		# of their own (Quicksearch is a QDialog; FramelessWindowHint is only
 		# a hint), so the main window's opacity does not reach them and they

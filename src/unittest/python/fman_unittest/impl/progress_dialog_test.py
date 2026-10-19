@@ -9,13 +9,22 @@ tools\\run_progress_dialog_tests.bat.
 """
 
 from dataclasses import dataclass
-from fman.impl.widgets import ProgressDialog
+from fman.impl.widgets import MainWindow, ProgressDialog
 from fman.impl.workers_label import WorkersLabel
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPalette
-from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QApplication, QWidget
 from unittest import TestCase
 
 class WorkersLabelTest(TestCase):
+	def test_dialog_matches_hidden_main_window_title_bar(self):
+		dialog = QWidget()
+		MainWindow._match_title_bar(_FakeMainWindow(False), dialog)
+		self.assertTrue(dialog.windowFlags() & Qt.FramelessWindowHint)
+	def test_dialog_keeps_title_bar_when_main_window_title_bar_is_visible(self):
+		dialog = QWidget()
+		MainWindow._match_title_bar(_FakeMainWindow(True), dialog)
+		self.assertFalse(dialog.windowFlags() & Qt.FramelessWindowHint)
 	def test_rows_show_title_and_percentage(self):
 		label = self._label(
 			_Worker(1, 'Downloading a.jpg', progress=45, size=100), _Worker(2)
@@ -106,3 +115,9 @@ class _FakeWorkers:
 		return self.removable
 	def counts(self):
 		return self.file_counts
+
+class _FakeMainWindow:
+	def __init__(self, title_bar_visible):
+		self._title_bar_visible = title_bar_visible
+	def is_title_bar_visible(self):
+		return self._title_bar_visible
