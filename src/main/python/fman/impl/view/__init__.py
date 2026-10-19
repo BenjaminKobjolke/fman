@@ -1,6 +1,7 @@
 from fbs_runtime.platform import is_mac
 from fman.impl.background import chrome_is_transparent, focus_changes_pane, \
 	for_pane, pane_is_transparent
+from fman.impl.frameless_dialog import extra_margin
 from fman.impl.util.qt import WA_MacShowFocusRect, Key_Home, Key_End, \
 	ShiftModifier, Key_Return, Key_Enter, ToolTipRole, connect_once
 from fman.impl.view.backgrounds import PAINTER, set_transparent
@@ -453,6 +454,9 @@ class ProxyStyle(QProxyStyle):
 			painter.restore()
 			return
 		super().drawPrimitive(element, option, painter, widget)
+	def pixelMetric(self, metric, option=None, widget=None):
+		return super().pixelMetric(metric, option, widget) + \
+			extra_margin(metric, widget)
 	def styleHint(self, hint, *args):
 		if hint == self.SH_ProgressDialog_TextLabelAlignment:
 			return Qt.AlignLeft | Qt.AlignVCenter

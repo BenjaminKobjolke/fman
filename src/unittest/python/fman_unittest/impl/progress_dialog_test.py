@@ -13,7 +13,8 @@ from fman.impl.widgets import MainWindow, ProgressDialog
 from fman.impl.workers_label import WorkersLabel
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPalette
-from PyQt5.QtWidgets import QApplication, QWidget
+from fman.impl.view import ProxyStyle
+from PyQt5.QtWidgets import QApplication, QStyle, QStyleFactory, QWidget
 from unittest import TestCase
 
 class WorkersLabelTest(TestCase):
@@ -21,10 +22,32 @@ class WorkersLabelTest(TestCase):
 		dialog = QWidget()
 		MainWindow._match_title_bar(_FakeMainWindow(False), dialog)
 		self.assertTrue(dialog.windowFlags() & Qt.FramelessWindowHint)
+		# styles.qss outlines it, or it blends into the window behind it.
+		self.assertTrue(dialog.property('frameless'))
 	def test_dialog_keeps_title_bar_when_main_window_title_bar_is_visible(self):
 		dialog = QWidget()
 		MainWindow._match_title_bar(_FakeMainWindow(True), dialog)
 		self.assertFalse(dialog.windowFlags() & Qt.FramelessWindowHint)
+		self.assertFalse(dialog.property('frameless'))
+	def test_frameless_dialog_keeps_its_content_off_the_outline(self):
+		dialog, plain = QWidget(), QWidget()
+		MainWindow._match_title_bar(_FakeMainWindow(False), dialog)
+		style = ProxyStyle(QStyleFactory.create('Fusion'))
+		for metric in (QStyle.PM_LayoutLeftMargin, QStyle.PM_LayoutBottomMargin):
+			self.assertGreater(
+				style.pixelMetric(metric, None, dialog),
+				style.pixelMetric(metric, None, plain)
+			)
+	def test_frameless_dialog_keeps_the_app_style(self):
+		# A style of its own would cut its buttons off the theme's stylesheet.
+		dialog = QWidget()
+		MainWindow._match_title_bar(_FakeMainWindow(False), dialog)
+		self.assertIs(QApplication.style(), dialog.style())
+	def test_always_frameless_dialog_gets_no_outline(self):
+		# Like Quicksearch, which draws its own look.
+		dialog = QWidget(None, Qt.FramelessWindowHint)
+		MainWindow._match_title_bar(_FakeMainWindow(False), dialog)
+		self.assertFalse(dialog.property('frameless'))
 	def test_rows_show_title_and_percentage(self):
 		label = self._label(
 			_Worker(1, 'Downloading a.jpg', progress=45, size=100), _Worker(2)

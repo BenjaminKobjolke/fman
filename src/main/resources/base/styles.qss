@@ -232,6 +232,11 @@ QRadioButton::checked {
 	color: $bright_fg;
 }
 
+/* A dialog without a title bar, because the main window hides its own. */
+*[frameless="true"] {
+	border: 1px solid $border;
+}
+
 ProgressDialog {
 	min-width: 25em;
 	/*

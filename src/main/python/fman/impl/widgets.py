@@ -1,6 +1,7 @@
 from fbs_runtime.platform import is_windows, is_mac
 from fman import APP_NAME, OK
 from fman.impl.background import chrome_is_transparent, for_window
+from fman.impl.frameless_dialog import make_frameless
 from fman.impl.model import SortedFileSystemModel
 from fman.impl.quicksearch import Quicksearch
 from fman.impl.util.qt import disable_window_animations_mac, Key_Escape, \
@@ -494,9 +495,10 @@ class MainWindow(QMainWindow):
 		result = self.exec_dialog(dialog)
 		return result
 	def _match_title_bar(self, dialog):
-		# Set the flag before show(), so Qt does not recreate the native window.
-		if not self.is_title_bar_visible():
-			dialog.setWindowFlag(Qt.FramelessWindowHint)
+		# Dialogs that are always frameless, e.g. Quicksearch, keep their look.
+		if not self.is_title_bar_visible() and \
+				not dialog.windowFlags() & Qt.FramelessWindowHint:
+			make_frameless(dialog)
 	@run_in_main_thread
 	def create_progress_dialog(self, title, task_size):
 		dialog = ProgressDialog(
