@@ -258,9 +258,12 @@ font; see [Fonts](FONTS.md).
 `submit_task(Task(...))` for anything long enough to need a progress dialog.
 
 A `FileSystem` can return more than 1 from
-`get_parallel_transfers(src_url, dst_url)` to have Copy transfer that many files
-at once. The progress dialog then lists the workers, and the user can add or
-remove them; `Task.show_workers(workers)` is how Copy asks for that view. See
+`get_parallel_transfers(src_url, dst_url)` to have Copy and Move transfer that
+many files at once. The progress dialog then lists the workers, and the user
+can add or remove them; `Task.show_workers(workers)` is how Copy asks for that
+view. Set `task.blocks_later_tasks = True` on a task that later ones depend
+on (creating a folder), and `task.waits_for_earlier_tasks = True` on one that
+depends on all earlier ones (deleting an emptied folder). See
 [Copy and Move](COPY_AND_MOVE.md#parallel-workers).
 
 `show_quicksearch` returns `(query, value)`, or `None` if the user pressed

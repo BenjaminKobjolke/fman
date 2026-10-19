@@ -178,7 +178,7 @@ These are the ones maintained on this account.
 
 | | |
 |---|---|
-| Browse FTP servers as a filesystem (ftputil). |  |
+| Browse FTP servers as a filesystem (ftputil). Downloads and uploads run 3 files at once; add or remove workers in the progress dialog. |  |
 
 ### [FmanSevenZipTools](https://github.com/BenjaminKobjolke/FmanSevenZipTools)
 
@@ -233,7 +233,7 @@ These are the ones maintained on this account.
 | Doc | Topic |
 |---|---|
 | [ARCHIVES.md](docs/ARCHIVES.md) | `.zip`, `.7z`, `.tar` browsed like folders, backed by a bundled `7za` |
-| [COPY_AND_MOVE.md](docs/COPY_AND_MOVE.md) | Copy and Move: gathering and transferring at the same time |
+| [COPY_AND_MOVE.md](docs/COPY_AND_MOVE.md) | Copy and Move: gathering and transferring at the same time, parallel workers |
 | [COMMAND_PALLETTE.md](docs/COMMAND_PALLETTE.md) | The `Ctrl+Shift+P` palette |
 | [COMMAND_PALETTE_KEYBINDINGS.md](docs/COMMAND_PALETTE_KEYBINDINGS.md) | Rebinding a shortcut from the palette with `Shift+Enter` |
 | [COMMAND_PALETTE_KEYWORDS.md](docs/COMMAND_PALETTE_KEYWORDS.md) | Hidden search keywords, and editing them with `Shift+Enter` |

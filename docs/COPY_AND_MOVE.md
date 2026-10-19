@@ -1,7 +1,8 @@
 # Copy and Move
 
 How fman's built-in Copy (F5) and Move (F6) find the files to transfer and
-transfer them, and why the two run at the same time.
+transfer them, why the two run at the same time, and how a file system such as
+FTP gets several files transferred at once.
 
 Both commands are `FileTreeOperation` subclasses (`CopyFiles`, `MoveFiles`) in
 `src/main/resources/base/Plugins/Core/core/fileoperations.py`. The robocopy
@@ -64,12 +65,13 @@ _gather_files()                        _run_gathered_tasks()
 
 ## Parallel workers
 
-A file system can ask for several transferring threads: Copy asks
+A file system can ask for several transferring threads: Copy and Move ask
 `fman.fs.get_parallel_transfers(src, dest)`, which takes the larger answer of
 the source and destination file system. The base `FileSystem` answers 1. The
 FTP plugin answers 3 between FTP and this machine, so downloads and uploads run
-three files at once, each on its own connection. Move always uses one worker:
-a directory is post-processed once the moves queued before it are done.
+three files at once, each on its own connection. Its moves go file by file:
+each source file is deleted right after its own copy, and an emptied source
+folder last.
 
 `TransferWorkers` (`core/transfer_workers.py`) runs the queue:
 
@@ -95,6 +97,18 @@ a directory is post-processed once the moves queued before it are done.
 - **An Abort or an error in one worker stops all of them** before their next
   task, and also stops the walk, which the other workers would otherwise wait
   for.
+- **Order where it matters.** Queue order alone means nothing to N workers, so
+  two `Task` flags restore it:
+  - `blocks_later_tasks`, set on "Creating a folder": later tasks, such as the
+    files that go into the folder, do not start until it is done.
+  - `waits_for_earlier_tasks`, set on "Deleting an emptied folder" (plugin and
+    `MoveFiles._postprocess_directory`): the task starts once every earlier
+    task is done. It also blocks later tasks.
+
+  `_take()` numbers each task while the queue is still locked, so the numbers
+  follow the queue's order however the workers race. A task then waits only
+  for unfinished earlier numbers. A barrier task waits for all of them, any
+  other task only for the blocking ones.
 
 ## What a file system plugin has to do
 
@@ -120,7 +134,34 @@ def _prepare_copy(self, src_url, dst_url):
 
 `LocalFileSystem` (`core/fs/local/__init__.py`) and the FTP plugin both work
 this way. A plugin that returns a list still works, just without streaming
-for that folder.
+for that folder. The same goes for `prepare_move(...)`.
+
+To have its transfers run on several workers, a plugin also:
+
+- returns more than 1 from `get_parallel_transfers(src_url, dst_url)`;
+- marks a task that later tasks depend on, typically creating a folder, with
+  `task.blocks_later_tasks = True`;
+- marks a task that depends on all earlier ones, typically deleting a folder a
+  move has emptied, with `task.waits_for_earlier_tasks = True`.
+
+Everything else may run in any order, so a move should yield one task per
+file (copy, then delete that source file) rather than one task for the whole
+tree. The FTP plugin's `_prepare_move` does exactly that:
+
+```python
+def _prepare_move(self, src_url, dst_url):
+	if not fs.is_dir(src_url):
+		yield _Sequence('Moving ...', [copy_task, delete_source_task])
+		return
+	yield self._prepare_mkdir(dst_url)          # blocks_later_tasks
+	for name in fs.iterdir(src_url):
+		yield from self._prepare_move(join(src_url, name), join(dst_url, name))
+	yield delete_if_empty_task                  # waits_for_earlier_tasks
+```
+
+Both flags are class attributes of `fman.Task`, set on the instance, so the
+plugin still loads in an fman without them. Such an fman runs one worker, and
+there the queue order is enough.
 
 `prepare_copy(...)` is now called from the gathering thread, and the tasks run
 on other threads. A plugin that keeps connections per thread opens one for the
@@ -135,9 +176,16 @@ and move-to-self. `StreamingTransferTest` checks that a transfer starts while
 gathering is still running: its file system's `iterdir(...)` waits until a
 copy has started, and gives up after 5 seconds, so a sequential version fails
 the test instead of hanging the run. `ParallelTransferTest` does the same for
-workers: each copy waits until all of them have started.
-`core/tests/test_transfer_workers.py` covers adding, removing, aborting and
-errors.
+workers: each copy or move waits until all of them have started. It also
+checks that Move's emptied-folder task waits for the earlier tasks.
+`core/tests/test_transfer_workers.py` covers adding, removing, aborting,
+errors, and the two ordering flags. A barrier task starts only after the
+earlier tasks end. A blocking task starts without waiting for earlier ones,
+but holds back the later ones.
+
+The FTP plugin's side is checked by its own scripts, without fman running:
+`test_copy_single_dialog.py` covers the per-file move tasks, the flags, the
+folder delete that keeps a non-empty folder, and `get_parallel_transfers`.
 
 ```bash
 powershell -Command "cd 'D:\GIT\BenjaminKobjolke\fman'; cmd /c '.\tools\run_core_tests.bat'"
