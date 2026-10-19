@@ -1006,7 +1006,10 @@ class ProgressDialog(QProgressDialog):
 		self._progress = 0
 		self._was_canceled = False
 		self._workers_label = None
-		self.findChild(QProgressBar).setPalette(progress_bar_palette)
+		self._bar = self.findChild(QProgressBar)
+		self._bar.setPalette(progress_bar_palette)
+		# Looked up now: the workers label adds buttons of its own later.
+		self._cancel_button = self.findChild(QPushButton)
 		self.setMinimumDuration(self._MINIMUM_DURATION_MS)
 		self.setAutoReset(False)
 		self.setWindowTitle(title)
@@ -1036,8 +1039,7 @@ class ProgressDialog(QProgressDialog):
 	@run_in_main_thread
 	def request_cancel(self):
 		self.set_text('Canceling...')
-		cancel_button = self.findChild(QPushButton)
-		cancel_button.setEnabled(False)
+		self._cancel_button.setEnabled(False)
 		self._was_canceled = True
 	@run_in_main_thread
 	def show_alert(self, *args, **kwargs):
@@ -1051,7 +1053,7 @@ class ProgressDialog(QProgressDialog):
 		return self._was_canceled
 	@run_in_main_thread
 	def show_workers(self, workers):
-		self._workers_label = WorkersLabel(workers)
+		self._workers_label = WorkersLabel(workers, self)
 		self.setLabel(self._workers_label)
 	def showEvent(self, e):
 		self._update()
@@ -1065,6 +1067,10 @@ class ProgressDialog(QProgressDialog):
 		# Prevent the dialog from being resizable:
 		if not is_windows():
 			self.setFixedSize(self.size())
+		if self._workers_label is not None:
+			self._workers_label.place_file_count(
+				self._bar, self._cancel_button
+			)
 	def _update(self):
 		if self.wasCanceled():
 			return
