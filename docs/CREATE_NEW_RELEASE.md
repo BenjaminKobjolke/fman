@@ -22,7 +22,7 @@ tools\release_create.bat --dry-run   :: print the label and every command, run n
 
 Runs the shared `release-tool create`
 ([`CREATE_RELEASE_COMMAND.md`](https://github.com/BenjaminKobjolke/release-tool/blob/main/docs/CREATE_RELEASE_COMMAND.md)),
-configured by `tools/release_create.ini`. Close any running fman.exe first (step 4).
+configured by `tools/release_create.ini`. The build asks a running fman to close (step 4).
 For a new version, bump `version` and reset `build_version.txt` to `0` beforehand
 ("Bumping the version" below) — the script only ever bumps the build.
 
@@ -144,11 +144,11 @@ ones) for that release.
 behind — do **not** also increment or run `python build.py release` then. What
 follows is the manual path.
 
-**First: close any running fman.exe.** `freeze()` (via PyInstaller) deletes and
-recreates `target/fman/` — a running copy from that folder locks its files.
-`tools\build_windows.bat` asks that copy to close before building and stops with
-a message if it stays open. For `tools\release_create.bat`,
-`tools\build_release.bat`, and `python build.py release`, close it by hand first.
+`freeze()` (via PyInstaller) deletes and recreates `target/fman/` — a running copy
+from that folder locks its files. `tools\build_windows.bat` and
+`tools\build_release.bat` (also used by `tools\release_create.bat`) ask that copy
+to close and stop with a message naming any process that still holds a file from
+the folder. Only `python build.py release` requires you to close it by hand first.
 
 **Always run `tools\build_increment.bat` first, then commit it**, regardless of
 which build path below you use — it bumps `build_version.txt` to the number
