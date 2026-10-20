@@ -94,6 +94,16 @@ class OperationsTest(_PatchingTest):
 	def test_create_declined(self):
 		self._succeeds = False
 		self.assertFalse(elevation.create(_FILE, is_dir=False))
+	def test_create_other_scheme_is_not_handled(self):
+		with patch('core.elevation.lexists', return_value=False):
+			self.assertFalse(
+				elevation.create('ftp://host/dir/a.txt', is_dir=False)
+			)
+		self._op.NewItem.assert_not_called()
+	def test_create_stops_at_root(self):
+		with patch('core.elevation.lexists', return_value=False):
+			self.assertFalse(elevation.create(_FILE, is_dir=False))
+		self._op.NewItem.assert_not_called()
 	def test_not_needed(self):
 		self._protected.return_value = False
 		self.assertFalse(elevation.delete([_FILE], to_trash=True))
@@ -168,6 +178,22 @@ class CommandHooksTest(_PatchingTest):
 			CreateDirectory(self._pane)()
 		show_alert.assert_called_once()
 		self._pane.place_cursor_at.assert_not_called()
+	def test_create_directory_on_other_scheme(self):
+		self._pane.get_path.return_value = 'ftp://host/dir'
+		with self._elevation('create', False) as create, \
+			patch('core.commands.rename.show_prompt', return_value=('new', True)), \
+			patch(
+				'core.commands.rename.makedirs',
+				side_effect=PermissionError('denied')
+			), \
+			patch('core.commands.util.show_alert') as show_alert:
+			CreateDirectory(self._pane)()
+		create.assert_not_called()
+		show_alert.assert_called_once()
+		message = show_alert.call_args[0][0]
+		self.assertIn('ftp://host/dir/new', message)
+		self.assertIn('denied', message)
+		self._pane.place_cursor_at.assert_not_called()
 	def test_create_file_elevated(self):
 		with self._elevation('create', True) as create, \
 			self._new_file_prompt(), \
@@ -183,6 +209,19 @@ class CommandHooksTest(_PatchingTest):
 			CreateAndEditFile(self._pane)()
 		show_alert.assert_called_once()
 		edit.assert_not_called()
+	def test_create_file_on_other_scheme(self):
+		self._pane.get_path.return_value = 'ftp://host/dir'
+		with self._elevation('create', False) as create, \
+			self._new_file_prompt(error=PermissionError('denied')), \
+			patch('core.commands.util.show_alert') as show_alert, \
+			patch.object(OpenWithEditor, '__call__') as edit:
+			CreateAndEditFile(self._pane)()
+		create.assert_not_called()
+		show_alert.assert_called_once()
+		message = show_alert.call_args[0][0]
+		self.assertIn('ftp://host/dir/new.txt', message)
+		self.assertIn('denied', message)
+		edit.assert_not_called()
 	def setUp(self):
 		super().setUp()
 		self._pane = MagicMock(spec=DirectoryPane)
@@ -196,7 +235,7 @@ class CommandHooksTest(_PatchingTest):
 		self._makedirs = self._patch('core.commands.transfer.makedirs')
 	def _elevation(self, function, handled):
 		return patch('core.elevation.' + function, return_value=handled)
-	def _new_file_prompt(self):
+	def _new_file_prompt(self, error=PermissionError):
 		editor = 'core.commands.editor.'
 		result = ExitStack()
 		result.enter_context(
@@ -204,7 +243,7 @@ class CommandHooksTest(_PatchingTest):
 		)
 		result.enter_context(patch(editor + 'exists', return_value=False))
 		result.enter_context(
-			patch(editor + 'touch', side_effect=PermissionError)
+			patch(editor + 'touch', side_effect=error)
 		)
 		return result
 	def _run_transfer(self, command_cls, function, handled):

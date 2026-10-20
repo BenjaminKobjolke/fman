@@ -164,8 +164,8 @@ class CreateAndEditFile(OpenWithEditor):
 			if not exists(file_to_edit):
 				try:
 					touch(file_to_edit)
-				except PermissionError:
-					if not create_as_admin(file_to_edit, is_dir=False):
+				except PermissionError as e:
+					if not create_as_admin(file_to_edit, is_dir=False, error=e):
 						return
 				except NotImplementedError:
 					show_alert(

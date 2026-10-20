@@ -138,8 +138,8 @@ class CreateDirectory(DirectoryPaneCommand):
 				makedirs(dir_url)
 			except FileExistsError:
 				show_alert("A file with this name already exists!")
-			except PermissionError:
-				if not create_as_admin(dir_url, is_dir=True):
+			except PermissionError as e:
+				if not create_as_admin(dir_url, is_dir=True, error=e):
 					return
 			# Use normalize(...) instead of resolve(...) to avoid the following
 			# problem: Say c/ is a symlink to a/b/. We're inside c/ and create

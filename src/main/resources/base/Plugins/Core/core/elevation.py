@@ -77,6 +77,9 @@ def create(url, is_dir):
 	Returns whether it now exists - the user may decline the UAC prompt.
 	"""
 	parent = dirname(url)
+	# UAC applies only to local paths, and a root has no parent to create.
+	if not _are_local([url]) or parent == url:
+		return False
 	# One UAC prompt per missing level, which is rare enough to live with:
 	if not lexists(_path(parent)) and not create(parent, is_dir=True):
 		return False

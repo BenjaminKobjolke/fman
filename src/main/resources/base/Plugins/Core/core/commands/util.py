@@ -13,6 +13,7 @@ import os
 # drift between the command that deletes and the command that packs.
 NO_SELECTION = 'No file is selected!'
 CANNOT_READ = 'Could not read from %s (%s)'
+CANNOT_CREATE = 'Could not create %s (%s)'
 SHORTCUT_TARGET_MISSING = 'The destination of %s does not exist.'
 
 SHORTCUT_SUFFIX = '.lnk'
@@ -122,10 +123,13 @@ def chosen_files(command):
 		show_alert(NO_SELECTION)
 	return files
 
-def create_as_admin(url, is_dir):
-	# What "New file" and "New folder" fall back to when the plain attempt was
-	# denied: one more try with a UAC prompt (core/elevation.py). Alerts and
-	# returns False if that did not create it either - the user may decline.
+def create_as_admin(url, is_dir, error):
+	# A UAC prompt can only help for local paths; elsewhere report the error
+	# from the plugin file system instead of trying an unrelated shell operation.
+	if not is_file_url(url):
+		show_alert(CANNOT_CREATE % (as_human_readable(url), error))
+		return False
+	# For local paths, retry with a UAC prompt. The user may decline it.
 	if elevation.create(url, is_dir=is_dir):
 		return True
 	show_alert(
