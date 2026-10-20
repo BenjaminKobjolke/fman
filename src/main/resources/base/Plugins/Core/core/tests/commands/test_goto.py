@@ -179,14 +179,20 @@ class SuggestLocationsTest(TestCase):
 		instance = SuggestLocations({}, self.fs)
 		for query in ['dow', 'down', 'downl']:
 			items = list(instance(query))
-		self.assertEqual(['dow', 'down', 'downl'], self.fs.queried_prefixes)
-		self.assertEqual([os.path.join('~', 'Downloads')], [item.title for item in items])
+		self.assertEqual(
+			['dow', 'down', 'downl'], self.fs.queried_prefixes
+		)
+		self.assertEqual(
+			[os.path.join('~', 'Downloads')], [item.title for item in items]
+		)
 	def test_shorter_query_than_a_miss_searches_again(self):
 		instance = SuggestLocations({}, self.fs)
 		instance('dowx')
 		items = list(instance('dow'))
 		self.assertEqual(['dowx', 'dow'], self.fs.queried_prefixes)
-		self.assertEqual([os.path.join('~', 'Downloads')], [item.title for item in items])
+		self.assertEqual(
+			[os.path.join('~', 'Downloads')], [item.title for item in items]
+		)
 	def test_home_dir_expanded(self):
 		self._check_query_returns(
 			os.path.dirname(self.home_dir),
