@@ -2,7 +2,7 @@
 REM Build the signed release installer (target\fmanSetup.exe) and record its label.
 REM Called by release_create.bat (release-tool create), which owns the build bump,
 REM translation and rollback - this bat only builds the version that is already set.
-REM Close any running fman.exe first: freeze() cannot replace target\fman\ under it.
+REM Ask a running fman to close first: freeze() cannot replace target\fman\ under it.
 setlocal
 
 set "ROOT=%~dp0.."
@@ -15,6 +15,11 @@ if exist "%RECORD%" del "%RECORD%"
 cd /d "%ROOT%"
 REM Pick the interpreter that has fbs; see find_build_python.bat for why.
 call "%~dp0find_build_python.bat"
+set "RESULT=%ERRORLEVEL%"
+if not "%RESULT%"=="0" goto :done
+
+REM A fman started from target\fman locks the files freeze() replaces.
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0close_running_fman.ps1" -Directory "%ROOT%\target\fman" <NUL
 set "RESULT=%ERRORLEVEL%"
 if not "%RESULT%"=="0" goto :done
 

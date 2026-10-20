@@ -1,4 +1,4 @@
-"""Check the release version handoff with a fake build and a fake publisher.
+"""Check the release version handoff with fake build, close-fman and publisher tools.
 
 Runs the real ``build_release.bat``, ``github_release.bat`` and
 ``release_create.bat`` in a temporary workspace: ``build.py`` is a stub and ``uv``
@@ -60,6 +60,11 @@ def check_release_version():
         counter.write_text("504\n")
         (notes / "en.json").write_text("{}")
         (root / "build.py").write_text(FAKE_BUILD)
+        (scripts / "close_running_fman.ps1").write_text(
+            "param([string]$Directory)\n"
+            "if (Test-Path (Join-Path $PSScriptRoot '..\\fman_running')) { exit 4 }\n"
+            "exit 0\n"
+        )
         (fake_tool / "uv.cmd").write_text(
             "@echo off\necho %*\nexit /b " + str(UPLOAD_EXIT) + "\n"
         )
@@ -97,6 +102,18 @@ def check_release_version():
             assert record.read_text().strip() == "1.0.0_504", (
                 "Build must record its label"
             )
+
+            (root / "fman_running").touch()
+            sentinel = root / "target" / "untouched"
+            sentinel.touch()
+            result = run_batch(build)
+            assert result.returncode == 4, (
+                "A running fman must stop the release build: "
+                + result.stdout + result.stderr
+            )
+            assert sentinel.exists(), "The build must not run while fman is open"
+            assert not record.exists(), "A stopped build must invalidate its record"
+            (root / "fman_running").unlink()
 
             # The watcher and uv venv can both precede the system interpreter.
             watcher_venv = root / "watcher_venv" / "Scripts"
