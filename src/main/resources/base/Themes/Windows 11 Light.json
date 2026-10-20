@@ -1,0 +1,25 @@
+{
+	"colors": {
+		"border": "#e5e5e5",
+		"bright_fg": "#000000",
+		"button_fg": "#1a1a1a",
+		"header_bg": "#ffffff",
+		"input_bg": "#ffffff",
+		"input_border": "#8a8a8a",
+		"locationbar_border": "#e5e5e5",
+		"muted_fg": "#5d5d5d",
+		"palette_midlight": "#e5e5e5",
+		"pane_bg": "#ffffff",
+		"pane_cursor_bg": "#cce8ff",
+		"pane_fg": "#1a1a1a",
+		"pane_fg_dir": "#1a1a1a",
+		"pane_selected_fg": "#005fb8",
+		"popup_bg": "#f9f9f9",
+		"popup_input_bg": "#ffffff",
+		"popup_input_fg": "#1a1a1a",
+		"popup_item_fg": "#1a1a1a",
+		"popup_selected_bg": "#b8d9f7",
+		"statusbar_bg_top": "#f3f3f3",
+		"window_bg": "#f3f3f3"
+	}
+}

@@ -39,7 +39,8 @@ Bind it to a key in `Key Bindings.json` like any other command
 
 Bundled: **Monokai** (default), **Dark**, **Light**, **Solarized Dark**,
 **Solarized Light**, **Nord**, **Dracula**, **Gruvbox Dark**,
-**High Contrast**, **WezTerm**, **Matrix**.
+**High Contrast**, **WezTerm**, **Matrix**, **Windows 11 Light**,
+**Windows 11 Dark**.
 
 **Matrix** also ships slightly translucent (`"opacity": 0.92`) — see
 [Set window opacity](window-opacity.md) to override that, or to fade any
@@ -51,7 +52,7 @@ A theme may also name an icon set and an icon size (`"icons"` and
 without changing your colors.
 
 It may name a **font** too (`"font"`), so switching theme can change the
-typeface as well — eight of the eleven bundled themes do. See
+typeface as well — eight of the thirteen bundled themes do. See
 [Select font](select-font.md) to override that, or to pick a family
 without changing your colors.
 

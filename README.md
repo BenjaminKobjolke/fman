@@ -89,8 +89,9 @@ Full shortcut reference:
 
 ## Themes
 
-Eleven bundled themes — Monokai, Dark, Light, Solarized Dark/Light, Nord,
-Dracula, Gruvbox Dark, High Contrast, WezTerm, Matrix. Run *Select theme* from
+Thirteen bundled themes — Monokai, Dark, Light, Solarized Dark/Light, Nord,
+Dracula, Gruvbox Dark, High Contrast, WezTerm, Matrix, Windows 11 Light/Dark.
+Run *Select theme* from
 the command palette; it applies immediately, no restart.
 
 ![themes](media/demos/themes/themes.gif)

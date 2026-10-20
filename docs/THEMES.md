@@ -12,7 +12,9 @@ restart — and remembers it across restarts.
 
 Bundled themes: **Monokai** (the default, fman's classic look), **Dark**,
 **Light**, **Solarized Dark**, **Solarized Light**, **Nord**, **Dracula**,
-**Gruvbox Dark**, **High Contrast**, **WezTerm**, **Matrix**.
+**Gruvbox Dark**, **High Contrast**, **WezTerm**, **Matrix**,
+**Windows 11 Light**, **Windows 11 Dark**. These imitate Windows 11 Explorer
+and keep the System icons and default font on purpose (Segoe UI cannot be bundled).
 
 What they look like, two seconds each (regenerate with
 `tools\demos_record.bat --demo 2 --compose themes` — see [DEMOS.md](DEMOS.md)):

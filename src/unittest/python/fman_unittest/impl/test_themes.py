@@ -143,7 +143,7 @@ class BundledThemesTest(TestCase):
 	def test_themes_are_valid(self):
 		names = list_themes([_THEMES_DIR])
 		self.assertIn(DEFAULT_THEME, names)
-		self.assertEqual(11, len(names), names)
+		self.assertEqual(13, len(names), names)
 		for name in names:
 			with open(join(_THEMES_DIR, name + '.json'), 'r') as f:
 				data = json.load(f)
@@ -190,6 +190,14 @@ class BundledThemesTest(TestCase):
 					data['font'], bundled_font_families(),
 					'%s: font=%r' % (name, data['font'])
 				)
+	def test_windows_11_themes_keep_the_shell_icons(self):
+		# Explorer uses the System icons; naming an icon set or font would make
+		# these themes less like Explorer.
+		for name in ('Windows 11 Light', 'Windows 11 Dark'):
+			with open(join(_THEMES_DIR, name + '.json'), 'r', encoding='utf-8') as f:
+				data = json.load(f)
+			self.assertNotIn('icons', data, name)
+			self.assertNotIn('font', data, name)
 	def test_monokai_keeps_the_platform_font(self):
 		# The pinned pre-fonts look: the default theme names no family, so
 		# DEFAULT_FONT - the literal its platform's Theme.css used to
