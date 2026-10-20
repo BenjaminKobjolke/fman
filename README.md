@@ -180,6 +180,12 @@ These are the ones maintained on this account.
 |---|---|
 | Browse FTP servers as a filesystem (ftputil). Downloads and uploads run 3 files at once; add or remove workers in the progress dialog. |  |
 
+### [fman-media-file-explorer](https://github.com/BenjaminKobjolke/fman-media-file-explorer)
+
+| | |
+|---|---|
+| Browse phones paired with the Media File Explorer desktop companion via `Show phones`: copy files and folders between phone and PC, create, rename and delete on the phone. The companion asks once for approval. |  |
+
 ### [FmanSevenZipTools](https://github.com/BenjaminKobjolke/FmanSevenZipTools)
 
 | | |
