@@ -47,6 +47,7 @@ class SuggestLocationsTest(TestCase):
 		def __init__(self, files, home_dir):
 			self.files = files
 			self.home_dir = home_dir
+			self.queried_prefixes = []
 		def isdir(self, path):
 			if PLATFORM == 'Windows' and path.endswith(' '):
 				# Strange behaviour on Windows: isdir('X ') returns True if X
@@ -104,6 +105,7 @@ class SuggestLocationsTest(TestCase):
 		def samefile(self, f1, f2):
 			return self._get_dir(f1) == self._get_dir(f2)
 		def find_folders_starting_with(self, prefix):
+			self.queried_prefixes.append(prefix)
 			return list(
 				self._find_folders_recursive(self.files, prefix.lower()))
 		def _find_folders_recursive(self, files, prefix):
@@ -163,6 +165,28 @@ class SuggestLocationsTest(TestCase):
 		self.instance = SuggestLocations({}, self.fs)
 		# Should still find Downloads by prefix:
 		self._check_query_returns('dow', ['~/Downloads'], [[2, 3, 4]])
+	def test_longer_query_skips_search_after_a_miss(self):
+		instance = SuggestLocations({}, self.fs)
+		for query in ['xyz', 'xyzq', 'xyzqw']:
+			instance(query)
+		self.assertEqual(['xyz'], self.fs.queried_prefixes)
+	def test_miss_is_case_insensitive(self):
+		instance = SuggestLocations({}, self.fs)
+		instance('xyz')
+		instance('XYZQ')
+		self.assertEqual(['xyz'], self.fs.queried_prefixes)
+	def test_search_continues_while_it_finds_folders(self):
+		instance = SuggestLocations({}, self.fs)
+		for query in ['dow', 'down', 'downl']:
+			items = list(instance(query))
+		self.assertEqual(['dow', 'down', 'downl'], self.fs.queried_prefixes)
+		self.assertEqual([os.path.join('~', 'Downloads')], [item.title for item in items])
+	def test_shorter_query_than_a_miss_searches_again(self):
+		instance = SuggestLocations({}, self.fs)
+		instance('dowx')
+		items = list(instance('dow'))
+		self.assertEqual(['dowx', 'dow'], self.fs.queried_prefixes)
+		self.assertEqual([os.path.join('~', 'Downloads')], [item.title for item in items])
 	def test_home_dir_expanded(self):
 		self._check_query_returns(
 			os.path.dirname(self.home_dir),

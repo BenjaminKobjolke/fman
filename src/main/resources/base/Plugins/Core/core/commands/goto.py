@@ -306,6 +306,8 @@ class SuggestLocations:
 			file_system = self.LocalFileSystem()
 		self.visited_paths = visited_paths
 		self.fs = file_system
+		# A longer name-prefix query cannot match after a prefix found no folders.
+		self._prefixes_without_folders = []
 		# {path: name} for directories that have a name of their own, such as
 		# 'Home' for ~. Both searchable and shown as a hint - see
 		# _filter_matching.
@@ -334,8 +336,14 @@ class SuggestLocations:
 		result = set(self.visited_paths)
 		if len(query) > 2:
 			"""Compensate for directories not yet in self.visited_paths:"""
-			fs_folders = islice(self.fs.find_folders_starting_with(query), 100)
-			result.update(self._sorted(fs_folders)[:10])
+			prefix = query.lower()
+			if not any(prefix.startswith(p) for p in self._prefixes_without_folders):
+				fs_folders = list(islice(
+					self.fs.find_folders_starting_with(query), 100
+				))
+				if not fs_folders:
+					self._prefixes_without_folders.append(prefix)
+				result.update(self._sorted(fs_folders)[:10])
 		return self._sorted(result)
 	def _normalize_query(self, query):
 		result = normpath(self.fs.expanduser(query))

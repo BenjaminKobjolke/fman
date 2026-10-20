@@ -79,6 +79,9 @@ Bind any of them to a key in `Key Bindings.json` like any other command
 
 ## Notes
 
+- The OS index is asked once per keystroke. Once a query finds no folders,
+  longer queries starting with it skip the index, so typing a long
+  non-matching string stays responsive.
 - **The everyday four are always offered, but not promoted.** Home, Desktop,
   Documents and Downloads join the suggestion pool with a visit count of
   zero, so typing their name finds them instantly — but on an *empty* query
