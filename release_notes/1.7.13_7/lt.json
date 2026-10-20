@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 7,
+  "date": "2026-10-20",
+  "title": "Prieš diegiant galima peržiūrėti papildinius, o tinklo klaidos pateikiamos aiškiau",
+  "notes": [
+    "Dabar papildinių diegimo programa prieš diegiant parodo papildinio aprašą ir leidžia lengvai grįžti bei tęsti paiešką.",
+    "Kuriant failus ir aplankus tinklo ar kitose ne vietinėse failų sistemose, dabar aiškiai pateikiama pradinė klaida, užuot rodžius su ja nesusijusį „Windows“ leidimų raginimą."
+  ]
+}

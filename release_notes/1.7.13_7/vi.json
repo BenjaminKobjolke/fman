@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 7,
+  "date": "2026-10-20",
+  "title": "Xem trước plugin trước khi cài đặt và thông báo lỗi mạng rõ ràng hơn",
+  "notes": [
+    "Trình cài đặt plugin giờ đây hiển thị mô tả của plugin trước khi bạn cài đặt, đồng thời giúp bạn dễ dàng quay lại và tiếp tục tìm kiếm.",
+    "Khi tạo tệp và thư mục trên mạng hoặc các hệ thống tệp không cục bộ khác, lỗi gốc giờ đây được thông báo rõ ràng thay vì cố hiển thị một lời nhắc cấp quyền Windows không liên quan."
+  ]
+}

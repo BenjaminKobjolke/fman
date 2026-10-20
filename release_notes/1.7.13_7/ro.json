@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 7,
+  "date": "2026-10-20",
+  "title": "Previzualizați pluginurile înainte de instalare și vedeți mesaje de eroare de rețea mai clare",
+  "notes": [
+    "Programul de instalare a pluginurilor afișează acum descrierea unui plugin înainte să îl instalați, oferind o modalitate simplă de a reveni și de a continua căutarea.",
+    "Crearea de fișiere și foldere în rețea sau pe alte sisteme de fișiere non-locale raportează acum clar eroarea originală, în loc să încerce să afișeze o solicitare Windows fără legătură privind permisiunile."
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 7,
+  "date": "2026-10-20",
+  "title": "Priekšskatiet spraudņus pirms instalēšanas un saņemiet skaidrākus tīkla kļūdu ziņojumus",
+  "notes": [
+    "Spraudņu instalētājs tagad pirms instalēšanas parāda spraudņa aprakstu un piedāvā ērtu iespēju atgriezties un turpināt meklēšanu.",
+    "Veidojot failus un mapes tīkla vai citās nelokālās failu sistēmās, tagad tiek skaidri parādīts sākotnējais kļūdas ziņojums, nevis mēģināts parādīt ar to nesaistītu Windows atļauju uzvedni."
+  ]
+}

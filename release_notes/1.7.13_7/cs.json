@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 7,
+  "date": "2026-10-20",
+  "title": "Náhled pluginů před instalací a srozumitelnější chyby sítě",
+  "notes": [
+    "Instalátor pluginů nyní před instalací zobrazí popis pluginu. Snadno se tak můžete vrátit a pokračovat v hledání.",
+    "Při vytváření souborů a složek v síti nebo v jiných nelokálních souborových systémech se nyní přehledně zobrazí původní chyba, místo aby se zobrazovala nesouvisející výzva systému Windows k nastavení oprávnění."
+  ]
+}

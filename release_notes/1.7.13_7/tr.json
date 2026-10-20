@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 7,
+  "date": "2026-10-20",
+  "title": "Yüklemeden önce eklentileri önizleyin ve daha anlaşılır ağ hataları",
+  "notes": [
+    "Eklenti yükleyicisi artık yüklemeden önce eklentinin açıklamasını gösteriyor; böylece kolayca geri dönüp aramaya devam edebilirsiniz.",
+    "Ağdaki veya yerel olmayan diğer dosya sistemlerindeki dosya ve klasörleri oluştururken, alakasız bir Windows izin istemi göstermek yerine özgün hata artık açıkça bildiriliyor."
+  ]
+}

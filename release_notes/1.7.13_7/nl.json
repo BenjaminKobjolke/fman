@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 7,
+  "date": "2026-10-20",
+  "title": "Bekijk plug-ins voordat je ze installeert en krijg duidelijkere netwerkfoutmeldingen",
+  "notes": [
+    "De plug-ininstallatie toont nu de beschrijving van een plug-in voordat je deze installeert, met een eenvoudige manier om terug te gaan en verder te zoeken.",
+    "Bij het aanmaken van bestanden en mappen op netwerkbestandssystemen of andere niet-lokale bestandssystemen wordt nu de oorspronkelijke fout duidelijk weergegeven, in plaats van een niet-gerelateerde Windows-machtigingenprompt te tonen."
+  ]
+}

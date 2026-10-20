@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 7,
+  "date": "2026-10-20",
+  "title": "Plugins vor der Installation ansehen und verständlichere Netzwerkfehler",
+  "notes": [
+    "Der Plugin-Installer zeigt jetzt die Beschreibung eines Plugins an, bevor du es installierst. Außerdem kannst du ganz einfach zurückgehen und weitersuchen.",
+    "Beim Erstellen von Dateien und Ordnern auf Netzlaufwerken oder anderen nicht lokalen Dateisystemen wird jetzt der ursprüngliche Fehler klar angezeigt, statt eine unpassende Windows-Berechtigungsabfrage aufzurufen."
+  ]
+}

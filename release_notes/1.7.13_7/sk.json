@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 7,
+  "date": "2026-10-20",
+  "title": "Náhľad doplnkov pred inštaláciou a zrozumiteľnejšie chyby siete",
+  "notes": [
+    "Inštalátor doplnkov teraz zobrazuje opis doplnku ešte pred jeho inštaláciou a umožňuje jednoducho sa vrátiť a pokračovať v hľadaní.",
+    "Pri vytváraní súborov a priečinkov v sieťových alebo iných ako lokálnych súborových systémoch sa teraz jasne zobrazí pôvodná chyba namiesto nesúvisiacej výzvy systému Windows na udelenie povolenia."
+  ]
+}

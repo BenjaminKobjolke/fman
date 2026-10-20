@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 7,
+  "date": "2026-10-20",
+  "title": "Visualize plugins antes de instalá-los e veja erros de rede mais claros",
+  "notes": [
+    "Agora, o instalador de plugins exibe a descrição de um plugin antes de instalá-lo, com uma maneira fácil de voltar e continuar procurando.",
+    "Agora, a criação de arquivos e pastas em redes ou em outros sistemas de arquivos não locais informa claramente o erro original, em vez de tentar exibir um aviso de permissão do Windows sem relação com o problema."
+  ]
+}

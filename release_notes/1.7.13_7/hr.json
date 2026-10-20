@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 7,
+  "date": "2026-10-20",
+  "title": "Pregledajte dodatke prije instalacije i jasnije poruke o mrežnim pogreškama",
+  "notes": [
+    "Instalacijski program za dodatke sada prikazuje opis dodatka prije instalacije, a lako se možete vratiti i nastaviti pretraživati.",
+    "Pri stvaranju datoteka i mapa na mrežnim ili drugim nelokalnim datotečnim sustavima sada se jasno prikazuje izvorna pogreška, umjesto da se pokušava prikazati nepovezani Windowsov upit za dozvole."
+  ]
+}

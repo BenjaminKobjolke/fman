@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 7,
+  "date": "2026-10-20",
+  "title": "Podgląd wtyczek przed instalacją i czytelniejsze komunikaty o błędach sieciowych",
+  "notes": [
+    "Instalator wtyczek wyświetla teraz opis wtyczki przed jej instalacją. Możesz łatwo wrócić do wyszukiwania i szukać dalej.",
+    "Podczas tworzenia plików i folderów w sieciowych lub innych nielokalnych systemach plików wyświetlany jest teraz czytelny komunikat o pierwotnym błędzie, zamiast niezwiązanego z nim monitu systemu Windows o uprawnienia."
+  ]
+}

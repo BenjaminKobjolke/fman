@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 7,
+  "date": "2026-10-20",
+  "title": "Få vist plugins, før du installerer dem, og få tydeligere netværksfejl",
+  "notes": [
+    "Plugininstallationsprogrammet viser nu beskrivelsen af et plugin, før du installerer det, og gør det nemt at gå tilbage og fortsætte søgningen.",
+    "Når der oprettes filer og mapper på netværksbaserede eller andre ikke-lokale filsystemer, vises den oprindelige fejl nu tydeligt i stedet for at forsøge at vise en uvedkommende Windows-tilladelsesdialog."
+  ]
+}

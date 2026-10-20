@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 7,
+  "date": "2026-10-20",
+  "title": "Pistikprogrammide eelvaade enne installimist ja selgemad võrgutõrked",
+  "notes": [
+    "Pistikprogrammide paigaldaja kuvab nüüd enne installimist pistikprogrammi kirjelduse ning võimaldab hõlpsalt tagasi minna ja otsingut jätkata.",
+    "Võrgu- või muudes mitte-kohalikes failisüsteemides failide ja kaustade loomisel kuvatakse nüüd algne tõrge selgelt, selle asemel et avada asjassepuutumatu Windowsi õiguste küsimise dialoog."
+  ]
+}

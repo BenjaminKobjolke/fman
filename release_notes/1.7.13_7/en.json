@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 7,
+  "date": "2026-10-20",
+  "title": "Preview plugins before installing and clearer network errors",
+  "notes": [
+    "The plugin installer now shows a plugin's description before you install it, with an easy way to go back and keep searching.",
+    "Creating files and folders on network or other non-local filesystems now reports the original error clearly instead of trying an unrelated Windows permission prompt."
+  ]
+}

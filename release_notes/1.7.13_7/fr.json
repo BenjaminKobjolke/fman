@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 7,
+  "date": "2026-10-20",
+  "title": "Aperçu des extensions avant leur installation et messages d’erreur réseau plus clairs",
+  "notes": [
+    "Le programme d’installation des extensions affiche désormais la description d’une extension avant son installation, et permet facilement de revenir en arrière pour poursuivre les recherches.",
+    "La création de fichiers et de dossiers sur des systèmes de fichiers réseau ou d’autres systèmes non locaux affiche désormais clairement l’erreur d’origine, au lieu de tenter d’ouvrir une invite d’autorisation Windows sans rapport."
+  ]
+}

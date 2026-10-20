@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 7,
+  "date": "2026-10-20",
+  "title": "Anteprima dei plugin prima dell'installazione e messaggi di errore di rete più chiari",
+  "notes": [
+    "Ora il programma di installazione mostra la descrizione di un plugin prima di installarlo e offre un modo semplice per tornare indietro e continuare la ricerca.",
+    "La creazione di file e cartelle su file system di rete o altri file system non locali ora mostra chiaramente l'errore originale, invece di tentare di visualizzare una finestra di richiesta dei permessi di Windows non pertinente."
+  ]
+}

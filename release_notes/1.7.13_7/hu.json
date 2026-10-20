@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 7,
+  "date": "2026-10-20",
+  "title": "Bővítmények előnézete telepítés előtt és egyértelműbb hálózati hibák",
+  "notes": [
+    "A bővítménytelepítő mostantól telepítés előtt megjeleníti a bővítmény leírását, és egyszerűen visszaléphetsz, hogy tovább keress.",
+    "A hálózati vagy más nem helyi fájlrendszereken történő fájl- és mappalétrehozás mostantól egyértelműen az eredeti hibát jelzi, ahelyett, hogy egy oda nem illő Windows-engedélykéréssel próbálkozna."
+  ]
+}

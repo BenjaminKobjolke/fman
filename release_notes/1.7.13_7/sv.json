@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 7,
+  "date": "2026-10-20",
+  "title": "Förhandsgranska insticksprogram före installation och få tydligare nätverksfel",
+  "notes": [
+    "Installationsprogrammet för insticksprogram visar nu beskrivningen av ett insticksprogram innan du installerar det. Det går enkelt att gå tillbaka och fortsätta söka.",
+    "När du skapar filer och mappar på nätverksbaserade eller andra icke-lokala filsystem visas nu det ursprungliga felet tydligt, i stället för att en orelaterad behörighetsdialogruta i Windows visas."
+  ]
+}

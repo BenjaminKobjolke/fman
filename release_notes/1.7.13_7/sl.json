@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 7,
+  "date": "2026-10-20",
+  "title": "Predogled vtičnikov pred namestitvijo in jasnejša sporočila o omrežnih napakah",
+  "notes": [
+    "Namestitveni program za vtičnike zdaj pred namestitvijo prikaže opis vtičnika, poleg tega pa omogoča preprosto vrnitev in nadaljevanje iskanja.",
+    "Pri ustvarjanju datotek in map v omrežnih ali drugih nelokalnih datotečnih sistemih je zdaj jasno prikazana izvirna napaka, namesto da bi se prikazal nepovezan poziv sistema Windows za dovoljenja."
+  ]
+}

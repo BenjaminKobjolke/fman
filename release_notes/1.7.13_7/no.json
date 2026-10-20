@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 7,
+  "date": "2026-10-20",
+  "title": "Forhåndsvis programtillegg før installering og få tydeligere nettverksfeil",
+  "notes": [
+    "Installereren for programtillegg viser nå beskrivelsen av et programtillegg før du installerer det, og det er enkelt å gå tilbake og fortsette å lete.",
+    "Når du oppretter filer og mapper på nettverksbaserte eller andre ikke-lokale filsystemer, vises den opprinnelige feilen nå tydelig i stedet for at det forsøkes å åpne en irrelevant Windows-tillatelsesdialog."
+  ]
+}

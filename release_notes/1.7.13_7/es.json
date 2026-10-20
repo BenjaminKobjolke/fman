@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 7,
+  "date": "2026-10-20",
+  "title": "Previsualiza los complementos antes de instalarlos y recibe mensajes de error de red más claros",
+  "notes": [
+    "El instalador de complementos ahora muestra la descripción de cada complemento antes de instalarlo e incluye una forma sencilla de volver atrás y seguir buscando.",
+    "Al crear archivos y carpetas en una red o en otros sistemas de archivos no locales, ahora se muestra claramente el error original en lugar de intentar abrir un aviso de permisos de Windows que no viene al caso."
+  ]
+}

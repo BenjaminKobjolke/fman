@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 7,
+  "date": "2026-10-20",
+  "title": "Esikatsele lisäosia ennen asentamista ja selkeämmät verkkovirheilmoitukset",
+  "notes": [
+    "Lisäosien asennusohjelma näyttää nyt lisäosan kuvauksen ennen asennusta. Voit helposti palata takaisin ja jatkaa etsimistä.",
+    "Tiedostojen ja kansioiden luominen verkossa tai muissa kuin paikallisissa tiedostojärjestelmissä näyttää nyt alkuperäisen virheilmoituksen selkeästi sen sijaan, että näyttäisi asiaankuulumattoman Windowsin käyttöoikeuskehotteen."
+  ]
+}
