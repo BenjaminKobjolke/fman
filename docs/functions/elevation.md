@@ -24,6 +24,8 @@ one UAC prompt per operation:
 
 Declining the prompt cancels the operation. New file and New folder then say
 *"You do not have enough permissions to create …"*; the others do nothing.
+On a non-local file system, no UAC prompt is tried; the alert shows the
+original creation error.
 
 ## Notes
 
