@@ -3,8 +3,8 @@
 Both commands ask for confirmation and then hand the work to `_Delete`, a
 Task that prepares one sub-task per URL before running any of them - so a
 filesystem that cannot delete at all fails before the first file is gone.
-"Move to trash" falls back to a permanent delete on filesystems that do not
-implement `prepare_trash`.
+"Move to trash" refuses, deleting nothing, on filesystems that do not
+implement `prepare_trash` - the user asked for a recoverable delete.
 """
 from fman import DirectoryPaneCommand, PLATFORM, show_alert, submit_task, \
 	Task, NO, YES, YES_TO_ALL
@@ -17,6 +17,12 @@ from os import strerror
 from os.path import basename
 
 __all__ = ['DeletePermanently', 'MoveToTrash']
+
+_DELETE_UNSUPPORTED = 'Deleting files in {scheme} is not supported.'
+_TRASH_UNSUPPORTED = (
+	'The {trash} is not available in {scheme}. Nothing was deleted. '
+	'Use Delete permanently instead.'
+)
 
 class MoveToTrash(DirectoryPaneCommand):
 
@@ -42,14 +48,17 @@ class MoveToTrash(DirectoryPaneCommand):
 # keeps them from being picked up as commands.
 def confirm_trash(urls):
 	description = _describe(urls, 'these %d files')
-	trash_name = 'Recycle Bin' if PLATFORM == 'Windows' else 'Trash'
+	trash_name = _trash_name()
 	msg = \
 		"Do you really want to move %s to the %s?" % (description, trash_name)
 	return bool(show_alert(msg, YES | NO, YES) & YES)
 
+def _trash_name():
+	return 'Recycle Bin' if PLATFORM == 'Windows' else 'Trash'
+
 def trash(urls):
 	if not elevation.delete(urls, to_trash=True):
-		submit_task(_Delete(urls, prepare_trash, prepare_delete))
+		submit_task(_Delete(urls, prepare_trash, _TRASH_UNSUPPORTED))
 
 class DeletePermanently(DirectoryPaneCommand):
 	def __call__(self, urls=None):
@@ -67,12 +76,12 @@ class DeletePermanently(DirectoryPaneCommand):
 				submit_task(_Delete(urls, prepare_delete))
 
 class _Delete(Task):
-	def __init__(self, urls, prepare_fn, fallback=None):
+	def __init__(self, urls, prepare_fn, unsupported=_DELETE_UNSUPPORTED):
 		super().__init__('Deleting ' + _describe(urls))
 		self._urls = urls
 		self._num_urls_prepared = 0
 		self._prepare_fn = prepare_fn
-		self._fallback = fallback
+		self._unsupported = unsupported
 		self._tasks = []
 	def __call__(self):
 		try:
@@ -80,8 +89,9 @@ class _Delete(Task):
 		except (UnsupportedOperation, NotImplementedError):
 			failing_url = self._urls[self._num_urls_prepared]
 			self.show_alert(
-				'Deleting files in %s is not supported.'
-				% splitscheme(failing_url)[0]
+				self._unsupported.format(
+					scheme=splitscheme(failing_url)[0], trash=_trash_name()
+				)
 			)
 			return
 		ignore_errors = False
@@ -115,12 +125,7 @@ class _Delete(Task):
 						ignore_errors = True
 	def _gather_tasks(self):
 		for url in self._urls:
-			try:
-				self._prepare(url, self._prepare_fn)
-			except (NotImplementedError, UnsupportedOperation):
-				if self._fallback is None:
-					raise
-				self._prepare(url, self._fallback)
+			self._prepare(url, self._prepare_fn)
 			self._num_urls_prepared += 1
 		self.set_size(sum(t.get_size() for t in self._tasks))
 	def _prepare(self, url, prepare_fn):
