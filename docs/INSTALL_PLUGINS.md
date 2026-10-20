@@ -36,18 +36,29 @@ Implementation: `core/commands/plugins.py` (`InstallPlugin`),
    (`123 ★`). Already-installed plugins are filtered out, matched by
    directory name in `Plugins\Third-party\`. See
    [Ordering](#ordering) for the sort.
-3. **Resolve a ref** — fman asks for the repo's *latest release* tag. If the
+
+3. **Review** — after a selection, fman loads `description.md` from the
+   repository's default branch at `raw.githubusercontent.com` and renders it
+   with Markdown formatting. If the file is missing, the request fails or the
+   user is offline, the screen shows the plugin name, its short GitHub summary
+   when available and *No description available.* Back (or Escape) returns to
+   the picker with the search text kept; Install continues the normal install.
+   This screen is only part of the picker flow. Passing `github_repo` directly
+   still installs without it.
+4. **Resolve a ref** — fman asks for the repo's *latest release* tag. If the
    repo has never published a release (HTTP 404), it falls back to the SHA of
    the newest commit on the default branch. So an unreleased plugin still
    installs; it is just pinned to a commit.
-4. **Download** — the zipball for that ref.
-5. **Unpack** — into `%APPDATA%\fman\Plugins\Third-party\<repo name>`.
-6. **Record** — the repo's API URL and the installed ref are written into the
+
+5. **Download** — the zipball for that ref.
+6. **Unpack** — into `%APPDATA%\fman\Plugins\Third-party\<repo name>`.
+7. **Record** — the repo's API URL and the installed ref are written into the
    plugin's `Plugin.json`.
-7. **Load** — the plugin is loaded in place, at its correct position in the
+
+8. **Load** — the plugin is loaded in place, at its correct position in the
    load order, and you get a *Plugin 'X' was successfully installed.* alert.
 
-Steps 1 and 3–4 show a status message (*Fetching available plugins…*,
+Steps 1, 3 and 5–6 show a status message (*Fetching available plugins…*,
 *Downloading X…*) while they block.
 
 ## The GitHub endpoints
@@ -60,6 +71,7 @@ anonymous.
 |------|----------|
 | Search | `GET https://api.github.com/search/repositories?q=topic:fman+topic:plugin` |
 | Fetch one repo (`github_repo` argument) | `GET https://api.github.com/repos/<owner>/<name>` |
+| Plugin description | `GET https://raw.githubusercontent.com/<owner>/<name>/<default-branch>/description.md` |
 | Latest release | `GET .../repos/<owner>/<name>/releases/latest` |
 | Latest commit | `GET .../repos/<owner>/<name>/commits` (first entry's `sha`) |
 | Zipball | `GET .../repos/<owner>/<name>/zipball/<ref>` |
@@ -78,6 +90,15 @@ are more than 100 fman plugins.
 
 The zipball URL redirects to `codeload.github.com`; the redirect is followed
 transparently by the HTTP layer.
+
+The description request uses `raw.githubusercontent.com`, not the GitHub REST
+API, so it does not use the anonymous API request limit.
+
+### Plugin authors
+
+To show an explanation in fman's install screen, put a `description.md` file
+in the repository root on its default branch. fman renders it as Markdown;
+the file is optional.
 
 ### Ordering
 
