@@ -1,9 +1,11 @@
 from core.net import get_bytes
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 
 import json
 import re
 import sys
+
+DESCRIPTION_FILE = 'description.md'
 
 def find_repos(topics):
 	query = '+'.join('topic:' + topic for topic in topics)
@@ -68,6 +70,15 @@ class GitHubRepo:
 	def download_zipball(self, ref):
 		zipball_url = self._url('archive', archive_format='zipball', ref=ref)
 		return _get(zipball_url)
+	def fetch_description(self):
+		url = 'https://raw.githubusercontent.com/%s/%s/%s' % (
+			self, self._data['default_branch'], DESCRIPTION_FILE
+		)
+		try:
+			return _get(url).decode('utf-8')
+		except (URLError, UnicodeDecodeError):
+			# Plugins need not provide a description, and network errors are normal.
+			return None
 	def _url(self, name, **kwargs):
 		url = self._data[name + '_url']
 		required_url_params = re.finditer(r'{([^/][^}]+)}', url)

@@ -1,6 +1,7 @@
 from core.github import find_repos, GitHubRepo
 from unittest import TestCase
 from unittest.mock import patch
+from urllib.error import HTTPError, URLError
 
 def _repo(name, pushed_at, num_stars=0):
 	return {
@@ -62,3 +63,31 @@ class GitHubRepoTest(TestCase):
 	def test_last_modified_is_empty_when_absent(self):
 		repo = GitHubRepo({'name': 'Plugin'})
 		self.assertEqual('', repo.last_modified)
+
+
+class DescriptionTest(TestCase):
+	def setUp(self):
+		self.repo = GitHubRepo({
+			'name': 'Plugin', 'full_name': 'someone/Plugin',
+			'default_branch': 'main'
+		})
+
+	def test_fetches_description_from_raw_default_branch_url(self):
+		with patch('core.github._get', return_value=b'# Plugin\n') as get:
+			self.assertEqual('# Plugin\n', self.repo.fetch_description())
+		get.assert_called_once_with(
+			'https://raw.githubusercontent.com/someone/Plugin/main/description.md'
+		)
+
+	def test_returns_none_when_description_is_missing(self):
+		error = HTTPError('url', 404, 'Not Found', {}, None)
+		with patch('core.github._get', side_effect=error):
+			self.assertIsNone(self.repo.fetch_description())
+
+	def test_returns_none_when_offline(self):
+		with patch('core.github._get', side_effect=URLError('offline')):
+			self.assertIsNone(self.repo.fetch_description())
+
+	def test_returns_none_when_description_is_not_utf8(self):
+		with patch('core.github._get', return_value=b'\xff'):
+			self.assertIsNone(self.repo.fetch_description())

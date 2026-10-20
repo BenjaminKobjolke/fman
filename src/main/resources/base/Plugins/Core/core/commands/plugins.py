@@ -6,6 +6,7 @@ across that (`PreservePanePaths`) because a filesystem that is reloaded takes
 the location displaying it down with it.
 """
 from core.github import find_repos, GitHubRepo
+from core.plugin_info_dialog import show_plugin_info
 from core.quicksearch_matchers import contains_chars
 from core.util import listdir_absolute
 from fman import ApplicationCommand, DATA_DIRECTORY, DirectoryPaneCommand, \
@@ -24,6 +25,8 @@ __all__ = [
 	'InstallPlugin', 'ListPlugins', 'PreservePanePaths', 'ReloadPlugins',
 	'RemovePlugin', 'StatusMessage'
 ]
+
+_NO_DESCRIPTION = 'No description available.'
 
 def _matches_query(name, query):
 	# The highlight for `name`, or None if it does not match. An empty query
@@ -53,8 +56,7 @@ class InstallPlugin(ApplicationCommand):
 							'Could not fetch available plugins: %s.' % e.reason
 						)
 						return
-			result = show_quicksearch(self._get_matching_repos)
-			repo = result[1] if result else None
+			repo = self._pick_repo()
 		if repo:
 			with StatusMessage('Downloading %s...' % repo.name):
 				try:
@@ -68,6 +70,18 @@ class InstallPlugin(ApplicationCommand):
 			success = self._load_installed_plugin(plugin_dir)
 			if success:
 				show_alert('Plugin %r was successfully installed.' % repo.name)
+	def _pick_repo(self):
+		query = ''
+		while True:
+			result = show_quicksearch(self._get_matching_repos, query=query)
+			if not result:
+				return None
+			query, repo = result[0], result[1]
+			with StatusMessage('Fetching description of %s...' % repo.name):
+				description = repo.fetch_description()
+			if show_plugin_info(repo.name,
+					description or _fallback_description(repo)):
+				return repo
 	def _get_matching_repos(self, query):
 		installed_plugins = set(
 			os.path.basename(plugin_dir)
@@ -128,6 +142,13 @@ class InstallPlugin(ApplicationCommand):
 		data['ref'] = ref
 		with open(plugin_json, 'w') as f:
 			json.dump(data, f)
+
+def _fallback_description(repo):
+	parts = ['# ' + repo.name]
+	if repo.description:
+		parts.extend(('', repo.description))
+	parts.extend(('', '*' + _NO_DESCRIPTION + '*'))
+	return '\n'.join(parts)
 
 _THIRDPARTY_PLUGINS_DIR = os.path.join(DATA_DIRECTORY, 'Plugins', 'Third-party')
 
