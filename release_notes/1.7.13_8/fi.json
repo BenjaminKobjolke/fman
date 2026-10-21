@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 8,
+  "date": "2026-10-21",
+  "title": "Windows 11 -teemat ja turvallisempi roskakorin käsittely",
+  "notes": [
+    "Anna fmanille Windows 11:stä inspiraationsa saanut ilme uusilla vaalealla ja tummalla teemalla.",
+    "Tiedostojen siirtäminen roskakoriin keskeytyy nyt turvallisesti, jos tiedostojärjestelmä ei tue sitä, sen sijaan että tiedostot poistettaisiin pysyvästi."
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 8,
+  "date": "2026-10-21",
+  "title": "Windows 11-témák és biztonságosabb lomtárkezelés",
+  "notes": [
+    "Adjon a fmannek Windows 11 ihlette megjelenést az új Világos és Sötét témákkal.",
+    "A fájlok lomtárba helyezése mostantól biztonságosan leáll, ha a fájlrendszer ezt nem támogatja, ahelyett hogy véglegesen törölné őket."
+  ]
+}

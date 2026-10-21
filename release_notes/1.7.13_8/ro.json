@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 8,
+  "date": "2026-10-21",
+  "title": "Teme inspirate de Windows 11 și gestionarea mai sigură a coșului de gunoi",
+  "notes": [
+    "Oferă-i lui fman un aspect inspirat de Windows 11 cu noile teme Luminos și Întunecat.",
+    "Mutarea fișierelor în coșul de gunoi se oprește acum în siguranță atunci când sistemul de fișiere nu acceptă această operațiune, în loc să le șteargă definitiv."
+  ]
+}

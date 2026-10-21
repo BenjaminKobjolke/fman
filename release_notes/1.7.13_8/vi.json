@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 8,
+  "date": "2026-10-21",
+  "title": "Chủ đề Windows 11 và xử lý thùng rác an toàn hơn",
+  "notes": [
+    "Mang đến cho fman giao diện lấy cảm hứng từ Windows 11 với các chủ đề Sáng và Tối mới.",
+    "Giờ đây, thao tác chuyển tệp vào thùng rác sẽ dừng an toàn nếu hệ thống tệp không hỗ trợ, thay vì xóa chúng vĩnh viễn."
+  ]
+}

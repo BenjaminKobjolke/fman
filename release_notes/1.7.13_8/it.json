@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 8,
+  "date": "2026-10-21",
+  "title": "Temi ispirati a Windows 11 e gestione più sicura del cestino",
+  "notes": [
+    "Dai a fman un aspetto ispirato a Windows 11 con i nuovi temi Chiaro e Scuro.",
+    "Lo spostamento dei file nel cestino ora si interrompe in sicurezza se il file system non lo supporta, anziché eliminarli definitivamente."
+  ]
+}

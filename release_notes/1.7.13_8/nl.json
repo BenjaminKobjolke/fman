@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 8,
+  "date": "2026-10-21",
+  "title": "Windows 11-thema's en veiliger omgaan met de prullenbak",
+  "notes": [
+    "Geef fman een op Windows 11 geïnspireerde uitstraling met de nieuwe lichte en donkere thema's.",
+    "Het verplaatsen van bestanden naar de prullenbak wordt nu veilig afgebroken als een bestandssysteem dit niet ondersteunt, in plaats van de bestanden permanent te verwijderen."
+  ]
+}

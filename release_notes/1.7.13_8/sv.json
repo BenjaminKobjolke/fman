@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 8,
+  "date": "2026-10-21",
+  "title": "Windows 11-teman och säkrare hantering av papperskorgen",
+  "notes": [
+    "Ge fman ett utseende inspirerat av Windows 11 med nya ljusa och mörka teman.",
+    "När filer flyttas till papperskorgen avbryts åtgärden nu på ett säkert sätt om ett filsystem inte stöder det, i stället för att filerna raderas permanent."
+  ]
+}

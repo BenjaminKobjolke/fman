@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 8,
+  "date": "2026-10-21",
+  "title": "Windows 11 teemad ja turvalisem prügikasti käsitlemine",
+  "notes": [
+    "Anna fmanile uute heleda ja tumeda teemaga Windows 11-st inspireeritud välimus.",
+    "Failide prügikasti teisaldamine peatub nüüd turvaliselt, kui failisüsteem seda ei toeta, selle asemel et failid jäädavalt kustutada."
+  ]
+}

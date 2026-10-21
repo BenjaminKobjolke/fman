@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 8,
+  "date": "2026-10-21",
+  "title": "Motivy ve stylu Windows 11 a bezpečnější práce s košem",
+  "notes": [
+    "Dodejte aplikaci fman vzhled inspirovaný Windows 11 díky novým světlým a tmavým motivům.",
+    "Přesouvání souborů do koše se nyní bezpečně zastaví, pokud to souborový systém nepodporuje, místo aby se soubory trvale odstranily."
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 8,
+  "date": "2026-10-21",
+  "title": "Windows-11-Designs und sicherere Papierkorb-Verwaltung",
+  "notes": [
+    "Verleihen Sie fman mit neuen hellen und dunklen Designs einen von Windows 11 inspirierten Look.",
+    "Das Verschieben von Dateien in den Papierkorb wird jetzt sicher abgebrochen, wenn ein Dateisystem dies nicht unterstützt, statt die Dateien endgültig zu löschen."
+  ]
+}

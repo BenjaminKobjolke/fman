@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 8,
+  "date": "2026-10-21",
+  "title": "Windows 11 temaları ve daha güvenli çöp kutusu işlemleri",
+  "notes": [
+    "Yeni Açık ve Koyu temalarla fman'a Windows 11'den ilham alan bir görünüm kazandırın.",
+    "Bir dosya sistemi çöp kutusuna taşımayı desteklemediğinde, dosyalar artık kalıcı olarak silinmek yerine işlem güvenli bir şekilde durdurulur."
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 8,
+  "date": "2026-10-21",
+  "title": "Temas do Windows 11 e tratamento mais seguro do Lixo",
+  "notes": [
+    "Dê ao fman um visual inspirado no Windows 11 com os novos temas Claro e Escuro.",
+    "A operação de mover ficheiros para o Lixo é agora interrompida em segurança quando o sistema de ficheiros não o suporta, em vez de os eliminar permanentemente."
+  ]
+}

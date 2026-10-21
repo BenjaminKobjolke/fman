@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 8,
+  "date": "2026-10-21",
+  "title": "Windows 11-temaer og tryggere håndtering av papirkurven",
+  "notes": [
+    "Gi fman et Windows 11-inspirert utseende med nye lyse og mørke temaer.",
+    "Flytting av filer til papirkurven avbrytes nå på en trygg måte hvis filsystemet ikke støtter dette, i stedet for å slette dem permanent."
+  ]
+}

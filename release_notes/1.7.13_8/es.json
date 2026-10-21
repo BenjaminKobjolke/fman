@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 8,
+  "date": "2026-10-21",
+  "title": "Temas de Windows 11 y gestión más segura de la papelera",
+  "notes": [
+    "Dale a fman un aspecto inspirado en Windows 11 con los nuevos temas claro y oscuro.",
+    "Al mover archivos a la papelera, el proceso ahora se detiene de forma segura si el sistema de archivos no lo admite, en lugar de eliminarlos permanentemente."
+  ]
+}

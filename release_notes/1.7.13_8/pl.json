@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 8,
+  "date": "2026-10-21",
+  "title": "Motywy Windows 11 i bezpieczniejsza obsługa kosza",
+  "notes": [
+    "Nadaj fmanowi wygląd inspirowany systemem Windows 11 dzięki nowym jasnym i ciemnym motywom.",
+    "Przenoszenie plików do kosza jest teraz bezpiecznie wstrzymywane, jeśli system plików nie obsługuje tej funkcji, zamiast trwale usuwać pliki."
+  ]
+}

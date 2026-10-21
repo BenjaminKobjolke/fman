@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 8,
+  "date": "2026-10-21",
+  "title": "Windows 11 tēmas un drošāka darbība ar atkritni",
+  "notes": [
+    "Piešķiriet fman Windows 11 iedvesmotu izskatu, izmantojot jaunās gaišo un tumšo motīvu tēmas.",
+    "Failu pārvietošana uz atkritni tagad tiek droši pārtraukta, ja failu sistēma to neatbalsta, nevis faili tiek neatgriezeniski dzēsti."
+  ]
+}

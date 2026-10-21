@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 8,
+  "date": "2026-10-21",
+  "title": "Thèmes Windows 11 et gestion plus sûre de la corbeille",
+  "notes": [
+    "Donnez à fman une apparence inspirée de Windows 11 grâce aux nouveaux thèmes Clair et Sombre.",
+    "Le déplacement des fichiers vers la corbeille s’interrompt désormais en toute sécurité lorsque le système de fichiers ne le prend pas en charge, au lieu de les supprimer définitivement."
+  ]
+}

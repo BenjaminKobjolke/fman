@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 8,
+  "date": "2026-10-21",
+  "title": "Windows 11 themes and safer trash handling",
+  "notes": [
+    "Give fman a Windows 11-inspired look with new Light and Dark themes.",
+    "Moving files to the trash now stops safely when a filesystem does not support it, instead of permanently deleting them."
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 8,
+  "date": "2026-10-21",
+  "title": "Windows 11 teme i bezbednije rukovanje korpom za otpatke",
+  "notes": [
+    "Dajte aplikaciji fman izgled inspirisan operativnim sistemom Windows 11 uz nove svetle i tamne teme.",
+    "Premeštanje datoteka u korpu za otpatke sada se bezbedno zaustavlja kada fajl sistem to ne podržava, umesto da ih trajno briše."
+  ]
+}

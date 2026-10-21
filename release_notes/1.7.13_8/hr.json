@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 8,
+  "date": "2026-10-21",
+  "title": "Teme za Windows 11 i sigurnije rukovanje košem",
+  "notes": [
+    "Dajte fmanu izgled nadahnut Windowsom 11 uz nove svijetle i tamne teme.",
+    "Premještanje datoteka u koš sada se sigurno zaustavlja ako datotečni sustav to ne podržava, umjesto da ih trajno izbriše."
+  ]
+}

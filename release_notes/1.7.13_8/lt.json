@@ -1,0 +1,10 @@
+{
+  "version": "1.7.13",
+  "build": 8,
+  "date": "2026-10-21",
+  "title": "Windows 11 temos ir saugesnis šiukšliadėžės tvarkymas",
+  "notes": [
+    "Suteikite „fman“ Windows 11 įkvėptą išvaizdą naudodami naujas šviesiąją ir tamsiąją temas.",
+    "Perkeliant failus į šiukšliadėžę, operacija dabar saugiai sustabdoma, jei failų sistema to nepalaiko, užuot failus ištrynus visam laikui."
+  ]
+}
