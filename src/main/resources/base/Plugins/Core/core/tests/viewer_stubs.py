@@ -39,6 +39,9 @@ class StubPane:
 	def get_viewer_commands(self):
 		return self._viewer_commands
 
+	def _rewrite_command(self, name, args):
+		return name, args
+
 	def get_command_aliases(self, name):
 		return (self._aliases[name],)
 

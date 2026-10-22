@@ -103,6 +103,36 @@ class DeleteCurrentTest(_SettingsTestCase):
 		self.assertEqual([], pane.commands)
 		self.assertEqual([['file:///a.png']], self.trashed)
 
+	def test_permanent_rewrite_uses_permanent_confirmation_and_delete(self):
+		pane = StubPane(['file:///a.png'], cursor=0)
+		pane._rewrite_command = lambda name, args: ('delete_permanently', args)
+		with patch(
+			'core.viewer_file_ops.confirm_delete', return_value=True,
+		) as confirm, \
+				patch('core.viewer_file_ops.delete') as delete, \
+				patch('core.viewer_file_ops.confirm_trash') as confirm_trash, \
+				patch('core.viewer_file_ops.trash') as trash:
+			delete_current(pane, 'file:///a.png', 'image', lambda: None)
+		confirm.assert_called_once_with(['file:///a.png'])
+		delete.assert_called_once_with(['file:///a.png'])
+		confirm_trash.assert_not_called()
+		trash.assert_not_called()
+
+	def test_unmodified_command_uses_trash_confirmation_and_delete(self):
+		pane = StubPane(['file:///a.png'], cursor=0)
+		pane._rewrite_command = lambda name, args: (name, args)
+		with patch(
+			'core.viewer_file_ops.confirm_trash', return_value=True,
+		) as confirm, \
+				patch('core.viewer_file_ops.trash') as trash, \
+				patch('core.viewer_file_ops.confirm_delete') as confirm_delete, \
+				patch('core.viewer_file_ops.delete') as delete:
+			delete_current(pane, 'file:///a.png', 'image', lambda: None)
+		confirm.assert_called_once_with(['file:///a.png'])
+		trash.assert_called_once_with(['file:///a.png'])
+		confirm_delete.assert_not_called()
+		delete.assert_not_called()
+
 class RenameCurrentTest(_SettingsTestCase):
 	def _rename(self, prompt_result, on_renamed=None, renamed_to='file:///b.png'):
 		pane = StubPane(['file:///a.png'], cursor=0)
@@ -211,6 +241,42 @@ class BackgroundHopTest(_SettingsTestCase):
 			self.assertEqual(1, len(backgrounded))
 			backgrounded[0]()
 		rename_to.assert_called_once_with(pane, 'file:///a.png', 'b.png')
+
+	def test_permanent_delete_moves_cursor_before_submitting_background_work(self):
+		events = []
+		backgrounded = []
+		pane = StubPane(['file:///a.png', 'file:///b.png'], cursor=0)
+		pane._rewrite_command = lambda name, args: ('delete_permanently', args)
+		move_cursor_down = pane.move_cursor_down
+		def move_cursor():
+			events.append('cursor')
+			move_cursor_down()
+		pane.move_cursor_down = move_cursor
+		def confirm(urls):
+			events.append('confirm')
+			self.assertEqual('file:///a.png', pane.get_file_under_cursor())
+			return True
+		with patch('core.viewer_file_ops.get_setting', return_value=False), \
+				patch('core.viewer_navigation._category', return_value='image'), \
+				patch('core.viewer_navigation.get_same_type_only', return_value=True), \
+				patch('core.viewer_file_ops.confirm_delete', side_effect=confirm), \
+				patch('core.viewer_file_ops.confirm_trash') as confirm_trash, \
+				patch('core.viewer_file_ops.delete') as delete, \
+				patch('core.viewer_file_ops.trash') as trash, \
+				patch(
+					'core.viewer_file_ops._in_background',
+					side_effect=lambda work: (
+						events.append('submit'), backgrounded.append(work),
+					),
+				):
+			delete_current(pane, 'file:///a.png', 'image', lambda: None)
+		self.assertEqual(['confirm', 'cursor', 'submit'], events)
+		self.assertEqual('file:///b.png', pane.get_file_under_cursor())
+		confirm_trash.assert_not_called()
+		delete.assert_not_called()
+		trash.assert_not_called()
+		backgrounded[0]()
+		delete.assert_called_once_with(['file:///a.png'])
 
 class NavigatorEntryTest(TestCase):
 	def test_delete_and_rename_are_offered_only_with_an_on_close(self):

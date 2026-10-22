@@ -39,19 +39,26 @@ class MoveToTrash(DirectoryPaneCommand):
 	def is_visible(self):
 		return bool(self.pane.get_file_under_cursor())
 
-# Split out of MoveToTrash.__call__ so the in-pane viewers can reuse this
-# command's wording and machinery without a second confirmation of their own
-# (core/viewer_file_ops.py). Two functions rather than one because the viewer
-# has to confirm first, move its cursor off the doomed file and only then
-# submit - _Delete runs in the background, so a delete submitted before the
-# cursor moves races the pane model. Deliberately not in __all__, which is what
-# keeps them from being picked up as commands.
+# Split out of the command __call__ methods so the in-pane viewers can reuse
+# their confirmation and deletion machinery (core/viewer_file_ops.py). Two
+# functions per command because the viewer has to confirm first, move its
+# cursor off the doomed file and only then submit - _Delete runs in the
+# background, so a delete submitted before the cursor moves races the pane
+# model. Deliberately not in __all__, which keeps them from being picked up as
+# commands.
 def confirm_trash(urls):
 	description = _describe(urls, 'these %d files')
 	trash_name = _trash_name()
 	msg = \
 		"Do you really want to move %s to the %s?" % (description, trash_name)
 	return bool(show_alert(msg, YES | NO, YES) & YES)
+
+def confirm_delete(urls):
+	description = _describe(urls, 'these %d items')
+	message = \
+		"Do you really want to PERMANENTLY delete %s? This action cannot " \
+		"be undone!" % description
+	return bool(show_alert(message, YES | NO, YES) & YES)
 
 def _trash_name():
 	return 'Recycle Bin' if PLATFORM == 'Windows' else 'Trash'
@@ -60,6 +67,10 @@ def trash(urls):
 	if not elevation.delete(urls, to_trash=True):
 		submit_task(_Delete(urls, prepare_trash, _TRASH_UNSUPPORTED))
 
+def delete(urls):
+	if not elevation.delete(urls, to_trash=False):
+		submit_task(_Delete(urls, prepare_delete))
+
 class DeletePermanently(DirectoryPaneCommand):
 	def __call__(self, urls=None):
 		if urls is None:
@@ -67,13 +78,8 @@ class DeletePermanently(DirectoryPaneCommand):
 		if not urls:
 			show_alert(NO_SELECTION)
 			return
-		description = _describe(urls, 'these %d items')
-		message = \
-			"Do you really want to PERMANENTLY delete %s? This action cannot " \
-			"be undone!" % description
-		if show_alert(message, YES | NO, YES) & YES:
-			if not elevation.delete(urls, to_trash=False):
-				submit_task(_Delete(urls, prepare_delete))
+		if confirm_delete(urls):
+			delete(urls)
 
 class _Delete(Task):
 	def __init__(self, urls, prepare_fn, unsupported=_DELETE_UNSUPPORTED):

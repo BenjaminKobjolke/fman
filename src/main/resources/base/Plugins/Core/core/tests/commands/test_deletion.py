@@ -47,6 +47,36 @@ class TrashTest(TestCase):
 			'Deleting files in zip:// is not supported.'
 		)
 
+	def test_confirm_delete_uses_permanent_delete_wording_and_returns_result(self):
+		urls = ['file:///a.txt']
+		message = (
+			'Do you really want to PERMANENTLY delete a.txt? This action '
+			'cannot be undone!'
+		)
+		with patch('core.commands.deletion.show_alert', return_value=YES) as alert:
+			self.assertTrue(deletion.confirm_delete(urls))
+		alert.assert_called_once_with(message, deletion.YES | deletion.NO, deletion.YES)
+		with patch('core.commands.deletion.show_alert', return_value=deletion.NO):
+			self.assertFalse(deletion.confirm_delete(urls))
+
+	def test_delete_uses_elevation_then_submits_background_task_when_needed(self):
+		urls = ['file:///a.txt']
+		with patch(
+			'core.commands.deletion.elevation.delete', return_value=False,
+		) as elevated, \
+				patch('core.commands.deletion.submit_task') as submit_task:
+			deletion.delete(urls)
+		elevated.assert_called_once_with(urls, to_trash=False)
+		task = submit_task.call_args.args[0]
+		self.assertEqual(urls, task._urls)
+		self.assertIs(deletion.prepare_delete, task._prepare_fn)
+
+	def test_delete_skips_background_task_when_elevation_succeeds(self):
+		with patch('core.commands.deletion.elevation.delete', return_value=True), \
+				patch('core.commands.deletion.submit_task') as submit_task:
+			deletion.delete(['file:///a.txt'])
+		submit_task.assert_not_called()
+
 class DescribeTest(TestCase):
 
 	"""

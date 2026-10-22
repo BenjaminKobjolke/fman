@@ -14,7 +14,7 @@ Its own module rather than more of core/viewer_navigation.py, which is near
 the project's 300-line file cap - same reason core/textviewer_save.py is
 split off core/textviewer.py.
 """
-from core.commands.deletion import confirm_trash, trash
+from core.commands.deletion import confirm_delete, confirm_trash, delete, trash
 from core.commands.editor import _find_extension_start
 from core.commands.rename import rename_to
 from core.settings import get_setting, save_setting, SETTINGS_FILE
@@ -77,15 +77,22 @@ def after_file_gone(pane, category, on_close):
 
 def delete_current(pane, url, category, on_close):
 	"""
-	Moves `url` to the trash after the file list's own confirmation, then
-	either closes the viewer or advances it to the next file, per the toggle
-	above.
+	Deletes `url` using the file list command's confirmation, then either
+	closes the viewer or advances it to the next file, per the toggle above.
+	A plugin rewrite of `move_to_trash` to `delete_permanently`, as on FTP,
+	selects permanent deletion and its confirmation.
 	"""
 	# Lazily imported: core/viewer_navigation.py imports this module for the
 	# palette rows, so importing it back at module level would be circular -
 	# the same reason _category defers core.viewers there.
 	from core.viewer_navigation import advance
-	if not confirm_trash([url]):
+	command, args = pane._rewrite_command('move_to_trash', {'urls': [url]})
+	urls = args['urls']
+	if command == 'delete_permanently':
+		confirm, submit = confirm_delete, delete
+	else:
+		confirm, submit = confirm_trash, trash
+	if not confirm(urls):
 		return
 	if get_close_after_delete():
 		on_close()
@@ -97,7 +104,7 @@ def delete_current(pane, url, category, on_close):
 			on_close()
 	# Last, on purpose: the cursor has to be off the file before the row it
 	# sits on disappears.
-	_in_background(lambda: trash([url]))
+	_in_background(lambda: submit(urls))
 
 def rename_current(pane, url, on_renamed=None):
 	"""

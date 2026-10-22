@@ -90,9 +90,7 @@ class DirectoryPane:
 		return self._command_registry.get_commands()
 	def get_viewer_commands(self):
 		return self._command_registry.get_viewer_commands()
-	def run_command(self, name, args=None):
-		if args is None:
-			args = {}
+	def _rewrite_command(self, name, args):
 		while True:
 			for listener in self._listeners:
 				rewritten = listener.on_command(name, args)
@@ -101,6 +99,11 @@ class DirectoryPane:
 					break
 			else:
 				break
+		return name, args
+	def run_command(self, name, args=None):
+		if args is None:
+			args = {}
+		name, args = self._rewrite_command(name, args)
 		return self._command_registry.execute_command(name, args, self)
 	def get_command_aliases(self, command_name):
 		return self._command_registry.get_command_aliases(command_name)
