@@ -948,22 +948,25 @@ update.bat
 Set up the release system with `/release:setup`. Reusable pieces live in
 `python_setup_files/`:
 
-- `tools/release/build_number.py` — self-contained helper: manages the integer in
-  `build_version.txt` (project root) and prints the `<version>_<build>` label
-  (version from `pyproject.toml`). Actions: `get | increment | decrement | label`.
-- `tools/build_get.bat`, `tools/build_increment.bat`, `tools/build_decrement.bat`,
-  `tools/version_get.bat` — thin `uv run` wrappers over the helper.
+- `tools/release/build_number.py` — fman's helper reads and updates the version in
+  `src/build/settings/base.json`; it increments the patch and rolls over after 10.
+  It prints a plain version label and restores the version from Git HEAD on rollback.
+- `tools/build_increment.bat`, `tools/build_decrement.bat`, and
+  `tools/version_get.bat` — thin Python wrappers over the helper. There is no
+  build counter or `build_get.bat`.
 - `CREATE_NEW_RELEASE.template.md` — fill-in-the-blanks for `docs/CREATE_NEW_RELEASE.md`.
 - The Python stack recipe read by `/release:create-release-notes` lives in the shared
   `coding-rules/CREATE_RELEASE_NOTES.md` (`## Python / uv` section), not here.
 
-Conventions:
+The generic templates below describe other projects. For fman:
 
-- **Release label** = `<version>_<build>` (e.g. `0.1.0_22`). `version` is semver in
-  `pyproject.toml` (bumped by hand); `build` is an integer in `build_version.txt`.
-- **Release notes** = `release_notes/<version>_<build>/<locale>.json`. The actual
-  text is the `notes` array. Author **only `en.json`**; generate other locales with
-  a translation bat (mandatory — never skip).
+- **Release label** = plain semantic version. The patch increments through 10, then
+  the minor increments and patch resets to zero (1.7.13 -> 1.8.0; 1.8.10 -> 1.9.0).
+- **Release notes** = `release_notes/<version>/<locale>.json`. The actual text is
+  the `notes` array in `en.json`, with `version`, `date`, `title`, and `notes`
+  keys and no `build` key. Older `<version>_<build>` folders remain readable.
+- **Compatibility**: installs at `1.7.13_8` or older cannot detect plain version
+  tags, so they must download `1.8.0` manually.
 - **Bundle `release_notes/` into the build** so the in-app view ships with the binary
   (PyInstaller: add to spec `datas` + `copy_metadata(<pkg>)`).
 - **In-app view**: load all releases, sort **newest first**, show the latest first

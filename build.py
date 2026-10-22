@@ -133,7 +133,7 @@ def release():
 @command
 def release_build():
 	# release() for a tree that is dirty on purpose: tools/release_create.bat
-	# (release-tool create) bumps build_version.txt and authors the release
+	# (release-tool create) bumps the version in base.json and authors the release
 	# notes before building, and commits/tags/pushes itself afterwards.
 	# release() would abort on those changes - and exit 0 while doing so.
 	clean()

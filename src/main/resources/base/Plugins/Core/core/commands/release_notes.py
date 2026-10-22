@@ -25,15 +25,15 @@ class ShowReleaseNotes(DirectoryPaneCommand):
 		if not releases:
 			return
 		entries = [
-			(folder, '%s_%d' % (version, build), self._release_date(folder))
-			for version, build, folder in releases
+			(folder, label, self._release_date(folder))
+			for label, build, folder in releases
 		]
 		result = show_quicksearch(self._get_items(entries))
 		if not result:
 			return
 		folder = result[1]
 		data = load_release(folder, self._get_locale())
-		show_text_in_viewer(self.pane, render_notes(data))
+		show_text_in_viewer(self.pane, render_notes(data, folder.name))
 
 	def is_visible(self):
 		return bool(self._list_releases())

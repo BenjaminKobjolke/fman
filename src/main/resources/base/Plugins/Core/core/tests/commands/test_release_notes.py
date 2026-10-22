@@ -12,5 +12,5 @@ class ShowReleaseNotesTest(TestCase):
 
 	def test_visible_when_releases_found(self):
 		command = ShowReleaseNotes.__new__(ShowReleaseNotes)
-		command._list_releases = lambda: [('1.7.5', 1, '/fake/1.7.5_1')]
+		command._list_releases = lambda: [('1.7.5_1', 1, '/fake/1.7.5_1')]
 		self.assertTrue(command.is_visible())

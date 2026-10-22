@@ -56,10 +56,12 @@ class CandidateReleaseDirsTest(TestCase):
 class ListReleasesTest(TestCase):
 	def test_parses_numeric_version_and_build(self):
 		self.assertEqual(((1, 7, 13), 3), parse_label('1.7.13_3'))
+		self.assertEqual(((1, 8, 0), 0), parse_label('1.8.0'))
 		self.assertGreater(parse_label('1.8.0_1'), parse_label('1.7.13_9'))
+		self.assertGreater(parse_label('1.8.0'), parse_label('1.7.13_8'))
 
 	def test_rejects_non_release_labels(self):
-		for label in ('v1.7.13', '', '1.7.13'):
+		for label in ('v1.7.13', ''):
 			with self.subTest(label=label):
 				self.assertIsNone(parse_label(label))
 
@@ -72,8 +74,15 @@ class ListReleasesTest(TestCase):
 			releases = list_releases(tmp)
 			self.assertEqual(
 				['1.7.5_10', '1.7.5_9', '1.7.5_1', '1.7.4_0'],
-				['%s_%d' % (version, build) for version, build, _ in releases]
+				[version for version, build, _ in releases]
 			)
+
+	def test_sorts_plain_labels_above_legacy_labels(self):
+		with TemporaryDirectory() as tmp:
+			_make_release_dir(tmp, '1.7.13_8', {'en.json': {}})
+			_make_release_dir(tmp, '1.8.0', {'en.json': {}})
+			releases = list_releases(tmp)
+			self.assertEqual(['1.8.0', '1.7.13_8'], [r[0] for r in releases])
 
 	def test_ignores_folders_that_do_not_match_version_build_pattern(self):
 		with TemporaryDirectory() as tmp:
@@ -81,7 +90,7 @@ class ListReleasesTest(TestCase):
 			os.mkdir(os.path.join(tmp, 'not_a_release'))
 			releases = list_releases(tmp)
 			self.assertEqual(1, len(releases))
-			self.assertEqual('1.7.5', releases[0][0])
+			self.assertEqual('1.7.5_1', releases[0][0])
 			self.assertEqual(1, releases[0][1])
 
 class LoadReleaseTest(TestCase):
@@ -106,16 +115,24 @@ class RenderNotesTest(TestCase):
 	def test_renders_title_version_date_and_bulleted_notes(self):
 		text = render_notes({
 			'version': '1.7.5',
-			'build': 1,
 			'date': '2026-08-22',
 			'title': 'New text viewer',
 			'notes': ['First change', 'Second change'],
 		})
 		self.assertEqual(
 			'New text viewer\n'
-			'1.7.5_1 — 2026-08-22\n'
+			'1.7.5 — 2026-08-22\n'
 			'\n'
 			'• First change\n'
 			'• Second change',
 			text
 		)
+
+	def test_renders_legacy_folder_label_without_build_data(self):
+		text = render_notes({
+			'version': '1.7.5',
+			'date': '2026-08-22',
+			'title': 'New text viewer',
+			'notes': [],
+		}, '1.7.5_1')
+		self.assertIn('1.7.5_1 — 2026-08-22', text)

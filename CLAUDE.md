@@ -33,6 +33,9 @@ they are intentionally referenced, not imported.
 After touching `tools/close_running_fman.ps1` or `tools/build_windows.bat`, run
 `python tools/test_close_running_fman.py`.
 
+After touching `tools/release/build_number.py`, run
+`python tools/test_build_number.py`.
+
 After touching `src/build/python/build_impl/mac.py`, `tools/sign_mac.sh`,
 `tools/build_mac.sh` or `tools/github_release_mac.sh`, run
 `python tools/test_build_mac.py`.

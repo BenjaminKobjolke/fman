@@ -1,6 +1,6 @@
 # Build and publish the macOS release
 
-The Mac release is an arm64 build made on Apple Silicon. It uses the same release label and GitHub Release as the Windows build; it does not bump the build number.
+The Mac release is an arm64 build made on Apple Silicon. It uses the same plain version label and GitHub Release as the Windows build; it does not bump the version.
 
 ## One-time setup
 
@@ -19,11 +19,11 @@ Install mpv with `brew install mpv` to enable video previews.
 
 ## Build and publish
 
-1. Complete and push the Windows release first. Its tag is the label, such as `1.7.13_3`.
+1. Complete and push the Windows release first. Its tag is the plain version, such as `1.8.0`. The release tooling bumps the patch automatically and rolls over after 10: `1.8.10` is followed by `1.9.0`.
 2. In the fman checkout on the Mac, fetch and check out that tag:
 
    ```sh
-   git fetch --tags && git checkout <label>
+   git fetch --tags && git checkout <version>
    ```
 
 3. Build the app and disk image:
@@ -47,7 +47,7 @@ Install mpv with `brew install mpv` to enable video previews.
    ./tools/github_release_mac.sh
    ```
 
-   The script uses the recorded label. Pass a label explicitly only when publishing a build that predates the record, for example `./tools/github_release_mac.sh 1.7.13_3`.
+   The script uses the recorded version. Pass a version explicitly only when publishing a build that predates the record, for example `./tools/github_release_mac.sh 1.8.0`.
 6. Return the checkout to the main branch with `git checkout main`.
 
 The upload adds `fman.dmg` to the same release as `fmanSetup.exe` and keeps its title and notes unchanged.

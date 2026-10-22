@@ -71,15 +71,15 @@ def check_python_behavior():
         base = Path(temporary)
         source_notes = base / "release_notes"
         source_notes.mkdir()
-        (source_notes / "1.0.0_1").mkdir()
-        (source_notes / "1.0.0_1" / "en.json").write_text("{}")
+        (source_notes / "1.0.0").mkdir()
+        (source_notes / "1.0.0" / "en.json").write_text("{}")
         build_impl.path = lambda value: (
             str(source_notes) if value == "release_notes" else value
         )
         destination = base / "bundle" / "release_notes"
         destination.parent.mkdir()
         build_impl.copy_release_notes(str(destination))
-        assert (destination / "1.0.0_1" / "en.json").read_text() == "{}"
+        assert (destination / "1.0.0" / "en.json").read_text() == "{}"
         shutil.rmtree(source_notes)
         build_impl.copy_release_notes(str(base / "not-created"))
         assert not (base / "not-created").exists()
@@ -159,7 +159,7 @@ def check_bash_scripts():
         fake_python.write_text(
             "#!/bin/bash\n"
             "if [[ $1 == tools/release/build_number.py ]]; "
-            "then echo 1.0.0_5; exit 0; fi\n"
+            "then echo 1.0.0; exit 0; fi\n"
             "mkdir -p target; touch target/fman.dmg\n"
         )
         fake_python.chmod(0o755)
@@ -182,11 +182,11 @@ def check_bash_scripts():
         assert result.returncode != 0 and "checkout" in result.stderr.lower(), (
             result.stdout + result.stderr
         )
-        git_call("tag", "1.0.0_5")
+        git_call("tag", "1.0.0")
         result = subprocess.run([bash, str(tools / "build_mac.sh")], env=env,
                                 capture_output=True, text=True, timeout=30)
         assert result.returncode == 0, result.stdout + result.stderr
-        assert (root / "target/release_version.txt").read_text().strip() == "1.0.0_5"
+        assert (root / "target/release_version.txt").read_text().strip() == "1.0.0"
 
 
 if __name__ == "__main__":

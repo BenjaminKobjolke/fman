@@ -9,9 +9,10 @@ in-pane widget used by [View file](../functions/view-file.md).
 
 1. Open the command palette and run **"Release Notes"**.
 2. A quicksearch list shows every bundled release, newest first, labeled
-   `<version>_<build>` with its date as a hint. Type to fuzzy-filter, just
+   plain version labels such as `1.8.0` (older `<version>_<build>` labels remain
+   supported), with the date as a hint. Type to fuzzy-filter, just
    like any other palette list.
-3. Pick a release (Enter, or click). Its title, `<version>_<build> — date`,
+3. Pick a release (Enter, or click). Its title, version label and date,
    and notes (one bullet per entry) fill the active pane, the same way
    [View file](../functions/view-file.md) does — Escape/Enter/Backspace
    closes it and returns to the file list.
@@ -37,9 +38,11 @@ Can be bound to a key in `Key Bindings.json` like any other command, e.g.:
 - **Hidden when there's nothing to show.** The command doesn't appear in the
   palette at all if no `release_notes/` folder is bundled with this build, or
   it's empty — no dead entry, no empty picker.
-- **Newest first, numeric sort.** Releases are sorted by version, then build
-  number, both compared numerically — `1.7.5_10` sorts above `1.7.5_9`, never
-  the other way round as a plain string sort would get it.
+- **Newest first, numeric sort.** Releases are sorted by version, then legacy
+  build number, with plain versions treated as build zero. This keeps old
+  `1.7.13_8` releases readable while placing `1.8.0` above them.
+- **Release data.** New en.json files use version, date, title, and notes; they
+  do not need a build field.
 - **Locale-aware, with English fallback.** The notes shown are for the
   system's detected UI language when that release has a translation for it;
   otherwise `en.json` is used, since English is always authored for every
@@ -50,8 +53,8 @@ Can be bound to a key in `Key Bindings.json` like any other command, e.g.:
   is nothing backing this text on disk to save to, so the viewer never offers
   *Edit file* here — see [Editing](TEXT_VIEWER.md#editing) for why that
   distinction exists in the viewer itself.
-- **Plain text rendering.** Notes are shown as `title`, then
-  `<version>_<build> — date`, then one `•`-prefixed bullet per note — no
+- **Plain text rendering.** Notes are shown as `title`, then the folder's release
+  label and date, then one `•`-prefixed bullet per note — no
   markdown, consistent with the text viewer showing everything as raw text.
 
 ## Implementation
@@ -62,8 +65,8 @@ Can be bound to a key in `Key Bindings.json` like any other command, e.g.:
     (frozen build or bundled source tree), falling back to the project
     root's own `release_notes/` so it's also found when running from source
     before any freeze/bundling step has run.
-  - `list_releases(dir)` — parses `<version>_<build>` folder names and
-    returns them sorted newest-first (numeric compare on both parts).
+  - `list_releases(dir)` — parses plain `<version>` and legacy
+    `<version>_<build>` folder names and returns them sorted newest-first.
   - `load_release(dir, locale_code)` — loads `<locale>.json`, falling back to
     `en.json` when that locale's file doesn't exist for this release.
   - `render_notes(data)` — formats a loaded release into the plain text shown
@@ -84,7 +87,8 @@ Can be bound to a key in `Key Bindings.json` like any other command, e.g.:
   `src/main/resources/base/Plugins/Core/core/textviewer_pane.py` — see
   [`docs/views/TEXT_VIEWER.md`](TEXT_VIEWER.md#implementation) for the rest
   of the viewer's implementation.
-- Bundling: `release_notes/<version>_<build>/<locale>.json` lives at the
+- Bundling: `release_notes/<version>/<locale>.json` is used for new releases;
+  existing `<version>_<build>` folders remain readable. The notes live at the
   project root (authored per release, see
   [`docs/CREATE_NEW_RELEASE.md`](../CREATE_NEW_RELEASE.md)), outside
   `src/main/resources/base/` where fbs auto-bundles from — so `freeze()` in

@@ -4,13 +4,12 @@ fman is built with **fbs** (fman build system — yes, the project that gave fbs
 name). `build.py` at the project root defines the fbs commands; `tools/*.bat` are
 thin wrappers around `python build.py <command>`.
 
-A release is identified by the label **`<version>_<build>`**, e.g. `1.7.5_3`:
+A release is identified by its plain semantic version, e.g. `1.8.0`:
 
-- `version` (semver) — `src/build/settings/base.json`, key `"version"`. Bump by hand
-  for feature/breaking changes.
-- `build` (integer) — `build_version.txt` at the project root. Counter = the **last
-  shipped** build; `0` = nothing shipped yet under this system (bump-first,
-  ship-next).
+- `version` (semver) — `src/build/settings/base.json`, key `"version"`. The release
+  tooling bumps it automatically for each release. The patch increments through 10;
+  the next release raises the minor and resets the patch to 0 (for example,
+  `1.8.10` -> `1.9.0`). There is no build counter.
 
 ## One-command release
 
@@ -23,14 +22,13 @@ tools\release_create.bat --dry-run   :: print the label and every command, run n
 Runs the shared `release-tool create`
 ([`CREATE_RELEASE_COMMAND.md`](https://github.com/BenjaminKobjolke/release-tool/blob/main/docs/CREATE_RELEASE_COMMAND.md)),
 configured by `tools/release_create.ini`. The build asks a running fman to close (step 4).
-For a new version, bump `version` and reset `build_version.txt` to `0` beforehand
-("Bumping the version" below) — the script only ever bumps the build.
+The script calculates the next version and bumps `base.json` as part of the release.
 
 What it does, in order — the numbered steps below describe each part in detail and
 remain the manual path:
 
-1. Computes the label `<version>_<build + 1>`.
-2. Has Codex author `release_notes/<label>/en.json` if it is missing (step 2).
+1. Computes the next plain semantic version and uses it as the release label.
+2. Has Codex author `release_notes/<version>/en.json` if it is missing (step 2).
 3. Runs `tools\build_increment.bat` — **the one and only bump of the release**. If
    the build fails, it runs `tools\build_decrement.bat` to roll it back.
 4. Runs `tools\translate_release_notes.bat` (step 3).
@@ -50,8 +48,10 @@ Both questions default to no; declining leaves a finished, signed build in `targ
 After publishing the Windows release, build and attach the Mac disk image for
 the same label; see [CREATE_NEW_RELEASE_MAC.md](CREATE_NEW_RELEASE_MAC.md).
 
-**The tag is the full label** (`1.7.13_2`), not `v<version>` as in the releases up to
-`v1.7.13`. Every build therefore gets its own tag and its own GitHub Release.
+**The tag is the plain version** (`1.8.0`), not `v<version>` as in releases through
+`v1.7.13` or the legacy `<version>_<build>` labels. Older `<version>_<build>` folders
+and tags remain readable. Installs at `1.7.13_8` or older cannot recognize plain tags,
+so they will not be offered `1.8.0` by the update check and must download it manually.
 
 ### Publishing an existing build again
 
@@ -61,53 +61,41 @@ tools\github_release.bat
 
 Publishes the installer that is in `target\` under the label recorded in
 `target\release_version.txt` — no rebuild, no bump. Use it when question 7 was
-declined or the upload failed. It reads the recorded label rather than
-`build_version.txt`, so it still publishes the right release after the counter has
-moved on. It refuses to run without a record, installer, release notes, or a
+declined or the upload failed. It reads the recorded label rather than the current
+version source, so it still publishes the right release after that source has moved
+on. It refuses to run without a record, installer, release notes, or a
 `<label>` tag on `origin` (commit, tag and push first — step 6 by hand:
 `git tag <label>`, `git push`, `git push origin <label>`).
 
-For an installer built before the record existed, name the label:
-`tools\github_release.bat 1.7.13_1`.
+For an installer built before the record existed, name the label, for example:
+`tools\github_release.bat 1.8.0`.
 
 `python tools/test_release_version.py` checks this handoff with a fake build and a
 fake uploader; run it after changing `build_release.bat` or `github_release.bat`.
 
-## 1. Version & build number
+## 1. Version
 
 ```bat
-tools\version_get.bat       :: prints <version>_<build>, e.g. 1.7.5_3
-tools\build_get.bat         :: prints the current (last shipped) build number
-tools\build_increment.bat   :: bump build before authoring a new release's notes
-tools\build_decrement.bat   :: undo an increment
+tools\version_get.bat       :: prints the current version, e.g. 1.7.13
+tools\build_increment.bat   :: calculate and write the next version
+tools\build_decrement.bat   :: restore the version from the current Git commit
 ```
 
-All four are thin wrappers over `tools\release\build_number.py` (plain `python`,
-no `uv` — this project uses `requirements/*.txt`, not a `pyproject.toml`/uv
-environment). Bump the semver `version` in `src/build/settings/base.json` by hand;
-the build number is the only thing the bats manage.
+These are thin wrappers over `tools\release\build_number.py` (plain `python`, no
+`uv` — this project uses `requirements/*.txt`). The helper updates the `version` in
+`src/build/settings/base.json`; no separate counter or manual version bump is needed.
 
-Author release notes for the **next** label = `<version>_<build_get + 1>`. The
-increment itself happens via `tools\build_increment.bat` as part of cutting the
-release (step 4) — don't increment twice.
-
-### Bumping the version
-
-`build` is **per-version**, not a global counter — it does not reset itself.
-When you change `version` in `src/build/settings/base.json` (e.g. `1.7.5` →
-`1.7.6`), also reset `build_version.txt` to `0` by hand so the new version's
-first release is `<newversion>_1` instead of continuing the old version's
-count (e.g. `1.7.6_3`). Do this before authoring release notes (step 2), so
-the folder name and `tools\version_get.bat` output agree.
+The release script calculates the next version before authoring notes. From
+`1.7.13`, the next release is `1.8.0`; then `1.8.1` through `1.8.10`, followed by
+`1.9.0`. Do not bump or reset anything by hand.
 
 ## 2. Release notes directory + `en.json` schema
 
-Create `release_notes/<version>_<build>/en.json`:
+Create `release_notes/<version>/en.json`:
 
 ```json
 {
-  "version": "1.7.5",
-  "build": 3,
+  "version": "1.8.0",
   "date": "YYYY-MM-DD",
   "title": "Short headline",
   "notes": [
@@ -133,7 +121,7 @@ tools\translate_release_notes.bat
 This calls the shared **GPT-json-translator** tool
 (`d:\GIT\BenjaminKobjolke\GPT-json-translator`) in recursive mode over the whole
 `release_notes\` tree — it fills in only the missing/changed keys for each
-`<version>_<build>\` folder that has an `en.json`, so it's safe to re-run any
+`<version>\` folder that has an `en.json`, so it's safe to re-run any
 time. Skipping this step means non-English users see no release notes (or stale
 ones) for that release.
 
@@ -150,21 +138,18 @@ from that folder locks its files. `tools\build_windows.bat` and
 to close and stop with a message naming any process that still holds a file from
 the folder. Only `python build.py release` requires you to close it by hand first.
 
-**Always run `tools\build_increment.bat` first, then commit it**, regardless of
-which build path below you use — it bumps `build_version.txt` to the number
-you authored notes for (step 1/2), and `python build.py release` (below)
-**aborts immediately on any uncommitted change**, `build_version.txt` included:
+The one-command release flow bumps the version in base.json automatically and
+restores it from HEAD if the build fails. For the manual `python build.py release`
+path, apply the version bump with the helper before starting the build; the fbs command
+may require a clean tree, so commit the version bump first:
 
 ```bat
 tools\build_increment.bat
-git add build_version.txt
-git commit -m "RELEASE: bump build counter to <N>"
+git add src/build/settings/base.json
+git commit -m "RELEASE: bump version to <version>"
 ```
 
-Skipping the increment means the build ships under the *previous* label, and
-step 4.5 below then can't find that label's `release_notes/` folder
-(`ERROR: release notes not found`). Skipping the commit means `python build.py
-release` refuses to start (`There are uncommitted changes. Aborting.`).
+The release notes folder and tag must use the bumped version.
 
 ```bat
 tools\build_windows.bat          :: python build.py freeze  -> target\fman\
@@ -184,18 +169,18 @@ in `-SNAPSHOT`:
   file to the release version, runs `publish()`, tags the commit `v<version>` in
   git, bumps the settings file again for the next `-SNAPSHOT` dev cycle, and
   pushes — fully automatic.
-- **Plain version, e.g. `1.7.5`** (this fork's actual convention — see step 1,
-  version is bumped by hand and never carries a `-SNAPSHOT` suffix): `release()`
+- **Plain version, e.g. `1.8.0`** (this fork's actual convention — the helper bumps it
+  and it never carries a `-SNAPSHOT` suffix): `release()`
   just calls `publish()` directly. **No tag, no push happens automatically.**
   After a successful build you must do it yourself before step 4.5 — the tag is
-  the full label:
+  the plain version:
   ```bat
-  git tag <version>_<build>
+  git tag <version>
   git push origin main
-  git push origin <version>_<build>
+  git push origin <version>
   ```
   `python build.py release` does not write `target\release_version.txt` (only
-  `tools\build_release.bat` does), so pass the label to step 4.5 explicitly.
+  `tools\build_release.bat` does), so pass the version to step 4.5 explicitly.
 
 `publish()` on Windows runs `freeze` → `sign` → `installer` → `sign_installer` →
 `upload`. The project owns `src/installer/windows/Installer.nsi`; its visible
@@ -251,20 +236,20 @@ Prereq (one-time): [`gh` CLI](https://cli.github.com/) installed and on `PATH`,
 authenticated via `gh auth login` (scope: `repo`).
 
 `tools\release_create.bat` offers this as its last question. By hand — after a
-signed `target\fmanSetup.exe` exists and the `<label>` tag is pushed — run:
+signed `target\fmanSetup.exe` exists and the `<version>` tag is pushed — run:
 
 ```bat
 tools\github_release.bat            :: label from target\release_version.txt
-tools\github_release.bat <label>    :: explicit, for a build without that record
+tools\github_release.bat <version>  :: explicit, for a build without that record
 ```
 
 This calls the shared `release-tool`'s `github-release` command (same
 signing-handshake repo as `sign_exe.bat`, see
 [`GITHUB_RELEASE_COMMAND.md`](https://github.com/BenjaminKobjolke/release-tool/blob/main/docs/GITHUB_RELEASE_COMMAND.md))
-to create a GitHub Release tagged `<label>` at
+to create a GitHub Release tagged `<version>` at
 [github.com/BenjaminKobjolke/fman/releases](https://github.com/BenjaminKobjolke/fman/releases),
 attach `target\fmanSetup.exe`, and set the body from
-`release_notes\<label>\en.json`. See "Publishing an existing build again" above
+`release_notes\<version>\en.json`. See "Publishing an existing build again" above
 for what it checks first.
 
 Idempotent — re-running re-uploads the asset (`--clobber`) instead of failing. On

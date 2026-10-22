@@ -13,9 +13,9 @@ from pathlib import Path
 import json
 import re
 
-# '<version>_<build>' folder name, e.g. '1.7.5_1'. Version is dotted semver
-# (digits only per segment); build is a plain integer.
-_RELEASE_DIR_RE = re.compile(r'^(\d+(?:\.\d+)*)_(\d+)$')
+# Plain semantic versions and legacy '<version>_<build>' folder names are
+# both shipped in release_notes/.
+_RELEASE_DIR_RE = re.compile(r'^(\d+(?:\.\d+)*)(?:_(\d+))?$')
 
 def first_existing_dir(candidates):
 	"""
@@ -67,10 +67,9 @@ def release_notes_dir():
 def list_releases(release_dir):
 	"""
 	Lists the releases in `release_dir`, newest first. Each entry is
-	(version_str, build_int, folder_path). Folder names that don't match
-	'<version>_<build>' are skipped. Sorting is numeric on both the dotted
-	version and the build (never a plain string sort - '1.7.5_10' must sort
-	newer than '1.7.5_9', which a string compare would get backwards).
+	(folder_label, build_int, folder_path). Folder names that don't match a
+	plain or legacy release label are skipped. Sorting is numeric on both the
+	dotted version and legacy build number.
 	"""
 	releases = []
 	for entry in Path(release_dir).iterdir():
@@ -79,9 +78,8 @@ def list_releases(release_dir):
 		parsed = parse_label(entry.name)
 		if parsed is None:
 			continue
-		version_str = entry.name.rsplit('_', 1)[0]
-		releases.append((version_str, parsed[1], entry))
-	releases.sort(key=lambda r: parse_label('%s_%d' % (r[0], r[1])), reverse=True)
+		releases.append((entry.name, parsed[1], entry))
+	releases.sort(key=lambda release: parse_label(release[0]), reverse=True)
 	return releases
 
 def parse_label(label):
@@ -89,7 +87,7 @@ def parse_label(label):
 	match = _RELEASE_DIR_RE.fullmatch(label)
 	if match is None:
 		return None
-	return _version_tuple(match.group(1)), int(match.group(2))
+	return _version_tuple(match.group(1)), int(match.group(2) or 0)
 
 def list_bundled_releases():
 	"""List the release notes shipped with this installation."""
@@ -113,15 +111,14 @@ def load_release(release_dir, locale_code):
 	with open(locale_file, 'r', encoding='utf-8') as f:
 		return json.load(f)
 
-def render_notes(data):
+def render_notes(data, label=None):
 	"""
-	Renders a loaded release's data as the plain text shown in the viewer
-	(core.textviewer.show_text_in_viewer) - title, '<version>_<build> — date',
-	then one bullet per entry in the 'notes' array.
+	Renders loaded release data as plain text for the viewer. `label` is the
+	release folder name, preserving legacy build suffixes when present.
 	"""
 	lines = [
 		data['title'],
-		'%s_%d — %s' % (data['version'], data['build'], data['date']),
+		'%s — %s' % (label or data['version'], data['date']),
 		'',
 	]
 	lines += ['• %s' % note for note in data['notes']]

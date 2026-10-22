@@ -17,9 +17,9 @@ class UpdateStatus(namedtuple('UpdateStatus', 'installed latest')):
 def installed_label():
 	releases = list_bundled_releases()
 	if releases:
-		version, build, _ = releases[0]
-		return '%s_%d' % (version, build)
-	return FMAN_VERSION + '_0'
+		label, _, _ = releases[0]
+		return label
+	return FMAN_VERSION
 
 
 def check_for_update():

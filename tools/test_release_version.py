@@ -52,12 +52,10 @@ def check_release_version():
         scripts = root / "tools"
         fake_tool = root / "release-tool"
         settings = root / "src" / "build" / "settings"
-        notes = root / "release_notes" / "1.0.0_504"
+        notes = root / "release_notes" / "1.0.0"
         for directory in (scripts / "release", fake_tool, settings, notes):
             directory.mkdir(parents=True)
         (settings / "base.json").write_text('{"version": "1.0.0"}')
-        counter = root / "build_version.txt"
-        counter.write_text("504\n")
         (notes / "en.json").write_text("{}")
         (root / "build.py").write_text(FAKE_BUILD)
         (scripts / "close_running_fman.ps1").write_text(
@@ -99,7 +97,7 @@ def check_release_version():
         try:
             result = run_batch(build)
             assert result.returncode == 0, result.stdout + result.stderr
-            assert record.read_text().strip() == "1.0.0_504", (
+            assert record.read_text().strip() == "1.0.0", (
                 "Build must record its label"
             )
 
@@ -131,7 +129,7 @@ def check_release_version():
                 "Build must skip stacked venvs whose python lacks fbs: "
                 + result.stdout + result.stderr
             )
-            assert record.read_text().strip() == "1.0.0_504"
+            assert record.read_text().strip() == "1.0.0"
             os.environ["PATH"] = os.pathsep.join(
                 [str(fake_tool), str(Path(sys.executable).parent), previous_path]
             )
@@ -140,21 +138,14 @@ def check_release_version():
             else:
                 os.environ["VIRTUAL_ENV"] = previous_virtual_env
 
-            # The source counter moves on (next release in preparation) while
-            # the 504 installer is still waiting to be published.
-            counter.write_text("505\n")
             result = run_batch(publish)
-            assert 'github-release "1.0.0_504"' in result.stdout, (
+            assert 'github-release "1.0.0"' in result.stdout, (
                 result.stdout + result.stderr
             )
-            assert "release_notes\\1.0.0_504\\en.json" in result.stdout, result.stdout
+            assert "release_notes\\1.0.0\\en.json" in result.stdout, result.stdout
             assert result.returncode == UPLOAD_EXIT, (
                 "Publisher must preserve upload failures"
             )
-            assert counter.read_text() == "505\n", (
-                "Publishing must not change the source version"
-            )
-
             (fake_tool / "no_tag").touch()
             result = run_batch(publish)
             assert result.returncode == 1, "An unpushed tag must stop publishing"
@@ -181,8 +172,8 @@ def check_release_version():
             (root / "fail_build").unlink()
 
             # An installer from before the record existed is named explicitly.
-            result = run_batch(publish, "1.0.0_504")
-            assert 'github-release "1.0.0_504"' in result.stdout, (
+            result = run_batch(publish, "1.0.0")
+            assert 'github-release "1.0.0"' in result.stdout, (
                 result.stdout + result.stderr
             )
             assert result.returncode == UPLOAD_EXIT, result.stdout + result.stderr

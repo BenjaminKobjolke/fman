@@ -34,7 +34,7 @@ if not exist "target\fmanSetup.exe" (
 )
 
 REM Recorded only now: github_release.bat publishes this label, not whatever
-REM build_version.txt holds by the time it runs.
+REM base.json holds by the time it runs.
 "%FMAN_PYTHON%" tools\release\build_number.py label > "%RECORD%"
 set "RESULT=%ERRORLEVEL%"
 if not "%RESULT%"=="0" del "%RECORD%"

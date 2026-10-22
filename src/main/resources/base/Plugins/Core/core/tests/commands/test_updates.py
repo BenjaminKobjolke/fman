@@ -18,7 +18,7 @@ class CheckForUpdatesTest(TestCase):
 			self.addCleanup(p.stop)
 		self.patches['load_json'].return_value = {}
 		self.patches['check_for_update'].return_value = UpdateStatus(
-			'1.7.13_2', '1.7.13_3'
+			'1.7.13', '1.8.0'
 		)
 
 	def test_alias(self):
@@ -38,11 +38,11 @@ class CheckForUpdatesTest(TestCase):
 
 	def test_manual_up_to_date_reports_result(self):
 		self.patches['check_for_update'].return_value = UpdateStatus(
-			'1.7.13_3', '1.7.13_3'
+			'1.8.0', '1.8.0'
 		)
 		CheckForUpdates(None)()
 		self.patches['show_alert'].assert_called_once_with(
-			'fman++ 1.7.13_3 is up to date.'
+			'fman++ 1.8.0 is up to date.'
 		)
 
 	def test_manual_failures_report_error(self):
@@ -58,7 +58,7 @@ class CheckForUpdatesTest(TestCase):
 
 	def test_silent_no_update_or_error_is_quiet(self):
 		self.patches['check_for_update'].return_value = UpdateStatus(
-			'1.7.13_3', '1.7.13_3'
+			'1.8.0', '1.8.0'
 		)
 		CheckForUpdates(None)(silent=True)
 		self.patches['check_for_update'].side_effect = URLError('offline')
@@ -70,13 +70,13 @@ class CheckForUpdatesTest(TestCase):
 		self.patches['show_alert'].assert_called_once()
 		self.patches['save_json'].assert_called_once_with('Update Check.json')
 		self.assertEqual(
-			'1.7.13_3', self.patches['load_json'].return_value['announced']
+			'1.8.0', self.patches['load_json'].return_value['announced']
 		)
 		self.patches['show_alert'].reset_mock()
 		CheckForUpdates(None)(silent=True)
 		self.patches['show_alert'].assert_not_called()
 
 	def test_manual_ignores_prior_announcement(self):
-		self.patches['load_json'].return_value = {'announced': '1.7.13_3'}
+		self.patches['load_json'].return_value = {'announced': '1.8.0'}
 		CheckForUpdates(None)()
 		self.patches['show_alert'].assert_called_once()
