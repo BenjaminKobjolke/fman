@@ -15,11 +15,24 @@ class GetIdealColumnWidthsTest(TestCase):
 		self._expect([400, 100], [500, 100], [500, 100], 500, delta_percent=3)
 	def test_maximize_window(self):
 		self._expect([2, 1], [1, 1], [1, 1], 3)
+	def test_fit_name_column_shrinks_middle_column(self):
+		self._expect(
+			[320, 80, 100], [100, 300, 100], [50, 80, 100], 500,
+			fit_name_column=True
+		)
+	def test_fit_name_column_trims_name_first(self):
+		self._expect(
+			[70, 80, 100], [100, 300, 100], [50, 80, 100], 250,
+			fit_name_column=True
+		)
 	def _expect(
-		self, result, widths, min_widths, available_width, delta_percent=0
+		self, result, widths, min_widths, available_width, delta_percent=0,
+		fit_name_column=False
 	):
 		actual = \
-			_get_ideal_column_widths(widths, min_widths, available_width)
+			_get_ideal_column_widths(
+				widths, min_widths, available_width, fit_name_column
+			)
 		self.assertEqual(len(result), len(actual))
 		if delta_percent:
 			for r, a in zip(result, actual):

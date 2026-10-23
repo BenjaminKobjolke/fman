@@ -33,6 +33,11 @@ e.g.:
 
 - The hidden state is stored in `Core Settings.json` under the
   `hide_size_column` / `hide_modified_column` keys.
+- `fit_name_column` in `Core Settings.json` defaults to `true`: Size and
+  Modified shrink to fit their contents and Name takes the remaining width.
+  Set it to `false` to keep manually set column widths. The setting takes
+  effect on the next navigation or restart.
+- Hidden columns no longer reserve width in the file list.
 - Only the Size and Modified columns can be toggled this way — the Name
   column is always shown.
 - Because the column set is owned by the current file system and rebuilt on

@@ -7,6 +7,7 @@ class ResizeColumnsToContents(UniformRowHeights):
 		self.horizontalHeader().sectionResized.connect(self._on_col_resized)
 		self._old_col_widths = None
 		self._handle_col_resize = True
+		self.fit_name_column = True
 	def resizeColumnsToContents(self):
 		self._resize_cols_to_contents()
 	def resizeEvent(self, event):
@@ -38,14 +39,25 @@ class ResizeColumnsToContents(UniformRowHeights):
 	def _on_model_reset(self):
 		self._old_col_widths = None
 	def _resize_cols_to_contents(self, curr_widths=None):
+		visible_columns = self._get_visible_columns()
+		if not visible_columns:
+			return
 		if self._get_rows_visible_but_not_loaded():
 			return
-		if curr_widths is None:
+		if curr_widths is None or len(curr_widths) != self._num_columns:
 			curr_widths = self._get_column_widths()
-		min_widths = self._get_min_col_widths()
+		visible_curr_widths = [curr_widths[c] for c in visible_columns]
+		header = self.horizontalHeader()
+		min_widths = [
+			max(self.sizeHintForColumn(c), header.sectionSizeHint(c))
+			for c in visible_columns
+		]
 		width = self._get_width_excl_scrollbar()
-		ideal_widths = _get_ideal_column_widths(curr_widths, min_widths, width)
-		self._apply_column_widths(ideal_widths)
+		ideal_widths = _get_ideal_column_widths(
+			visible_curr_widths, min_widths, width, self.fit_name_column
+		)
+		for col, col_width in zip(visible_columns, ideal_widths):
+			self.setColumnWidth(col, col_width)
 	def _get_rows_visible_but_not_loaded(self):
 		model = self.model()
 		return [
@@ -72,40 +84,48 @@ class ResizeColumnsToContents(UniformRowHeights):
 		return 0
 	def _get_column_widths(self):
 		return [self.columnWidth(i) for i in range(self._num_columns)]
-	def _get_min_col_widths(self):
-		header = self.horizontalHeader()
-		return [
-			max(self.sizeHintForColumn(c), header.sectionSizeHint(c))
-			for c in range(self._num_columns)
-		]
-	def _apply_column_widths(self, widths):
-		for col, width in enumerate(widths):
-			self.setColumnWidth(col, width)
+	def _get_visible_columns(self):
+		return [c for c in range(self._num_columns) if not self.isColumnHidden(c)]
 	@property
 	def _num_columns(self):
 		return self.horizontalHeader().count()
 	def _on_col_resized(self, col, old_size, size):
 		if old_size == size:
 			return
+		visible_columns = self._get_visible_columns()
+		if col not in visible_columns:
+			return
 		# Prevent infinite recursion:
 		if not self._handle_col_resize:
 			return
 		self._handle_col_resize = False
 		try:
-			widths = self._get_column_widths()
-			widths[col] = old_size
-			min_widths = self._get_min_col_widths()
+			visible_index = visible_columns.index(col)
+			widths = [self.columnWidth(c) for c in visible_columns]
+			widths[visible_index] = old_size
+			header = self.horizontalHeader()
+			min_widths = [
+				max(self.sizeHintForColumn(c), header.sectionSizeHint(c))
+				for c in visible_columns
+			]
 			width = self._get_width_excl_scrollbar()
-			new_widths = _resize_column(col, size, widths, min_widths, width)
-			self._apply_column_widths(new_widths)
+			new_widths = _resize_column(
+				visible_index, size, widths, min_widths, width
+			)
+			for visible_col, col_width in zip(visible_columns, new_widths):
+				self.setColumnWidth(visible_col, col_width)
 		finally:
 			self._handle_col_resize = True
 
-def _get_ideal_column_widths(curr_widths, min_widths, available_width):
+def _get_ideal_column_widths(
+	curr_widths, min_widths, available_width, fit_name_column=False
+):
 	if not min_widths:
 		raise ValueError(repr(min_widths))
 	if len(curr_widths) != len(min_widths):
 		curr_widths = [0] * len(min_widths)
+	if fit_name_column:
+		curr_widths = [curr_widths[0]] + min_widths[1:]
 	result = list(curr_widths)
 	width = sum(curr_widths)
 	min_width = sum(min_widths)

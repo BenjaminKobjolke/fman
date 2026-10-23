@@ -66,6 +66,9 @@ def _apply_column_visibility(pane):
 	# the freed/needed width - that normally only happens on the next
 	# resizeEvent (e.g. the user resizing the window). Force it now so
 	# toggling is visible immediately.
+	view.fit_name_column = get_setting(
+		'Core Settings.json', 'fit_name_column', True
+	)
 	view.resizeColumnsToContents()
 
 def _toggle_column(window, col_qual_name):
