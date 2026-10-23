@@ -3,9 +3,10 @@
 The "Drag to last used app" command sends the selected local files (or the file under the
 cursor) into another app by drag and drop. It works like this:
 
-1. fman picks the most recently used app window and asks you to confirm. Its Help button
-   lists the keyboard controls.
-2. It brings that window to the front and moves the mouse to the window's center.
+1. fman shows up to five recently used app windows in a searchable list. The executable name
+   appears beside each app, and the drag controls appear below the list. Press Enter to choose
+   the highlighted app and start the drag, or Esc to cancel.
+2. It brings the chosen window to the front and moves the mouse to the window's center.
 3. It launches the bundled [windrop](https://github.com/BenjaminKobjolke/windrop) with
    `--keyboard`. The drag starts right away at the window's center: `WASD` or the arrow keys
    move the cursor (hold to keep moving), `Q`, `Space` or `Enter` drop the files, Esc cancels.
