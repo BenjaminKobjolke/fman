@@ -1,0 +1,10 @@
+{
+  "version": "1.8.0",
+  "date": "2026-10-23",
+  "title": "Plynulejší přetahování a rozvržení seznamu souborů",
+  "notes": [
+    "Přetahování souborů do aplikace je jednodušší: můžete vybírat až z pěti naposledy použitých aplikací v seznamu s možností vyhledávání.",
+    "Sloupec s názvem nyní automaticky využívá dostupné místo v seznamu souborů, zatímco skryté sloupce už žádné místo nezabírají.",
+    "Při mazání souborů z prohlížeče se nyní uplatňují aktivní pravidla pro práci se soubory, včetně pravidel zásuvných modulů, které nahrazují přesun do koše trvalým odstraněním."
+  ]
+}

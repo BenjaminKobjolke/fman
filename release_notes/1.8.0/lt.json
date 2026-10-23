@@ -1,0 +1,10 @@
+{
+  "version": "1.8.0",
+  "date": "2026-10-23",
+  "title": "Sklandesnis failų vilkimas ir failų sąrašo išdėstymas",
+  "notes": [
+    "Failus į programą vilkti paprasčiau: galima rinktis iš iki penkių pastaruoju metu naudotų programų sąrašo, kuriame galima atlikti paiešką.",
+    "Pavadinimo stulpelis dabar automatiškai užima laisvą vietą failų sąraše, o paslėpti stulpeliai nebeužima vietos.",
+    "Trinant failus peržiūros programoje dabar laikomasi aktyvių failų operacijų taisyklių, įskaitant papildinius, kurie perkėlimą į šiukšliadėžę pakeičia negrįžtamu ištrynimu."
+  ]
+}

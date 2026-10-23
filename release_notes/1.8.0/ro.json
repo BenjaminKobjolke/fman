@@ -1,0 +1,10 @@
+{
+  "version": "1.8.0",
+  "date": "2026-10-23",
+  "title": "Tragere mai ușoară și aspect îmbunătățit al listei de fișiere",
+  "notes": [
+    "Tragerea fișierelor într-o aplicație este mai ușoară: poți alege dintr-o listă cu funcție de căutare, care include până la cinci aplicații recente.",
+    "Coloana cu numele folosește acum automat spațiul disponibil în lista de fișiere, iar coloanele ascunse nu mai ocupă spațiu.",
+    "Ștergerea fișierelor din vizualizator respectă acum regulile active pentru operațiunile asupra fișierelor, inclusiv pluginurile care înlocuiesc mutarea la coș cu ștergerea definitivă."
+  ]
+}

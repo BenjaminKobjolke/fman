@@ -1,0 +1,10 @@
+{
+  "version": "1.8.0",
+  "date": "2026-10-23",
+  "title": "Kéo thả mượt mà hơn và bố cục danh sách tệp",
+  "notes": [
+    "Kéo tệp vào ứng dụng dễ dàng hơn: chọn trong tối đa năm ứng dụng gần đây bằng danh sách có thể tìm kiếm.",
+    "Cột tên hiện tự động sử dụng phần không gian còn trống trong danh sách tệp, trong khi các cột bị ẩn không còn chiếm chỗ.",
+    "Việc xóa tệp khỏi trình xem giờ đây tuân theo các quy tắc thao tác tệp đang áp dụng, bao gồm cả các plugin thay thế thao tác chuyển vào thùng rác bằng cách xóa vĩnh viễn."
+  ]
+}

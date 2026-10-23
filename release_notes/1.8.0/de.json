@@ -1,0 +1,10 @@
+{
+  "version": "1.8.0",
+  "date": "2026-10-23",
+  "title": "Flüssigeres Ziehen und verbessertes Dateilistenlayout",
+  "notes": [
+    "Dateien lassen sich jetzt einfacher auf eine App ziehen: Wähle aus bis zu fünf zuletzt verwendeten Apps in einer durchsuchbaren Liste aus.",
+    "Die Namensspalte nutzt in der Dateiliste jetzt automatisch den verfügbaren Platz, während ausgeblendete Spalten keinen Platz mehr beanspruchen.",
+    "Beim Löschen von Dateien aus der Dateiansicht werden jetzt die aktiven Regeln für Dateioperationen beachtet – einschließlich Plugins, die das Verschieben in den Papierkorb durch endgültiges Löschen ersetzen."
+  ]
+}

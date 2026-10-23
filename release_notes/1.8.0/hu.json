@@ -1,0 +1,10 @@
+{
+  "version": "1.8.0",
+  "date": "2026-10-23",
+  "title": "Zökkenőmentesebb húzás és fájllista-elrendezés",
+  "notes": [
+    "Mostantól könnyebb fájlokat húzni egy alkalmazásra: egy kereshető listából akár az öt legutóbb használt alkalmazás közül is választhatsz.",
+    "A fájllistában a névoszlop mostantól automatikusan kitölti a rendelkezésre álló helyet, a rejtett oszlopok pedig nem foglalnak el helyet.",
+    "A fájlok törlése a megjelenítőből mostantól figyelembe veszi az aktív fájlműveleti szabályokat, beleértve azokat a bővítményeket is, amelyek a kukába helyezést végleges törlésre cserélik."
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "version": "1.8.0",
+  "date": "2026-10-23",
+  "title": "Smidigare fildragning och layout för fillistan",
+  "notes": [
+    "Det är enklare att dra filer till en app: välj bland upp till fem nyligen använda appar i en sökbar lista.",
+    "Namnkolumnen anpassas nu automatiskt efter det tillgängliga utrymmet i fillistan, medan dolda kolumner inte längre tar upp plats.",
+    "När filer raderas från visningsprogrammet följs nu de aktiva reglerna för filåtgärder, även om insticksprogram ersätter flytt till papperskorgen med permanent borttagning."
+  ]
+}

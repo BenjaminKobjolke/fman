@@ -1,0 +1,10 @@
+{
+  "version": "1.8.0",
+  "date": "2026-10-23",
+  "title": "Plynulejšie presúvanie a rozloženie zoznamu súborov",
+  "notes": [
+    "Presúvanie súborov do aplikácie je jednoduchšie: v zozname s možnosťou vyhľadávania si môžete vybrať až z piatich naposledy použitých aplikácií.",
+    "Stĺpec s názvom teraz automaticky využíva dostupné miesto v zozname súborov, zatiaľ čo skryté stĺpce už nezaberajú miesto.",
+    "Pri odstraňovaní súborov v prehliadači sa teraz dodržiavajú aktívne pravidlá pre operácie so súbormi vrátane pravidiel doplnkov, ktoré nahrádzajú presun do koša trvalým odstránením."
+  ]
+}

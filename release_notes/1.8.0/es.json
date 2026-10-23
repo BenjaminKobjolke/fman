@@ -1,0 +1,10 @@
+{
+  "version": "1.8.0",
+  "date": "2026-10-23",
+  "title": "Arrastrar archivos con más facilidad y diseño mejorado de la lista",
+  "notes": [
+    "Ahora es más fácil arrastrar archivos a una aplicación: puedes elegir entre hasta cinco aplicaciones recientes en una lista con búsqueda.",
+    "La columna del nombre ahora ocupa automáticamente el espacio disponible en la lista de archivos, mientras que las columnas ocultas ya no reservan espacio.",
+    "Al eliminar archivos desde el visor, ahora se respetan las reglas activas para las operaciones con archivos, incluidos los complementos que sustituyen el envío a la papelera por la eliminación permanente."
+  ]
+}

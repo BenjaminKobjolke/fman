@@ -1,0 +1,10 @@
+{
+  "version": "1.8.0",
+  "date": "2026-10-23",
+  "title": "Daha akıcı sürükleme ve dosya listesi düzeni",
+  "notes": [
+    "Dosyaları bir uygulamaya sürüklemek artık daha kolay: aranabilir bir listeden en son kullandığınız beş uygulamaya kadar seçim yapabilirsiniz.",
+    "Dosya listesindeki ad sütunu artık kullanılabilir alanı otomatik olarak kullanıyor; gizli sütunlar ise artık yer kaplamıyor.",
+    "Görüntüleyicideki dosyaları silmek artık etkin dosya işlemi kurallarına uyuyor. Buna, dosyaları çöp kutusuna taşımak yerine kalıcı olarak silen eklentiler de dâhil."
+  ]
+}

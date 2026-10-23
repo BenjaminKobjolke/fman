@@ -1,0 +1,10 @@
+{
+  "version": "1.8.0",
+  "date": "2026-10-23",
+  "title": "Vloeiender slepen en een betere indeling van de bestandslijst",
+  "notes": [
+    "Bestanden naar een app slepen is nu eenvoudiger: kies uit maximaal vijf recent gebruikte apps in een doorzoekbare lijst.",
+    "De naamkolom benut nu automatisch de beschikbare ruimte in de bestandslijst, terwijl verborgen kolommen geen ruimte meer innemen.",
+    "Bestanden verwijderen vanuit de viewer volgt nu de actieve regels voor bestandsbewerkingen, waaronder plug-ins die verwijderen naar de prullenbak vervangen door permanent verwijderen."
+  ]
+}

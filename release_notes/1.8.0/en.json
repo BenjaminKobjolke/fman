@@ -1,0 +1,10 @@
+{
+  "version": "1.8.0",
+  "date": "2026-10-23",
+  "title": "Smoother dragging and file-list layout",
+  "notes": [
+    "Dragging files to an app is easier: choose from up to five recent apps with a searchable list.",
+    "The name column now automatically uses the available space in the file list, while hidden columns no longer reserve room.",
+    "Deleting files from the viewer now respects the active file-operation rules, including plugins that replace trashing with permanent deletion."
+  ]
+}

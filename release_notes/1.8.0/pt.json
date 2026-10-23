@@ -1,0 +1,10 @@
+{
+  "version": "1.8.0",
+  "date": "2026-10-23",
+  "title": "Arrastar mais facilmente e nova disposição da lista de ficheiros",
+  "notes": [
+    "É mais fácil arrastar ficheiros para uma aplicação: escolha entre até cinco aplicações recentes através de uma lista pesquisável.",
+    "A coluna do nome passa agora a utilizar automaticamente o espaço disponível na lista de ficheiros, enquanto as colunas ocultas deixam de reservar espaço.",
+    "A eliminação de ficheiros no visualizador respeita agora as regras ativas para operações com ficheiros, incluindo os plug-ins que substituem o envio para o lixo pela eliminação permanente."
+  ]
+}

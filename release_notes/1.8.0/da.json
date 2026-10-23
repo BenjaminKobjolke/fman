@@ -1,0 +1,10 @@
+{
+  "version": "1.8.0",
+  "date": "2026-10-23",
+  "title": "Mere smidig træk-og-slip og fillistelayout",
+  "notes": [
+    "Det er nu nemmere at trække filer til en app: Vælg mellem op til fem senest brugte apps på en liste, du kan søge i.",
+    "Navnekolonnen bruger nu automatisk den tilgængelige plads på fillisten, mens skjulte kolonner ikke længere optager plads.",
+    "Når du sletter filer fra visningen, følger sletningen nu de aktive regler for filhandlinger, herunder plugins, der erstatter flytning til papirkurven med permanent sletning."
+  ]
+}

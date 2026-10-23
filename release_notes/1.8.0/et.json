@@ -1,0 +1,10 @@
+{
+  "version": "1.8.0",
+  "date": "2026-10-23",
+  "title": "Sujuvam lohistamine ja faililoendi paigutus",
+  "notes": [
+    "Failide rakendusse lohistamine on nüüd lihtsam: saad otsitavast loendist valida kuni viie hiljuti kasutatud rakenduse seast.",
+    "Nimeveerg kasutab nüüd faililoendis automaatselt ära saadaoleva ruumi, peidetud veerud aga ei võta enam ruumi.",
+    "Failide vaaturist kustutamisel arvestatakse nüüd aktiivsete failitoimingute reeglitega, sealhulgas pluginatega, mis asendavad prügikasti teisaldamise jäädava kustutamisega."
+  ]
+}

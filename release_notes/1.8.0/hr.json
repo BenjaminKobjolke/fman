@@ -1,0 +1,10 @@
+{
+  "version": "1.8.0",
+  "date": "2026-10-23",
+  "title": "Fluidnije povlačenje i bolji raspored popisa datoteka",
+  "notes": [
+    "Povlačenje datoteka u aplikaciju sada je jednostavnije: odaberite neku od najviše pet nedavno korištenih aplikacija s popisa koji možete pretraživati.",
+    "Stupac s nazivom sada automatski koristi raspoloživi prostor na popisu datoteka, a skriveni stupci više ne zauzimaju prostor.",
+    "Brisanje datoteka iz preglednika sada poštuje aktivna pravila za operacije nad datotekama, uključujući dodatke koji premještanje u smeće zamjenjuju trajnim brisanjem."
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "version": "1.8.0",
+  "date": "2026-10-23",
+  "title": "Glisser-déposer plus fluide et mise en page de la liste des fichiers",
+  "notes": [
+    "Il est désormais plus facile de faire glisser des fichiers vers une application : choisissez parmi cinq applications récentes, au maximum, dans une liste avec recherche.",
+    "La colonne du nom utilise désormais automatiquement l’espace disponible dans la liste des fichiers, tandis que les colonnes masquées ne réservent plus d’espace.",
+    "La suppression de fichiers depuis la visionneuse respecte désormais les règles actives de gestion des fichiers, y compris les extensions qui remplacent la mise à la corbeille par une suppression définitive."
+  ]
+}

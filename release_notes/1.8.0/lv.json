@@ -1,0 +1,10 @@
+{
+  "version": "1.8.0",
+  "date": "2026-10-23",
+  "title": "Ērtāka vilkšana un failu saraksta izkārtojums",
+  "notes": [
+    "Failu vilkšana uz lietotni tagad ir vienkāršāka: izvēlieties kādu no līdz piecām nesen izmantotajām lietotnēm, izmantojot meklējamu sarakstu.",
+    "Nosaukuma kolonna tagad automātiski aizņem failu sarakstā pieejamo vietu, bet paslēptās kolonnas vairs neaizņem vietu.",
+    "Dzēšot failus skatītājā, tagad tiek ievēroti aktīvie failu darbību noteikumi, tostarp spraudņi, kas pārvietošanas uz miskasti vietā veic neatgriezenisku dzēšanu."
+  ]
+}

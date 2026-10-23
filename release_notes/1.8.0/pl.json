@@ -1,0 +1,10 @@
+{
+  "version": "1.8.0",
+  "date": "2026-10-23",
+  "title": "Płynniejsze przeciąganie i układ listy plików",
+  "notes": [
+    "Przeciąganie plików do aplikacji jest teraz łatwiejsze: możesz wybrać jedną z maksymalnie pięciu ostatnio używanych aplikacji z przeszukiwanej listy.",
+    "Kolumna nazwy automatycznie wykorzystuje teraz dostępną przestrzeń na liście plików, a ukryte kolumny nie zajmują już miejsca.",
+    "Usuwanie plików z podglądu uwzględnia teraz aktywne reguły operacji na plikach, w tym wtyczki, które zastępują przenoszenie do kosza trwałym usunięciem."
+  ]
+}

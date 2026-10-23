@@ -1,0 +1,10 @@
+{
+  "version": "1.8.0",
+  "date": "2026-10-23",
+  "title": "Sujuvampaa vetämistä ja tiedostoluettelon asettelua",
+  "notes": [
+    "Tiedostojen vetäminen sovellukseen on helpompaa: voit valita sovelluksen haettavasta luettelosta, jossa näkyy enintään viisi viimeksi käytettyä sovellusta.",
+    "Nimi-sarake käyttää nyt automaattisesti tiedostoluettelossa olevan vapaan tilan, eivätkä piilotetut sarakkeet enää varaa tilaa.",
+    "Tiedostojen poistamisessa katseluohjelmasta noudatetaan nyt aktiivisia tiedostotoimintojen sääntöjä. Tämä koskee myös lisäosia, jotka korvaavat roskakoriin siirtämisen pysyvällä poistamisella."
+  ]
+}

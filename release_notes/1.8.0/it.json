@@ -1,0 +1,10 @@
+{
+  "version": "1.8.0",
+  "date": "2026-10-23",
+  "title": "Trascinamento più fluido e layout dell’elenco file",
+  "notes": [
+    "Trascinare i file su un’app è più semplice: puoi scegliere tra un massimo di cinque app recenti usando un elenco con funzione di ricerca.",
+    "Ora la colonna Nome utilizza automaticamente lo spazio disponibile nell’elenco file, mentre le colonne nascoste non occupano più spazio.",
+    "L’eliminazione dei file dal visualizzatore ora rispetta le regole attive per le operazioni sui file, inclusi i plugin che sostituiscono lo spostamento nel cestino con l’eliminazione definitiva."
+  ]
+}

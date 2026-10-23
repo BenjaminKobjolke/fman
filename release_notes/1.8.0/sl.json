@@ -1,0 +1,10 @@
+{
+  "version": "1.8.0",
+  "date": "2026-10-23",
+  "title": "Enostavnejše vlečenje in postavitev seznama datotek",
+  "notes": [
+    "Vlečenje datotek v aplikacijo je zdaj enostavnejše: izberete lahko med največ petimi nedavnimi aplikacijami na seznamu, po katerem je mogoče iskati.",
+    "Stolpec z imeni zdaj samodejno uporabi razpoložljivi prostor na seznamu datotek, skriti stolpci pa ne zasedajo več prostora.",
+    "Brisanje datotek iz pregledovalnika zdaj upošteva aktivna pravila za operacije z datotekami, vključno z vtičniki, ki premik v koš nadomestijo s trajnim brisanjem."
+  ]
+}

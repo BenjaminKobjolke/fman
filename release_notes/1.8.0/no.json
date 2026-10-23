@@ -1,0 +1,10 @@
+{
+  "version": "1.8.0",
+  "date": "2026-10-23",
+  "title": "Smidigere dra-og-slipp og fillisteoppsett",
+  "notes": [
+    "Det er enklere å dra filer til en app: Velg blant opptil fem nylig brukte apper i en søkbar liste.",
+    "Navnekolonnen tilpasser seg nå automatisk den tilgjengelige plassen i fillisten, mens skjulte kolonner ikke lenger opptar plass.",
+    "Sletting av filer fra visningsprogrammet følger nå de aktive reglene for filoperasjoner, inkludert programtillegg som erstatter flytting til papirkurven med permanent sletting."
+  ]
+}
