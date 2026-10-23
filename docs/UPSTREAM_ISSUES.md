@@ -13,3 +13,8 @@ Status: `fixed`, `already fixed` (works here already), `skipped` (with reason),
 
 | Issue | Title | Labels | Status | Date | Note |
 |-------|-------|--------|--------|------|------|
+| [#1](https://github.com/mherrmann/fman/issues/1) | Icons have a low resolution | bug, mac, 5 votes | skipped | 2026-10-23 | macOS/Linux Finder `.icns` issue; Windows icons come from the shell or crisp vector icons. |
+| [#3](https://github.com/mherrmann/fman/issues/3) | Trying to delete un-deletable file raises exception | bug, linux, 2 votes | already fixed | 2026-10-23 | Core deletion reports access errors and offers UAC elevation for protected files. |
+| [#5](https://github.com/mherrmann/fman/issues/5) | Try deleting un-deletable file: fman freezes | bug, mac | skipped | 2026-10-23 | macOS-only report; deletion runs as a background task here. |
+| [#8](https://github.com/mherrmann/fman/issues/8) | Can't resize fman to width < status bar | bug | fixed | 2026-10-23 | `widgets.py` MainWindow status bar label; `status_bar_test.py`. |
+| [#9](https://github.com/mherrmann/fman/issues/9) | Can't enter "^" and "~" with a Swedish keyboard layout | bug, linux, 2 votes | skipped | 2026-10-23 | Linux-only keyboard-layout report; upstream comments confirm it works on Windows. |
