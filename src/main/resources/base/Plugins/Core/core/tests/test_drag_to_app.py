@@ -4,13 +4,15 @@ from unittest import TestCase, skipUnless
 from unittest.mock import patch
 
 from fbs_runtime.platform import is_windows
+from fman import QuicksearchItem
 
 from core.commands.drag_to_app import (
 	_BUNDLED_WINDROP,
 	_Window,
+	_choose_target,
 	_enumerate_windows,
 	_find_windrop,
-	_pick_target,
+	_pick_targets,
 	_windrop_command,
 )
 
@@ -73,7 +75,7 @@ class PickTargetTest(TestCase):
 			_Window(3, 30, 'second', True, False, False, False, False),
 		]
 
-		self.assertEqual(windows[1], _pick_target(windows, own_pid=10))
+		self.assertEqual([windows[1], windows[2]], _pick_targets(windows, own_pid=10))
 
 	def test_skips_ineligible_windows(self):
 		windows = [
@@ -86,7 +88,7 @@ class PickTargetTest(TestCase):
 			_Window(7, 70, 'eligible', True, False, False, False, False),
 		]
 
-		self.assertEqual(windows[-1], _pick_target(windows, own_pid=10))
+		self.assertEqual([windows[-1]], _pick_targets(windows, own_pid=10))
 
 	def test_returns_none_when_no_window_qualifies(self):
 		windows = [
@@ -94,15 +96,76 @@ class PickTargetTest(TestCase):
 			_Window(2, 20, 'minimized', True, True, False, False, False),
 		]
 
-		self.assertIsNone(_pick_target(windows, own_pid=10))
+		self.assertEqual([], _pick_targets(windows, own_pid=10))
 
 	def test_prefers_normal_window_over_topmost(self):
 		clock = _Window(1, 20, 'clock', True, False, False, False, True)
 		thunderbird = _Window(2, 30, 'Thunderbird', True, False, False, False, False)
 
-		self.assertEqual(thunderbird, _pick_target([clock, thunderbird], own_pid=10))
+		self.assertEqual(
+			[thunderbird, clock], _pick_targets([clock, thunderbird], own_pid=10)
+		)
 
 	def test_falls_back_to_topmost_when_no_normal_window(self):
 		clock = _Window(1, 20, 'clock', True, False, False, False, True)
 
-		self.assertEqual(clock, _pick_target([clock], own_pid=10))
+		self.assertEqual([clock], _pick_targets([clock], own_pid=10))
+
+	def test_returns_at_most_five_eligible_windows_in_z_order(self):
+		windows = [
+			_Window(i, i, 'window %d' % i, True, False, False, False, False)
+			for i in range(1, 8)
+		]
+
+		self.assertEqual(windows[:5], _pick_targets(windows, own_pid=0))
+
+	def test_puts_topmost_windows_after_normal_windows(self):
+		topmost = _Window(1, 1, 'topmost', True, False, False, False, True)
+		normal = _Window(2, 2, 'normal', True, False, False, False, False)
+
+		self.assertEqual(
+			[normal, topmost], _pick_targets([topmost, normal], own_pid=0)
+		)
+
+
+class ChooseTargetTest(TestCase):
+	def test_returns_window_from_quicksearch_result(self):
+		window = _Window(1, 42, 'Editor', True, False, False, False, False)
+
+		with patch(
+			'core.commands.drag_to_app._get_exe_name', return_value='editor.exe'
+		), \
+		     patch('core.commands.drag_to_app.show_quicksearch',
+		           side_effect=lambda get_items: ('', window)) as quicksearch:
+			self.assertIs(window, _choose_target([window], file_count=2))
+			items = list(quicksearch.call_args.args[0](''))
+			self.assertEqual(1, len(items))
+			self.assertIsInstance(items[0], QuicksearchItem)
+			self.assertIs(window, items[0].value)
+			self.assertEqual('Editor', items[0].title)
+			self.assertEqual('editor.exe', items[0].hint)
+			self.assertIn('Drag 2 files to the selected app', items[0].description)
+			self.assertIn('WASD / arrow keys', items[0].description)
+
+	def test_returns_none_when_quicksearch_is_cancelled(self):
+		window = _Window(1, 42, 'Editor', True, False, False, False, False)
+
+		with patch(
+			'core.commands.drag_to_app._get_exe_name', return_value='editor.exe'
+		), \
+		     patch('core.commands.drag_to_app.show_quicksearch', return_value=None):
+			self.assertIsNone(_choose_target([window], file_count=1))
+
+	def test_filter_matches_exe_name(self):
+		window = _Window(1, 42, 'Visual Studio', True, False, False, False, False)
+
+		def choose(get_items):
+			items = list(get_items('CODE'))
+			self.assertEqual([window], [item.value for item in items])
+			return ('CODE', window)
+
+		with patch(
+			'core.commands.drag_to_app._get_exe_name', return_value='Code.exe'
+		), \
+		     patch('core.commands.drag_to_app.show_quicksearch', side_effect=choose):
+			self.assertIs(window, _choose_target([window], file_count=1))

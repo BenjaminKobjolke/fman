@@ -1,21 +1,18 @@
-"""Hand selected local files to windrop, aimed at the last used app window.
+"""Hand selected local files to windrop, aimed at one of the last five apps.
 
 A drag fman fakes with DoDragDrop (no mouse button held) is rejected by many
 apps. windrop (github.com/BenjaminKobjolke/windrop) shows a small card at the
 cursor that the user drags from with the real mouse, so fman only focuses the
 target, puts the cursor on its center and launches windrop there.
 """
-from fman import APP_NAME, DirectoryPaneCommand, show_alert
+from fman import (
+	DirectoryPaneCommand, QuicksearchItem, show_alert, show_quicksearch
+)
 from fbs_runtime.platform import is_windows
-from fman.impl.util.qt.thread import run_in_main_thread
 from fman.url import as_human_readable, splitscheme
-from fman.impl.widgets import MessageBox
 
 from collections import namedtuple
 from core.settings import SETTINGS_FILE, get_setting
-
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QMessageBox
 
 import ctypes
 import ctypes.wintypes
@@ -37,7 +34,7 @@ _BUNDLED_WINDROP = os.path.join(
 
 
 class DragToLastUsedApp(DirectoryPaneCommand):
-	"""Focus the last used app and open windrop on its center for the files."""
+	"""Pick a recent app and open windrop on its center for the files."""
 
 	aliases = 'Drag to last used app',
 
@@ -61,23 +58,19 @@ class DragToLastUsedApp(DirectoryPaneCommand):
 			)
 			return
 		paths = [as_human_readable(url) for url in chosen]
-		target = _pick_target(_enumerate_windows(), os.getpid())
-		if target is None:
+		targets = _pick_targets(_enumerate_windows(), os.getpid())
+		if not targets:
 			show_alert('No other app window found.')
+			return
+		main_window = self.pane.window._widget
+		target = _choose_target(targets, len(paths))
+		if target is None:
+			main_window.raise_()
+			main_window.activateWindow()
 			return
 		hwnd = target.hwnd
 		import win32api
-		import win32con
 		import win32gui
-		win32gui.SetWindowPos(
-			hwnd, win32con.HWND_TOP, 0, 0, 0, 0,
-			win32con.SWP_NOMOVE | win32con.SWP_NOSIZE |
-			win32con.SWP_NOACTIVATE
-		)
-		main_window = self.pane.window._widget
-		if not _confirm_drag(
-				main_window, len(paths), target.title, _get_exe_name(target.pid)):
-			return
 		win32gui.SetForegroundWindow(hwnd)
 		left, top, right, bottom = win32gui.GetWindowRect(hwnd)
 		# windrop opens its card at the cursor.
@@ -98,60 +91,35 @@ def _find_windrop():
 
 
 def _windrop_command(windrop, paths):
-	# The user already confirmed the target, so windrop engages the drag at
+	# The user already chose the target, so windrop engages the drag at
 	# once and the keyboard steers it.
 	return [windrop, '--keyboard', *paths]
 
 
-def _new_drag_message_box():
-	box = MessageBox(None)
-	box.setWindowFlags(box.windowFlags() | Qt.WindowStaysOnTopHint)
-	return box
-
-
-@run_in_main_thread
-def _confirm_drag(main_window, file_count, title, exe):
+def _choose_target(targets, file_count):
 	file_word = 'file' if file_count == 1 else 'files'
-	exe_text = ' (%s)' % exe if exe else ''
-	box = _new_drag_message_box()
-	box.setWindowTitle('Confirm drag')
-	box.setIcon(QMessageBox.Question)
-	box.setText(
-		'Drag %d %s to "%s"%s?' % (file_count, file_word, title, exe_text)
-	)
-	box.setStandardButtons(
-		QMessageBox.Ok | QMessageBox.Cancel | QMessageBox.Help
-	)
-	box.setDefaultButton(QMessageBox.Ok)
-	box.raise_()
-	box.activateWindow()
-	while True:
-		result = box.exec_()
-		if result != QMessageBox.Help:
-			break
-		_show_drag_help()
-	accepted = result == QMessageBox.Ok
-	if not accepted:
-		main_window.raise_()
-		main_window.activateWindow()
-	return accepted
-
-
-def _show_drag_help():
-	box = _new_drag_message_box()
-	box.setWindowTitle('Drag controls')
-	box.setIcon(QMessageBox.Information)
-	box.setStandardButtons(QMessageBox.Ok)
-	box.setText(
-		'After you click OK, ' + APP_NAME +
-		' brings the window to the front and starts the ' +
-		'drag at its center.\n\n'
+	description = (
+		'Drag %d %s to the selected app\n\n' % (file_count, file_word) +
 		'WASD / arrow keys: move the cursor (hold to keep moving)\n'
 		'Q / Space / Enter: drop the files\n'
 		'Esc: cancel\n'
 		'Moving the real mouse and clicking also drops.'
 	)
-	box.exec_()
+	items = [
+		(window, _get_exe_name(window.pid)) for window in targets
+	]
+
+	def get_items(query):
+		query = query.lower()
+		return (
+			QuicksearchItem(
+				window, title=window.title, hint=exe, description=description
+			)
+			for window, exe in items
+			if query in window.title.lower() or query in exe.lower()
+		)
+	result = show_quicksearch(get_items)
+	return result[1] if result else None
 
 
 def _get_exe_name(pid):
@@ -234,7 +202,7 @@ def _is_cloaked(hwnd):
 		return False
 
 
-def _pick_target(windows, own_pid):
+def _pick_targets(windows, own_pid, limit=5):
 	eligible = []
 	for window in windows:
 		# ponytail: skip minimized windows until restore-and-confirm support exists.
@@ -243,5 +211,6 @@ def _pick_target(windows, own_pid):
 		if (window.visible and not window.tool_window and not window.cloaked and
 				window.title and window.pid != own_pid):
 			eligible.append(window)
-	return next((window for window in eligible if not window.topmost),
-	            eligible[0] if eligible else None)
+	normal = [window for window in eligible if not window.topmost]
+	topmost = [window for window in eligible if window.topmost]
+	return (normal + topmost)[:limit]
