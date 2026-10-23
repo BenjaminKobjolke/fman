@@ -99,6 +99,8 @@ dependency or binary; license and version are the user's decision, as in royi-sy
 
 ## Gotchas
 
+- `gh issue view <n> --comments` prints only the comments, not the issue body; read the body
+  with `gh issue view <n> -R mherrmann/fman --json title,body --jq '.title, .body'`.
 - Upstream code may not be fully merged. Check
   `git rev-list --count HEAD..upstream/main`. When it is not 0, an issue may already be
   fixed in an unmerged upstream commit. Check
