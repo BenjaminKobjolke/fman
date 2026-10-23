@@ -378,6 +378,8 @@ class MainWindow(QMainWindow):
 		self.setCentralWidget(self._splitter)
 		self._status_bar = QStatusBar(self)
 		self._status_bar_text = QLabel(self._status_bar)
+		# QLabel's minimum width follows its text, which can stop the window narrowing.
+		self._status_bar_text.setMinimumWidth(1)
 		self._status_bar_text.setOpenExternalLinks(True)
 		self._status_bar.addWidget(self._status_bar_text)
 		self._status_bar.setSizeGripEnabled(False)

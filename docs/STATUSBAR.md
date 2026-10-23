@@ -51,6 +51,8 @@ Bind it to a key like any other command
 
 ### Notes
 
+- **Long messages are cut off at the window edge.** They never prevent the
+  window from being made narrower.
 - **Messages are not lost, just not drawn.** fman and plugins keep calling
   `show_status_message(...)` while the bar is hidden; the text is set on a
   widget nobody can see, and the latest one is there when you bring the bar
