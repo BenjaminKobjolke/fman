@@ -66,9 +66,19 @@ Choose one verdict:
   behavior change that needs a product decision. Record what it needs.
 
 Record every non-`fix` verdict in the ledger immediately. Then show the user all five
-verdicts in one short table. Ask before starting any `deferred` issue, or adding any new
-dependency or binary; license and version are the user's decision, as in royi-sync step
-5.5. Proceed with `fix` issues without asking.
+verdicts in one short table. For each `deferred` issue:
+
+- **Interactive chat:** list the deferred issues and ask for each, "Create a todo for it?"
+  On yes, call `mcp__tickets__todosCreate {body: {project_id: 251, type: "implementation",
+  status: "open", title: "Upstream #<n>: <title>", description: <what it needs + issue link>}}`.
+- **Watcher run:** when a `tickets/<id>/` instruction file drives the run, nobody can answer.
+  Do not start the issue or call `todosCreate`. Add one undated item per deferred issue to
+  that run's `todosReport` `suggestions`, with `title` as above, `description` saying what it
+  needs, the upstream link and `From todo #<id>`, `project_id: 251`, and no `scheduled_at`.
+  List each under `## Suggested follow-ups` as `undated: <title>`.
+
+Ask before adding any new dependency or binary; license and version are the user's decision,
+as in royi-sync step 5.5. Proceed with `fix` issues without asking.
 
 ## Step 4 — fix, one issue at a time
 
@@ -79,6 +89,7 @@ dependency or binary; license and version are the user's decision, as in royi-sy
 3. Run the test bats named by project `CLAUDE.md` for the changed area, then
    `tools\analyze_changed_and_new_files.bat`. Do not run `python build.py test`; it
    always exits 0 and has a known hang.
+   For one Core module use `tools\run_core_tests.bat core.tests.<module>`; never bare `python`/`pytest`.
 4. If a fix proves larger than expected, stop that fix, record it as `deferred` with what
    you learned, and move on to the next issue.
 
@@ -111,3 +122,5 @@ dependency or binary; license and version are the user's decision, as in royi-sy
 - Many old issues concern the closed-source era: licensing, purchase flow, the website
   or auto-update servers. Record these as `skipped`; `docs/PURCHASING.md` covers what
   this fork did.
+- `ModuleNotFoundError: fbs_runtime` means the wrong Python is running, usually the watcher's
+  venv, not that the package is missing. Use the test bats, which remove the inherited venv.
