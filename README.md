@@ -133,17 +133,11 @@ These are the ones maintained on this account.
 |---|---|
 | Search files with Everything (voidtools). Windows only. |  |
 
-### [FuzzySearchFilesInCurrentFolder](https://github.com/BenjaminKobjolke/FuzzySearchFilesInCurrentFolder)
+### [JustSearch](https://github.com/BenjaminKobjolke/JustSearch)
 
 | | |
 |---|---|
-| Fuzzy-locate files and folders below the current directory. |  |
-
-### [fman-search-window-2022](https://github.com/BenjaminKobjolke/fman-search-window-2022)
-
-| | |
-|---|---|
-| File search with the results in their own window. |  |
+| Find files and folders below the current directory by words, wildcards, regex, fuzzy match or file content. Results in their own window or flat in the pane. Replaces FuzzySearchFilesInCurrentFolder and fman-search-window-2022. |  |
 
 ### [FMAN-FilterByDate](https://github.com/BenjaminKobjolke/FMAN-FilterByDate)
 
