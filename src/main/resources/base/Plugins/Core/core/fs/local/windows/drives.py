@@ -7,6 +7,8 @@ from fman.url import as_url, splitscheme
 import ctypes
 import string
 
+_DRIVE_REMOTE = 4
+
 class DrivesFileSystem(FileSystem):
 
 	scheme = 'drives://'
@@ -68,6 +70,8 @@ class DriveName(Column):
 		return path == DrivesFileSystem.NETWORK, self.get_str(url).lower()
 	def _get_volume_name(self, volume_path):
 		kernel32 = windll.kernel32
+		if kernel32.GetDriveTypeW(ctypes.c_wchar_p(volume_path)) == _DRIVE_REMOTE:
+			return ''
 		buffer = ctypes.create_unicode_buffer(1024)
 		if not kernel32.GetVolumeInformationW(
 			ctypes.c_wchar_p(volume_path), buffer, ctypes.sizeof(buffer),
