@@ -38,6 +38,9 @@ After touching `tools/close_running_fman.ps1` or `tools/build_windows.bat`, run
 After touching `tools/release/build_number.py`, run
 `python tools/test_build_number.py`.
 
+After touching `tools/create_media/build_app_icons.py`, run
+`python tools/test_build_app_icons.py`.
+
 After touching `src/build/python/build_impl/mac.py`, `tools/sign_mac.sh`,
 `tools/build_mac.sh` or `tools/github_release_mac.sh`, run
 `python tools/test_build_mac.py`.
