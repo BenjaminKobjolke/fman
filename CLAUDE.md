@@ -30,6 +30,8 @@ they are intentionally referenced, not imported.
 
 `tools\run_tests.bat` runs all of `fman_unittest` offscreen (~5 s). The `run_*_tests.bat` watcher commands use `tools\unittest_with_timeout.bat`, which drops the watcher's venv and stops a test after 120 s. `python build.py test` is not a usable check because fbs ignores the result and always exits 0.
 
+For one Core test module, run `tools\run_core_tests.bat core.tests.fs.test_drives`. Never run bare `python` or `pytest` on a test file: watcher runs use the watcher's venv, which reports `fbs_runtime` missing even though it is installed in the system Python.
+
 After touching `tools/close_running_fman.ps1` or `tools/build_windows.bat`, run
 `python tools/test_close_running_fman.py`.
 
